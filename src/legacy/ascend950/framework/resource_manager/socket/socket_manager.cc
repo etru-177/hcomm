@@ -481,12 +481,15 @@ std::unordered_map<PortData, shared_ptr<Socket>> &SocketManager::GetServerSocket
     return serverSocketMap;
 }
 
-bool SocketManager::CheckServerPortListening(const PortData &portData) const
+bool SocketManager::CheckServerPortListening(const PortData &portData, const uint32_t port) const
 {
     std::lock_guard<std::mutex> lock(socketLock);
     auto &serverSocketMap = SocketManager::GetServerSocketMap();
     auto iterSocket = serverSocketMap.find(portData);
     if (iterSocket == serverSocketMap.end()) {
+        return false;
+    }
+    if (iterSocket->second->GetListenPort() != port) {
         return false;
     }
     return true;

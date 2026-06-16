@@ -182,3 +182,12 @@ TEST_F(SocketManagerTest, test_BatchCreateSockets_with_SocketConfig) {
     socketMgr.BatchCreateSockets(socketConfig);
     socketMgr.GetConnectedSocket(socketConfig);
 }
+
+TEST_F(SocketManagerTest, test_CheckServerPortListening_When_Port_Inconsistent_Expected_False) {
+    SocketManager socketMgr(localRank, devicePhyId, devicePhyId, "tmp");
+    auto link = links[0];
+    auto &serverSocketMap = SocketManager::GetServerSocketMap();
+    serverSocketMap[link.GetLocalPort()] = std::make_shared<Socket>(hccpSocketHandle, link.GetLocalPort().GetAddr(), 60001, link.GetRemotePort().GetAddr(), "test", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+    bool isListen = socketMgr.CheckServerPortListening(link.GetLocalPort(), 60002);
+    EXPECT_FALSE(isListen);
+}

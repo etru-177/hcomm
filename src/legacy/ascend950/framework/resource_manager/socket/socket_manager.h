@@ -64,7 +64,7 @@ public:
 
     Socket *GetConnectedSocket(const SocketConfig &socketConfig) const;
 
-    bool CheckServerPortListening(const PortData &portData) const;
+    bool CheckServerPortListening(const PortData &portData, const uint32_t port) const;
 
     void DestroyAll();
 

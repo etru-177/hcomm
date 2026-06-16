@@ -85,7 +85,7 @@ HcclResult ServerSocketManager::DeviceSocketListen(const Hccl::PortData& localPo
         EXCEPTION_CATCH(socketMgrCompat_ = std::make_unique<Hccl::SocketManager>(), return HCCL_E_INTERNAL);
     }
     // 查询socketMgrCompat_，如果查询到已有serversocket，？new一个空壳，放进map里面，计数+1
-    bool isListen = socketMgrCompat_->CheckServerPortListening(localPort);
+    bool isListen = socketMgrCompat_->CheckServerPortListening(localPort, requestedPort);
 
     Hccl::SocketHandle socketHandle{};
     EXCEPTION_CATCH(
@@ -140,7 +140,7 @@ HcclResult ServerSocketManager::DeviceSocketStopListen(const Hccl::PortData& loc
             if (socketMgrCompat_ == nullptr) {
                 EXCEPTION_CATCH(socketMgrCompat_ = std::make_unique<Hccl::SocketManager>(), return HCCL_E_INTERNAL);
             }
-            bool isListen = socketMgrCompat_->CheckServerPortListening(localPort);
+            bool isListen = socketMgrCompat_->CheckServerPortListening(localPort, port);
             if (isListen) {
                 Hccl::PortData portDataCopy(
                     localPort.GetRankId(), localPort.GetType(), localPort.GetProto(), localPort.GetId(), localPort.GetAddr());

@@ -1507,7 +1507,7 @@ Socket *SocketManager::GetConnectedSocket(const SocketConfig &socketConfig) cons
     return nullptr;
 }
 
-bool SocketManager::CheckServerPortListening(const PortData &portData) const
+bool SocketManager::CheckServerPortListening(const PortData &portData, const uint32_t port) const
 {
     return true;
 }
