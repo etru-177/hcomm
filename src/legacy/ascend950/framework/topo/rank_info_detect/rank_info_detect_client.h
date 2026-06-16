@@ -23,6 +23,12 @@
 
 namespace Hccl {
 
+#ifdef OPEN_HCCL_TEST
+const u32 WAIT_ERROR_BROADCAST_TIME = 1;
+#else
+const u32 WAIT_ERROR_BROADCAST_TIME = 20;
+#endif
+
 class RankInfoDetectClient {
 public:
     RankInfoDetectClient(u32 devPhyId, u32 rankSize, u32 rankId, const std::shared_ptr<Socket> &clientSocket)

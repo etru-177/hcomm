@@ -478,7 +478,7 @@ HostSocketHandleManager::HostSocketHandleManager()
 {
 }
 
-SocketStatus Socket::GetStatus()
+SocketStatus Socket::GetStatus(u32 timeout)
 {
     return SocketStatus::OK;
 }

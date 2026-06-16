@@ -261,7 +261,7 @@ struct RaSocketFdHandleParam {
     {
     }
 };
-RaSocketFdHandleParam HrtRaBlockGetOneSocket(u32 role, RaSocketGetParam &param);
+RaSocketFdHandleParam HrtRaBlockGetOneSocket(u32 role, RaSocketGetParam &param, u32 timeout = 0);
 
 void HrtRaSocketBlockSend(const FdHandle fdHandle, const void *data, u32 sendSize);
 bool HrtRaSocketNonBlockSend(const FdHandle fdHandle, void *data, u64 size, u64 *sentSize);

@@ -69,6 +69,8 @@ void RankInfoDetectClient::CheckStatus()
                 std::vector<std::string>({StringFormat("Receiving message from the root node timed out "
                     "Timeout was set to %lld seconds. Check whether node rankId[%u] reports an error.",
                     static_cast<long long>(timeout.count()), rankId_)}));
+            // 建链超时后，sleep 20s，避免上层应用提前退出，确保其他正常 client 能够收到 server 发出的临终遗言
+            sleep(WAIT_ERROR_BROADCAST_TIME);
             THROW<TimeoutException>("client get connection timeout");
         }
 
@@ -328,7 +330,9 @@ void RankInfoDetectClient::ParseRankTable(vector<char> &rankInfoMsg)
     std::string failedAgentIdList;
     binStream >> failedAgentIdList;
     if (failedAgentIdList.size() > 0) {
-        HCCL_ERROR("[RankInfoDetectClient::%s] failedAgentIdList %s", __func__, failedAgentIdList.c_str());
+        // 建链失败时，打印 root 节点发来的临终遗言
+        HCCL_ERROR("[RankInfoDetectClient::%s] TopoDetect ERROR occur, failedRankIdList[%s]",
+                    __func__, failedAgentIdList.c_str());
     }
 
     HCCL_INFO("[RankInfoDetectClient::%s] end.", __func__);

@@ -453,14 +453,16 @@ void HrtRaSocketListenOneStop(RaSocketListenParam &in)
     HRaSocketListenStop(&listenInfo, 1);
 }
 
-void RaBlockGetSockets(u32 role, SocketInfoT conn[], u32 num) // 修改为内部函数，不对外
+void RaBlockGetSockets(u32 role, SocketInfoT conn[], u32 num, u32 timeoutSec) // 修改为内部函数，不对外
 {
     CHECK_NULLPTR(conn, "[RaBlockGetSockets] conn is nullptr!");
-    HCCL_INFO("[GetSockets][RaBlock] Input params: role=%u, num=%u", role, num);
+    HCCL_INFO("[GetSockets][RaBlock] Input params: role=%u, num=%u, timeoutSec=%u", role, num, timeoutSec);
     s32  sockRet;
     u32  gotSocketsCnt = 0;
     auto startTime     = std::chrono::steady_clock::now();
-    auto timeout       = std::chrono::seconds(EnvLinkTimeoutGet());
+    auto linkTimeout   = std::chrono::seconds(EnvLinkTimeoutGet());
+    auto timeout       = (timeoutSec > 0 && timeoutSec < linkTimeout.count())
+        ? std::chrono::seconds(timeoutSec) : linkTimeout;
     while (true) {
         if ((std::chrono::steady_clock::now() - startTime) >= timeout) {
             MACRO_THROW(NetworkApiException, StringFormat("[HrtRaBlockGetSockets] get rasocket timeout role[%u], num[%u], gotSocketsCnt[%u], timeout[%lld]s",
@@ -486,25 +488,25 @@ void RaBlockGetSockets(u32 role, SocketInfoT conn[], u32 num) // 修改为内部
     }
 }
 
-RaSocketFdHandleParam HrtRaBlockGetOneSocket(u32 role, RaSocketGetParam &param)
+RaSocketFdHandleParam HrtRaBlockGetOneSocket(u32 role, RaSocketGetParam &param, u32 timeout)
 {
-    HCCL_INFO("[GetOneSocket][RaSocket] Input params: role=%u,socketHandle=%p, fdHandle=%p, remoteIp=%s", 
-        role, param.socketHandle, param.fdHandle, param.remoteIp.Describe().c_str());
+    HCCL_INFO("[GetOneSocket][RaSocket] Input params: role=%u,socketHandle=%p, fdHandle=%p, remoteIp=%s, timeout=%u",
+        role, param.socketHandle, param.fdHandle, param.remoteIp.Describe().c_str(), timeout);
     struct SocketInfoT socketInfo {};
 
     socketInfo.socketHandle = param.socketHandle;
     socketInfo.fdHandle     = param.fdHandle;
     socketInfo.remoteIp     = IpAddressToHccpIpAddr(param.remoteIp);
-    socketInfo.status        = SOCKET_NOT_CONNECTED;
+    socketInfo.status       = SOCKET_NOT_CONNECTED;
 
     int sret = strcpy_s(socketInfo.tag, sizeof(socketInfo.tag), param.tag.c_str());
     if (sret != 0) {
         MACRO_THROW(NetworkApiException, StringFormat("[HrtRaBlockGetOneSocket] copy tag[%s] to hccp failed, ret=%d, role=%u,socketHandle=%p, fdHandle=%p, remoteIp=%s, socketInfo.tag size=%d, param.tag size=%d",
             param.tag.c_str(), sret, role, param.socketHandle, param.fdHandle, param.remoteIp.Describe().c_str(), sizeof(socketInfo.tag), sizeof(param.tag.c_str())));
     }
-    
+
     HCCL_INFO("Socket Get tag=[%s], remoteIp[%s], ret[%d]", socketInfo.tag, param.remoteIp.Describe().c_str(), sret);
-    RaBlockGetSockets(role, &socketInfo, 1);
+    RaBlockGetSockets(role, &socketInfo, 1, timeout);
 
     return RaSocketFdHandleParam(socketInfo.fdHandle, socketInfo.status);
 }

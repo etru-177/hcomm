@@ -66,7 +66,8 @@ void RankInfoDetectService::GetConnections()
 
     // 连接rankSize个client
     while (expectedSocketNum > 0) {
-        if ((std::chrono::steady_clock::now() - startTime) >= timeout) {
+        auto topoExUsedTime = std::chrono::steady_clock::now() - startTime;
+        if (topoExUsedTime >= timeout) {
             RPT_INPUT_ERR(true, "EI0015", std::vector<std::string>({"error_reason"}),
                 std::vector<std::string>({StringFormat("Receiving message from the root node timed out. "
                     "Timeout was set to %lld seconds. expected %u nodes, received %u nodes. "
@@ -76,9 +77,18 @@ void RankInfoDetectService::GetConnections()
             HCCL_ERROR("[RankInfoDetectService::%s] server get sockets timeout[%lld s]", __func__, timeout);
             break;
         }
+
+        // duration_cast<seconds> 会进行向下取整，不足 1s 时提前跳出，确保建链超时场景，server端在client端退出前发送临终遗言
+        auto topoExResTime = timeout - topoExUsedTime;
+        u32 topoExRes_i = std::chrono::duration_cast<std::chrono::seconds>(topoExResTime).count();
+        if (topoExRes_i == 0) {
+            HCCL_ERROR("[RankInfoDetectService::%s] timeout[%lld s] is exhausted", __func__, timeout);
+            break;
+        }
         std::shared_ptr<Socket> connSocket = std::make_shared<Socket>(
             hccpHostSocketHandle, hostIp_, hostPort, hostIp_, connSocketTag, SocketRole::SERVER, NicType::HOST_NIC_TYPE);
-        EXCEPTION_CATCH(status = connSocket->GetStatus(), 
+        // GetStatus 是阻塞接口，传入剩余时间作为超时上限，避免其内部超时导致外层循环超时处理失效
+        EXCEPTION_CATCH(status = connSocket->GetStatus(topoExRes_i),
             {
                 // 非本端client首次连接异常，直接重试
                 if(status == SocketStatus::OK) {
@@ -116,7 +126,7 @@ void RankInfoDetectService::GetConnections()
     // 处理异常流程
     if (expectedSocketNum > 0) {
         // 将建立连接超时的client信息添加到failedAgentIdList_
-        FailedConnectionAgentIdString(expectedSocketNum);
+        FailedConnectionAgentIdString(previousRankNum);
         DisplayConnectedRanks();
         HCCL_INFO("[RankInfoDetectService::%s] end, there exist non-connected ranks.", __func__);
     } else {

@@ -36,7 +36,7 @@ public:
 
     virtual void Listen();
     virtual void Connect();
-    SocketStatus GetStatus();
+    SocketStatus GetStatus(u32 timeout = 0);
 
     virtual SocketRole GetRole() const
     {

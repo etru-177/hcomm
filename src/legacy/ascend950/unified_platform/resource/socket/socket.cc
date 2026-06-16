@@ -78,7 +78,7 @@ void Socket::PrintErrorSocketInfo()
     HCCL_ERROR("%s", Describe().c_str());
 }
 
-SocketStatus Socket::GetStatus()
+SocketStatus Socket::GetStatus(u32 timeout)
 {
     if (socketStatus == SocketStatus::OK) {
         HCCL_INFO("socketinfo.tag=%s status is OK, role=%s", tag.c_str(), role.Describe().c_str());
@@ -89,7 +89,7 @@ SocketStatus Socket::GetStatus()
     RaSocketFdHandleParam result(nullptr, 0);
     TRY_CATCH_PROCESS_THROW(
         NetworkApiException,
-        result = HrtRaBlockGetOneSocket(static_cast<u32>(role), param),
+        result = HrtRaBlockGetOneSocket(static_cast<u32>(role), param, timeout),
         "Socket::GetStatus failed",
         PrintErrorSocketInfo()
     );

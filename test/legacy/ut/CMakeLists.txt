@@ -111,6 +111,7 @@ target_compile_definitions(hccl_v2_utest PRIVATE
 
     ORION_AICPU_DEPLOY
     ORION_HOST_DEPLOY
+    OPEN_HCCL_TEST
 )
 
 add_subdirectory(all_source_code)
