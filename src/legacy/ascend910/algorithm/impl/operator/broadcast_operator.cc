@@ -17,6 +17,7 @@
 #include "hccl_aiv.h"
 
 namespace hccl {
+constexpr u64 AIV_MAX_DATASIZE = 4ULL * 1024 * 1024 * 1024;
 
 BroadCastOperator::BroadCastOperator(AlgConfigurator* algConfigurator, CCLBufferManager &cclBufferManager,
     HcclDispatcher dispatcher, std::unique_ptr<TopoMatcher> &topoMatcher)
@@ -158,9 +159,10 @@ HcclResult BroadCastOperator::SelectAlgfor910B(const OpParam& param, std::string
     // 暂只支持单算子模式
     const u64 commInputSize = cclBufferManager_.GetInCCLbufferSize();
     const u64 commOutputSize = cclBufferManager_.GetOutCCLbufferSize();
+    u64 dataSize = param.DataDes.count * SIZE_TABLE[param.DataDes.dataType];
     bool isCCLBufferGE16M = commInputSize >= HCCL_MID_COUNT_16_MB && commOutputSize >= HCCL_MID_COUNT_16_MB;
     isAivMode_ = topoMatcher_->GetAivModeConfig() && isSingleMeshAggregation_ && isOpbase && isCCLBufferGE16M &&
-                     IsSupportAIVCopy(param.DataDes.dataType);
+                     IsSupportAIVCopy(param.DataDes.dataType) && dataSize <= AIV_MAX_DATASIZE;
     if (isAivMode_) {
         algName = "BroadcastMeshAivExecutor";
     } else if (isMeshTopo) {
@@ -199,7 +201,8 @@ HcclResult BroadCastOperator::SelectAlgfor91093(const OpParam& param, std::strin
     bool isOpbase = (GetWorkflowMode() == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE);
 
     // 单机仅支持单算子
-    bool isAivSingleNode = (serverNum_ == 1) && isSingleMeshAggregation_ && isOpbase && isCCLBufferGE16M;
+    bool isAivSingleNode = (serverNum_ == 1) && isSingleMeshAggregation_ && isOpbase 
+        && isCCLBufferGE16M && dataSize <= AIV_MAX_DATASIZE;
     bool isOnlyAiv = topoMatcher_->GetIsOnlyAivConfig();
     isAivMode_ = topoMatcher_->GetAivModeConfig()
             && IsSupportAIVCopy(param.DataDes.dataType)
