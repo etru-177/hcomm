@@ -36,9 +36,9 @@ __aicore__ inline void AivSync910BRdma::Process(int32_t tag, uint64_t rmaInfo, i
                 targetRank, UB_FLAG_PAD_COUNT, (__gm__ HcclRMAInfo*)rmaInfo, false, false);
             PipeBarrier<PIPE_ALL>();
         }
-    } else if (blockIdx_ < (DOUBLE * serverNum)) {
+
         for (uint32_t i = 0; i < rankPerSever; i++) {
-            uint32_t sourceRank = blockIdx_ % serverNum + i * serverNum;
+            uint32_t sourceRank = blockIdx_ + i * serverNum;
             if (sourceRank == rank_) {
                 continue;
             }

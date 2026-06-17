@@ -632,9 +632,9 @@ bool AlltoAllOperator::IsBufferSatisfyAlltoAllAivCondition(const OpParam& param)
 
     u64 dataSize = SIZE_TABLE[param.All2AllDataDes.sendType];
     u64 scratchMemSize = sendCount * dataSize * userRankSize_;
-    s64 dataSizeLimit = param.supportRoceDirect ? HCCL_SMALL_COUNT_8_MB : HCCL_SMALL_COUNT_190_KB;
+    s64 dataSizeLimit = param.supportRoceDirect ? HCCL_SMALL_COUNT_4_MB : HCCL_SMALL_COUNT_190_KB;
     if (param.supportRoceDirect) {
-        // 使用roce直驱时，total数据量应小于8M
+        // 使用roce直驱时，total数据量应小于4M
         if(!(scratchMemSize <= static_cast<u64>(dataSizeLimit))) {
             HCCL_WARNING("[AlltoAllOperator]total dataSize[%llu] > [%lld], doesn't meet the aiv condition, select default algorithm",
                 scratchMemSize, dataSizeLimit);

@@ -100,7 +100,7 @@ HcclResult CollAlltoAllDirectFullmeshAIVExecutor::CopyAivCommInfoToDevice(const 
 HcclResult CollAlltoAllDirectFullmeshAIVExecutor::CalNumBlocks(u32& numBlocks, u32 rankSize, u64 dataSize,
     HcclCMDType cmdType)
 {
-    numBlocks = 2 * topoAttr_.moduleNum; // 默认情况使用serverNum*2个AIV
+    numBlocks = topoAttr_.moduleNum; // 默认情况使用serverNum个AIV
     CHK_PRT_RET(numBlocks_ < numBlocks,
         HCCL_ERROR("[CollAlltoAllDirectFullmeshAIVExecutor][%s]aivCore[%u] is invalid, at least need[%u].", __func__,
         numBlocks_, numBlocks), HCCL_E_PARA);
