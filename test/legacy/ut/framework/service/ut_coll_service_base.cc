@@ -100,7 +100,7 @@ TEST_F(CollServiceBaseTest, Ut_WaitOpbasedTransportReady_When_Timeout_Expect_Exc
 TEST_F(CollServiceBaseTest, Ut_WaitOffloadTransportReady_When_TransportReady_Expect_NoException)
 {
     CollServiceAiCpuImpl collService(&comm);
-    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(mockcpp::any()).will(returnValue(true));
 
     EXPECT_NO_THROW(collService.WaitOffloadTransportReady(opTag));
 }
@@ -108,7 +108,7 @@ TEST_F(CollServiceBaseTest, Ut_WaitOffloadTransportReady_When_TransportReady_Exp
 TEST_F(CollServiceBaseTest, Ut_WaitOffloadTransportReady_When_Timeout_Expect_Exception)
 {
     CollServiceAiCpuImpl collService(&comm);
-    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(mockcpp::any()).will(returnValue(false));
 
     EXPECT_THROW(collService.WaitOffloadTransportReady(opTag), InternalException);
 }

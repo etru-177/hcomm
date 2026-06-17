@@ -69,14 +69,14 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_get_status_return_ok)
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
     QpHandle fakeQpHandle = (void *)0x1000000;
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
-    MOCKER(HrtRaQpConnectAsync).stubs().with(any(), any()).will(returnValue(0));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpConnectAsync).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(0));
     // construct DevRdmaConnection
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
 
     //  When: qp 建链成功
-    MOCKER(RaQpConnectAsync).stubs().with(any(), any()).will(returnValue(0));
-    MOCKER(HrtGetRaQpStatus).stubs().with(any(), any(), any()).will(returnValue(1));
+    MOCKER(RaQpConnectAsync).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(0));
+    MOCKER(HrtGetRaQpStatus).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(1));
 
     RmaConnStatus status = devRdmaConnection.GetStatus();
     // Then
@@ -117,7 +117,7 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_get_status_return_time_out)
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
@@ -142,11 +142,11 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_get_status_return_time_connecti
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
-    MOCKER(HrtRaQpConnectAsync).stubs().with(any(), any()).will(returnValue(0));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpConnectAsync).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(0));
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
-    MOCKER(HrtGetRaQpStatus).stubs().with(any()).will(returnValue(0)).then(returnValue(1));
+    MOCKER(HrtGetRaQpStatus).stubs().with(mockcpp::any()).will(returnValue(0)).then(returnValue(1));
 
     // Then
     RmaConnStatus status = devRdmaConnection.GetStatus();
@@ -170,7 +170,7 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_get_handle)
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
@@ -194,7 +194,7 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_prepare_write_tasks)
     char targetChipVer[CHIP_VERSION_MAX_LEN] = "Ascend910B1";
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
 
@@ -245,7 +245,7 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_prepare_read_tasks)
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
@@ -269,7 +269,7 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_prepare_read_reduce_tasks)
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
@@ -293,7 +293,7 @@ TEST_F(DevRdmaConnectionTest, rma_net_connection_prepare_write_reduce_tasks)
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);
@@ -316,7 +316,7 @@ TEST_F(DevRdmaConnectionTest, rma_GetTaskNum_NOK)
     LinkData     linkData(portType, 0, 1, 0, 1);
 
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     // When
     DevRdmaConnection devRdmaConnection(fakeSocket, rdmaHandle, OpMode::OPBASE);

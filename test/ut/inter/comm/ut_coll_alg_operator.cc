@@ -46,7 +46,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(hrtProfRegisterCtrlCallback)
         .stubs()
@@ -101,7 +101,7 @@ TEST_F(CollAlgOperatorTest, is_2u2p_infer)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -129,7 +129,7 @@ TEST_F(CollAlgOperatorTest, need_create_single_mesh_plane)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -155,7 +155,7 @@ TEST_F(CollAlgOperatorTest, ut_SupportRetryWithInplaceCheck_ptr_check)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -207,7 +207,7 @@ TEST_F(CollAlgOperatorTest, ut_SupportRetryWithInplaceCheck_opType_check)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -360,7 +360,7 @@ TEST_F(CollAlgOperatorTest, ut_SupportRetryWithInplaceCheck_retry_condition_chec
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -509,7 +509,7 @@ TEST_F(CollAlgOperatorTest, ut_HcclCommunicator_IsHcclOpInplace)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -566,7 +566,7 @@ TEST_F(CollAlgOperatorTest, ut_HcclCommunicator_IsHcclOpInplace_alltoall)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);

@@ -98,7 +98,7 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_tasks_in_offload_mode
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData     linkData(portType, 0, 1, 0, 1);
  
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
     HrtRaUbSendWrRespParam postSendRes1;
     postSendRes1.dwqeSize = 64;
     HrtRaUbSendWrRespParam postSendRes2;
@@ -108,7 +108,7 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_tasks_in_offload_mode
     postSendRes3.dwqeSize = 100;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes1))
         .then(returnValue(postSendRes2))
         .then(returnValue(postSendRes3));
@@ -141,11 +141,11 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_tasks_in_offload_mode
     MemoryBuffer remoteMemBuffer10(2000, 10, 0);
     EXPECT_THROW(devUbConnection.PrepareWriteReduce(remoteMemBuffer10, localMemBuffer10, DataType::INT8, ReduceOp::SUM, config), InvalidParamsException);
  
-    MOCKER(HrtRaUbPostNops).stubs().with(any(), any(), any());
-    MOCKER(HrtUbDbSend).stubs().with(any(), any());
+    MOCKER(HrtRaUbPostNops).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtUbDbSend).stubs().with(mockcpp::any(), mockcpp::any());
     void* ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream stream;

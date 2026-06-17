@@ -70,7 +70,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         HcclOpMetaInfo meta;
         bool hasMassTasks = true;
@@ -127,12 +127,12 @@ TEST_F(CollBroadcastInterTest, broadcast_ring)
 {
     MOCKER(hrtCtxSetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportManager::Alloc)
@@ -189,12 +189,12 @@ TEST_F(CollBroadcastInterTest, broadcast_mesh)
 {
     MOCKER(hrtCtxSetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportManager::Alloc)
@@ -253,12 +253,12 @@ TEST_F(CollBroadcastInterTest, broadcast_smallcount)
 {
     MOCKER(hrtCtxSetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportManager::Alloc)
@@ -317,12 +317,12 @@ TEST_F(CollBroadcastInterTest, broadcast_common)
 {
     MOCKER(hrtCtxSetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportManager::Alloc)
@@ -524,7 +524,7 @@ TEST_F(CollBroadcastInterTest, broadcast_superpod_Ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&AlgConfigurator::IsHCCSSWNumEqualToTwiceSIONum)
@@ -566,7 +566,7 @@ TEST_F(CollBroadcastInterTest, broadcast_superpod_Ring)
 
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(AlgTemplateBase::ExecEmptyTask)
@@ -589,12 +589,12 @@ TEST_F(CollBroadcastInterTest, broadcast_for_310P3_comm)
 {
     MOCKER(hrtCtxSetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportManager::Alloc)
@@ -663,7 +663,7 @@ TEST_F(CollBroadcastInterTest, ut_bcast_plus_bcast)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -754,7 +754,7 @@ TEST_F(CollBroadcastInterTest, ut_bcast_plus_bcast_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -959,7 +959,7 @@ TEST_F(CollBroadcastInterTest, broadcast_double_ring_1)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);

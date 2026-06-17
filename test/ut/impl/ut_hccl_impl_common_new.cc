@@ -78,7 +78,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
 		std::cout << "A Test SetUP" << std::endl;
 	}
@@ -345,7 +345,7 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_AicpuKDataLaunch)
 
     MOCKER(LocalNotify::Post)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclCommParams params;
@@ -386,7 +386,7 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_AicpuKDataLaunch)
 
     MOCKER_CPP_VIRTUAL(communicator, &HcclCommunicator::AicpuUnfoldKernelLaunchV2)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     bool bret = communicator.GetCommResource(" ", nullptr);
@@ -412,11 +412,11 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_AicpuKDataLaunch_Capture)
 
     MOCKER(LocalNotify::Post)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtGetStreamId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     aclmdlRICaptureStatus captureStatus = aclmdlRICaptureStatus::ACL_MODEL_RI_CAPTURE_STATUS_ACTIVE;
@@ -424,12 +424,12 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_AicpuKDataLaunch_Capture)
     void *pmockModel = &mockModel;    
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     MOCKER(rtStreamAddToModel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     HcclCommParams params;
@@ -468,7 +468,7 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_AicpuKDataLaunch_Capture)
 
     MOCKER_CPP_VIRTUAL(communicator, &HcclCommunicator::AicpuUnfoldKernelLaunchV2)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     bool bret = communicator.GetCommResource(" ", nullptr);
@@ -504,7 +504,7 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_GetStreamCaptureInfo)
     // 非单算子场景
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OPS_KERNEL_INFO_LIB));
 
     bool isCapture = false;
@@ -516,14 +516,14 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_GetStreamCaptureInfo)
     // unsupport场景
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE));
     aclmdlRICaptureStatus captureStatus = aclmdlRICaptureStatus::ACL_MODEL_RI_CAPTURE_STATUS_ACTIVE;
     int mockModel = 0;
     void *pmockModel = &mockModel;    
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(ACL_ERROR_RT_FEATURE_NOT_SUPPORT));
     ret = GetStreamCaptureInfo(stream, rtModel, isCapture);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -531,12 +531,12 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_GetStreamCaptureInfo)
     // capture异常场景
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE));
     captureStatus = aclmdlRICaptureStatus::ACL_MODEL_RI_CAPTURE_STATUS_NONE;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
     ret = GetStreamCaptureInfo(stream, rtModel, isCapture);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -544,7 +544,7 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_GetStreamCaptureInfo)
     captureStatus = aclmdlRICaptureStatus::ACL_MODEL_RI_CAPTURE_STATUS_INVALIDATED;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
     ret = GetStreamCaptureInfo(stream, rtModel, isCapture);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -555,7 +555,7 @@ TEST_F(HcclImplCommonNewTest, ut_HcclCommunicator_AddStreamToModel)
 {
     MOCKER(rtStreamAddToModel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
     rtModel_t rtModel = nullptr;
     rtStream_t stream;

@@ -62,7 +62,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&HcclCommunicator::InitPreResource)
         .stubs()
@@ -308,7 +308,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->AtomicInitSet();
@@ -359,7 +359,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
 
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(AlgTemplateBase::ExecEmptyTask)
@@ -395,7 +395,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&AlgConfigurator::IsHCCSSWNumEqualToTwiceSIONum)
@@ -437,7 +437,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
 
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(AlgTemplateBase::ExecEmptyTask)
@@ -475,7 +475,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->AtomicInitSet();
@@ -522,7 +522,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
 
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(AlgTemplateBase::ExecEmptyTask)
@@ -558,7 +558,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->AtomicInitSet();
@@ -609,7 +609,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
 
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(AlgTemplateBase::ExecEmptyTask)
@@ -643,7 +643,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->AtomicInitSet();
@@ -687,7 +687,7 @@ TEST_F(HcclImplAlgTestDoubleRingConcurrentallreduce, ut_CollAllReduceDoubleRingC
 
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(AlgTemplateBase::ExecEmptyTask)

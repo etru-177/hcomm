@@ -107,7 +107,7 @@ TEST_F(ConnLocalCntNotifyManagerTest, applyfor_and_get_success)
     MOCKER(HrtCntNotifyCreate).stubs().will(returnValue((void*)&a));
     MOCKER(HrtGetCntNotifyId).stubs().will(returnValue(0));
     HrtDevResAddrInfo resAddrInfo;
-    MOCKER(HrtGetDevResAddress).stubs().with(any()).will(returnValue(resAddrInfo));
+    MOCKER(HrtGetDevResAddress).stubs().with(mockcpp::any()).will(returnValue(resAddrInfo));
     CommunicatorImpl comm;
     comm.devPhyId = 0;
     ConnLocalCntNotifyManager connLocalCntNotifyManager(&comm);

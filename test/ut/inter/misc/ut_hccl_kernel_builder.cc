@@ -189,7 +189,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
 
         std::cout << "A Test SetUP" << std::endl;
@@ -360,7 +360,7 @@ TEST_F(HcomKernelBuilderTest, ut_CalcOpRunningParam_common)
     uint32_t graphId = 1;
     MOCKER_CPP(&HcomOpsKernelBuilder::GetRootGraphID)
         .stubs()
-        .with(any(), outBound(graphId))
+        .with(mockcpp::any(), outBound(graphId))
         .will(returnValue(HCCL_SUCCESS));
     std::string curGroup = "off_group_rank_list";
     ge::AttrUtils::HasAttr(nodeptr->GetOpDesc(), "DUMMY_SET_TRUE_GROUP");
@@ -474,9 +474,9 @@ TEST_F(HcomKernelBuilderTest, ut_CalcOpRunningParam_common_51)
     .will(returnValue(HCCL_SUCCESS));
 
     u32 numHccsLink = 0;
-    MOCKER(HcomGetHccsLinkNum).stubs().with(any(), outBound(numHccsLink)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcomGetHccsLinkNum).stubs().with(mockcpp::any(), outBound(numHccsLink)).will(returnValue(HCCL_SUCCESS));
     u32 rankSize = 2;
-    MOCKER(HcomGetRankSize).stubs().with(any(), outBoundP(&rankSize)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcomGetRankSize).stubs().with(mockcpp::any(), outBoundP(&rankSize)).will(returnValue(HCCL_SUCCESS));
 
     ge::NodePtr nodeptr(new NodeTest);
     nodeptr->GetOpDesc()->SetType("");
@@ -714,7 +714,7 @@ TEST_F(HcomKernelBuilderTest, ut_generateTask)
     EXPECT_EQ(ret, ge::SUCCESS);
     MOCKER(IsOfflineCompilation)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     ret = hcomKernelInfo.GenerateTask(*nodeptr,runContext_dummy,taskDefList);
     EXPECT_EQ(ret, ge::SUCCESS);
@@ -729,7 +729,7 @@ TEST_F(HcomKernelBuilderTest, ut_generateTask)
 
     MOCKER_CPP(&HcomOpsKernelBuilder::GetOpIntAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 }
@@ -749,7 +749,7 @@ TEST_F(HcomKernelBuilderTest, ut_GenerateTask_unknown)
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(is_unknown))
+    .with(mockcpp::any(), outBound(is_unknown))
     .will(returnValue(ge::GRAPH_SUCCESS));
     ret = hcomOpsKernelInfoStore_.GenerateTask(*nodeptr, runContext, taskDefList);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -777,7 +777,7 @@ TEST_F(HcomKernelBuilderTest, ut_CalcOpRunningParam_unknown)
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(is_unknown))
+    .with(mockcpp::any(), outBound(is_unknown))
     .will(returnValue(ge::GRAPH_SUCCESS));
     MOCKER_CPP(&HcomOpsKernelBuilder::GetAndSetTaskNum)
     .stubs()
@@ -903,7 +903,7 @@ TEST_F(HcomKernelBuilderTest, ut_CalcOpRunningParam_V51)
 
     MOCKER(HcomOpUtils::GetAllReduceScratchMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     type = HCCL_KERNEL_OP_TYPE_ALLREDUCE;
@@ -1410,12 +1410,12 @@ TEST_F(HcomKernelBuilderTest, ut_getAlltoAllvStagedScratchMemSize)
         HcclResult(HcomOpsKernelBuilder::*)(ge::Node& node, std::vector<int64_t> &sendCounts,
         std::vector<int64_t> &sendDispls, std::vector<int64_t>& recvCounts, std::vector<int64_t>& recvDispls))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetAlltoAllStagedWorkSpaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     const string sGroup = "test_group";
@@ -1432,12 +1432,12 @@ TEST_F(HcomKernelBuilderTest, ut_getAlltoAllvStagedScratchMemSize)
         HcclResult(HcomOpsKernelBuilder::*)(const ge::OpDescPtr &op, std::vector<int64_t> &sendCounts,
         std::vector<int64_t> &sendDispls, std::vector<int64_t>& recvCounts, std::vector<int64_t>& recvDispls))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetAlltoAllStagedWorkSpaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = hcomKernelInfo.GetAlltoAllvStagedScratchMemSize(*(nodeptr.get()), hcomComm, sGroup, 4, getMemSize);
@@ -1480,12 +1480,12 @@ TEST_F(HcomKernelBuilderTest, ut_getAlltoAllvcStagedScratchMemSize)
 
     MOCKER(HcomGetRankId)
     .stubs()
-    .with(any(), outBound(&rankId))
+    .with(mockcpp::any(), outBound(&rankId))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetAlltoAllvcStagedWorkSpaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     const string sGroup = "test_group";
@@ -1506,7 +1506,7 @@ TEST_F(HcomKernelBuilderTest, ut_CheckAlltoAllvcRank)
 
     MOCKER(&HcomOpUtils::GetRankId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge::AttrUtils::SetInt((*(nodeptr.get())).GetOpDesc(), "rank", alltoallvcRank);
@@ -1552,7 +1552,7 @@ TEST_F(HcomKernelBuilderTest, ut_getAlltoAllCountsDispl_across_graph)
     HcomOpsKernelBuilder hcomKernelInfo;
     MOCKER(&ge::OpDescUtils::GetInputConstData)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue((ge::ConstGeTensorBarePtr)nullptr));
 
     std::vector<int64_t> sendCounts;
@@ -1586,48 +1586,48 @@ TEST_F(HcomKernelBuilderTest, ut_getOpWorkspaceMemSize)
 
     MOCKER(GetExternalInputHcclAlgoConfig)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(GetExternalInputHcclAlgoConfig_stub1));
 
     u64 opMemSize = 0;
     u32 rankSize = 3;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBoundP(&rankSize, sizeof(rankSize)))
+    .with(mockcpp::any(), outBoundP(&rankSize, sizeof(rankSize)))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetDevId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtGetDeviceIndexByPhyId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtSetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtResetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtCtxSetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtCtxGetCurrent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelBuilder::GetAlltoAllvStagedScratchMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = hcomKernelInfo.GetOpWorkspaceMemSize(*nodeptr, HCCL_KERNEL_OP_TYPE_ALLTOALLV, opMemSize);
@@ -1695,7 +1695,7 @@ TEST_F(HcomKernelBuilderTest, ut_offlinebuild_calcSubStreamNum)
 
     MOCKER_CPP(&HcomOpsKernelBuilder::CalAndSetOpWorkerSpaceForKnowShape)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     type = HCCL_KERNEL_OP_TYPE_BROADCAST;
@@ -1726,17 +1726,17 @@ TEST_F(HcomKernelBuilderTest, ut_offlinebuild_calcSubStreamNumAllToAllVC)
     u32 rankId = 0;
     MOCKER(HcomGetRankId)
     .stubs()
-    .with(any(), outBound(&rankId))
+    .with(mockcpp::any(), outBound(&rankId))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(&HcomOpUtils::CheckAlltoAllvcRank)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomGraphOptimizer::GetOriginalGraphShapeTypeFromDesc)
@@ -1745,7 +1745,7 @@ TEST_F(HcomKernelBuilderTest, ut_offlinebuild_calcSubStreamNumAllToAllVC)
 
     MOCKER(HcomGetAlltoAllvcStagedWorkSpaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge::AttrUtils::HasAttr(nodeptr->GetOpDesc(), "DUMMY_SET_SEND_COUNT_MATRIX");
@@ -1975,7 +1975,7 @@ TEST_F(HcomKernelBuilderTest, ut_CalcOpTaskNum_1server_stream)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     comm->deviceType_ = deviceType;
@@ -2023,8 +2023,8 @@ TEST_F(HcomKernelBuilderTest, ut_CalcOpTaskNum_1server_stream)
 
     MOCKER(HcomOpUtils::GetDeviceAndServerNum)
     .stubs()
-    //.with(any())
-    .with(any(), outBound(deviceNumPerServer), outBound(serverNum), any())
+    //.with(mockcpp::any())
+    .with(mockcpp::any(), outBound(deviceNumPerServer), outBound(serverNum), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge_ret = hcomKernelInfo.CalcOpRunningParam(*nodeptr);
@@ -2192,12 +2192,12 @@ TEST_F(HcomKernelBuilderTest, ut_CalAndSetOpWorkerSpaceForKnowShape)
     u32 shapeType = ORIGINAL_GRAPH_KNOWNSHAPE_TYPE;
     MOCKER_CPP(&HcomOpsKernelBuilder::GetOriginalGraphShapeTypeFromDesc)
     .stubs()
-    .with(any(), outBound(shapeType))
+    .with(mockcpp::any(), outBound(shapeType))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelBuilder::GetOpWorkspaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge::NodePtr nodeptr(new NodeTest);
@@ -2265,7 +2265,7 @@ TEST_F(HcomKernelBuilderTest, ut_GenerateTaskAivCoreLimit)
     // -------------------aiv core limit----------------
     // AivCoreLimit use default value 48
     HCCL_KERNEL_INFO_PRIVATE_DEF privateDef;
-    MOCKER_CPP(&HcomOpsKernelBuilder::GenerateTaskPrivateDef).stubs().with(any(), spy(privateDef), any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcomOpsKernelBuilder::GenerateTaskPrivateDef).stubs().with(mockcpp::any(), spy(privateDef), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     log_level_set_stub(DLOG_DEBUG);
     ge::AttrUtils::HasAttr(nodeptr->GetOpDesc(), "ATTR_OP_VECTORCORE_NUM_CLEAR");

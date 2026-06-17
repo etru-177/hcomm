@@ -118,132 +118,132 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(hrtGetDevice)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(hrtGetDeviceStub));
 
         MOCKER(hrtGetDevicePhyIdByIndex)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(TsdProcessOpen)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(hrtTsdProcessOpenStub));
 
         MOCKER(ProcessCloseSubProcList)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaGetInterfaceVersion)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(hrtRaGetInterfaceVersionStub));
 
         void* ptr = (void*)0xabcd;
         MOCKER(hrtRaPingInit)
         .stubs()
-        .with(any(), any(), outBoundP(&ptr, sizeof(ptr)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&ptr, sizeof(ptr)))
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaPingDeinit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaPingTargetDel)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaPingTaskStart)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaPingTaskStop)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaPingGetResults)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(hrtRaPingGetResultsStub));
 
         MOCKER(hrtRaIsLastUsed)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(HrtRaInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(HrtRaDeInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtRaSocketInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)())
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
  
         MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)(u32))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&HcclSocket::Accept)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&HcclSocket::Connect)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(static_cast<HcclResult (hccl::HcclSocket::*)(void*, uint32_t, uint32_t)>(&hccl::HcclSocket::Recv),
                     HcclResult(hccl::HcclSocket::*)(void*, uint32_t, uint32_t))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
         // MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(const void *, u32, u32))
         // .stubs()
-        // .with(any())
+        // .with(mockcpp::any())
         // .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&HcclSocket::DeInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&std::thread::detach)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(ignoreReturnValue());
 
         MOCKER(hrtHalMemCtl)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         std::cout << "PingMesh_ST Test SetUP" << std::endl;
@@ -286,10 +286,10 @@ TEST_F(PingMesh_UT, ut_PingMeshInit_950)
     const char *fakeA5SocName = "Ascend950PR_958b";
     MOCKER(aclrtGetSocName).stubs().will(returnValue(fakeA5SocName));
     u32 num = 1;
-    MOCKER(hrtRaGetDevEidInfoNum).stubs().with(any(), outBoundP(&num, sizeof(&num)))
+    MOCKER(hrtRaGetDevEidInfoNum).stubs().with(mockcpp::any(), outBoundP(&num, sizeof(&num)))
         .will(returnValue(HCCL_E_NOT_SUPPORT))
         .then(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaGetSecRandom).stubs().with(any(), outBoundP(&num, sizeof(&num))).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaGetSecRandom).stubs().with(mockcpp::any(), outBoundP(&num, sizeof(&num))).will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtRaGetDevEidInfoList).stubs().will(invoke(stub_hrtRaGetDevEidInfoList));
     u32 deviceId = 1;
     u32 mode = static_cast<u32>(LinkType::LINK_UB);
@@ -315,12 +315,12 @@ TEST_F(PingMesh_UT, ut_PingMeshAddDelTarget)
 {
     MOCKER_CPP(&PingMesh::RpingRecvTargetInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtRaPingTargetAdd)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     u32 deviceId = 1;
@@ -376,12 +376,12 @@ TEST_F(PingMesh_UT, ut_PingMeshAddDelTargetPatch)
 {
     MOCKER_CPP(&PingMesh::RpingRecvTargetInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtRaPingTargetAdd)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     u32 deviceId = 1;
@@ -441,12 +441,12 @@ TEST_F(PingMesh_UT, ut_PingMeshAddDelTargetPatch1)
 {
     MOCKER_CPP(&PingMesh::RpingRecvTargetInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_NOT_FOUND));
 
     MOCKER(hrtRaPingTargetAdd)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     u32 deviceId = 1;
@@ -491,12 +491,12 @@ TEST_F(PingMesh_UT, ut_PingMeshAddDelTargetPatch2)
 {
     MOCKER_CPP(&PingMesh::RpingRecvTargetInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtRaPingTargetAdd)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_NOT_FOUND));
     
     u32 deviceId = 1;
@@ -541,17 +541,17 @@ TEST_F(PingMesh_UT, ut_PingMeshAddDelTargetPatch3)
 {
     MOCKER_CPP(&PingMesh::RpingRecvTargetInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtRaPingTargetAdd)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(memcpy_s)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
     
     u32 deviceId = 1;
@@ -631,7 +631,7 @@ TEST_F(PingMesh_UT, ut_PingMeshGetResult)
 {
     MOCKER(hrtMemSyncCopyEx)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     u32 deviceId = 1;
@@ -697,7 +697,7 @@ TEST_F(PingMesh_UT, ut_PingMeshGetResultFail)
 {
     MOCKER(hrtMemSyncCopyEx)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_NOT_SUPPORT));
     
     u32 deviceId = 1;
@@ -883,7 +883,7 @@ TEST_F(PingMesh_UT, ut_PingMeshGetPayload)
 {
     MOCKER(hrtMemSyncCopyEx)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     u32 deviceId = 1;

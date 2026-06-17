@@ -107,7 +107,7 @@ void MockCcuNetworkDeviceDefault(int32_t devPhyId)
     unsigned int eidNum = fakeEidNum;
     MOCKER(RaGetDevEidInfoNum)
         .stubs()
-        .with(any(), outBoundP(&eidNum))
+        .with(mockcpp::any(), outBoundP(&eidNum))
         .will(returnValue(0));
 
     MOCKER(RaGetDevEidInfoList)

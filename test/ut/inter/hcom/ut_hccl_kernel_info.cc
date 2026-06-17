@@ -197,7 +197,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -339,12 +339,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -357,12 +357,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     DevType devType = DevType::DEV_TYPE_910;
@@ -443,12 +443,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -461,12 +461,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomBroadcast fail
@@ -508,12 +508,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -526,12 +526,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomAllReduce fail
@@ -578,12 +578,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -596,12 +596,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomAllGather fail
@@ -660,12 +660,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -678,12 +678,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomAllGather fail
@@ -724,12 +724,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -742,12 +742,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomReduceScatter fail
@@ -815,12 +815,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
  
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(InitGroup)
@@ -833,12 +833,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
  
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     // HcomReduceScatterv fail
     newTask_rs.id = taskID++;
@@ -876,12 +876,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetInitStatus)
@@ -899,12 +899,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomSend fail
@@ -930,12 +930,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetInitStatus)
@@ -953,12 +953,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomReceive fail
@@ -993,12 +993,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -1011,12 +1011,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomReduce fail
@@ -1185,12 +1185,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask_comm)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemcpyAddrAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(InitGroup)
@@ -1203,12 +1203,12 @@ TEST_F(HcomKernelInfoTest, ut_LoadTask_comm)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // HcomBroadcast
@@ -1296,12 +1296,12 @@ TEST_F(HcomKernelInfoTest, ut_SetUnkownWorkSpace)
     task.privateDef = (void *)&privateDefBuf.group[0];
     MOCKER_CPP(&HcomOpsKernelInfoStore::CommGraphSetWorkspaceResourceFromtagVec)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hcclComm::SupportDeterministicOptim)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = hcomKernelInfo.SetUnknownShapeWorkspaceResource(task, HCCL_KERNEL_OP_TYPE_REDUCESCATTER, tagVec);
@@ -1551,7 +1551,7 @@ TEST_F(HcomKernelInfoTest, ut_GetHcomOpMemSize)
 
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
     ret = hcomOpsKernelInfoStore_.GetHcomOpMemSize(shapeType, sCollectiveType, hcomComm, sGroup, dataType, count, inputAddrSize, outputAddrSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -1590,7 +1590,7 @@ TEST_F(HcomKernelInfoTest, ut_GetCommCCLBuf)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&hccl::hcclComm::GetInCCLbuffer)
     .stubs()
@@ -1621,7 +1621,7 @@ TEST_F(HcomKernelInfoTest, ut_RefreshInputAddr)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetInCCLbuffer)
@@ -1659,7 +1659,7 @@ TEST_F(HcomKernelInfoTest, ut_RefreshInputAddr2)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetInCCLbuffer)
@@ -1701,7 +1701,7 @@ TEST_F(HcomKernelInfoTest, ut_RefreshInputAddr3)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetInCCLbuffer)
@@ -1743,7 +1743,7 @@ TEST_F(HcomKernelInfoTest, ut_RefreshOutputAddr)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetOutCCLbuffer)
@@ -1792,7 +1792,7 @@ TEST_F(HcomKernelInfoTest, ut_RefreshOutputAddr2)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetOutCCLbuffer)
@@ -1846,7 +1846,7 @@ TEST_F(HcomKernelInfoTest, ut_GetHcomOutCCLbufferSize)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetOutCCLbuffer)
@@ -1894,7 +1894,7 @@ TEST_F(HcomKernelInfoTest, ut_RefreshOutputAddr3)
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hccl::hcclComm::GetOutCCLbuffer)
@@ -2067,16 +2067,16 @@ TEST_F(HcomKernelInfoTest, ut_hcom_alltoallv_loadtask)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcclMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     CHK_BBIT_RET(infoStore.LoadTask(task));
@@ -2279,7 +2279,7 @@ TEST_F(HcomKernelInfoTest, ut_init_group)
     u32 rankId = 0;
     MOCKER(HcomGetRankId)
     .stubs()
-    .with(any(), outBound(&rankId))
+    .with(mockcpp::any(), outBound(&rankId))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(HcomCreateGroup)
     .stubs()
@@ -2344,12 +2344,12 @@ TEST_F(HcomKernelInfoTest, ut_hcom_offline_build_init_hcom)
 
     MOCKER(SalStrToULonglong)
     .stubs()
-    .with(any(), any(),outBound(rankTableAddr))
+    .with(mockcpp::any(), mockcpp::any(),outBound(rankTableAddr))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(SalStrToULonglong)
     .stubs()
-    .with(any(), any(),outBound(rankTableLen))
+    .with(mockcpp::any(), mockcpp::any(),outBound(rankTableLen))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomInitByString)
@@ -2375,7 +2375,7 @@ TEST_F(HcomKernelInfoTest, ut_hcom_offline_build_init_hcom)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetandClearOverFlowTasks)
@@ -2538,12 +2538,12 @@ TEST_F(HcomKernelInfoTest, ut_hcom_loadtask_checkTaskID)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge_ret = opsKernerInfoStorePtr->LoadTask(task);
@@ -2711,12 +2711,12 @@ TEST_F(HcomKernelInfoTest, ut_unloadtask)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge_ret = opsKernerInfoStorePtr->LoadTask(task);
@@ -2899,12 +2899,12 @@ TEST_F(HcomKernelInfoTest, ut_task_overflow)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge_ret = opsKernerInfoStorePtr->LoadTask(task);
@@ -2979,12 +2979,12 @@ TEST_F(HcomKernelInfoTest, ut_HcclGetRemoteOperationParams)
 {
     MOCKER(GetOpDescStrAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(GetOpDescIntAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS))
     .then(returnValue(HCCL_SUCCESS))
     .then(returnValue(HCCL_SUCCESS))
@@ -3029,12 +3029,12 @@ TEST_F(HcomKernelInfoTest, ExecuteRemoteOperation)
 {
     MOCKER(GetOpDescStrAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(GetOpDescIntAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcomRemoteOperationParams opParams;
@@ -3239,12 +3239,12 @@ TEST_F(HcomKernelInfoTest, ut_hcom_loadtask_int64)
 
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TbeReduce::TbeCrackCleared::ExecuteKernelLaunch)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge_ret = opsKernerInfoStorePtr->LoadTask(task);
@@ -3283,17 +3283,17 @@ TEST_F(HcomKernelInfoTest, ut_CleanIntervalMemory_0)
 
     MOCKER(hrtMemAsyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtMemSyncCopy)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtGetDeviceType)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     s32 ret = hcomKernelInfo.CleanIntervalMemory("tag", crackAddr, crackSize, stream);
@@ -3345,12 +3345,12 @@ TEST_F(HcomKernelInfoTest, ut_opKernelLoop)
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetHcomOutCCLbufferSize)
     .stubs()
-    .with(outBound(commOutputSize), any(), any(), outBound(sGroup))
+    .with(outBound(commOutputSize), mockcpp::any(), mockcpp::any(), outBound(sGroup))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetHcomInCCLbufferSize)
     .stubs()
-    .with(outBound(commOutputSize), any(), any(), outBound(sGroup))
+    .with(outBound(commOutputSize), mockcpp::any(), mockcpp::any(), outBound(sGroup))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetRankSize)
@@ -3389,32 +3389,32 @@ TEST_F(HcomKernelInfoTest, ut_opKernelLoop)
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::CheckHcomOpMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetOutputCCLbufPtrAndIndirectOutCCLbufPtr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetInputCCLbufPtrAndIndirectInCCLbufPtr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::CleanIntervalMemoryOpKernel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::CheckTensorNumAndTensorSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&hccl::hcclComm::GetInCCLbuffer)
     .stubs()
@@ -3425,12 +3425,12 @@ TEST_F(HcomKernelInfoTest, ut_opKernelLoop)
 
     MOCKER(HcomAllGather)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomReduceScatter)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge::GETaskInfo task;
@@ -3514,12 +3514,12 @@ TEST_F(HcomKernelInfoTest, ut_GetOpKernelLoopTime1)
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetHcomOutCCLbufferSize)
     .stubs()
-    .with(outBound(commOutputSize), any(), any(), outBound(sGroup))
+    .with(outBound(commOutputSize), mockcpp::any(), mockcpp::any(), outBound(sGroup))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetHcomInCCLbufferSize)
     .stubs()
-    .with(outBound(commOutputSize), any(), any(), outBound(sGroup))
+    .with(outBound(commOutputSize), mockcpp::any(), mockcpp::any(), outBound(sGroup))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetRankSize)
@@ -3576,12 +3576,12 @@ TEST_F(HcomKernelInfoTest, ut_GetOpKernelLoopTime2)
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetHcomOutCCLbufferSize)
     .stubs()
-    .with(outBound(commOutputSize), any(), any(), outBound(sGroup))
+    .with(outBound(commOutputSize), mockcpp::any(), mockcpp::any(), outBound(sGroup))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GetHcomInCCLbufferSize)
     .stubs()
-    .with(outBound(commOutputSize), any(), any(), outBound(sGroup))
+    .with(outBound(commOutputSize), mockcpp::any(), mockcpp::any(), outBound(sGroup))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetRankSize)
@@ -3623,7 +3623,7 @@ TEST_F(HcomKernelInfoTest, ut_GetTagVectorInfo)
 
     MOCKER_CPP(&HcomOpsKernelInfoStore::GenerateOpTagFromTaskInfo)
     .stubs()
-    .with(any(), any(), outBound(tag), outBound(loopMaxTime))
+    .with(mockcpp::any(), mockcpp::any(), outBound(tag), outBound(loopMaxTime))
     .will(returnValue(HCCL_SUCCESS));
 
     s32 ret = hcomKernelInfo.GetTagVectorInfo(task, sCollectiveType, tagVec);
@@ -3655,7 +3655,7 @@ TEST_F(HcomKernelInfoTest, ut_HcclCommGraphSetWorkspaceResource)
 
     MOCKER(HcclCommGraphSetWorkspaceResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     s32 ret = hcomKernelInfo.CommGraphSetWorkspaceResourceFromtagVec(task, 0, tagVec, memPtr, 10);
@@ -3681,7 +3681,7 @@ TEST_F(HcomKernelInfoTest, ut_ReStartVnic)
 
     MOCKER_CPP(&HcclCommunicator::ReStartVnic)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     std::shared_ptr<hccl::hcclComm> comm;
@@ -3701,17 +3701,17 @@ TEST_F(HcomKernelInfoTest, ut_Communicator_ReStartVnic)
 
     MOCKER_CPP(&NetworkManager::StopVnic)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&NetworkManager::StartVnic)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&NetworkManager::IsHasStartVnic)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     HcclCommParams params;
@@ -3861,9 +3861,9 @@ TEST_F(HcomKernelInfoTest, ut_HcomAicpuStreamRegister)
     comm->communicator_.reset(new (std::nothrow) HcclCommunicator());
     int64_t commStub = 0;
 
-    MOCKER_CPP(&HcomOpsKernelInfoStore::GetCommFromTaskInfo).stubs().with(any(), outBound(commStub)).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcomOpsKernelInfoStore::GetGroupFromTaskInfo).stubs().with(any(), outBound(group1)).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcomGetCommByGroup).stubs().with(any(), outBound(comm)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcomOpsKernelInfoStore::GetCommFromTaskInfo).stubs().with(mockcpp::any(), outBound(commStub)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcomOpsKernelInfoStore::GetGroupFromTaskInfo).stubs().with(mockcpp::any(), outBound(group1)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcomGetCommByGroup).stubs().with(mockcpp::any(), outBound(comm)).will(returnValue(HCCL_SUCCESS));
 
     // 多次注册、解注册，验证引用计数功能
     EXPECT_EQ(hcomKernelInfo.HcomAicpuStreamRegister(task), HCCL_SUCCESS);
@@ -3901,7 +3901,7 @@ TEST_F(HcomKernelInfoTest, ut_LoadTaskSetAivCoreLimit)
     EXPECT_EQ(ret, HCCL_E_PARA);
 
     u32 numBlocks1 = 0;
-    MOCKER(&HcomSetAivCoreLimit).stubs().with(any(), spy(numBlocks1)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&HcomSetAivCoreLimit).stubs().with(mockcpp::any(), spy(numBlocks1)).will(returnValue(HCCL_SUCCESS));
     privateDefBuf.comm = 0;
     privateDefBuf.aivCoreLimit = 7;
     ret = hcomKernelInfo.SetAivCoreLimit(task);

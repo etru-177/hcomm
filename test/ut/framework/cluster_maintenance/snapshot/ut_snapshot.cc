@@ -51,7 +51,7 @@ TEST_F(SnapshotTest, ut_Register_and_PreProcess_success)
     u32 phyId = 0;
     MOCKER(SnapShotSaveAction)
     .stubs()
-    .with(any(), outBound(phyId), any())
+    .with(mockcpp::any(), outBound(phyId), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     SnapshotSetInvalidComm setInvalidCommCallback = [](bool isInvalid) { return HCCL_SUCCESS; };
@@ -77,7 +77,7 @@ TEST_F(SnapshotTest, ut_Register_and_PostProcess_success)
     u32 phyId = 0;
     MOCKER(SnapShotSaveAction)
     .stubs()
-    .with(any(), outBound(phyId), any())
+    .with(mockcpp::any(), outBound(phyId), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     SnapshotSetInvalidComm setInvalidCommCallback = [](bool isInvalid) { return HCCL_SUCCESS; };
@@ -103,7 +103,7 @@ TEST_F(SnapshotTest, ut_Register_and_Restore_success)
     u32 phyId = 0;
     MOCKER(SnapShotSaveAction)
     .stubs()
-    .with(any(), outBound(phyId), any())
+    .with(mockcpp::any(), outBound(phyId), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     SnapshotSetInvalidComm setInvalidCommCallback = [](bool isInvalid) { return HCCL_SUCCESS; };

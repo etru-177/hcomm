@@ -53,12 +53,12 @@ protected:
         std::cout << "A Test SetUP" << std::endl;
         MOCKER(hrtRaGetSingleSocketVnicIpInfo)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(stub_hrtRaGetSingleSocketVnicIpInfo));
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
     }
     virtual void TearDown()
@@ -287,7 +287,7 @@ TEST_F(CommRingTest, ut_comminter_init_4_thread)
 
     MOCKER(&P2PMgmtPub::WaitP2PEnabled)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     tid[0] = sal_thread_create("commRing rank0 thread", comm_ring_task_handle, (void*)&para_info[0]);
@@ -441,7 +441,7 @@ TEST_F(CommRingTest, ut_comminter_init_5_thread)
 
     MOCKER(&P2PMgmtPub::WaitP2PEnabled)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     tid[0] = sal_thread_create("commRing rank0 thread", comm_ring_task_handle, (void*)&para_info[0]);
@@ -485,7 +485,7 @@ TEST_F(CommRingTest, ut_comminter_get_sockets_per_link)
     // 补充覆盖率
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE));
 
     setenv("HCCL_RDMA_QP_PORT_CONFIG_PATH", "/tmp/", 1);

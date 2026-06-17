@@ -85,15 +85,15 @@ std::unique_ptr<CommunicatorImpl> MockCommImpl()
     GenRankTableFile1Ser8Dev();
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
     impl->rankGraph = make_unique<RankGraph>(0);
     impl->rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
  
     MOCKER_CPP(&CcuComponent::Init).stubs();
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs();
@@ -127,7 +127,7 @@ HcclResult CcuJettyMgrPrepareCreateStub(CcuJettyMgr *self, const std::vector<Lin
 
 void MockCcuTransportMgrDevs()
 {
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(MAX_MODULE_DEVICE_NUM -
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(MAX_MODULE_DEVICE_NUM -
 	    1)));
 
     HcclResult OkResult = HcclResult::HCCL_SUCCESS;
@@ -155,7 +155,7 @@ void MockCcuTransportMgrDevs()
     MOCKER_CPP(&CcuTransport::Init).stubs().will(returnValue(OkResult));
     MOCKER_CPP(&CcuConnection::Init).stubs().will(returnValue(OkResult));
 
-    MOCKER(HrtRaUbUnimportJetty).stubs().with(any(), any()).will(ignoreReturnValue());
+    MOCKER(HrtRaUbUnimportJetty).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
 }
 
 TEST_F(CcuTransportMgrTest, Ut_PrepareCreate_When_InterfaceOk_Expect_Return_Ok)
@@ -177,7 +177,7 @@ TEST_F(CcuTransportMgrTest, Ut_PrepareCreate_When_InterfaceOk_Expect_Return_Ok)
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -236,7 +236,7 @@ TEST_F(CcuTransportMgrTest, Ut_PrepareCreateFailAndFallback_When_InterfaceUnavai
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -277,7 +277,7 @@ TEST_F(CcuTransportMgrTest, Ut_CleanAndResume_When_InterfaceOk_Expect_Return_Ok)
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -332,7 +332,7 @@ TEST_F(CcuTransportMgrTest, Ut_CleanAndResumeFailed_When_InterfaceError_Expect_R
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -385,7 +385,7 @@ TEST_F(CcuTransportMgrTest, Ut_RecoverTransports_When_InterfaceOk_Expect_Return_
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -445,7 +445,7 @@ TEST_F(CcuTransportMgrTest, Ut_RecoverTransportsFailed_When_RecoverMsgError_Expe
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -487,7 +487,7 @@ TEST_F(CcuTransportMgrTest, Ut_Clean_And_Destory_Success_When_InterfaceOk_Expect
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -608,7 +608,7 @@ TEST_F(CcuTransportMgrTest, Ut_Clean_Error_When_InterfaceOk_Expect_Return_Error_
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -695,7 +695,7 @@ TEST_F(CcuTransportMgrTest, Ut_Clean_Error_When_InterfaceOk_Expect_Return_Error_
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -782,7 +782,7 @@ TEST_F(CcuTransportMgrTest, Ut_Clean_Error_When_InterfaceOk_Expect_Return_Error_
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -869,7 +869,7 @@ TEST_F(CcuTransportMgrTest, Ut_Clean_Error_When_InterfaceOk_Expect_Return_Error_
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())
@@ -954,7 +954,7 @@ TEST_F(CcuTransportMgrTest, Ut_Clean_Error_When_InterfaceOk_Expect_Return_Error_
     MOCKER_CPP(&LocalRmaBufManager::Get,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &opTag, const PortData &portData, BufferType bufferType))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeBuffer.get()));
 
     CcuJettyMgr *ccuJettyMgr = dynamic_cast<CollServiceDeviceMode *>(commImpl->GetCollService())

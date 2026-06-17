@@ -207,7 +207,7 @@ TEST_F(DevUbConnectionTest, rma_ub_connection_suspend_change_status_suspend)
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
     
     //  When:
-    MOCKER(HrtFree).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtFree).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     devUbConnection.jettyHandle = 1;
     devUbConnection.sqBuffVa = 0x1000000;
     devUbConnection.status = RmaConnStatus::READY;
@@ -229,7 +229,7 @@ TEST_F(DevUbConnectionTest, rma_ub_connection_suspend_change_status_invalid)
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
     
     //  When:
-    MOCKER(HrtFree).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtFree).stubs().with(mockcpp::any()).will(ignoreReturnValue());
      
     // Then
     devUbConnection.status = RmaConnStatus::CLOSE;
@@ -250,7 +250,7 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_task_with_db_send)
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData     linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
 
@@ -285,12 +285,12 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_task_with_dwqe)
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData     linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -351,7 +351,7 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_read_task_with_dwqe)
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     // When
@@ -401,7 +401,7 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_read_reduce_task_with_dwq
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     // When
@@ -451,7 +451,7 @@ TEST_F(DevUbConnectionTest, rma_ub_connection_prepare_write_reduce_task_with_dwq
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     // When
@@ -477,7 +477,7 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_with_notify_task_wi
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData     linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
 
@@ -503,12 +503,12 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_with_notify_task_wi
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData     linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -562,7 +562,7 @@ TEST_F(DevUbConnectionTest, rma_ub_connection_prepare_write_reduce_with_notify_t
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     // When
@@ -637,7 +637,7 @@ TEST_F(DevUbConnectionTest, rma_ub_connection_prepare_inline_write_task_with_dwq
     postSendRes.dwqeSize = 128;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes));
 
     // When
@@ -662,7 +662,7 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_task_in_offload_mod
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData     linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
     HrtRaUbSendWrRespParam postSendRes1;
     postSendRes1.dwqeSize = 64;
     HrtRaUbSendWrRespParam postSendRes2;
@@ -672,7 +672,7 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_task_in_offload_mod
     postSendRes3.dwqeSize = 100;
     MOCKER(HrtRaUbPostSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(postSendRes1))
         .then(returnValue(postSendRes2))
         .then(returnValue(postSendRes3));
@@ -705,8 +705,8 @@ TEST_F(DevUbConnectionTest, rma_net_connection_prepare_write_task_in_offload_mod
     MemoryBuffer remoteMemBuffer10(2000, 10, 0);
     EXPECT_THROW(devUbConnection.PrepareWriteReduce(remoteMemBuffer10, localMemBuffer10, DataType::INT8, ReduceOp::SUM, config), InvalidParamsException);
 
-    MOCKER(HrtRaUbPostNops).stubs().with(any(), any(), any());
-    MOCKER(HrtUbDbSend).stubs().with(any(), any());
+    MOCKER(HrtRaUbPostNops).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtUbDbSend).stubs().with(mockcpp::any(), mockcpp::any());
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream stream;

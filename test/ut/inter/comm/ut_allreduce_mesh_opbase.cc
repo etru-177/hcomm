@@ -60,7 +60,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(hrtProfRegisterCtrlCallback)
         .stubs()
@@ -119,7 +119,7 @@ TEST_F(AllreduceMeshOpbaseTest, ut_impl_alg)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -179,7 +179,7 @@ TEST_F(AllreduceMeshOpbaseTest, ut_impl_alg2)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -239,7 +239,7 @@ TEST_F(AllreduceMeshOpbaseTest, ut_impl_alg3)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -299,7 +299,7 @@ TEST_F(AllreduceMeshOpbaseTest, ut_impl_alg4)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -359,7 +359,7 @@ TEST_F(AllreduceMeshOpbaseTest, ut_impl_alg5)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);

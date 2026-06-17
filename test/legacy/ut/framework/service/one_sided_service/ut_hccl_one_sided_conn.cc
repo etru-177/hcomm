@@ -48,7 +48,7 @@ protected:
         MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
         MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
         MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-        MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+        MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
         MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
     }
@@ -70,7 +70,7 @@ protected:
 TEST_F(HcclOneSidedConnTest, EnableMemAccess_MemoryOverlap)
 {
     void *rdmaHandle = (void *)0x100;
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
     CommunicatorImpl com;
     BasePortType basePortType(PortDeploymentType::P2P, ConnectProtoType::UB);
     LinkData linkData(basePortType, 0, 1, 0, 1);
@@ -107,7 +107,7 @@ TEST_F(HcclOneSidedConnTest, EnableMemAccess_MemoryOverlap)
     HrtRaUbRemMemImportedOutParam fakeRemoteOutParam;
     fakeRemoteOutParam.handle      = fakeNotifyHandleAddr;
     fakeRemoteOutParam.targetSegVa = fakeTargetSegVa;
-    MOCKER(HrtRaUbRemoteMemImport).stubs().with(any(), any(), any(), any()).will(returnValue(fakeRemoteOutParam));
+    MOCKER(HrtRaUbRemoteMemImport).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeRemoteOutParam));
 
     EXPECT_NO_THROW(conn.EnableMemAccess(desc1, mem1));
     EXPECT_NO_THROW(conn.DisableMemAccess(desc1));
@@ -117,7 +117,7 @@ TEST_F(HcclOneSidedConnTest, EnableMemAccess_MemoryOverlap)
 TEST_F(HcclOneSidedConnTest, DisableMemAccess_BufferNotFound)
 {
     void *rdmaHandle = (void *)0x100;
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
     CommunicatorImpl com;
     BasePortType basePortType(PortDeploymentType::P2P, ConnectProtoType::UB);
     LinkData linkData(basePortType, 0, 1, 0, 1);
@@ -135,7 +135,7 @@ TEST_F(HcclOneSidedConnTest, DisableMemAccess_BufferNotFound)
     HrtRaUbRemMemImportedOutParam fakeRemoteOutParam;
     fakeRemoteOutParam.handle      = fakeNotifyHandleAddr;
     fakeRemoteOutParam.targetSegVa = fakeTargetSegVa;
-    MOCKER(HrtRaUbRemoteMemImport).stubs().with(any(), any(), any(), any()).will(returnValue(fakeRemoteOutParam));
+    MOCKER(HrtRaUbRemoteMemImport).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeRemoteOutParam));
 
     // 调用DisableMemAccess，期望抛出异常，实际上没有抛出异常
     EXPECT_NO_THROW(conn.DisableMemAccess(desc));

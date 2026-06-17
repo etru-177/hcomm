@@ -37,13 +37,13 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType::DEV_TYPE_950));
-        MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<s32>(0)));
-        MOCKER(HrtRaUbCreateJetty).stubs().with(any(), any()).will(returnValue(HrtRaUbJettyCreatedOutParam()));
-        MOCKER(HraGetDieAndFuncId).stubs().with(any()).will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
-        MOCKER(HrtRaUbCreateJfc).stubs().with(any(), any()).will(returnValue(jfcHandle));
+        MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<s32>(0)));
+        MOCKER(HrtRaUbCreateJetty).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HrtRaUbJettyCreatedOutParam()));
+        MOCKER(HraGetDieAndFuncId).stubs().with(mockcpp::any()).will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
+        MOCKER(HrtRaUbCreateJfc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(jfcHandle));
         MOCKER(RaUbImportJetty)
             .stubs()
-            .with(any(), any(), any(), any())
+            .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(HrtRaUbJettyImportedOutParam()));
 
         MOCKER_CPP(&Socket::GetStatus).stubs().will(returnValue((SocketStatus)SocketStatus::OK));
@@ -80,7 +80,7 @@ TEST_F(DevCcuConnectionTest, dev_ccu_connection_get_status_return_ok)
     ChannelInfo channelInfo;
     channelInfo.channelId = 0;
     channelInfo.jettys.push_back(JettyInfo());
-    MOCKER_CPP(&CcuComponent::AllocChannel).stubs().with(any(), any()).will(returnValue(channelInfo));
+    MOCKER_CPP(&CcuComponent::AllocChannel).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(channelInfo));
     MOCKER_CPP(&CcuComponent::CreateLocalOpChannel).stubs().will(ignoreReturnValue());
     MOCKER(HrtRaSocketBlockRecv).stubs().will(returnValue(true));
     CommunicatorImpl comm;
@@ -102,7 +102,7 @@ TEST_F(DevCcuConnectionTest, dev_ccu_connection_bind_success)
     ChannelInfo channelInfo;
     channelInfo.channelId = 0;
     channelInfo.jettys.push_back(JettyInfo());
-    MOCKER_CPP(&CcuComponent::AllocChannel).stubs().with(any(), any()).will(returnValue(channelInfo));
+    MOCKER_CPP(&CcuComponent::AllocChannel).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(channelInfo));
     MOCKER_CPP(&CcuComponent::CreateLocalOpChannel).stubs().will(ignoreReturnValue());
     MOCKER(HrtRaSocketBlockRecv).stubs().will(returnValue(true));
     CommunicatorImpl comm;
@@ -111,7 +111,7 @@ TEST_F(DevCcuConnectionTest, dev_ccu_connection_bind_success)
     devCcuConnection.Connect();
     RmaConnStatus status = devCcuConnection.GetStatus();
 
-    MOCKER_CPP(&ChannelManager::ChannelConfig).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&ChannelManager::ChannelConfig).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     RdmaHandle remoteRdmaHandle = (void *)0x2000000;
 
     EXPECT_NO_THROW(devCcuConnection.Bind(std::make_unique<RemoteUbRmaBuffer>(remoteRdmaHandle).get(), BufferType::INPUT));
@@ -128,7 +128,7 @@ std::unique_ptr<DevCcuConnection> CounctorDevCcuCon(Socket *fakeSocket)
     ChannelInfo channelInfo;
     channelInfo.channelId = 0;
     channelInfo.jettys.push_back(JettyInfo());
-    MOCKER_CPP(&CcuComponent::AllocChannel).stubs().with(any(), any()).will(returnValue(channelInfo));
+    MOCKER_CPP(&CcuComponent::AllocChannel).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(channelInfo));
     MOCKER_CPP(&CcuComponent::CreateLocalOpChannel).stubs().will(ignoreReturnValue());
 
     CommunicatorImpl comm;
@@ -189,9 +189,9 @@ TEST_F(DevCcuConnectionTest, dev_ccu_connection_suspend_change_status_suspend)
     auto devCcuConnection = CounctorDevCcuCon(fakeSocket);
 
     //  When:
-    MOCKER(HrtRaUbUnimportJetty).stubs().with(any(), any()).will(ignoreReturnValue());
-    MOCKER(HrtRaUbDestroyJetty).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtFree).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtRaUbUnimportJetty).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtRaUbDestroyJetty).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtFree).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     devCcuConnection->status = RmaConnStatus::READY;
     devCcuConnection->ccuConnStatus = DevCcuConnection::CcuConnStatus::JETTY_IMPORTED;
 

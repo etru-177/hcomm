@@ -69,7 +69,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -239,22 +239,22 @@ TEST_F(LinkIbvExpTest, ut_get_remote_addr_timeout)
     machine_para.sockets.push_back(newSocket);
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(HcclSocketSendBuff));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(HcclSocketRecvBuff));
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const std::string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(HcclSocketSendString));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(std::string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(HcclSocketRecvString));
 
     std::shared_ptr<LinkIbvExpTmp> link = nullptr;
@@ -673,17 +673,17 @@ TEST_F(LinkIbvExpTest, ut_transport_ibv_multi_qp_configpath)
 
     MOCKER_CPP(&TransportIbverbs::CreateOneQp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(HcclSocketRecvStub));
 
     ret = transportIbverbs.CreateMultiQp(OPBASE_QP_MODE_EXT, 2);
@@ -695,7 +695,7 @@ TEST_F(LinkIbvExpTest, ut_transport_ibv_multi_qp_configpath)
     
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_RESERVED));
     transportIbverbs.machinePara_.srcPorts = std::vector<u32>(3, 0);
     int qpsNum = transportIbverbs.GetQpsPerConnection();
@@ -1309,7 +1309,7 @@ TEST_F(LinkIbvExpTest, ut_transport_ipc_memory_error)
     
     MOCKER_CPP(&TransportManager::TransportInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_MEMORY));
 
     HcclIpAddress remoteIp{"1.1.1.1"};
@@ -1433,22 +1433,22 @@ TEST_F(LinkIbvExpTest, ut_error_cqe_test)
     machine_para.sockets.push_back(newSocket);
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const std::string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(std::string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HrtRaQpCreate)
@@ -1569,7 +1569,7 @@ TEST_F(LinkIbvExpTest, ut_error_cqe_test)
 
     MOCKER(hrtRaGetCqeErrInfo)
     .stubs()
-    .with(any(), outBoundP(&g_infolist[0], sizeof(struct cqe_err_info)), any())
+    .with(mockcpp::any(), outBoundP(&g_infolist[0], sizeof(struct cqe_err_info)), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     TransportIbverbs::g_isSupCqeErrInfoListConfig = false;
@@ -1598,7 +1598,7 @@ TEST_F(LinkIbvExpTest, ut_aiv_get_RMA_queue)
 {
     MOCKER_CPP(&TransportIbverbs::CreateOneQp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtRaGetInterfaceVersion)
@@ -1680,7 +1680,7 @@ TEST_F(LinkIbvExpTest, ut_direct_error_cqe_test)
     u32 ifnumVersion = 3;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&ifnumVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&ifnumVersion))
     .will(returnValue(0));
  
     /*创建link*/
@@ -1700,22 +1700,22 @@ TEST_F(LinkIbvExpTest, ut_direct_error_cqe_test)
     machine_para.sockets.push_back(newSocket);
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const std::string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(std::string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(HrtRaQpCreate)
@@ -1824,7 +1824,7 @@ TEST_F(LinkIbvExpTest, ut_direct_error_cqe_test)
  
     MOCKER(hrtRaGetCqeErrInfo)
     .stubs()
-    .with(any(), outBoundP(&g_infolist[0], sizeof(struct cqe_err_info)), any())
+    .with(mockcpp::any(), outBoundP(&g_infolist[0], sizeof(struct cqe_err_info)), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     TransportDirectNpu::g_isSupCqeErrInfoListConfig = false;
@@ -1909,12 +1909,12 @@ TEST_F(LinkIbvExpTest, ut_BatchSendRecv_2rank_unflod)
     TransportType type = TransportType::TRANS_TYPE_IBV_EXP;
     MOCKER_CPP(&TransportManager::GetTransportType)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(type));
  
     MOCKER_CPP(&TransportManager::TransportInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     transManager.opType_ = HCCL_CMD_BATCH_SEND_RECV;
@@ -1932,12 +1932,12 @@ TEST_F(LinkIbvExpTest, ut_BatchSendRecv_2rank_unflod)
         false, link, false, 1, false);
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MachinePara machinePara;
     transManager.CheckLinkNumAndSwitchLinkType(type, machinePara, sockets);
@@ -2013,7 +2013,7 @@ void InitTransportDeviceIbverbsData(TransportDeviceIbverbsData& transDevIbverbsD
  
 TEST_F(LinkIbvExpTest, ut_transport_ibverbs_TxWithReduce)
 {
-    MOCKER(stub_ibv_exp_post_send).stubs().with(any()).will(returnValue(0));
+    MOCKER(stub_ibv_exp_post_send).stubs().with(mockcpp::any()).will(returnValue(0));
  
     s32 ret;
     Stream stream(StreamType::STREAM_TYPE_OFFLINE);

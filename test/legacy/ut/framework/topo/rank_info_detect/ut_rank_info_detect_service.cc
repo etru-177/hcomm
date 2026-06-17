@@ -55,7 +55,7 @@ protected:
         std::cout << "A Test case in RankInfoDetectService SetUP" << std::endl;
         // 初始化模拟 Socket 句柄
         hccpSocketHandle = new int(0);
-        MOCKER(HrtRaSocketInit).stubs().with(any(), any()).will(returnValue(hccpSocketHandle)); 
+        MOCKER(HrtRaSocketInit).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle)); 
 
         // 1. 构造测试所需参数
         u32 devPhyId_ = 0;
@@ -70,9 +70,9 @@ protected:
             serverSocketTag_, SocketRole::SERVER, NicType::DEVICE_NIC_TYPE
         );
 
-        MOCKER_CPP(&HccpPeerManager::Init).stubs().with(any());
-        MOCKER_CPP(&HccpPeerManager::DeInit).stubs().with(any());
-        MOCKER_CPP(&HostSocketHandleManager::Create).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+        MOCKER_CPP(&HccpPeerManager::Init).stubs().with(mockcpp::any());
+        MOCKER_CPP(&HccpPeerManager::DeInit).stubs().with(mockcpp::any());
+        MOCKER_CPP(&HostSocketHandleManager::Create).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
 
         serverSocket_->Listen(); // 启动监听（模拟真实场景）
 
@@ -133,7 +133,7 @@ TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Timeout_Expect_fail)
     fakeEnvSocketConfig.linkTimeOut.isParsed = true;
     MOCKER_CPP(&EnvConfig::GetSocketConfig).stubs().will(returnValue(fakeEnvSocketConfig));
 
-    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
 
     MOCKER_CPP(&Socket::GetStatus)
         .stubs()
@@ -148,7 +148,7 @@ TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Timeout_Expect_fail)
 
 TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Normal_Expect_Success)
 {
-    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
 
     MOCKER_CPP(&Socket::GetStatus)
         .stubs()
@@ -219,7 +219,7 @@ TEST_F(RankInfoDetectServiceTest, Ut_GetRankTable_When_Normal_Expect_Success) {
 
     // 取rankInfoMsg的data() （const char *）
     MOCKER(aclrtMallocHostWithCfg).stubs().will(returnValue(1));
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue((void*)rankInfoMsg.data()));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue((void*)rankInfoMsg.data()));
     char *rankInfoMsgToSend = rankInfoMsg.data();
     void *msg = rankInfoMsg.data();
     u64 msgLen = rankInfoMsg.size();
@@ -236,7 +236,7 @@ TEST_F(RankInfoDetectServiceTest, Ut_BroadcastRankTable_When_Normal_Expect_Succe
 {
     MOCKER_CPP(&RankInfoDispather::BroadcastRankTable)
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(true));
 
     EXPECT_NO_THROW(rankInfoDetectService_->BroadcastRankTable());
@@ -307,7 +307,7 @@ TEST_F(RankInfoDetectServiceTest, Ut_ParseRankTable_When_Normal_Expect_Success)
     // Mock UpdateRankTable方法
     MOCKER_CPP(&RankTableInfo::UpdateRankTable)
         .expects(exactly(1))
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(true));
     
     // 6. 执行测试
@@ -324,7 +324,7 @@ bool RecvRemoteAgentIdStub(RankInfoDetectService* thisPtr, SocketAgent &connSock
 
 TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Last_Fail_Expect_Print_Connected_Socket)
 {
-    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
 
     MOCKER_CPP(&std::chrono::steady_clock::now)
         .stubs()
@@ -371,12 +371,12 @@ TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Last_Fail_Expect_Print_
     string agentId{"0"};
     MOCKER_CPP(&RankInfoDetectService::RecvRemoteAgentId)
             .stubs()
-            .with(any(), outBound(agentId))
+            .with(mockcpp::any(), outBound(agentId))
             .will(invoke(RecvRemoteAgentIdStub));
     
     MOCKER_CPP(&RankInfoDetectService::RecvRemoteRankSize)
             .stubs()
-            .with(any(), outBound(rankSize))
+            .with(mockcpp::any(), outBound(rankSize))
             .will(returnValue(true));
 
     rankInfoDetectService_->GetConnections();
@@ -384,7 +384,7 @@ TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Last_Fail_Expect_Print_
 
 TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Sudden_Fail)
 {
-    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+    MOCKER_CPP(&HostSocketHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
 
     MOCKER_CPP(&Socket::GetStatus)
         .stubs()
@@ -420,12 +420,12 @@ TEST_F(RankInfoDetectServiceTest, Ut_GetConnections_When_Sudden_Fail)
     string agentId{"0"};
     MOCKER_CPP(&RankInfoDetectService::RecvRemoteAgentId)
             .stubs()
-            .with(any(), outBound(agentId))
+            .with(mockcpp::any(), outBound(agentId))
             .will(invoke(RecvRemoteAgentIdStub));
     
     MOCKER_CPP(&RankInfoDetectService::RecvRemoteRankSize)
             .stubs()
-            .with(any(), outBound(rankSize))
+            .with(mockcpp::any(), outBound(rankSize))
             .will(returnValue(true));
 
     rankInfoDetectService_->GetConnections();

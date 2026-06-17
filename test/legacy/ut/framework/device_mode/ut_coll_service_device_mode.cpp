@@ -74,7 +74,7 @@ protected:
         MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
         MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
         MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-        MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+        MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
         MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
 
@@ -83,12 +83,12 @@ protected:
 
         Buffer *buf = nullptr;
         LocalRmaBuffer *rmaBuf = nullptr;
-        MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any(), any()).will(returnValue(buf));
+        MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(buf));
         MOCKER_CPP(&LocalRmaBufManager::Reg,
                    LocalRmaBuffer *
                        (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
             .stubs()
-            .with(any(), any(), any())
+            .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(rmaBuf));
         RtsNotify notify(false);
         RtsNotify notify1(false);
@@ -96,11 +96,11 @@ protected:
         MOCKER_CPP(&HostDeviceSyncNotifyManager::GetDeviceWaitNotify).stubs().with().will(returnValue(&notify1));
         MOCKER_CPP(&HostDeviceSyncNotifyManager::GetPackedData)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(std::vector<char>{'1', '2'}));
         void *ptr1 = (void*)1;
-        MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr1));
-        MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+        MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr1));
+        MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
 
         fakeComm.cclBuffer = DevBuffer::Create(0x100, 0x100);
         fakeComm.SetCommStatus(CommStatus::COMM_READY);
@@ -149,7 +149,7 @@ protected:
 
         fakeComm.InitCollService();
         fakeComm.CollAlgComponentInit();
-        MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+        MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
         fakeComm.RegisterAcceStateCallBack(CommunicatorCallback());
         OpExecuteConfig opConfig;  // ccu 展开
         opConfig.accState = AcceleratorState::CCU_MS;
@@ -168,26 +168,26 @@ protected:
                            HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                            const string &algName, InsQuePtr queue))
             .stubs()
-            .with(any(), any(), any(), any())
+            .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(HcclResult::HCCL_SUCCESS));
         MOCKER_CPP_VIRTUAL(
             collAlgComponent, &CollAlgComponent::CalcResOffload,
             HcclResult(CollAlgComponent::*)(const OpType &opType, const u64 &dataSize, const HcclDataType &dataType, 
                                             const OpExecuteConfig &opConfig, CollOffloadOpResReq &resReq))
             .stubs()
-            .with(any(), any(), any(), any())
+            .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(HcclResult::HCCL_SUCCESS));
         MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(collAlgOpReq));
         MOCKER_CPP(&Trace::Save).stubs();
         MOCKER_CPP(&CollServiceAiCpuImpl::AllocOpMem).stubs();
         MOCKER_CPP(&Stream::InitDevPhyId).stubs();
         MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs();
-        MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(any());
-        MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(any());
-        MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(any(), any());
+        MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(mockcpp::any());
+        MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(mockcpp::any());
+        MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(mockcpp::any(), mockcpp::any());
         std::cout << "A Test case in CommunicatorImplTest SetUP" << std::endl;
     }
 
@@ -220,7 +220,7 @@ TEST_F(CollServiceDeviceModeTest, test_init_LoadWithOpBasedMode)
 TEST_F(CollServiceDeviceModeTest, test_init_LoadWithOffloadMode)
 {
     void *ptr1 = (void*)1;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr1));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr1));
     MOCKER(HrtGetStreamId).stubs().will(returnValue(0));
     MOCKER_CPP(&CollServiceDefaultImpl::AddCountTask).stubs().will(ignoreReturnValue());
     auto service = dynamic_cast<CollServiceDeviceMode *>(fakeComm.collService);
@@ -292,7 +292,7 @@ TEST_F(CollServiceDeviceModeTest, test_alloc_comm_resource_by_tiling_success)
     MOCKER_CPP(&Mc2Compont::FillCollOperator).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&Mc2Compont::AllocCommResource).stubs().with().will(ignoreReturnValue());
     std::vector<CcuTaskParam> vec;
-    MOCKER_CPP(&Mc2Compont::GetCcuTaskInfo).stubs().with(any()).will(returnValue(vec));
+    MOCKER_CPP(&Mc2Compont::GetCcuTaskInfo).stubs().with(mockcpp::any()).will(returnValue(vec));
 
     MOCKER_CPP(&SocketManager::BatchCreateSockets, void(SocketManager::*)(const std::vector<LinkData>&))
         .stubs();
@@ -300,8 +300,8 @@ TEST_F(CollServiceDeviceModeTest, test_alloc_comm_resource_by_tiling_success)
     MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs();
     std::vector<Hccl::LinkData> linkVec;
     char *buf = new char[16 * 1024 * 1024];
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(buf)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x100000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(buf)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x100000));
 
     rtFusionArgsEx_t fusionArgs;
     rtCcuTaskGroup_t ccuTaskGroup;
@@ -373,11 +373,11 @@ TEST_F(CollServiceDeviceModeTest, test_ccu_RecoverTransport)
 
 TEST_F(CollServiceDeviceModeTest, test_GetSnapShotDynamicBuf)
 {
-    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(any(), any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(any(), any());
+    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(mockcpp::any(), mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&MemTransportManager::IsAllOpbasedTransportReady).stubs().with().will(returnValue(true));
-    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(mockcpp::any()).will(returnValue(true));
 
     CommunicatorImpl comm;
     comm.InitMemTransportManager();
@@ -404,7 +404,7 @@ TEST_F(CollServiceDeviceModeTest, test_GetSnapShotDynamicBuf)
     CollAlgComponent collAlgComponent(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(collAlgOpReq));
     comm.collAlgComponent = make_shared<CollAlgComponent>(nullptr, DevType::DEV_TYPE_950, 0, 1);
     CollOperator op;
@@ -431,11 +431,11 @@ TEST_F(CollServiceDeviceModeTest, test_GetSnapShotDynamicBuf)
 
 TEST_F(CollServiceDeviceModeTest, test_IsAllTransportRecoveredReady)
 {
-    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(any(), any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(any(), any());
+    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(mockcpp::any(), mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&MemTransportManager::IsAllOpbasedTransportReady).stubs().with().will(returnValue(true));
-    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(mockcpp::any()).will(returnValue(true));
 
     CommunicatorImpl comm;
     comm.InitMemTransportManager();
@@ -462,7 +462,7 @@ TEST_F(CollServiceDeviceModeTest, test_IsAllTransportRecoveredReady)
     CollAlgComponent collAlgComponent(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(collAlgOpReq));
     comm.collAlgComponent = make_shared<CollAlgComponent>(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP(&CcuInsPreprocessor::RecoverCcuTransportConfirm)
@@ -474,11 +474,11 @@ TEST_F(CollServiceDeviceModeTest, test_IsAllTransportRecoveredReady)
 
 TEST_F(CollServiceDeviceModeTest, test_IsAllTransportRecoveredReady_false)
 {
-    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(any(), any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(any(), any());
+    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(mockcpp::any(), mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&MemTransportManager::IsAllOpbasedTransportReady).stubs().with().will(returnValue(true));
-    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(mockcpp::any()).will(returnValue(true));
 
     CommunicatorImpl comm;
     comm.InitMemTransportManager();
@@ -505,7 +505,7 @@ TEST_F(CollServiceDeviceModeTest, test_IsAllTransportRecoveredReady_false)
     CollAlgComponent collAlgComponent(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(collAlgOpReq));
     comm.collAlgComponent = make_shared<CollAlgComponent>(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP(&CcuInsPreprocessor::RecoverCcuTransportConfirm)
@@ -682,7 +682,7 @@ TEST_F(CollServiceDeviceModeTest, should_success_when_AllocCommResource_aiv)
         &LocalRmaBufManager::Reg,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(rmaBuf));
 
     CommunicatorImpl comm;
@@ -728,8 +728,8 @@ TEST_F(CollServiceDeviceModeTest, should_success_when_AllocCommResource_aiv)
     MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs();
     std::vector<Hccl::LinkData> linkVec;
     char *buf = new char[16 * 1024 * 1024];
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(buf)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x100000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(buf)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x100000));
 
     rtFusionArgsEx_t fusionArgs;
     rtCcuTaskGroup_t ccuTaskGroup;
@@ -773,7 +773,7 @@ TEST_F(CollServiceDeviceModeTest, Ut_AllocCommResource_When_versionIs0_Expect_TH
         &LocalRmaBufManager::Reg,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(rmaBuf));
 
     CommunicatorImpl comm;
@@ -819,8 +819,8 @@ TEST_F(CollServiceDeviceModeTest, Ut_AllocCommResource_When_versionIs0_Expect_TH
     MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs();
     std::vector<Hccl::LinkData> linkVec;
     char *buf = new char[16 * 1024 * 1024];
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(buf)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x100000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(buf)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x100000));
 
     rtFusionArgsEx_t fusionArgs;
     rtCcuTaskGroup_t ccuTaskGroup;
@@ -862,7 +862,7 @@ TEST_F(CollServiceDeviceModeTest, Ut_HandleAclGraphFirstOpAivBuff_When_InputValu
     auto service = dynamic_cast<CollServiceDeviceMode *>(fakeComm.collService);
     char *ptr = "test";
     void *voidPtr = ptr;
-    MOCKER(&GetStreamCaptureInfo).stubs().with(any(), outBound(voidPtr), outBound(true)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&GetStreamCaptureInfo).stubs().with(mockcpp::any(), outBound(voidPtr), outBound(true)).will(returnValue(HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_SUCCESS));
     
     rtStream_t stream;
@@ -880,7 +880,7 @@ TEST_F(CollServiceDeviceModeTest, Ut_AllocCommResource_When_versionIs100_Expect_
         &LocalRmaBufManager::Reg,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(rmaBuf));
 
     CommunicatorImpl comm;
@@ -926,8 +926,8 @@ TEST_F(CollServiceDeviceModeTest, Ut_AllocCommResource_When_versionIs100_Expect_
     MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs();
     std::vector<Hccl::LinkData> linkVec;
     char *buf = new char[16 * 1024 * 1024];
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(buf)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x100000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(buf)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x100000));
 
     void* mem = malloc(sizeof(Mc2InitTilingInner) + sizeof(Mc2CcTilingInner));
     Mc2InitTilingInner *mc2TilingPtr = reinterpret_cast<Mc2InitTilingInner *>(mem);

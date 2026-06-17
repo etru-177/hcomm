@@ -100,7 +100,7 @@ protected:
 
         // Socket async stubs
         MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const u8 *, u32))
-            .stubs().with(any(), any()).will(invoke(StubSendAsync));
+            .stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(StubSendAsync));
 
         g_recvCallCount = 0;
     }
@@ -187,7 +187,7 @@ TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_UpdateMemInfo_When_Normal_Exp
     Hccl::SocketStatus okStatus = Hccl::SocketStatus::OK;
     MOCKER(&Hccl::Socket::GetAsyncStatus).stubs().will(returnValue(okStatus));
     MOCKER_CPP(&Hccl::Socket::RecvAsync, void(Hccl::Socket::*)(u8 *, u32))
-        .stubs().with(any(), any()).will(invoke(StubRecvAsyncNormal));
+        .stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(StubRecvAsyncNormal));
 
     auto mockBuffer1 = CreateLocalIpcRmaBuffer(0x1000, 0x1000, HCCL_MEM_TYPE_DEVICE, "newBuffer1");
     auto mockBuffer2 = CreateLocalIpcRmaBuffer(0x2000, 0x2000, HCCL_MEM_TYPE_DEVICE, "newBuffer2");

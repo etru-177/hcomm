@@ -57,56 +57,56 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&PingMesh::HccnRpingInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingDeinit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingAddTarget)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingRemoveTarget)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingGetTarget)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingBatchPingStart)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingBatchPingStop)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&PingMesh::HccnRpingGetResult)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(HccnRpingGetResultStub));
 
         MOCKER_CPP(&PingMesh::HccnRpingGetPayload)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(hrtGetDeviceRefresh)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(hrtGetDeviceRefreshStub));
 
         std::cout << "HccnRping_UT Test SetUP" << std::endl;
@@ -137,7 +137,7 @@ TEST_F(HccnRping_UT, ut_HccnRpingInit)
 {
     MOCKER_CPP(&PingMesh::GetDeviceLogicId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     u32 devId = 1;
@@ -171,7 +171,7 @@ TEST_F(HccnRping_UT, ut_HccnRpingInit_error)
 {
     MOCKER_CPP(&PingMesh::GetDeviceLogicId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     u32 devId = 1;
@@ -205,7 +205,7 @@ TEST_F(HccnRping_UT, ut_HccnRping)
 {
     MOCKER_CPP(&PingMesh::GetDeviceLogicId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     u32 devId = 1;
@@ -290,7 +290,7 @@ TEST_F(HccnRping_UT, ut_HccnRping_RpingAddTargetV2)
 {
     MOCKER_CPP(&PingMesh::GetDeviceLogicId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     u32 devId = 1;
@@ -351,7 +351,7 @@ TEST_F(HccnRping_UT, ut_HccnRping_RpingAddTargetWithCfg)
 {
     MOCKER_CPP(&PingMesh::GetDeviceLogicId)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     u32 devId = 1;

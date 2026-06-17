@@ -62,7 +62,7 @@ TEST_F(HcclPreemptPortManagerTest, ut_ListenPreempt)
 {
     MOCKER_CPP(&PreemptPortManager::PreemptPortInRange)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     PreemptPortManager& ppm = PreemptPortManager::GetInstance(0);
 
@@ -83,7 +83,7 @@ TEST_F(HcclPreemptPortManagerTest, ut_PreemptPortInRange_reuse)
 {
     MOCKER_CPP(&HcclSocket::Listen, HcclResult (HcclSocket::*)(u32 port))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclIpAddress remoteIp{"10.10.10.10"};
@@ -112,7 +112,7 @@ TEST_F(HcclPreemptPortManagerTest, ut_PreemptPortInRange_nouse1)
 {   //PreemptPortInRange nouse success
     MOCKER_CPP(&HcclSocket::Listen, HcclResult (HcclSocket::*)(u32 port))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclIpAddress remoteIp{"10.10.10.10"};
@@ -142,7 +142,7 @@ TEST_F(HcclPreemptPortManagerTest, ut_PreemptPortInRange_nouse2)
 {   //PreemptPortInRange nouse HCCL_E_MEMORY
     MOCKER_CPP(&HcclSocket::Listen, HcclResult (HcclSocket::*)(u32 port))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_E_PARA));
 
     HcclIpAddress remoteIp{"10.10.10.10"};
@@ -171,7 +171,7 @@ TEST_F(HcclPreemptPortManagerTest, ut_PreemptPortInRange_nouse3)
 {
     MOCKER_CPP(&HcclSocket::Listen, HcclResult (HcclSocket::*)(u32 port))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_E_UNAVAIL));
 
     HcclIpAddress remoteIp{"10.10.10.10"};
@@ -208,9 +208,9 @@ TEST_F(HcclPreemptPortManagerTest, ut_IsAlreadyListening)
 TEST_F(HcclPreemptPortManagerTest, ut_ReleasePreempt)
 {
     MOCKER_CPP(&PreemptPortManager::IsAlreadyListening)
-    .stubs().with(any()).will(returnValue(true));
+    .stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER_CPP(&HcclSocket::DeInit)
-    .stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    .stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     
     HcclIpAddress remoteIp{"10.10.10.10"};
     std::shared_ptr<HcclSocket> listenSocket(new (std::nothrow)HcclSocket("my tag", nullptr, remoteIp, 0,
@@ -233,7 +233,7 @@ TEST_F(HcclPreemptPortManagerTest, ut_ReleasePreempt)
 TEST_F(HcclPreemptPortManagerTest, ut_Release)
 {
     MOCKER_CPP(&PreemptPortManager::ReleasePreempt)
-    .stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    .stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclIpAddress remoteIp{"10.10.10.10"};
     std::shared_ptr<HcclSocket> listenSocket(new (std::nothrow)HcclSocket("my tag", nullptr, remoteIp, 0,

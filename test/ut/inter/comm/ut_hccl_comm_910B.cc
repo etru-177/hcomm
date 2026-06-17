@@ -93,7 +93,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -983,8 +983,8 @@ void *inter_all_reduce_outplace_task_1(void *parg)
     sal_memset(hcom_info.params.id.internal, HCCL_ROOT_INFO_BYTES, 0, sizeof(hcom_info.params.id.internal));
     sal_memcpy(hcom_info.params.id.internal, sizeof(HcclRootInfo), &para_info->rootInfo, sizeof(HcclRootInfo));
 
-    MOCKER_CPP(&GraphMgr::GraphCtxMgr::ConstructFftsNotifyRecordRemoteCtx).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&CollAlgOperator::Is2U2PInfer).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&GraphMgr::GraphCtxMgr::ConstructFftsNotifyRecordRemoteCtx).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgOperator::Is2U2PInfer).stubs().with(mockcpp::any()).will(returnValue(true));
     hcom_info.pComm.reset(
         new (std::nothrow) hccl::hcclComm(HCCL_ALLREDUCE_DATA_SLICE, HCCL_ALLREDUCE_DATA_SLICE, HCCL_WORLD_GROUP));
     rtModel_t model = (void *)1;
@@ -1200,7 +1200,7 @@ TEST_P(HcclCommTest910B, ut_allgather_inter_char)
     // 鍒涘缓姣忎釜Dev鐨刟llreduce浠诲姟绾跨▼
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     for (s32 i = 0; i < ndev; ++i)
     {
@@ -2065,7 +2065,7 @@ TEST_F(HcclCommTest910B, ut_SetAlgType_module_8server_1dev_ring_ring)
     u32 ifnumVersion = 3;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&ifnumVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&ifnumVersion))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&NetworkManager::CheckAutoListenVersion)
@@ -2085,7 +2085,7 @@ TEST_F(HcclCommTest910B, ut_SetAlgType_module_8server_1dev_ring_ring)
     groupCommonData.deviceLogicId = 0;
     MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3103,7 +3103,7 @@ void* inter_reduce_scatter_atomic_single_operator_task(void* parg)
 
 TEST_F(HcclCommTest910B, ut_reducescatter_4p_atomic_single_operator)
 {
-    MOCKER(IsSuperPodMode).stubs().with(any()).will(returnValue(false));
+    MOCKER(IsSuperPodMode).stubs().with(mockcpp::any()).will(returnValue(false));
     setenv("HCCL_OP_EXPANSION_MODE", "AI_CPU", 1);
     RankConsistentcyChecker::GetInstance().ClearCheckInfo();
     nlohmann::json rank_table = rank_table_910_1server_4rank;

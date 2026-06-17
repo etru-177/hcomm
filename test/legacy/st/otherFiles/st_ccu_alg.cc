@@ -81,7 +81,7 @@ protected:
         MOCKER_CPP(&LocalRmaBufManager::Reg,
             LocalRmaBuffer * (LocalRmaBufManager::*)(std::shared_ptr<CcuBuffer> ccuBuffer, const PortData &portData, LinkProtocol))
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(rmaBuf));
         comm.rankSize = xDimSize * yDimSize;
         comm.myRank = myRank;
@@ -648,8 +648,8 @@ TEST_F(CCUAlgorithmTest, CCUGetMissionParams2D_AG)
     CommunicatorImpl comm;
     InitComm(xDimSize, yDimSize, myRank, comm);
     void *rdmaHandle = (void *)0x100;
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
-    MOCKER(HraGetDieAndFuncId).stubs().with(any()).will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
+    MOCKER(HraGetDieAndFuncId).stubs().with(mockcpp::any()).will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
 
     CcuComponent ccuComponent(&comm);
 
@@ -905,8 +905,8 @@ TEST_F(CCUAlgorithmTest, CCUGetMissionParams1D)
     CommunicatorImpl comm;
     InitComm(xDimSize, yDimSize, myRank, comm);
     void *rdmaHandle = (void *)0x100;
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
-    MOCKER(HraGetDieAndFuncId).stubs().with(any()).will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
+    MOCKER(HraGetDieAndFuncId).stubs().with(mockcpp::any()).will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
     CcuComponent ccuComponent(&comm);
 
     CollOperator op;

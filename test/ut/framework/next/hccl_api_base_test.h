@@ -149,7 +149,7 @@ void When_Need_HcclGetRootInfo(void);
         .will(returnValue(HCCL_SUCCESS));                                                           \
         MOCKER_CPP(&HcclCommunicator::ExecOp)                                                       \
         .stubs()                                                                                    \
-        .with(any())                                                                                \
+        .with(mockcpp::any())                                                                                \
         .will(returnValue(HCCL_SUCCESS));                                                           \
         Ut_Clusterinfo_File_Create(rankTableFileName,                                               \
             rank_table_910_1server_2rank);                                                          \

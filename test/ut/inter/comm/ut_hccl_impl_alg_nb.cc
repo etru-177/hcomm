@@ -64,7 +64,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&HcclCommunicator::InitPreResource)
         .stubs()
@@ -134,7 +134,7 @@ TEST_F(HcclImplAlgTestNB, ut_ReduceScatterComm_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -211,7 +211,7 @@ TEST_F(HcclImplAlgTestNB, ut_AllGatherComm_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -283,7 +283,7 @@ TEST_F(HcclImplAlgTestNB, ut_AllReduceComm_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -357,7 +357,7 @@ TEST_F(HcclImplAlgTestNB, ut_ReduceScatterRingExecutor_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -435,7 +435,7 @@ TEST_F(HcclImplAlgTestNB, ut_ReduceScatterMeshExecutor_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -514,7 +514,7 @@ TEST_F(HcclImplAlgTestNB, ut_AllReduceReducePlusBcast_NB)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);

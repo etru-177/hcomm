@@ -75,7 +75,7 @@ TEST_F(RuntimeTest, EventTest610)
     InitEnvParam();
     MOCKER(CompareDevType)
     .stubs()
-    .with(any(), eq(DevType::DEV_TYPE_310P1))
+    .with(mockcpp::any(), eq(DevType::DEV_TYPE_310P1))
     .will(returnValue(true));
 
     rtNotify_t notify;
@@ -481,7 +481,7 @@ TEST_F(RuntimeTest, test_hrtRaSocketBlockSend)
     u64 sendlen = 1;
     MOCKER(ra_socket_send)
     .stubs()
-    .with(any(), any(), any(), outBoundP(&sendlen))
+    .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&sendlen))
     .will(returnValue(0))
     .then(returnValue(128201))
     .then(returnValue(1));
@@ -643,7 +643,7 @@ TEST_F(RuntimeTest, ut_hrtNotifyGetAddr)
 {
     MOCKER(rtGetNotifyAddress)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(RT_ERROR_NONE));
 
     HcclRtNotify notify;
@@ -658,7 +658,7 @@ TEST_F(RuntimeTest, ut_hrtGetNotifyID)
 {
     MOCKER(aclrtGetNotifyId)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
 
     HcclRtNotify signal = new u32(0);
@@ -1051,7 +1051,7 @@ TEST_F(RuntimeTest, ut_hrtGetPairDevicePhyId_0)
     LinkTypeInServer linkType = LinkTypeInServer::SIO_TYPE;
     MOCKER(hrtGetPairDeviceLinkType)
     .stubs()
-    .with(any(), any(), outBound(linkType))
+    .with(mockcpp::any(), mockcpp::any(), outBound(linkType))
     .will(returnValue(HCCL_SUCCESS));
 
     u32 localPhyId = 0;
@@ -1073,7 +1073,7 @@ TEST_F(RuntimeTest, ut_hrtGetPairDevicePhyId_16)
     LinkTypeInServer linkTypeHCCS = LinkTypeInServer::HCCS_TYPE;
     MOCKER(hrtGetPairDeviceLinkType)
     .stubs()
-    .with(any(), any(), outBound(linkTypeHCCS))
+    .with(mockcpp::any(), mockcpp::any(), outBound(linkTypeHCCS))
     .will(returnValue(HCCL_SUCCESS));
 
     u32 localPhyId = 16;
@@ -1303,7 +1303,7 @@ TEST_F(RuntimeTest, ut_hrtGetDeviceRefresh)
 {
     s32 deviceLogicId = 0;
     HcclResult ret;
-    MOCKER(aclrtGetDevice).stubs().with(any()).will(returnValue(1)); 
+    MOCKER(aclrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(1)); 
     ret = hrtGetDeviceRefresh(&deviceLogicId);
     EXPECT_EQ(ret, HCCL_E_RUNTIME);
     GlobalMockObject::verify();
@@ -1619,7 +1619,7 @@ TEST_F(RuntimeTest, Ut_IsSupportRaSocketAsync_When_RaSocketSupportAsync_Expect_T
 
     u32 configVersion = 2;
     MOCKER(hrtRaGetInterfaceVersion).stubs()
-    .with(any(), any(), outBoundP(&configVersion)).then(returnValue(HCCL_SUCCESS));
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&configVersion)).then(returnValue(HCCL_SUCCESS));
     bool isSupportHdcAsync;
     HcclResult ret = IsSupportHdcAsync(isSupportHdcAsync);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -1633,7 +1633,7 @@ TEST_F(RuntimeTest, Ut_IsSupportRaSocketAsync_When_RaSocketNotSupportAsync_Expec
 
     u32 configVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion).stubs()
-    .with(any(), any(), outBoundP(&configVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&configVersion))
     .will(returnValue(HCCL_E_NETWORK))
     .then(returnValue(HCCL_E_NOT_SUPPORT))
     .then(returnValue(HCCL_SUCCESS));

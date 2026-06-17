@@ -19,7 +19,7 @@ public:
         HcclCommunicator commun_mock;
         MOCKER_CPP_VIRTUAL(commun_mock, &HcclCommunicator::GetCqeError)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     }
     void TearDown() override {

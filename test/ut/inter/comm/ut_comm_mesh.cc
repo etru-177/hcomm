@@ -53,12 +53,12 @@ protected:
         std::cout << "A Test SetUP" << std::endl;
         MOCKER(hrtRaGetSingleSocketVnicIpInfo)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(stub_hrtRaGetSingleSocketVnicIpInfo));
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
     }
     virtual void TearDown()
@@ -268,7 +268,7 @@ TEST_F(CommMeshTest, ut_set_machinePara)
     std::vector<std::shared_ptr<HcclSocket>> socketList;
     MachinePara machinePara;
     
-    MOCKER(IsSupportAicpuNormalQP).stubs().with(any()).will(invoke(StupIsSupportAicpuNormalQP));
+    MOCKER(IsSupportAicpuNormalQP).stubs().with(mockcpp::any()).will(invoke(StupIsSupportAicpuNormalQP));
     
     ret = comm_mesh->SetMachinePara(machineType, tmp_para.serverId, dstRank, socketList, machinePara);
     EXPECT_EQ(ret, HCCL_SUCCESS);

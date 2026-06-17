@@ -20,7 +20,7 @@ target_compile_options(intf_pub_base INTERFACE
     -g
     --coverage
     -w
-    $<$<COMPILE_LANGUAGE:CXX>:-std=c++14>
+    $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>
     $<$<BOOL:${ENABLE_ASAN}>:-fsanitize=address -fsanitize=leak -fsanitize-recover=address,all -fno-stack-protector -fno-omit-frame-pointer -g>
     $<$<BOOL:${ENABLE_GCOV}>:-fprofile-arcs -ftest-coverage>
     -fPIC

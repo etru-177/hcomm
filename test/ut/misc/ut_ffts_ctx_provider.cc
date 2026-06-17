@@ -31,7 +31,7 @@ public:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "FftsCtxProviderTest case SetUP" << std::endl;
     }

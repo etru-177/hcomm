@@ -37,11 +37,11 @@ protected:
         hccpSocketHandle = new int(0);
         MOCKER_CPP(&SocketHandleManager::Create)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(hccpSocketHandle));
         MOCKER_CPP(&SocketHandleManager::Get)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(hccpSocketHandle));
         MOCKER_CPP(&PreemptPortManager::ListenPreempt)
             .stubs()

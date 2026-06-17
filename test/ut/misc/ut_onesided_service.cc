@@ -89,7 +89,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -684,7 +684,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_regDereg_enable_disable_ipc)
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclOneSidedService::Grant, HcclResult(HcclOneSidedService::*)(const HcclMemDesc&, const HcclOneSidedConn::ProcessInfo&))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     u32 remoteRankId = 1;
     service->isUsedRdmaMap_[1] = false;
@@ -761,7 +761,7 @@ TEST_F(OneSidedSt, ut_HcclBatchGetPut_When_SdmaAicpuUnflod_Expect_Success)
     ret = HcclCommInitClusterInfo(rankTableFile, 0, &comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
-    MOCKER(GetExternalInputHcclAicpuUnfold).stubs().with(any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclAicpuUnfold).stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER(GetExternalInputIntraRoceSwitch).stubs().will(returnValue(0));
 
     const DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -823,7 +823,7 @@ TEST_F(OneSidedSt, ut_HcclBatchGetPut_When_SdmaAicpuUnflod_Expect_Success)
     connectSockets.push_back(socketPtr);
 
     MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs()
-        .with(any(), any(), any(), outBound(connectSockets), any(), any()).will(returnValue(HCCL_SUCCESS));
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connectSockets), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP_VIRTUAL(*transport, &TransportIpcMem::ExchangeMemDesc).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(*transport, &TransportIpcMem::SetSocket).stubs().will(returnValue(HCCL_SUCCESS));
@@ -1024,7 +1024,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_exchange)
 
     MOCKER(hrtRaGetSingleSocketVnicIpInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclRankLinkInfo localLinkInfo {};
@@ -1044,12 +1044,12 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_exchange)
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = HcclExchangeMemDesc(comm, 1, &local, 120, &remote, &actualNum);
@@ -1388,7 +1388,7 @@ TEST_F(OneSidedSt, one_sided_service_HcclBatchPut_HcclBatchGet_success_roce)
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     ret = HcclBatchPut(comm, 1, desc, itemNum, stream);
@@ -1985,7 +1985,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_RegUnRegDevMemMaxCnt_multi_remoteRank)
     bool useRdma = true;
     MOCKER_CPP(&HcclOneSidedService::IsUsedRdma)
     .stubs()
-    .with(any(), outBound(useRdma))
+    .with(mockcpp::any(), outBound(useRdma))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&LocalRdmaRmaBuffer::Init)
@@ -2351,7 +2351,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_BatchPut_Rma_Buffer_test)
 
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     ret = HcclBatchGet(comm, 1, desc, itemNum, stream);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -2626,7 +2626,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_conn_conect)
     std::vector<std::shared_ptr<HcclSocket>> connectSockets;
     connectSockets.push_back(socketPtr);
     MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs()
-    .with(any(), any(), any(), outBound(connectSockets), any(), any())
+    .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connectSockets), mockcpp::any(), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     TransportRoceMem *transport = dynamic_cast<TransportRoceMem *>(connPtr->transportMemPtr_.get());
@@ -3042,7 +3042,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_batchput_aicpu_rdma)
     ret = HcclCommInitClusterInfo(rankTableFile, 0, &comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
-    MOCKER(GetExternalInputHcclAicpuUnfold).stubs().with(any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclAicpuUnfold).stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER(GetExternalInputIntraRoceSwitch).stubs().will(returnValue(1));
 
     const DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -3104,7 +3104,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_batchput_aicpu_rdma)
     connectSockets.push_back(socketPtr);
 
     MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs()
-        .with(any(), any(), any(), outBound(connectSockets), any(), any()).will(returnValue(HCCL_SUCCESS));
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connectSockets), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&DispatcherPub::RdmaSend,
         HcclResult(DispatcherPub::*)(u32, u64, const struct send_wr&, HcclRtStream, hccl::RdmaType, u64, u64, bool))
         .stubs().will(returnValue(HCCL_SUCCESS));
@@ -3174,7 +3174,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_batchput_batchget_aicpu_rdma)
     ret = HcclCommInitClusterInfo(rankTableFile, 0, &comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
-    MOCKER(GetExternalInputHcclAicpuUnfold).stubs().with(any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclAicpuUnfold).stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER(GetExternalInputIntraRoceSwitch).stubs().will(returnValue(1));
 
     const DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -3236,7 +3236,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_batchput_batchget_aicpu_rdma)
     connectSockets.push_back(socketPtr);
 
     MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs()
-        .with(any(), any(), any(), outBound(connectSockets), any(), any()).will(returnValue(HCCL_SUCCESS));
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connectSockets), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&DispatcherPub::RdmaSend,
         HcclResult(DispatcherPub::*)(u32, u64, const struct send_wr&, HcclRtStream, hccl::RdmaType, u64, u64, bool))
         .stubs().will(returnValue(HCCL_SUCCESS));
@@ -3506,7 +3506,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_test_prepare)
 
     MOCKER(hrtRaGetSingleSocketVnicIpInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     for (u32 i = 1; i < 4; i++) {
@@ -3528,12 +3528,12 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_test_prepare)
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclPrepareConfig config;
@@ -3541,22 +3541,22 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_test_prepare)
 
     MOCKER_CPP(&HcclOneSidedService::CreateLinkFullmesh)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclOneSidedService::RegisterBoundMems)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclOneSidedService::ExchangeMemDescFullMesh)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclOneSidedService::EnableMemAccess, HcclResult(HcclOneSidedService::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = HcclCommPrepare(comm, &config, 120);
@@ -3647,7 +3647,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_test_RegisterBoundMems)
 
     MOCKER(hrtRaGetSingleSocketVnicIpInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     void* localbuf = (void*)0x11;
@@ -3791,7 +3791,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_test_Exchange_and_enable_Mem)
 
     MOCKER(hrtRaGetSingleSocketVnicIpInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclMem mem1;
@@ -3806,31 +3806,31 @@ TEST_F(OneSidedSt, ut_one_sided_service_mem_test_Exchange_and_enable_Mem)
 
     MOCKER_CPP(&HcclOneSidedService::ConnectByThread)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclOneSidedConn::Connect)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclOneSidedConn::ExchangeIpcProcessInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportMem::DoExchangeMemDesc)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclOneSidedConn::EnableMemAccess, HcclResult(HcclOneSidedConn::*)())
@@ -3977,14 +3977,14 @@ TEST_F(OneSidedSt, ut_hcclComm_InitNic_IsOneSidedBackupInit)
     MOCKER(hrtGetDeviceType).stubs().will(invoke(hrtGetDeviceTypeForTest));
     MOCKER(hrtRaGetDeviceIP).stubs().will(invoke(hrtRaGetDeviceIPForTest));
     MOCKER(hrtRaGetDeviceAllNicIP).stubs().will(invoke(hrtRaGetDeviceAllNicIPForTest));
-    MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetOpenDev).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetNeedInitNicFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclCommunicator::ReleasePreemptSocket).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetOpenDev).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetNeedInitNicFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::ReleasePreemptSocket).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclIpAddress remoteIp{"10.10.10.11"};
     std::shared_ptr<HcclSocket> listenSocket(new (std::nothrow)HcclSocket("my tag2", nullptr, remoteIp, 0,
@@ -4049,7 +4049,7 @@ TEST_F(OneSidedSt, ut_one_sided_service_prepare_fail)
 
     MOCKER_CPP(&HcclOneSidedService::PrepareFullMesh)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TIMEOUT));
 
     HcclDispatcher dispatcher = &notifyPool;

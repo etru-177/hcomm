@@ -285,11 +285,11 @@ TEST_F(hcclCommTaskExceptionLiteTest, Ut_PrintCommTaskException)
 {
     u32 sqHead = 1;
     u32 sqTail = 2;
-    MOCKER(QuerySqStatus).stubs().with(any(), any(), outBound(sqHead), outBound(sqTail)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(QuerySqStatus).stubs().with(mockcpp::any(), mockcpp::any(), outBound(sqHead), outBound(sqTail)).will(returnValue(HCCL_SUCCESS));
 
     uint16_t streamId = 1;
     uint16_t taskId = 10;
-    MOCKER_CPP(&Hccl::RtsqBase::GetStreamIdAndTaskIdBySqIdx).stubs().with(any(), outBound(streamId), outBound(taskId)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Hccl::RtsqBase::GetStreamIdAndTaskIdBySqIdx).stubs().with(mockcpp::any(), outBound(streamId), outBound(taskId)).will(returnValue(HCCL_SUCCESS));
 
     CollCommAicpu aicpuComm;
     std::shared_ptr<AicpuTsThread> thread = std::make_shared<AicpuTsThread>("test");

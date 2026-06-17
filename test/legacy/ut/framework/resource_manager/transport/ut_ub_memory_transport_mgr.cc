@@ -120,7 +120,7 @@ TEST_F(UbMemoryTransportMgrTest, should_return_success_when_calling_TransportsCo
     char* testStr = "test"; 
     transportManager.BatchCreateTransport(linkDatas);
     cout<<4<<endl;
-    MOCKER(HrtRaSocketBlockSend).stubs().with(any(), any(), any()).will(ignoreReturnValue());
+    MOCKER(HrtRaSocketBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&Socket::GetAsyncStatus).stubs().will(returnValue((SocketStatus)SocketStatus::OK));
     MOCKER_CPP(&UbMemoryTransport::SendMemInfo).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&UbMemoryTransport::RecvMemInfo).stubs().will(ignoreReturnValue());

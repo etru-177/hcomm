@@ -123,8 +123,8 @@ TEST_F(CheckCrcTest, utCheckCrc1)
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
     char *recvBuf = new char[256];
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(recvBuf)));
-    MOCKER(HrtFreeHost).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(recvBuf)));
+    MOCKER(HrtFreeHost).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     std::string srcStr = src.GetString();
     delete [] recvBuf;
 

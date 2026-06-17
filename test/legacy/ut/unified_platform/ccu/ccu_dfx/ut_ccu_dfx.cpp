@@ -82,7 +82,7 @@ TEST_F(CcuDfxTest, get_ccu_error_msg_should_fail_when_throw_exception)
 
     MOCKER_CPP(&CtxMgrImp::Init).stubs();
     CcuContext* ctx{nullptr};
-    MOCKER_CPP(&CtxMgrImp::GetCtx).stubs().with(any(), any(), any()).will(returnValue(ctx));
+    MOCKER_CPP(&CtxMgrImp::GetCtx).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(ctx));
     
     EXPECT_EQ(GetCcuErrorMsg(1, status, ccuTaskParam, errorInfo), HcclResult::HCCL_E_INTERNAL);
 }

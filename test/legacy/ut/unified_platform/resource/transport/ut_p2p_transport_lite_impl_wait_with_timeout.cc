@@ -38,9 +38,9 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         std::cout << "A Test case in P2PTransportLiteImplWaitWithTimeoutTest SetUp" << std::endl;
     }

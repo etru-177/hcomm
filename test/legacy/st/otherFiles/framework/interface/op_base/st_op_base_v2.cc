@@ -201,7 +201,7 @@ TEST_F(OpbaseTestV2, HcclBatchSendRecvV2)
     u32 itemNum = 10;
     unique_ptr<HcclSendRecvItem> sendRecvInfo = make_unique<HcclSendRecvItem>();
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclBatchSendRecvV2(sendRecvInfo.get(), itemNum, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -220,7 +220,7 @@ TEST_F(OpbaseTestV2, HcclAlltoAllV2)
     int a = 0;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAlltoAllV2(sendBuf, sendCount, sendType, recvBuf, recvCount, recvType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -242,7 +242,7 @@ TEST_F(OpbaseTestV2, HcclAlltoAllVV2)
     int a = 0;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAlltoAllVV2(sendBuf, sendCounts, sdispls, sendType, recvBuf, recvCounts, rdispls, recvType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -254,7 +254,7 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoV2_1)
     Hccl::CommParams commParams;
     std::unique_ptr<Hccl::HcclCommunicator> communicator = std::make_unique<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(communicator.get());
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
     HcclResult ret = HcclCommInitClusterInfoV2(clusterInfo.c_str(), rank, &comm);
@@ -267,7 +267,7 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoV2)
     // 打桩GetCommInfoV2。
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     nlohmann::json rank_table = rank_table_950_1server_8rank;
     char file_name_t[] = "./st_hcom_test_rank_table_1server_8rank_950.json";
@@ -288,8 +288,8 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoV2)
     DevType devType = DevType::DEV_TYPE_950;
 
     char *clusterInfo = "./st_hcom_test_rank_table_1server_8rank_950.json";
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(devType));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(devType));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     auto ret = HcclCommInitClusterInfoV2(clusterInfo, rank, &comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -336,7 +336,7 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoConfigV2)
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
 
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     auto ret = HcclCommInitClusterInfoConfigV2(clusterInfo, rank, &config, &comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -372,7 +372,7 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoConfigV2_CONFIGNOTSET)
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
 
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     auto ret = HcclCommInitClusterInfoConfigV2(clusterInfo, rank, &config, &comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -384,7 +384,7 @@ TEST_F(OpbaseTestV2, HcclGetRankIdV2)
     std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t rank = 0;
-    MOCKER_CPP(&HcclCommunicator::GetRankId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::GetRankId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetRankIdV2(comm, &rank);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -406,7 +406,7 @@ TEST_F(OpbaseTestV2, HcclGetRankSizeV2)
     std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t rankSize;
-    MOCKER_CPP(&HcclCommunicator::GetRankSize).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::GetRankSize).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetRankSizeV2(comm, &rankSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -425,7 +425,7 @@ TEST_F(OpbaseTestV2, HcclAlltoAllVCV2)
     int a = 0;
     rtStream_t stream = static_cast<rtStream_t>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAlltoAllVCV2(sendBuf, sendCountMatrix, sendType, recvBuf, recvType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -447,7 +447,7 @@ TEST_F(OpbaseTestV2, HcclReduceV2_Sum_ShouldPass_WhenValidParams)
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclReduceV2(sendBuf, recvBuf, count, dataType, op, root, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -467,7 +467,7 @@ TEST_F(OpbaseTestV2, HcclReduceV2_PROD_ShouldFail_WhenValidParams)
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclReduceV2(sendBuf, recvBuf, count, dataType, op, root, comm, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
 }
@@ -489,7 +489,7 @@ TEST_F(OpbaseTestV2, HcclReduceV2_MAX_ShouldPass_WhenValidParams)
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclReduceV2(sendBuf, recvBuf, count, dataType, op, root, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -511,7 +511,7 @@ TEST_F(OpbaseTestV2, HcclReduceV2_MIN_ShouldPass_WhenValidParams)
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclReduceV2(sendBuf, recvBuf, count, dataType, op, root, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -529,7 +529,7 @@ TEST_F(OpbaseTestV2, HcclAllReduceV2_Sum_ShouldPass_WhenValidParams_v2)
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAllReduceV2(sendBuf, recvBuf, count, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -547,7 +547,7 @@ TEST_F(OpbaseTestV2, HcclAllReduceV2_PROD_ShouldFail_WhenValidParams_v2)
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAllReduceV2(sendBuf, recvBuf, count, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
 }
@@ -565,7 +565,7 @@ TEST_F(OpbaseTestV2, HcclAllReduceV2_MAX_ShouldPass_WhenValidParams_v2)
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAllReduceV2(sendBuf, recvBuf, count, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -583,7 +583,7 @@ TEST_F(OpbaseTestV2, HcclAllReduceV2_MIN_ShouldPass_WhenValidParams_v2)
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
     DevType devType = DevType::DEV_TYPE_950;
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAllReduceV2(sendBuf, recvBuf, count, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -600,7 +600,7 @@ TEST_F(OpbaseTestV2, HcclBroadcastV2_ShouldReturnSuccess_WhenAllParamsValid)
     hcclComm->pimpl->rankSize = 4;
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclBroadcastV2(buf, count, dataType, root, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -615,7 +615,7 @@ TEST_F(OpbaseTestV2, HcclAllocComResourceByTilingV2)
     void *mc2Tiling = static_cast<void *>(&dd);
     void *commContext = static_cast<void *>(&dd);
     MOCKER_CPP(&HcclCommunicator::GetCcuMc2ServerNum).stubs().with().will(returnValue(10));
-    MOCKER_CPP(&HcclCommunicator::AllocCommResource).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::AllocCommResource).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclAllocComResourceByTilingV2(comm, stream, mc2Tiling, &commContext);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -625,7 +625,7 @@ TEST_F(OpbaseTestV2, HcclCommResumeV2)
     Hccl::CommParams commParams;
     std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     HcclResult ret = HcclCommResumeV2(comm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -664,7 +664,7 @@ TEST_F(OpbaseTestV2, St_HcclAllocComResourceByTilingV2_When_server_num_is_not_ex
     void *mc2Tiling = static_cast<void *>(&dd);
     void *commContext = static_cast<void *>(&dd);
     MOCKER_CPP(&HcclCommunicator::GetCcuMc2ServerNum).stubs().with().will(returnValue(10));
-    MOCKER_CPP(&HcclCommunicator::AllocCommResource).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::AllocCommResource).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     // 执行测试步骤
     HcclResult ret = HcclAllocComResourceByTilingV2(comm, stream, mc2Tiling, &commContext);
@@ -698,7 +698,7 @@ TEST_F(OpbaseTestV2, HcclScatterV2)
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &recvCount;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclScatterV2(sendBuf, recvBuf, recvCount, dataType, root, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -716,7 +716,7 @@ TEST_F(OpbaseTestV2, HcclAllGatherV2)
     int a = 10;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclAllGatherV2(sendBuf, recvBuf, recvCount, dataType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -735,7 +735,7 @@ TEST_F(OpbaseTestV2, HcclSendV2)
     aclrtStream stream = nullptr;
     uint64_t count = 10;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclSendV2(sendBuf, count, dataType, destRank, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -754,7 +754,7 @@ TEST_F(OpbaseTestV2, HcclRecvV2)
     aclrtStream stream = nullptr;
     uint64_t count = 10;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclRecvV2(recvBuf, count, dataType, srcRank, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -773,7 +773,7 @@ TEST_F(OpbaseTestV2, HcclReduceScatterV2)
     DevType devType = DevType::DEV_TYPE_950;
     HcclReduceOp op = HCCL_REDUCE_SUM;
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclReduceScatterV2(sendBuf, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     op = HCCL_REDUCE_MAX;
@@ -800,7 +800,7 @@ TEST_F(OpbaseTestV2, HcclGetRawCommHandle)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     HcclComm commHandle;
 
@@ -818,7 +818,7 @@ TEST_F(OpbaseTestV2, HcclGetCcuTaskInfoLegacy_OK)
     int a = 5;
     void *ccuTaskGroup = static_cast<void*>(&a);
     void *fusionArgs = static_cast<void*>(&a);
-    MOCKER_CPP(&HcclCommunicator::GetCcuTaskInfo).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::GetCcuTaskInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetCcuTaskInfoLegacy(comm, fusionArgs, ccuTaskGroup);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -832,7 +832,7 @@ TEST_F(OpbaseTestV2, HcclGetCcuTaskInfoLegacy_ERR)
     int a = 5;
     void *ccuTaskGroup = static_cast<void*>(&a);
     void *fusionArgs = static_cast<void*>(&a);
-    MOCKER_CPP(&HcclCommunicator::GetCcuTaskInfo).stubs().with(any(), any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&HcclCommunicator::GetCcuTaskInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
     HcclResult ret = HcclGetCcuTaskInfoLegacy(comm, fusionArgs, ccuTaskGroup);
     EXPECT_EQ(ret, HCCL_E_INTERNAL);
 }
@@ -851,7 +851,7 @@ TEST_F(OpbaseTestV2, HcclSnapshotSave_err)
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
     CommManager::GetInstance(0).GetCommInfoV2().step = 0;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     uint32_t step = 0;
     char *snapshot = new char[200];
@@ -876,7 +876,7 @@ TEST_F(OpbaseTestV2, HcclSnapshotSave_err2)
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
     CommManager::GetInstance(0).GetCommInfoV2().step = 1;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     uint32_t step = 1;
     char *snapshot = new char[200];
@@ -904,7 +904,7 @@ TEST_F(OpbaseTestV2, HcclSnapshotRecoverAllComms_OK)
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
     CommManager::GetInstance(0).GetCommInfoV2().step = 0;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     std::shared_ptr<Hccl::SnapShotBuf> snapshotBuf = std::make_shared<Hccl::SnapShotBuf>();
     snapshotBuf->groupNum =0;
@@ -912,15 +912,15 @@ TEST_F(OpbaseTestV2, HcclSnapshotRecoverAllComms_OK)
     string clusterInfo = "test";
     string changedInfo = "test";
     uint32_t snapshotBufSize = 10;
-    MOCKER_CPP(&HcclCommunicator::RecoverComm).stubs().with(any(), any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&HcclCommunicator::RecoverComm).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PARA));
 
     string worldgroup = "hccl_world_group";
     SnapShotBuf localBuff;
     strncpy(localBuff.snapshot.groupName, worldgroup.c_str(), worldgroup.size() + 1);
 
     MOCKER_CPP(&HcclCommunicator::IsCommReady).stubs().with().will(returnValue(true));
-    MOCKER_CPP(&SnapShotParser::ParseSnapshotToLocalBuff).stubs().with(any(), any(), outBound(localBuff)).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::RecoverSubComm).stubs().with(any(), any(), any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&SnapShotParser::ParseSnapshotToLocalBuff).stubs().with(mockcpp::any(), mockcpp::any(), outBound(localBuff)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::RecoverSubComm).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PARA));
     HcclResult ret = HcclSnapshotRecoverAllComms(clusterInfo.c_str(), changedInfo.c_str(), snapshot, snapshotBufSize);
     EXPECT_EQ(ret, HCCL_E_PARA);
 }
@@ -955,8 +955,8 @@ TEST_F(OpbaseTestV2, HcclSnapshotGetBufSize_OK)
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
     CommManager::GetInstance(0).GetCommInfoV2().step = 0;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(devType));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(devType));
 
     uint32_t step = 0;
     uint32_t size = 0;
@@ -985,7 +985,7 @@ TEST_F(OpbaseTestV2, HcclSnapshotGetBufSize_HCCL_SUCCESS)
     uint32_t size = 0;
     hcclComm_1.get()->GetCommImpl()->id = "hccl_world_group";
     hcclComm_1.get()->GetCommImpl()->isWorldGroup = true;
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(devType));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(devType));
     HcclResult ret = HcclSnapshotGetBufSize(step, &size);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
@@ -1023,18 +1023,18 @@ TEST_F(OpbaseTestV2, HcclCreateSubCommConfigV2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     HcclGroupParamsV2 groupParamsV2Tem;
     groupParamsV2Tem.groupRank = 0;
     MOCKER(GetHcomRankListV2)
             .stubs()
-            .with(any(), any(), outBound(groupParamsV2Tem))
+            .with(mockcpp::any(), mockcpp::any(), outBound(groupParamsV2Tem))
             .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(static_cast<HcclResult (CommunicatorImpl::*)(const CommParams &subCommParams, const std::vector<u32> &rankIds, CommunicatorImpl *subCommImpl, HcclCommConfig &subConfig)>(&CommunicatorImpl::CreateSubComm))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     hcclcomm.get()->GetCommImpl()->id = "hccl_world_group";
     hcclcomm.get()->GetCommImpl()->isWorldGroup = true;
@@ -1068,25 +1068,25 @@ TEST_F(OpbaseTestV2, HcclCreateSubCommConfigV2_IDEL)
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
     CommManager::GetInstance(0).GetCommInfoV2().status = DeviceStatus::DEVICE_IDLE;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     HcclGroupParamsV2 groupParamsV2Tem;
     groupParamsV2Tem.groupRank = 0;
     MOCKER(GetHcomRankListV2)
             .stubs()
-            .with(any(), any(), outBound(groupParamsV2Tem))
+            .with(mockcpp::any(), mockcpp::any(), outBound(groupParamsV2Tem))
             .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(static_cast<HcclResult (CommunicatorImpl::*)(const CommParams &subCommParams, const std::vector<u32> &rankIds, CommunicatorImpl *subCommImpl, HcclCommConfig &subConfig)>(&CommunicatorImpl::CreateSubComm))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     hcclcomm.get()->GetCommImpl()->id = "hccl_world_group";
     hcclcomm.get()->GetCommImpl()->isWorldGroup = true;
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::RegisterAcceStateCallBack).stubs().will(ignoreReturnValue());
     DevType devType = DevType::DEV_TYPE_950;
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(devType));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(devType));
     HcclResult ret = HcclCreateSubCommConfigV2(&comm, rankNum, &rankIds, subCommId, subCommRankId, &config, &subComm);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1117,18 +1117,18 @@ TEST_F(OpbaseTestV2, HcclCreateSubCommConfigV2_Invalided_Config)
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm_1;
     CommManager::GetInstance(0).GetCommInfoV2().status = DeviceStatus::DEVICE_IDLE;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
     HcclGroupParamsV2 groupParamsV2Tem;
     groupParamsV2Tem.groupRank = 0;
     MOCKER(GetHcomRankListV2)
             .stubs()
-            .with(any(), any(), outBound(groupParamsV2Tem))
+            .with(mockcpp::any(), mockcpp::any(), outBound(groupParamsV2Tem))
             .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(static_cast<HcclResult (CommunicatorImpl::*)(const CommParams &subCommParams, const std::vector<u32> &rankIds, CommunicatorImpl *subCommImpl, HcclCommConfig &subConfig)>(&CommunicatorImpl::CreateSubComm))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     hcclcomm.get()->GetCommImpl()->id = "hccl_world_group";
     hcclcomm.get()->GetCommImpl()->isWorldGroup = true;
@@ -1155,7 +1155,7 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoMemConfigV2_err)
     // 打桩GetCommInfoV2。
     CommManager::GetInstance(0).GetCommInfoV2().commParams.commId = "hccl_world_group";
 
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     std::string rankTableString = "test";
     uint32_t rank = 0;
     HcclCommConfig config;
@@ -1188,9 +1188,9 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoMemConfigV2_err_2)
     // 打桩GetCommInfoV2。
     CommManager::GetInstance(0).GetCommInfoV2().commParams.commId = "hccl_world_group";
 
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
     std::string rankTableString = rankTable_ut_stub_4p;
     uint32_t rank = 0;
     HcclCommConfig config;
@@ -1223,9 +1223,9 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoMemConfigV2_err_3)
     // 打桩GetCommInfoV2。
     CommManager::GetInstance(0).GetCommInfoV2().commParams.commId = "hccl_world_group";
 
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
     std::string rankTableString = rankTable_ut_stub_4p;
     uint32_t rank = 0;
     HcclCommConfig config;
@@ -1257,9 +1257,9 @@ TEST_F(OpbaseTestV2, HcclCommInitClusterInfoMemConfigV2)
     // 打桩GetCommInfoV2。
     CommManager::GetInstance(0).GetCommInfoV2().commParams.commId = "hccl_world_group";
 
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
 
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     std::string rankTableString = rankTable_ut_stub_4p;
     uint32_t rank = 0;
     HcclCommConfig config;
@@ -1336,7 +1336,7 @@ TEST_F(OpbaseTestV2, St_HcclAllGatherVV2_When_Normal_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclAllGatherVV2(sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1361,7 +1361,7 @@ TEST_F(OpbaseTestV2, St_HcclAllGatherVV2_When_DipHas0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclAllGatherVV2(sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1386,7 +1386,7 @@ TEST_F(OpbaseTestV2, St_HcclAllGatherVV2_When_OutputEq0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclAllGatherVV2(sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1411,7 +1411,7 @@ TEST_F(OpbaseTestV2, St_HcclAllGatherVV2_When_CountNotFixCounts_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclAllGatherVV2(sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, comm, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1436,7 +1436,7 @@ TEST_F(OpbaseTestV2, St_HcclAllGatherVV2_When_CountTooLarge_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclAllGatherVV2(sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, comm, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1461,7 +1461,7 @@ TEST_F(OpbaseTestV2, St_HcclAllGatherVV2_When_DatatypeNotSurport_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclAllGatherVV2(sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, comm, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
@@ -1487,7 +1487,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_Normal_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1513,7 +1513,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_DipHas0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1539,7 +1539,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_InuputCountEq0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1565,7 +1565,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_CountNotFixCounts_Expect_Error
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1591,7 +1591,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_CountTooLarge_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1617,7 +1617,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_DatatypeNotSurport_Expect_Erro
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
@@ -1643,7 +1643,7 @@ TEST_F(OpbaseTestV2, St_HcclReduceScatterVV2_When_ReduceOpNotSurport_Expect_Erro
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcclReduceScatterVV2(sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, comm, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
@@ -1656,7 +1656,7 @@ TEST_F(OpbaseTestV2, St_HcclGetRootInfoV2_When_NoNeedInput_Expect_Return_HCCL_SU
     HcclRootHandleV2 rootHandle{};
     MOCKER_CPP(&RankInfoDetect::SetupServer).stubs().with(outBound(rootHandle)).will(ignoreReturnValue());
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     
     // then
     HcclRootInfo rootInfo{};
@@ -1666,9 +1666,9 @@ TEST_F(OpbaseTestV2, St_HcclGetRootInfoV2_When_NoNeedInput_Expect_Return_HCCL_SU
 TEST_F(OpbaseTestV2, St_HcclGetRootInfoV2_When_Throw_Expect_Return_HCCL_E_INTERNAL) 
 {
     // when
-    MOCKER_CPP(&RankInfoDetect::SetupServer).stubs().with(any(), any()).will(throws(InternalException("...")));
+    MOCKER_CPP(&RankInfoDetect::SetupServer).stubs().with(mockcpp::any(), mockcpp::any()).will(throws(InternalException("...")));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     
     // then
     HcclRootInfo rootInfo{};
@@ -1679,11 +1679,11 @@ TEST_F(OpbaseTestV2, St_HcclCommInitRootInfoV2_When_InputValue_Expect_Return_HCC
 {
     // when
     HcclRootHandleV2 rootHandle{};
-    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(any(), any(), any()).will(ignoreReturnValue());
-    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
  
     // then
@@ -1698,11 +1698,11 @@ TEST_F(OpbaseTestV2, St_HcclCommInitRootInfoV2_When_InputValue_Expect_Return_HCC
 TEST_F(OpbaseTestV2, St_HcclCommInitRootInfoV2_When_Throw_Expect_Return_HCCL_E_INTERNAL) 
 {
     // when
-    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(any(), any(), any()).will(throws(InternalException("...")));
-    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(throws(InternalException("...")));
+    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -1721,11 +1721,11 @@ TEST_F(OpbaseTestV2, St_HcclCommInitRootInfoConfigV2_When_InputValue_Expect_Retu
 {
     // when
     HcclRootHandleV2 rootHandle{};
-    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(any(), any(), any()).will(ignoreReturnValue());
-    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -1744,11 +1744,11 @@ TEST_F(OpbaseTestV2, St_HcclCommInitRootInfoConfigV2_When_InputValue_Expect_Retu
 TEST_F(OpbaseTestV2, St_HcclCommInitRootInfoConfigV2_When_Throw_Expect_Return_HCCL_E_INTERNAL) 
 {
     // when
-    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(any(), any(), any()).will(throws(InternalException("...")));
-    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(throws(InternalException("...")));
+    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -1769,12 +1769,12 @@ TEST_F(OpbaseTestV2, St_HcclCommInitAllV2_When_InputValue_Expect_Return_HCCL_SUC
     HcclRootHandleV2 rootHandle{};
     MOCKER_CPP(&RankInfoDetect::SetupServer).stubs().with(outBound(rootHandle)).will(ignoreReturnValue());
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
-    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(any(), any(), any()).will(ignoreReturnValue());
-    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -1789,14 +1789,14 @@ TEST_F(OpbaseTestV2, St_HcclCommInitAllV2_When_InputValue_Expect_Return_HCCL_SUC
 TEST_F(OpbaseTestV2, St_HcclCommInitAllV2_When_Throw_Expect_Return_HCCL_E_INTERNAL) 
 {
     // when
-    MOCKER_CPP(&RankInfoDetect::SetupServer).stubs().with(any(), any()).will(throws(InternalException("...")));
+    MOCKER_CPP(&RankInfoDetect::SetupServer).stubs().with(mockcpp::any(), mockcpp::any()).will(throws(InternalException("...")));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
-    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(any(), any(), any()).will(ignoreReturnValue());
-    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
+    MOCKER_CPP(&RankInfoDetect::SetupAgent).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetect::WaitComplete).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue((DevType)DevType::DEV_TYPE_950));
     MOCKER(HrtGetDeviceCount).stubs().will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const RankTableInfo &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -1816,8 +1816,8 @@ TEST_F(OpbaseTestV2, St_HcclBarrierV2_When_Creat_Memory_Stub_SUCCESS)
     std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
-    MOCKER_CPP(&CommunicatorImpl::CreateBarrierMemory).stubs().with(any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::CreateBarrierMemory).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclBarrierV2(comm, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -1830,8 +1830,8 @@ TEST_F(OpbaseTestV2, St_HcclBarrierV2_When_Creat_Memory_Fail_Return_HCCL_E_PTR)
     std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     aclrtStream stream = &count;
-    MOCKER_CPP(&CommunicatorImpl::CreateBarrierMemory).stubs().with(any(), any(), any()).will(returnValue(HCCL_E_PTR));
-    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::CreateBarrierMemory).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&HcclCommunicator::LoadOpbasedCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcclBarrierV2(comm, stream);
     EXPECT_EQ(result, HCCL_E_PTR);
 }
@@ -1843,7 +1843,7 @@ TEST_F(OpbaseTestV2, St_HcclGetInstRanksByNetLayerV2_When_InputValue_Expect_Retu
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *ranks = nullptr;
     uint32_t rankNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetInstRanksByNetLayer).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetInstRanksByNetLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetInstRanksByNetLayerV2(comm, 0, &ranks, &rankNum);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1855,7 +1855,7 @@ TEST_F(OpbaseTestV2, St_HcclGetInstRanksByNetLayerV2_When_InValid_Expect_ReturnH
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *ranks = nullptr;
     uint32_t rankNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetInstRanksByNetLayer).stubs().with(any(), any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&CommunicatorImpl::GetInstRanksByNetLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
     HcclResult ret = HcclGetInstRanksByNetLayerV2(comm, 0, &ranks, &rankNum);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -1867,7 +1867,7 @@ TEST_F(OpbaseTestV2, Ut_HcclGetInstRanksByNetLayerV2_When_InValid_Expect_ReturnH
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *ranks = nullptr;
     uint32_t rankNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetInstRanksByNetLayer).stubs().with(any(), any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&CommunicatorImpl::GetInstRanksByNetLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
     HcclResult ret = HcclGetInstRanksByNetLayerV2(comm, 0, &ranks, &rankNum);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -1878,7 +1878,7 @@ TEST_F(OpbaseTestV2, Ut_HcclGetInstTopoTypeByNetLayerV2_When_InputValue_Expect_R
     std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t type = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetInstTopoTypeByNetLayer).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetInstTopoTypeByNetLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetInstTopoTypeByNetLayerV2(comm, 0, &type);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1890,7 +1890,7 @@ TEST_F(OpbaseTestV2, St_HcclGetInstSizeListByNetLayerV2_When_InValid_Expect_Retu
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *instSizeList = nullptr;
     uint32_t listSize = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetInstSizeListByNetLayer).stubs().with(any(), any()).will(returnValue(HCCL_E_NOT_FOUND));
+    MOCKER_CPP(&CommunicatorImpl::GetInstSizeListByNetLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_NOT_FOUND));
     HcclResult ret = HcclGetInstSizeListByNetLayerV2(comm, 0, &instSizeList, &listSize);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -1902,7 +1902,7 @@ TEST_F(OpbaseTestV2, St_HcclGetInstSizeListByNetLayerV2_When_Valid_Expect_Return
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *instSizeList = nullptr;
     uint32_t listSize = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetInstSizeListByNetLayer).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetInstSizeListByNetLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetInstSizeListByNetLayerV2(comm, 0, &instSizeList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1914,7 +1914,7 @@ TEST_F(OpbaseTestV2, St_HcclGetLinksV2_When_InputValue_Expect_Return_HCCL_SUCCES
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetLinks).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetLinks).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetLinksV2(comm, 0, 0, 1, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1926,7 +1926,7 @@ TEST_F(OpbaseTestV2, St_HcclGetLinksV2_When_InValid_Expect_ReturnHCCL_NOT_FOUND)
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetLinks).stubs().with(any(), any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&CommunicatorImpl::GetLinks).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
     HcclResult ret = HcclGetLinksV2(comm, 0, 0, 1, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -1938,7 +1938,7 @@ TEST_F(OpbaseTestV2, St_HcclGetTopoInstsByLayer_When_InputValue_Expect_Return_HC
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *topoInsts = nullptr;
     uint32_t topoInstNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetTopoInstsByLayer).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetTopoInstsByLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetTopoInstsByLayerV2(comm, 0, &topoInsts, &topoInstNum);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1950,7 +1950,7 @@ TEST_F(OpbaseTestV2, St_HcclGetTopoInstsByLayer_When_inValid_Expect_ReturnHCCL_N
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     uint32_t *topoInsts = nullptr;
     uint32_t topoInstNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetTopoInstsByLayer).stubs().with(any(), any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&CommunicatorImpl::GetTopoInstsByLayer).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
     HcclResult ret = HcclGetTopoInstsByLayerV2(comm, 0, &topoInsts, &topoInstNum);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -1962,7 +1962,7 @@ TEST_F(OpbaseTestV2, St_HcclGetTopoType_When_InputValue_Expect_Return_HCCL_SUCCE
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     CommTopo topoType = COMM_TOPO_CLOS;
     uint32_t topoInstId = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetTopoType).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetTopoType).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetTopoTypeV2(comm, 0, topoInstId, &topoType);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1974,7 +1974,7 @@ TEST_F(OpbaseTestV2, St_HcclGetTopoType_When_inValid_Expect_ReturnHCCL_NOT_FOUND
     HcclComm comm = static_cast<HcclComm>(hcclComm.get());
     CommTopo topoType;
     uint32_t topoInstId = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetTopoType).stubs().with(any(), any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&CommunicatorImpl::GetTopoType).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
     HcclResult ret = HcclGetTopoTypeV2(comm, 0, topoInstId, &topoType);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -1987,7 +1987,7 @@ TEST_F(OpbaseTestV2, St_HcclGetRanksByTopoInst_When_InputValue_Expect_Return_HCC
     uint32_t topoInstId = 0;
     uint32_t *ranks = nullptr;
     uint32_t rankNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetRanksByTopoInst).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::GetRanksByTopoInst).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetRanksByTopoInstV2(comm, 0, topoInstId, &ranks, &rankNum);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -2000,7 +2000,7 @@ TEST_F(OpbaseTestV2, St_HcclGetRanksByTopoInst_When_InValid_Expect_ReturnHCCL_NO
     uint32_t topoInstId = 0;
     uint32_t *ranks = nullptr;
     uint32_t rankNum = 0;
-    MOCKER_CPP(&CommunicatorImpl::GetRanksByTopoInst).stubs().with(any(), any()).will(returnValue(HCCL_E_PTR));
+    MOCKER_CPP(&CommunicatorImpl::GetRanksByTopoInst).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PTR));
     HcclResult ret = HcclGetRanksByTopoInstV2(comm, 0, topoInstId, &ranks, &rankNum);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
 }
@@ -2115,7 +2115,7 @@ TEST_F(OpbaseTestV2, St_HcclGetAicpuOpStreamAndNotifyV2_When_Normal_Expect_Retur
     rtStream_t stream = static_cast<rtStream_t>(&fakeStream);
     u8 aicpuNotifyNum = 8;
     void *aicpuNotify = static_cast<void *>(&fakeNotify);
-    MOCKER_CPP(&HcclCommunicator::GetAicpuOpStreamNotify).stubs().with(any(), any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::GetAicpuOpStreamNotify).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcclGetAicpuOpStreamAndNotifyV2(comm, &stream, aicpuNotifyNum, &aicpuNotify);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }

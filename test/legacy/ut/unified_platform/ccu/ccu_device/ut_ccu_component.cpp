@@ -67,7 +67,7 @@ constexpr uint32_t CCU_V1_MAX_CHANNEL_NUM = 128;
 // 为 ccu 两个die添加寄存器资源信息
 void MockCcuResources(const int32_t devLogicId, const CcuVersion ccuVersion)
 {
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<s32>(MAX_MODULE_DEVICE_NUM)));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<s32>(MAX_MODULE_DEVICE_NUM)));
 
     auto &ccuResSpecs = CcuResSpecifications::GetInstance(devLogicId);
     ccuResSpecs.ccuVersion = ccuVersion;
@@ -121,9 +121,9 @@ void MockCcuNetworkDevice(const int32_t devLogicId)
 
     MOCKER(HrtRaGetDevEidInfoList)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(eidInfoListStbu));
-    MOCKER(HraGetRtpEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER(HraGetRtpEnable).stubs().with(mockcpp::any()).will(returnValue(true));
 
     MOCKER_CPP(&RdmaHandleManager::GetByIp).stubs().will(returnValue((void*)0x12345678));
     std::pair<uint32_t, uint32_t> fakeDieFuncPair = std::make_pair(1, 4);

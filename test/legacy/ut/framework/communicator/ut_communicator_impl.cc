@@ -121,7 +121,7 @@ protected:
         MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
         MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
         MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-        MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+        MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
         MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
         MOCKER(HrtMemAsyncCopy).stubs();
@@ -129,17 +129,17 @@ protected:
         // 资源初始化
         MOCKER_CPP(&CcuInsPreprocessor::Preprocess).stubs().with().will(ignoreReturnValue());
         MOCKER_CPP(&AicpuInsPreprocessor::Preprocess).stubs().with().will(ignoreReturnValue());
-        MOCKER_CPP(&TaskAbortHandler::Register).stubs().with(any()).will(ignoreReturnValue());
-        MOCKER_CPP(&TaskAbortHandler::UnRegister).stubs().with(any()).will(ignoreReturnValue());
+        MOCKER_CPP(&TaskAbortHandler::Register).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+        MOCKER_CPP(&TaskAbortHandler::UnRegister).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
         Buffer *buf = nullptr;
         LocalRmaBuffer *rmaBuf = nullptr;
-        MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any(), any()).will(returnValue(buf));
+        MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(buf));
         MOCKER_CPP(&LocalRmaBufManager::Reg,
                    LocalRmaBuffer *
                        (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
             .stubs()
-            .with(any(), any(), any())
+            .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(rmaBuf));
         RtsNotify notify(false);
         RtsNotify notify1(false);
@@ -147,11 +147,11 @@ protected:
         MOCKER_CPP(&HostDeviceSyncNotifyManager::GetDeviceWaitNotify).stubs().with().will(returnValue(&notify1));
         MOCKER_CPP(&HostDeviceSyncNotifyManager::GetPackedData)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(std::vector<char>{'1', '2'}));
         void *ptr1 = (void*)1;
-        MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr1));
-        MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+        MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr1));
+        MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
 
         fakeComm.RegisterAcceStateCallBack(CommunicatorCallback());
         fakeComm.cclBuffer = DevBuffer::Create(0x100, 0x100);
@@ -171,7 +171,7 @@ protected:
         MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
         MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
         fakeComm.devLogicId = 0;
-        MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+        MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
         fakeComm.myRank = 0;
         fakeComm.id = "testTag";
         fakeComm.streamManager->opbase = make_unique<OpbaseStreamManager>(&fakeComm);
@@ -210,7 +210,7 @@ protected:
 
         fakeComm.InitCollService();
         fakeComm.CollAlgComponentInit();
-        MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+        MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
         MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
         OpExecuteConfig opConfig;  // aicpu 展开
         opConfig.accState = AcceleratorState::AICPU_TS;
@@ -226,19 +226,19 @@ protected:
             HcclResult(CollAlgComponent::*)(const OpType &opType, const u64 &dataSize, const HcclDataType &dataType,
                                             const OpExecuteConfig &opConfig, CollOffloadOpResReq &resReq))
             .stubs()
-            .with(any(), any(), any(), any())
+            .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(HcclResult::HCCL_SUCCESS));
         MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(collAlgOpReq));
         MOCKER_CPP(&Trace::Save).stubs();
         MOCKER_CPP(&CollServiceAiCpuImpl::AllocOpMem).stubs();
         MOCKER_CPP(&Stream::InitDevPhyId).stubs();
         MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs();
-        MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(any());
-        MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(any());
-        MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(any(), any());
+        MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(mockcpp::any());
+        MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(mockcpp::any());
+        MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(mockcpp::any(), mockcpp::any());
         std::cout << "A Test case in CommunicatorImplTest SetUP" << std::endl;
     }
 
@@ -258,16 +258,16 @@ void CommImplSendStub1()
 
 void MockCommunicatorImpl()
 {
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(HrtOpenTsdProcess).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtRaTlvInit).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(1)));
-    MOCKER(RaInit).stubs().with(any()).will(returnValue(0));
-    MOCKER(RaTlvInit).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtOpenTsdProcess).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(HrtRaTlvInit).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(1)));
+    MOCKER(RaInit).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(RaTlvInit).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitNotifyManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitStreamManager).stubs().will(ignoreReturnValue());
@@ -391,7 +391,7 @@ public:
         memset_s(hostCacheD2h, sizeof(hostCacheD2h), 0, sizeof(hostCacheD2h));
         MOCKER(HrtMallocHost)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(static_cast<void *>(hostBufH2d)))
             .then(returnValue(static_cast<void *>(hostBufD2h)))
             .then(returnValue(static_cast<void *>(hostCacheD2h)));
@@ -401,7 +401,7 @@ public:
         memset_s(devBufD2h, sizeof(devBufD2h), 0, sizeof(devBufD2h));
         MOCKER(HrtMalloc)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(static_cast<void *>(devBufH2d)))
             .then(returnValue(static_cast<void *>(devCacheH2d)))
             .then(returnValue(static_cast<void *>(devBufD2h)));
@@ -559,11 +559,11 @@ TEST_F(CommunicatorImplTest, initvittualtopo_check_fail)
 
 TEST_F(CommunicatorImplTest, should_return_success_when_normal_calling_new_init_with_two_parameters_new)
 {
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
-    MOCKER(HrtOpenTsdProcess).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(1)));
-    MOCKER(RaInit).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtOpenTsdProcess).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(1)));
+    MOCKER(RaInit).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::InitNotifyManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitStreamManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitSocketManager).stubs().will(ignoreReturnValue());
@@ -575,7 +575,7 @@ TEST_F(CommunicatorImplTest, should_return_success_when_normal_calling_new_init_
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&HccpTlvHdcManager::Init).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&HccpTlvHdcManager::Init).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     TaskAbortHandler::GetInstance();
     
@@ -591,10 +591,10 @@ TEST_F(CommunicatorImplTest, should_return_success_when_normal_calling_new_init_
     comm.ccuDrvHandle = std::make_shared<Hccl::CcuDriverHandle>(0);
     comm.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 1, 1, 0);
     const string rankTablePath = "ranktable.json";
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(ignoreReturnValue());
     EXPECT_EQ(comm.Init(params, rankTablePath, config), HcclResult::HCCL_SUCCESS);
 }
@@ -611,18 +611,18 @@ TEST_F(CommunicatorImplTest, should_return_success_when_normal_calling_new_init_
     const string rankTablePath = "ranktable.json";
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(ignoreReturnValue());
     EXPECT_EQ(comm.Init(params, rankTablePath, config), HcclResult::HCCL_E_INTERNAL);
 }
 
 TEST_F(CommunicatorImplTest, init_with_two_parameters)
 {
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
-    MOCKER(HrtOpenTsdProcess).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(1)));
-    MOCKER(RaInit).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtOpenTsdProcess).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(1)));
+    MOCKER(RaInit).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::InitNotifyManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitStreamManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitSocketManager).stubs().will(ignoreReturnValue());
@@ -635,7 +635,7 @@ TEST_F(CommunicatorImplTest, init_with_two_parameters)
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
     CommunicatorImpl comm;
     comm.devLogicId = 0;
     HcclCommConfig config;
@@ -647,7 +647,7 @@ TEST_F(CommunicatorImplTest, init_with_two_parameters)
     comm.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 1, 1, 0);
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(std::unique_ptr<RankGraph> & virtualTopo))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(ignoreReturnValue());
     EXPECT_EQ(comm.Init(params, virtualTopo, 0), HcclResult::HCCL_SUCCESS);
 }
@@ -673,7 +673,7 @@ TEST_F(CommunicatorImplTest, LoadOpbasedCollOp_success_CovertToCurrentCollOperat
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
     CollOperator op;
@@ -709,7 +709,7 @@ TEST_F(CommunicatorImplTest, LoadOpbasedCollOp_success_CovertToCurrentCollOperat
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
     CollOperator op;
@@ -743,7 +743,7 @@ TEST_F(CommunicatorImplTest, LoadOpbasedCollOp_success_CovertToCurrentCollOperat
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
     CollOperator op;
@@ -777,7 +777,7 @@ TEST_F(CommunicatorImplTest, LoadOpbasedCollOp_success_CovertToCurrentCollOperat
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
     CollOperator op;
@@ -812,7 +812,7 @@ TEST_F(CommunicatorImplTest, LoadOpbasedCollOp_success_CovertToCurrentCollOperat
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
     CollOperator op;
@@ -1008,11 +1008,11 @@ TEST_F(CommunicatorImplTest, LoadOpbasedCollOp_rankSize_1_test)
 TEST_F(CommunicatorImplTest, RecoverComm_NormalCase)
 {
     // 打桩所有初始化函数，使其返回成功
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(HrtOpenTsdProcess).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(1)));
-    MOCKER(RaInit).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtOpenTsdProcess).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(1)));
+    MOCKER(RaInit).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::RecoverRankGraphData).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitNotifyManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitStreamManager).stubs().will(ignoreReturnValue());
@@ -1026,10 +1026,10 @@ TEST_F(CommunicatorImplTest, RecoverComm_NormalCase)
     MOCKER_CPP(&CommunicatorImpl::SelectCollService).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::RecoverTransportData)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
     CommunicatorImpl comm;
     comm.RegisterAcceStateCallBack(CommunicatorCallback());
     CollServiceAiCpuImpl collService{&comm};
@@ -1077,7 +1077,7 @@ TEST_F(CommunicatorImplTest, RecoverComm_StdException)
     SnapShotComm snapShotComm;
     u32 step = 0;
     const char *filePath = "test";
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     HcclResult result = fakeComm.RecoverComm(snapShotComm, step, filePath);
     EXPECT_EQ(result, HcclResult::HCCL_E_INTERNAL);
     EXPECT_EQ(fakeComm.GetCommStatus(), CommStatus::COMM_IDLE);
@@ -1092,7 +1092,7 @@ TEST_F(CommunicatorImplTest, RecoverSubComm_InitFlagTrue)
     u32 step = 0;
 
     const char *filePath = "test";
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     HcclResult result = comm.RecoverComm(snapShotComm, step, filePath);
     EXPECT_EQ(result, HcclResult::HCCL_E_INTERNAL);
     EXPECT_TRUE(comm.initFlag);
@@ -1101,14 +1101,14 @@ TEST_F(CommunicatorImplTest, RecoverSubComm_InitFlagTrue)
 TEST_F(CommunicatorImplTest, RecoverComm_SubCommNormalCase)
 {
     // 打桩所有初始化函数，使其返回成功
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(HrtOpenTsdProcess).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(1)));
-    MOCKER(RaInit).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtOpenTsdProcess).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(1)));
+    MOCKER(RaInit).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(std::unique_ptr<RankGraph> &))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::RecoverRankGraphData).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitNotifyManager).stubs().will(ignoreReturnValue());
@@ -1124,10 +1124,10 @@ TEST_F(CommunicatorImplTest, RecoverComm_SubCommNormalCase)
     MOCKER_CPP(&CommunicatorImpl::SelectCollService).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::RecoverTransportData)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
 
     s32 myRank = 0;
     std::unique_ptr<RankGraph> virtualTopo = std::make_unique<RankGraph>(myRank);
@@ -1159,7 +1159,7 @@ TEST_F(CommunicatorImplTest, RecoverComm_SubComStdException)
 
     fakeComm.initFlag = false;
     fakeComm.SetCommStatus(CommStatus::COMM_IDLE);
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     HcclResult result = fakeComm.RecoverComm(snapShotComm, virtualTopo, step);
 
     // 检查结果
@@ -1178,7 +1178,7 @@ TEST_F(CommunicatorImplTest, RecoverComm_SubComInitFlagTrue)
     std::unique_ptr<RankGraph> virtualTopo = std::make_unique<RankGraph>(myRank);
     u32 step = 0;
 
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     HcclResult result = comm.RecoverComm(snapShotComm, virtualTopo, step);
     EXPECT_EQ(result, HcclResult::HCCL_E_INTERNAL);
     EXPECT_EQ(comm.GetCommStatus(), CommStatus::COMM_IDLE);
@@ -1194,7 +1194,7 @@ TEST_F(CommunicatorImplTest, RecoverSubComm_InitFlagFalse)
     u32 step = 10;
 
     comm.initFlag = false;
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     HcclResult result = comm.RecoverSubComm(snapShotSubComm, subCommImpl.get(), step);
     EXPECT_EQ(result, HcclResult::HCCL_E_INTERNAL);
     EXPECT_EQ(comm.GetCommStatus(), CommStatus::COMM_IDLE);
@@ -1214,18 +1214,18 @@ TEST_F(CommunicatorImplTest, should_no_throw_exception_when_only_ccu_enabled)
     MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     Buffer *buf = nullptr;
     LocalRmaBuffer *rmaBuf = nullptr;
-    MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any(), any()).will(returnValue(buf));
+    MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(buf));
     MOCKER_CPP(
         &LocalRmaBufManager::Reg,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(rmaBuf));
     MOCKER_CPP(&CcuInsPreprocessor::Preprocess).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&AicpuInsPreprocessor::Preprocess).stubs().with().will(ignoreReturnValue());
@@ -1234,20 +1234,20 @@ TEST_F(CommunicatorImplTest, should_no_throw_exception_when_only_ccu_enabled)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     DevBuffer dataBuffer(8);
     RtsNotify notify(false);
     RtsNotify notify1(false);
-    MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any(), any()).will(returnValue(&dataBuffer));
+    MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(&dataBuffer));
     MOCKER_CPP(&HostDeviceSyncNotifyManager::GetHostWaitNotify).stubs().with().will(returnValue(&notify));
     MOCKER_CPP(&HostDeviceSyncNotifyManager::GetDeviceWaitNotify).stubs().with().will(returnValue(&notify1));
     void *ptr1 = (void*)0x123;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr1));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr1));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
 
     CommunicatorImpl comm;
@@ -1548,7 +1548,7 @@ TEST_F(CommunicatorImplTest, should_success_when_AllocCommResource_ccu)
     MOCKER_CPP(&Mc2Compont::FillCollOperator).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&Mc2Compont::AllocCommResource).stubs().with().will(ignoreReturnValue());
     std::vector<CcuTaskParam> vec;
-    MOCKER_CPP(&Mc2Compont::GetCcuTaskInfo).stubs().with(any()).will(returnValue(vec));
+    MOCKER_CPP(&Mc2Compont::GetCcuTaskInfo).stubs().with(mockcpp::any()).will(returnValue(vec));
 
     MOCKER_CPP(&SocketManager::BatchCreateSockets, void(SocketManager::*)(const std::vector<LinkData>&))
         .stubs();
@@ -1556,8 +1556,8 @@ TEST_F(CommunicatorImplTest, should_success_when_AllocCommResource_ccu)
     MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs();
     std::vector<Hccl::LinkData> linkVec;
     char *buf = new char[16 * 1024 * 1024];
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(buf)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x100000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(buf)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x100000));
 
 #define FUSION_SUB_TASK_MAX_CPU_NUM (1U)
 typedef struct rtHostInputInfo {
@@ -1815,7 +1815,7 @@ TEST_F(CommunicatorImplTest, ut_should_success_when_GetSnapShotDynamicBuf)
 
 TEST_F(CommunicatorImplTest, ut_CalcTaskNum_When_Abnormal_Expect_Return_HCCL_E_INTERNAL)
 {
-    MOCKER(getenv).stubs().with(any()).will(invoke(commGetenv_stub));
+    MOCKER(getenv).stubs().with(mockcpp::any()).will(invoke(commGetenv_stub));
     CommunicatorImpl comm;
     comm.CollAlgComponentInit();
     comm.cclBuffer = DevBuffer::Create(0x100, 0x100);
@@ -1846,7 +1846,7 @@ TEST_F(CommunicatorImplTest, ut_CalcTaskNum_When_Abnormal_Expect_Return_HCCL_E_I
 
 TEST_F(CommunicatorImplTest, ut_CreateCommCclBuf_When_Normal_Expect_Return_HCCL_SUCCESS)
 {
-    MOCKER(getenv).stubs().with(any()).will(invoke(commGetenv_stub));
+    MOCKER(getenv).stubs().with(mockcpp::any()).will(invoke(commGetenv_stub));
     CommunicatorImpl comm;
     comm.CollAlgComponentInit();
     comm.cclBuffer = DevBuffer::Create(0x100, 0x100);
@@ -2079,11 +2079,11 @@ TEST_F(CommunicatorImplTest, Ut_CommunicatorImpl_When_EnableSuperFastLoad_Expect
     MOCKER(RaTlvRequest).stubs().will(returnValue(0));
     void* mockTlvHandle = reinterpret_cast<void*>(0x1234);
     MOCKER_CPP(&HccpTlvHdcManager::GetTlvHandle).stubs().will(returnValue(mockTlvHandle));
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER(rtCCULaunch).stubs().will(returnValue(RT_ERROR_NONE));
     MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).stubs();
     MOCKER(CcuCtxMgr::GetProfilingInfo).stubs().will(invoke(GetProfilingInfoStub));
-    MOCKER_CPP(&Hccl::CcuJettyMgr::GetRemoteRankIdByChannelId).stubs().with(any()).will(returnValue(0x23));
+    MOCKER_CPP(&Hccl::CcuJettyMgr::GetRemoteRankIdByChannelId).stubs().with(mockcpp::any()).will(returnValue(0x23));
     void* fakePtr = (void *)1;
     u32 fakeId = 1;
     s32 fakeDevLogId = 1;
@@ -2097,7 +2097,7 @@ TEST_F(CommunicatorImplTest, Ut_CommunicatorImpl_When_EnableSuperFastLoad_Expect
     MOCKER(HrtStreamDestroy).stubs();
     MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().will(ignoreReturnValue());
 
-    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     CollAlgComponent collAlgComponent(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::Orchestrate,
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
@@ -2105,8 +2105,8 @@ TEST_F(CommunicatorImplTest, Ut_CommunicatorImpl_When_EnableSuperFastLoad_Expect
         .stubs()
         .will(invoke(Orchestrate));
     MOCKER_CPP(&CcuInsPreprocessor::Preprocess).stubs().with().will(ignoreReturnValue());
-    MOCKER_CPP(&HcclCommunicator::RegistTaskAbortHandler  ).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER_CPP(&HcclCommunicator::UnRegistTaskAbortHandler).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&HcclCommunicator::RegistTaskAbortHandler  ).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&HcclCommunicator::UnRegistTaskAbortHandler).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     CommParams commInnerParams;
     Hccl::HcclCommunicator commInner(commInnerParams);
@@ -2312,7 +2312,7 @@ TEST_F(CommunicatorImplTest, ut_ReLoadOpbasedOp_When_HOSTCPU_TS_Expect_returnHCC
 
     fakeComm.curOpParams = opParams;
     fakeComm.currentCollOperator = nullptr;
-    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().with(any(), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
     EXPECT_EQ(fakeComm.ReLoadOpbasedOp(), HcclResult::HCCL_E_PTR); // currentCollOperator == nullptr
 }
 
@@ -2334,7 +2334,7 @@ TEST_F(CommunicatorImplTest, ut_ReLoadOpbasedOp_When_AICPU_TS_Expect_returnHCCL_
     fakeComm.curOpParams = opParams;
 
     fakeComm.opExecuteConfig.accState = AcceleratorState::AICPU_TS;
-    MOCKER_CPP(&CollServiceAiCpuImpl::LoadWithOpBasedModeNoRegister).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CollServiceAiCpuImpl::LoadWithOpBasedModeNoRegister).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     EXPECT_EQ(fakeComm.ReLoadOpbasedOp(), HcclResult::HCCL_SUCCESS);
 
     fakeComm.opExecuteConfig.accState = AcceleratorState::CCU_MS;
@@ -2387,7 +2387,7 @@ TEST_F(CommunicatorImplTest, ut_ReLoadOffloadOp_When_HOSTCPU_TS_Expect_returnHCC
 
     fakeComm.curOpParams = opParams;
     fakeComm.currentCollOperator = nullptr;
-    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().with(any(), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
     EXPECT_EQ(fakeComm.ReLoadOffloadOp(), HcclResult::HCCL_E_PTR); // currentCollOperator == nullptr
 }
 
@@ -2409,7 +2409,7 @@ TEST_F(CommunicatorImplTest, ut_ReLoadOffloadOp_When_AICPU_TS_Expect_returnHCCL_
     fakeComm.curOpParams = opParams;
 
     fakeComm.opExecuteConfig.accState = AcceleratorState::AICPU_TS;
-    MOCKER_CPP(&CollServiceAiCpuImpl::LoadWithOffloadModeNoRegister).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CollServiceAiCpuImpl::LoadWithOffloadModeNoRegister).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     EXPECT_EQ(fakeComm.ReLoadOffloadOp(), HcclResult::HCCL_SUCCESS);
 
     fakeComm.opExecuteConfig.accState = AcceleratorState::CCU_MS;
@@ -3179,16 +3179,16 @@ TEST_F(CommunicatorImplTest, ut_GetAlgExecParam_When_Normal_Expect_ReturnHCCL_SU
     int32_t aivCoreLimit = 2;
 
     void *addr = reinterpret_cast<void *>(0x12345678);
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(addr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(addr));
     MOCKER(HrtFree).stubs();
     MOCKER_CPP(&SocketManager::BatchCreateSockets, void(SocketManager::*)(const std::vector<LinkData>&))
         .stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemoryTransportMgr::BatchCreateTransport).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&UbMemoryTransportMgr::TransportsConnect).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&UbMemoryTransportMgr::BatchCreateTransport).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemoryTransportMgr::TransportsConnect).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     EXPECT_EQ(fakeComm.SetCollOffloadScratchBuf("test", (void *)0x100, 0x100), HcclResult::HCCL_SUCCESS);
     EXPECT_EQ(fakeComm.GetAlgExecParam(opParams, clearEnable, commContext, len, aivCoreLimit), HcclResult::HCCL_SUCCESS);
 
-    MOCKER_CPP(&CommunicatorImpl::HcomSelectAlg).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::HcomSelectAlg).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     fakeComm.commExecuteConfig.accState = AcceleratorState::CCU_MS;
     fakeComm.opExecuteConfig.accState = AcceleratorState::CCU_MS;
     EXPECT_EQ(fakeComm.GetAlgExecParam(opParams, clearEnable, commContext, len, aivCoreLimit), HcclResult::HCCL_E_NOT_SUPPORT);
@@ -3216,7 +3216,7 @@ TEST_F(CommunicatorImplTest, Ut_AllocCollOpResource_When_Normal_Expect_ReturnIsH
 {
     fakeComm.InitCollService();
     fakeComm.CollAlgComponentInit();
-    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CollServiceAiCpuImpl::AllocCollOpResourceNoRegister).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).stubs();
@@ -3240,7 +3240,7 @@ TEST_F(CommunicatorImplTest, Ut_AllocCollOpResource_When_Not_AiCpu_Expect_Return
 {
     fakeComm.InitCollService();
     fakeComm.CollAlgComponentInit();
-    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CollServiceAiCpuImpl::AllocCollOpResourceNoRegister).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     
@@ -3286,7 +3286,7 @@ TEST_F(CommunicatorImplTest, Ut_AllocCollOpResource_When_Service_Default_Expect_
 {
     fakeComm.InitCollService();
     fakeComm.CollAlgComponentInit();
-    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     OpExecuteConfig opConfig;
     opConfig.accState = AcceleratorState::HOSTCPU_TS;
@@ -3305,7 +3305,7 @@ TEST_F(CommunicatorImplTest, Ut_AllocCollOpResource_When_DataType_Check_Fail_Exp
 {
     fakeComm.InitCollService();
     fakeComm.CollAlgComponentInit();
-    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
 
     OpExecuteConfig opConfig;
@@ -3457,11 +3457,11 @@ TEST_F(CommunicatorImplTest, Ut_GetInfo_When_endpointDecsNull_Return_Hccl_E_PTR)
 
 void MockForInitAndLaunchDpuKernel()
 {
-    MOCKER(aclrtGetCurrentContext).stubs().with(any()).will(returnValue(ACL_SUCCESS));
-    MOCKER(aclrtSetCurrentContext).stubs().with(any()).will(returnValue(ACL_SUCCESS));
-    MOCKER(aclrtDestroyStreamForce).stubs().with(any()).will(returnValue(ACL_SUCCESS));
-    MOCKER(HrtSetXpuDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtResetXpuDevice).stubs().with(any()).will(returnValue(HCCL_E_RUNTIME));
+    MOCKER(aclrtGetCurrentContext).stubs().with(mockcpp::any()).will(returnValue(ACL_SUCCESS));
+    MOCKER(aclrtSetCurrentContext).stubs().with(mockcpp::any()).will(returnValue(ACL_SUCCESS));
+    MOCKER(aclrtDestroyStreamForce).stubs().with(mockcpp::any()).will(returnValue(ACL_SUCCESS));
+    MOCKER(HrtSetXpuDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtResetXpuDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_RUNTIME));
     MOCKER_CPP(&CommunicatorImpl::WaitDpuKernelThreadTerminate).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::GetKFCWorkSpaceVA).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::PrepareDpuKernelResource).stubs().will(returnValue(HCCL_SUCCESS));
@@ -3484,8 +3484,8 @@ TEST_F(CommunicatorImplTest, Ut_When_DestroyDpuKernelResource_Expect_DpuStream_U
     CommunicatorImpl comm;
     comm.devPhyId = 0;
     comm.isDpuKernelLaunched = true;
-    MOCKER(aclrtSetCurrentContext).stubs().with(any()).will(returnValue(ACL_SUCCESS));
-    MOCKER(aclrtDestroyStreamForce).stubs().with(any()).will(returnValue(ACL_ERROR_INVALID_PARAM));
+    MOCKER(aclrtSetCurrentContext).stubs().with(mockcpp::any()).will(returnValue(ACL_SUCCESS));
+    MOCKER(aclrtDestroyStreamForce).stubs().with(mockcpp::any()).will(returnValue(ACL_ERROR_INVALID_PARAM));
     MOCKER_CPP(&CommunicatorImpl::WaitDpuKernelThreadTerminate).stubs().will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = comm.DestroyDpuKernelResource();
@@ -3569,11 +3569,11 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_PciePath_Expect_Success)
 
     int64_t connType = 0;// HOST_DEVICE_CONNECT_TYPE_PCIE
     void* stubRegAddr = reinterpret_cast<void *>(0xBEEF0000);
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(any(), any(), any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
         .will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtMalloc).stubs().with(any(), any())
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any())
         .will(returnValue(reinterpret_cast<void *>(0x2000)));
-    MOCKER(halHostRegister).stubs().with(any(), any(), any(), any(), outBoundP(&stubRegAddr))
+    MOCKER(halHostRegister).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&stubRegAddr))
         .will(returnValue(DRV_ERROR_NONE));
     MOCKER(HrtFree).stubs();
 
@@ -3594,13 +3594,13 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_PcieHalHostRegisterFail_E
     bool newCreated = true;
     std::string tag = "DPUTAG";
 
-    MOCKER(HrtMalloc).stubs().with(any(), any())
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any())
         .will(returnValue(reinterpret_cast<void *>(0x2000)));
     int64_t connType = 0;// HOST_DEVICE_CONNECT_TYPE_PCIE
     void* stubRegAddr = reinterpret_cast<void *>(0xBEEF0000);
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(any(), any(), any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
         .will(returnValue(HCCL_SUCCESS));
-    MOCKER(halHostRegister).stubs().with(any(), any(), any(), any(), any())
+    MOCKER(halHostRegister).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(DRV_ERROR_INNER_ERR));
     MOCKER(HrtFree).stubs();
 
@@ -3622,9 +3622,9 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UbPath_Expect_Success)
 
     void* stubRegAddr = reinterpret_cast<void *>(0xBEEF0000);
 
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(any(), any(), any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
         .will(returnValue(HCCL_SUCCESS));
-    MOCKER(halHostRegister).stubs().with(any(), any(), any(), any(), outBoundP(&stubRegAddr))
+    MOCKER(halHostRegister).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&stubRegAddr))
         .will(returnValue(DRV_ERROR_NONE));
 
     auto ret = fakeComm.GetKFCWorkSpaceVA(tag, &size, &addr, &newCreated);
@@ -3648,7 +3648,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UnsupportedConnectType_Ex
     std::string tag = "DPUTAG";
     int64_t connType = 1;// HOST_DEVICE_CONNECT_TYPE_HCCS;// unsupported connect type
 
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(any(), any(), any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
         .will(returnValue(HCCL_SUCCESS));
 
     auto ret = fakeComm.GetKFCWorkSpaceVA(tag, &size, &addr, &newCreated);
@@ -3671,8 +3671,8 @@ protected:
         fakeOpParams.reduceOp = ReduceOp::SUM;
         fakeOpParams.count = 1024;
         fakeComm.commExecuteConfig.accState = AcceleratorState::CCU_SCHED;
-        MOCKER_CPP(&CommunicatorImpl::InitCcuSuperFastLoad).stubs().with(any()).will(ignoreReturnValue());
-        MOCKER_CPP(&CommunicatorImpl::ExecuteFastCcuLaunch).stubs().with(any()).will(ignoreReturnValue());
+        MOCKER_CPP(&CommunicatorImpl::InitCcuSuperFastLoad).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+        MOCKER_CPP(&CommunicatorImpl::ExecuteFastCcuLaunch).stubs().with(mockcpp::any()).will(ignoreReturnValue());
         CcuTaskParam ccuTaskParam{};
         std::vector<std::vector<CcuTaskParam>> ccuIns;
         std::vector<std::vector<CcuProfilingInfo>> ccuProInfo;
@@ -3732,7 +3732,7 @@ TEST_F(CommunicatorImplTest, Ut_SaveDpuStreamId_When_Normal_Expect_ReturnSuccess
     comm.dpuStream = fakeStream;
     // mock HrtGetStreamId 返回固定值
     s32 fakeStreamId = 0;
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
 
     HcclResult ret = comm.SaveDpuStreamId();
     EXPECT_EQ(ret, HCCL_SUCCESS);

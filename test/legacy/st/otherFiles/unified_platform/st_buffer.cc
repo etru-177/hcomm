@@ -62,8 +62,8 @@ TEST_F(BufferTest, DevBuffer_selfowned)
 
     uintptr_t fakeAddr = 1000;
     size_t fakeSize = 1000;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)fakeAddr));
-    MOCKER(HrtFree).stubs().with(any());
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)fakeAddr));
+    MOCKER(HrtFree).stubs().with(mockcpp::any());
 
     DevBuffer buffer(fakeSize);
     EXPECT_EQ(fakeAddr, buffer.GetAddr());

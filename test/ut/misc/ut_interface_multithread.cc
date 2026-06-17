@@ -148,8 +148,8 @@ TEST_F(MultiThreadNpuGpu, EndtoEndOneProcess)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HCCL_SUCCESS;
     EXPECT_EQ(hrtSetDevice(0), HCCL_SUCCESS);
@@ -372,8 +372,8 @@ TEST_F(MultiThreadNpuGpu, EndtoEndMutiThread)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     sal_thread_t tid[DEV_NUM];
     for (int devId = 0; devId < DEV_NUM; devId++) {
@@ -407,8 +407,8 @@ TEST_F(MultiThreadNpuGpu, EndtoEndMutiThreadSwitchDevice)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
 
     for (int devId = 0; devId < 8; devId++) {
@@ -434,8 +434,8 @@ TEST_F(MultiThreadNpuGpu, EndtoEndOneProcessWithAttr)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     for (int devId = 0; devId < 8; devId++) {
         ThreadHandleQPWithAttr((void*)&devId);
@@ -460,8 +460,8 @@ TEST_F(MultiThreadNpuGpu, EndtoEndOneProcessWithAttrMultiThread)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     sal_thread_t tid[DEV_NUM];
     for (int devId = 0; devId < DEV_NUM; devId++) {
@@ -574,8 +574,8 @@ TEST_F(MultiThreadNpuGpu, OneSideEndtoEndOneProcess)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HCCL_SUCCESS;
     EXPECT_EQ(hrtSetDevice(0), HCCL_SUCCESS);
@@ -651,8 +651,8 @@ TEST_F(MultiThreadNpuGpu, OneSideEndtoEndOneProcessVerifyFailed)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HCCL_SUCCESS;
     EXPECT_EQ(hrtSetDevice(0), HCCL_SUCCESS);
@@ -802,8 +802,8 @@ TEST_F(MultiThreadNpuGpu, OneSideEndtoEndMutiThreadSwitchDevice)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
 
     for (int devId = 0; devId < 8; devId++) {
@@ -825,8 +825,8 @@ TEST_F(MultiThreadNpuGpu, OneSideEndtoEndMutiThread)
 
     MOCKER(hrtMemSyncCopy).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRDMADBSend).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRDMADBSend).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     sal_thread_t tid[DEV_NUM];
     for (int devId = 0; devId < DEV_NUM; devId++) {

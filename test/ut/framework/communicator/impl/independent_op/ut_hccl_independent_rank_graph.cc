@@ -164,7 +164,7 @@ public:
     void SetUp() override
     {
         MOCKER(&HcclCommunicator::InitRaResource).stubs().will(returnValue(HCCL_SUCCESS));
-        MOCKER(aclrtGetLogicDevIdByPhyDevId).stubs().with(any()).will(invoke(aclrtGetLogicDevIdByPhyDevId_stub));
+        MOCKER(aclrtGetLogicDevIdByPhyDevId).stubs().with(mockcpp::any()).will(invoke(aclrtGetLogicDevIdByPhyDevId_stub));
         BaseInit::SetUp();
     }
     void TearDown() override
@@ -185,8 +185,8 @@ HcclResult DevTypeToCommProtocol_stub(RankGraph *graph, DevType &type, CommProto
 
 void Create91093Comm(HcclComm *comm)
 {
-    MOCKER_CPP(&RankGraph::DevTypeToCommProtocol).stubs().with(any()).will(invoke(DevTypeToCommProtocol_stub));
-    MOCKER(hrtGetDeviceInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RankGraph::DevTypeToCommProtocol).stubs().with(mockcpp::any()).will(invoke(DevTypeToCommProtocol_stub));
+    MOCKER(hrtGetDeviceInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(IsSuperPodMode).stubs().with(outBound(true)).will(returnValue(HCCL_SUCCESS));
     MOCKER(IsSupportAtomicWrite).stubs().will(returnValue(HCCL_SUCCESS));
     Ut_Clusterinfo_File_Create(RANKTABLE_FILE_NAME, rank_table_910C_2superPod_2server_4rank_1nic);
@@ -378,9 +378,9 @@ HcclResult hrtGetDeviceTypeStub(DevType &devType)
 
 void Create910BComm(HcclComm *comm, json jsonName)
 {
-    MOCKER(hrtGetDeviceType).stubs().with(any()).will(invoke(hrtGetDeviceTypeStub));
-    MOCKER_CPP(&RankGraph::DevTypeToCommProtocol).stubs().with(any()).will(invoke(DevTypeToCommProtocol_stub_910B));
-    MOCKER(hrtGetDeviceInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDeviceType).stubs().with(mockcpp::any()).will(invoke(hrtGetDeviceTypeStub));
+    MOCKER_CPP(&RankGraph::DevTypeToCommProtocol).stubs().with(mockcpp::any()).will(invoke(DevTypeToCommProtocol_stub_910B));
+    MOCKER(hrtGetDeviceInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(IsSuperPodMode).stubs().with(outBound(false)).will(returnValue(HCCL_SUCCESS));
     MOCKER(IsSupportAtomicWrite).stubs().will(returnValue(HCCL_SUCCESS));
     Ut_Clusterinfo_File_Create(RANKTABLE_FILE_NAME, jsonName);
@@ -481,7 +481,7 @@ TEST_F(HcclIndependentOpRankGraphTest, Ut_HcclRankGraphGetLinks_When_In_Same_Mes
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
     set_chip_type_stub(0, static_cast<s32>(DevType::DEV_TYPE_910B));
-    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     Create910BComm(&comm, rank_table_910B_1server_16rank);
     HcclResult ret = HcclRankGraphGetLinks(comm, HCCL_NETLAYER_0, 0, 3, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -510,7 +510,7 @@ TEST_F(HcclIndependentOpRankGraphTest, Ut_HcclRankGraphGetLinks_When_In_diff_Mes
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
     set_chip_type_stub(0, static_cast<s32>(DevType::DEV_TYPE_910B));
-    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     Create910BComm(&comm, rank_table_910B_1server_16rank);
     HcclResult ret = HcclRankGraphGetLinks(comm, HCCL_NETLAYER_0, 0, 8, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -540,7 +540,7 @@ TEST_F(HcclIndependentOpRankGraphTest, Ut_HcclRankGraphGetLinks_When_In_diff_Mes
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
     set_chip_type_stub(0, static_cast<s32>(DevType::DEV_TYPE_910B));
-    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     Create910BComm(&comm, rank_table_910B_1server_16rank);
     HcclResult ret = HcclRankGraphGetLinks(comm, HCCL_NETLAYER_0, 0, 8, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -568,7 +568,7 @@ TEST_F(HcclIndependentOpRankGraphTest, Ut_HcclRankGraphGetLinks_When_In_diff_Mes
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
     set_chip_type_stub(0, static_cast<s32>(DevType::DEV_TYPE_910B));
-    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     Create910BComm(&comm, rank_table_910B_1server_16rank);
     HcclResult ret = HcclRankGraphGetLinks(comm, HCCL_NETLAYER_0, 0, 9, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -595,7 +595,7 @@ TEST_F(HcclIndependentOpRankGraphTest, Ut_HcclRankGraphGetLinks_When_In_diff_Mes
     CommLink *linkList = nullptr;
     uint32_t listSize = 0;
     set_chip_type_stub(0, static_cast<s32>(DevType::DEV_TYPE_910B));
-    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(&TopoInfoExtractor::CheckPlaneInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     Create910BComm(&comm, rank_table_910B_1server_16rank);
     HcclResult ret = HcclRankGraphGetLinks(comm, HCCL_NETLAYER_0, 0, 9, &linkList, &listSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -628,8 +628,8 @@ HcclResult DevTypeToCommProtocol_stub_310P(RankGraph *graph, DevType &type, Comm
 
 void Create310PComm(HcclComm *comm, json jsonName)
 {
-    MOCKER_CPP(&RankGraph::DevTypeToCommProtocol).stubs().with(any()).will(invoke(DevTypeToCommProtocol_stub_310P));
-    MOCKER(hrtGetDeviceInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RankGraph::DevTypeToCommProtocol).stubs().with(mockcpp::any()).will(invoke(DevTypeToCommProtocol_stub_310P));
+    MOCKER(hrtGetDeviceInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(IsSuperPodMode).stubs().with(outBound(false)).will(returnValue(HCCL_SUCCESS));
     MOCKER(IsSupportAtomicWrite).stubs().will(returnValue(HCCL_SUCCESS));
     Ut_Clusterinfo_File_Create(RANKTABLE_FILE_NAME, jsonName);

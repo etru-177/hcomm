@@ -157,7 +157,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(hrtRaGetSockets)
         .stubs()
@@ -417,10 +417,10 @@ TEST_F(HeartBeatTest, ut_HeartBeatTest5)
 
     DevType type = DevType::DEV_TYPE_910_93;
     MOCKER(hrtGetDeviceType).stubs().with(outBound(type)).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetPairDevicePhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&Heartbeat::IsEnableBackupLink).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&Heartbeat::GetConnectRank).stubs().with(any()).will(returnValue(0));
+    MOCKER(hrtGetPairDevicePhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Heartbeat::IsEnableBackupLink).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetConnectRank).stubs().with(mockcpp::any()).will(returnValue(0));
 
     Heartbeat::GetInstance(0).Init(rankInfo, false, false, 0);
     Heartbeat::GetInstance(0).DeInit();
@@ -439,7 +439,7 @@ TEST_F(HeartBeatTest, ut_HeartBeatTest5)
         rankInfos1.push_back(rankInfo);
     }
     rankInfo.backupNicIp.push_back(HcclIpAddress(1684515008));
-    MOCKER_CPP(&Heartbeat::Init).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::Init).stubs().with(mockcpp::any()).will(returnValue(0));
     Heartbeat::GetInstance(0).RegisterRanks(type, rankInfo, rankInfos1, 0, false, "test1");
     Heartbeat::GetInstance(0).UnRegisterRanks("test1");
 
@@ -730,7 +730,7 @@ TEST_F(HeartBeatTest, ut_ProcessCqeErrInfo_007)
 TEST_F(HeartBeatTest, ut_ProcessCqeErrInfo_008)
 {
     // 开启重执行分支 && 注入 status = 0，提前退出
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
     
     MOCKER(hrtRaGetCqeErrInfoList)
@@ -745,7 +745,7 @@ TEST_F(HeartBeatTest, ut_ProcessCqeErrInfo_008)
 TEST_F(HeartBeatTest, ut_ProcessCqeErrInfo_009)
 {
     // 未开启重执行分支 
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(false));
 
     MOCKER(hrtRaGetCqeErrInfoList)
     .stubs()
@@ -758,7 +758,7 @@ TEST_F(HeartBeatTest, ut_ProcessCqeErrInfo_009)
 TEST_F(HeartBeatTest, ut_ProcessCqeErrInfo_010)
 {
     // 开启重执行分支 && 注入 status = 0，提前退出
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
     
     MOCKER(hrtRaGetCqeErrInfoList)
@@ -943,7 +943,7 @@ TEST_F(HeartBeatTest, ut_transport_ibv_stop_test)
     TransportIbverbs transportIbverbs(dispatcher, notifyPool, machinePara, timeout);
     MOCKER(hrtRaQpBatchModify)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     auto ret = transportIbverbs.Stop();
@@ -959,7 +959,7 @@ TEST_F(HeartBeatTest, ut_transport_ibv_Resume_test)
     TransportIbverbs transportIbverbs(dispatcher, notifyPool, machinePara, timeout);
     MOCKER(hrtRaQpBatchModify)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     auto ret = transportIbverbs.Resume();
@@ -969,7 +969,7 @@ TEST_F(HeartBeatTest, ut_transport_ibv_Resume_test)
 TEST_F(HeartBeatTest, ut_GetQpnErrForOpRetryAgent_Null)
 {
     // 测试 GetQpnErr 返回 false
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         MOCKER(hrtRaGetCqeErrInfoList)
     .stubs()
@@ -990,7 +990,7 @@ TEST_F(HeartBeatTest, ut_GetQpnErrForOpRetryAgent)
 {
     // 开启重执行分支
     // qpmapForOpRetry 中没有指定通信域的 kv pair
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         Heartbeat::GetInstance(0).deviceLogicId_ = 0;
     // 调用hrtRaGetCqeErrInfo 是会注入一个Rdma Err
@@ -1020,7 +1020,7 @@ TEST_F(HeartBeatTest, ut_BroadcastCqeErr)
 {
     // 开启重执行分支
     // qpmapForOpRetry 中没有指定通信域的 kv pair
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         // 调用hrtRaGetCqeErrInfo 是会注入一个Rdma Err
     MOCKER(hrtRaGetCqeErrInfoList)
@@ -1039,7 +1039,7 @@ TEST_F(HeartBeatTest, ut_ClearAllCqeErr)
 {
     // 开启重执行分支
     // qpmapForOpRetry 中没有指定通信域的 kv pair
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         // 调用hrtRaGetCqeErrInfo 是会注入一个Rdma Err
     MOCKER(hrtRaGetCqeErrInfoList)
@@ -1057,7 +1057,7 @@ TEST_F(HeartBeatTest, ut_ClearAllCqeErr)
 TEST_F(HeartBeatTest, ut_ClearCqeErr1)
 {
     // 清除不存在的通信域中的数据
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         MOCKER(hrtRaGetCqeErrInfoList)
     .stubs().will(invoke(stub_hrtRaGetCqeErrInfo_value));
@@ -1074,7 +1074,7 @@ TEST_F(HeartBeatTest, ut_ClearCqeErr1)
 TEST_F(HeartBeatTest, ut_ClearCqeErr2)
 {
     // 清除不存在的通信域中的dstRank
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         MOCKER(hrtRaGetCqeErrInfoList)
     .stubs().will(invoke(stub_hrtRaGetCqeErrInfo_value));
@@ -1090,7 +1090,7 @@ TEST_F(HeartBeatTest, ut_ClearCqeErr2)
 
 TEST_F(HeartBeatTest, ut_ClearCqeErr3)
 {
-    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&Heartbeat::GetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
     TransportIbverbs::g_flag = true;
         MOCKER(hrtRaGetCqeErrInfoList)
     .stubs()

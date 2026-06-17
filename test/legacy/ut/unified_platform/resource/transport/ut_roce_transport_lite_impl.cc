@@ -237,9 +237,9 @@ protected:
     virtual void SetUp()
     {
         std::cout << "A Test case in RoceTransportLiteImplTest SetUP" << std::endl;
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         uniqueId_ = BuildTransportUniqueId(NOTIFY_NUM, BUFFER_NUM, CONN_NUM);
     }
@@ -495,9 +495,9 @@ TEST_F(RoceTransportLiteImplTest, Ut_RoceTransportLite_Write)
 
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::UpdateSqPI).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::CommitWqe).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(static_cast<void(RdmaConnLiteV2::*)(
@@ -525,9 +525,9 @@ TEST_F(RoceTransportLiteImplTest, Ut_RoceTransportLite_WriteWithNotify)
 
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::UpdateSqPI).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::CommitWqe).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(static_cast<void(RdmaConnLiteV2::*)(
@@ -554,9 +554,9 @@ TEST_F(RoceTransportLiteImplTest, Ut_RoceTransportLite_Post)
 
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::UpdateSqPI).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::CommitWqe).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(static_cast<void(RdmaConnLiteV2::*)(

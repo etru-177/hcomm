@@ -35,13 +35,13 @@ protected:
 
     // Helpers to stub HDCommunicate member functions
     void StubKfcControlPut(const HcclResult ret) {
-        MOCKER_CPP(&hccl::HDCommunicate::Put).stubs().with(any(), any(), any()).will(returnValue(ret));
+        MOCKER_CPP(&hccl::HDCommunicate::Put).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(ret));
     }
     void StubKfcStatusGet(const HcclResult ret, const Hccl::KfcStatus status) {
-        MOCKER_CPP(&hccl::HDCommunicate::Get).stubs().with(any(), any(), any()).will(returnValue(ret));
+        MOCKER_CPP(&hccl::HDCommunicate::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(ret));
     }
     void StubChannelUpdateKernelLaunch(const HcclResult ret) {
-        MOCKER_CPP(&ChannelProcess::ChannelUpdateKernelLaunch).stubs().with(any(), any(), any(), any(), any()).will(returnValue(ret));
+        MOCKER_CPP(&ChannelProcess::ChannelUpdateKernelLaunch).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(ret));
     }
 
     std::unique_ptr<NsRecoveryProcessor> processor_;

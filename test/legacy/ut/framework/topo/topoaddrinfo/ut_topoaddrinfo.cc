@@ -80,7 +80,7 @@ TEST_F(TopoAddrInfoTest, Ut_get_mainbaord_id)
 TEST_F(TopoAddrInfoTest, Ut_Card_2Px)
 {
     unsigned int m = 3;
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&m)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&m)).will(returnValue(0));
 
     unsigned int xx = 0;
     int ret = hal_get_mainboard_id(0, &xx);
@@ -103,9 +103,9 @@ TEST_F(TopoAddrInfoTest, Ut_Card_2P)
     hex32_to_bin16("000000000000000000100000dfdf0051", eidList[3].eid.raw);
     size_t eidNum = 4;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&m)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(hal_get_eid_list_by_phy_id).stubs().with(any(), outBoundP(eidList, eidNum*sizeof(dcmi_urma_eid_info_t)), outBoundP(&eidNum)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&m)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(hal_get_eid_list_by_phy_id).stubs().with(mockcpp::any(), outBoundP(eidList, eidNum*sizeof(dcmi_urma_eid_info_t)), outBoundP(&eidNum)).will(returnValue(0));
 
     char* buf = (char*)malloc(4096);
     memset(buf, 0x00, 4096);
@@ -121,7 +121,7 @@ TEST_F(TopoAddrInfoTest, Ut_Card_2P_GetSize)
 {
     // mock data
     unsigned int m = 0x6A;
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&m)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&m)).will(returnValue(0));
     size_t bufSize = 0;
     int ret = TopoAddrInfoGetSize(0, &bufSize);
     EXPECT_EQ(ret, 0);
@@ -142,9 +142,9 @@ TEST_F(TopoAddrInfoTest, Ut_Card_4P)
     hex32_to_bin16("000000000000000000100000dfdf0051", eidList[3].eid.raw);
     size_t eidNum = 4;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboard_id)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(hal_get_eid_list_by_phy_id).stubs().with(any(), outBoundP(eidList, eidNum*sizeof(dcmi_urma_eid_info_t)), outBoundP(&eidNum)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(hal_get_eid_list_by_phy_id).stubs().with(mockcpp::any(), outBoundP(eidList, eidNum*sizeof(dcmi_urma_eid_info_t)), outBoundP(&eidNum)).will(returnValue(0));
 
     char* buf = (char*)malloc(4096);
     memset(buf, 0x00, 4096);
@@ -161,7 +161,7 @@ TEST_F(TopoAddrInfoTest, ut_get_pod_rootinfo_size)
 {
     unsigned int mainboardId = 0x07;
     const size_t exceptedSize = 2048;
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboardId)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboardId)).will(returnValue(0));
     size_t size = 0;
     int ret = TopoAddrInfoGetSize(0, &size);
     EXPECT_EQ(ret, 0);
@@ -172,7 +172,7 @@ TEST_F(TopoAddrInfoTest, ut_get_unknow_rootinfo_size)
 {
     unsigned int mainboardId = 0x100;
     const size_t exceptedSize = 4096;
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboardId)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboardId)).will(returnValue(0));
     size_t size = 0;
     int ret = TopoAddrInfoGetSize(0, &size);
     EXPECT_EQ(ret, 0);
@@ -228,10 +228,10 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_pod)
     spinfo.chassis_id = 0x00000000;
     spinfo.super_pod_type = 0x00000000;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboard_id)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(HalGetUBEntityList).stubs().with(any(), outBoundP(&ueList)).will(returnValue(0));
-    MOCKER(hal_get_spod_info).stubs().with(any(), outBoundP(&spinfo)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
 
     size_t bufSize = 4096;
     char* buf = (char*)malloc(bufSize);
@@ -301,8 +301,8 @@ TEST_F(TopoAddrInfoTest, ut_multi_init)
     unsigned int mainBoardId1 = 0;
     unsigned int mainBoardId2 = 0;
     unsigned int expectedMainboardId = 0x07;
-    MOCKER(hal_dlopen).stubs().with(any(), any()).will(invoke(mock_dlopen));
-    MOCKER(hal_dlsym).stubs().with(any(), any()).will(invoke(mock_dlsym));
+    MOCKER(hal_dlopen).stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(mock_dlopen));
+    MOCKER(hal_dlsym).stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(mock_dlsym));
     hal_get_mainboard_id(0, &mainBoardId1);
     EXPECT_EQ(mainBoardId1, expectedMainboardId);
     // 连续初始化两次，模拟多线程初始化，第二次进入等待状态
@@ -391,10 +391,10 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_server_no_uboe1)
     spinfo.chassis_id = 0x00000000;
     spinfo.super_pod_type = 0x00000000;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboard_id)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(HalGetUBEntityList).stubs().with(any(), outBoundP(&ueList)).will(returnValue(0));
-    MOCKER(hal_get_spod_info).stubs().with(any(), outBoundP(&spinfo)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
 
     size_t bufSize = 4096;
     char* buf = (char*)malloc(bufSize);
@@ -448,10 +448,10 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_server_no_uboe2)
     spinfo.chassis_id = 0x00000000;
     spinfo.super_pod_type = 0x00000000;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboard_id)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(HalGetUBEntityList).stubs().with(any(), outBoundP(&ueList)).will(returnValue(0));
-    MOCKER(hal_get_spod_info).stubs().with(any(), outBoundP(&spinfo)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
 
     size_t bufSize = 4096;
     char* buf = (char*)malloc(bufSize);
@@ -502,10 +502,10 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_server_uboe)
     spinfo.chassis_id = 0x00000000;
     spinfo.super_pod_type = 0x00000000;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboard_id)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(HalGetUBEntityList).stubs().with(any(), outBoundP(&ueList)).will(returnValue(0));
-    MOCKER(hal_get_spod_info).stubs().with(any(), outBoundP(&spinfo)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
 
     size_t bufSize = 4096;
     char* buf = (char*)malloc(bufSize);
@@ -550,10 +550,10 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_ubx)
     spinfo.chassis_id = 0x00000000;
     spinfo.super_pod_type = 0x00000000;
 
-    MOCKER(hal_get_mainboard_id).stubs().with(any(), outBoundP(&mainboard_id)).will(returnValue(0));
-    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), any()).will(returnValue(0));
-    MOCKER(HalGetUBEntityList).stubs().with(any(), outBoundP(&ueList)).will(returnValue(0));
-    MOCKER(hal_get_spod_info).stubs().with(any(), outBoundP(&spinfo)).will(returnValue(0));
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
 
     size_t bufSize = 4096;
     char* buf = (char*)malloc(bufSize);

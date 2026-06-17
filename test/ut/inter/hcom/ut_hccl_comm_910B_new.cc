@@ -72,7 +72,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         DlTdtFunction::GetInstance().DlTdtFunctionInit();
         TsdOpen(1, 2);
@@ -146,7 +146,7 @@ void* inter_all_reduce_outplace_task_1_new(void* parg)
     hcom_info.pComm.reset(new(std::nothrow) hccl::hcclComm(HCCL_ALLREDUCE_DATA_SLICE, HCCL_ALLREDUCE_DATA_SLICE, HCCL_WORLD_GROUP));
     rtModel_t model = (void *)1;
     u32 *notifyIdOut = new u32(0);
-    MOCKER(hrtGetNotifyID).stubs().with(any(), outBound(notifyIdOut)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetNotifyID).stubs().with(mockcpp::any(), outBound(notifyIdOut)).will(returnValue(HCCL_SUCCESS));
      CommConfig commConfig("hccl_world_group");
  ret = hcom_info.pComm->init(hcom_info.params, commConfig, hcom_info.rankTable);
     hcclImpl*impl = dynamic_cast<hcclImpl*> (hcom_info.pComm->impl_.get());

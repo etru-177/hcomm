@@ -186,7 +186,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_loc_wait_sem)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_post_sem)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::WAIT_SIGNAL;
@@ -202,7 +202,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_post_sem)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_wait_sem)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::WAIT_SIGNAL;
@@ -218,7 +218,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_wait_sem)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_post_var)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::WAIT_SIGNAL;
@@ -236,7 +236,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_post_var)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_rem_wait_group)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(any(), any())
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(mockcpp::any(), mockcpp::any())
         .will(returnValue(100)).then(returnValue(200)).then(returnValue(300)).then(returnValue(400));
 
     CcuErrorInfo ccuErrorInfo{};
@@ -291,7 +291,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_post_shared_sem
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_read)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::TRANS_MEM;
@@ -311,7 +311,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_read)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_write)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::TRANS_MEM;
@@ -369,7 +369,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_local_reduce)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_buf_read)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::BUF_TRANS_MEM;
@@ -388,7 +388,7 @@ TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_buf_read)
 TEST_F(TaskExceptionHandlerTest, test_ccu_error_msg_when_type_is_buf_write)
 {
     shared_ptr<TaskInfo> taskInfo = InitTaskInfo();
-    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), any()).will(returnValue(100));
+    MOCKER(TaskExceptionHandler::GetRankIdByChannelId).stubs().with(eq(static_cast<uint16_t>(1)), mockcpp::any()).will(returnValue(100));
 
     CcuErrorInfo ccuErrorInfo{};
     ccuErrorInfo.type = CcuErrorType::BUF_TRANS_MEM;

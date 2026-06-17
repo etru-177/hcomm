@@ -457,7 +457,7 @@ TEST_F(SymmetricMemoryTest, ut_Init_When_Normal_Expect_ReturnHCCL_SUCCESS)
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     
     SymmetricMemory symmetricMemory(0, 2, TWO_M, symmetricMemoryAgent_);
@@ -618,7 +618,7 @@ TEST_F(SymmetricMemoryTest, ut_AllocSymmetricMem_When_Normal_Expect_ReturnNonNul
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemory::RegisterSymmetricMem)
         .stubs()
-        .with(any(), any(), outBoundP(&mockDevWin, sizeof(mockDevWin)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&mockDevWin, sizeof(mockDevWin)))
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -667,7 +667,7 @@ TEST_F(SymmetricMemoryTest, ut_AddSymmetricWindow_When_Normal_Expect_ReturnHCCL_
 {  
     MOCKER_CPP(&SymmetricMemory::DeregisterSymmetricMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -683,7 +683,7 @@ TEST_F(SymmetricMemoryTest, ut_DeleteSymmetricWindow_When_Normal_Expect_ReturnHC
 {  
     MOCKER_CPP(&SymmetricMemory::DeregisterSymmetricMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -702,7 +702,7 @@ TEST_F(SymmetricMemoryTest, ut_DeleteSymmetricWindow_When_Normal_Expect_ReturnHC
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemory::RegisterSymmetricMem)
         .stubs()
-        .with(any(), any(), outBoundP(&mockDevWin, sizeof(mockDevWin)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&mockDevWin, sizeof(mockDevWin)))
         .will(returnValue(HCCL_SUCCESS));
     void* devWin = symmetricMemory.AllocSymmetricMem(1048576); // 1MB
     ret = symmetricMemory.DeleteSymmetricWindow(devWin);
@@ -718,7 +718,7 @@ TEST_F(SymmetricMemoryTest, ut_FreeSymmetricMem_When_Normal_Expect_ReturnNonNull
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemory::RegisterSymmetricMem)
         .stubs()
-        .with(any(), any(), outBoundP(&mockDevWin, sizeof(mockDevWin)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&mockDevWin, sizeof(mockDevWin)))
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -734,7 +734,7 @@ TEST_F(SymmetricMemoryTest, ut_FindSymmetricWindow_When_Normal_Expect_ReturnHCCL
 {  
     MOCKER_CPP(&SymmetricMemory::DeregisterSymmetricMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -757,7 +757,7 @@ TEST_F(SymmetricMemoryTest, ut_FindSymmetricWindow_When_PtrNotInAnyWindow_Expect
 {  
     MOCKER_CPP(&SymmetricMemory::DeregisterSymmetricMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -776,7 +776,7 @@ TEST_F(SymmetricMemoryTest, ut_FindSymmetricWindow_When_PtrBeforeFirstWindow_Exp
 {  
     MOCKER_CPP(&SymmetricMemory::DeregisterSymmetricMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     std::vector<RankInfo> rankInfoList(2);
     HcclIpAddress localVnicIp;
@@ -812,15 +812,15 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_Normal_Expect_ReturnHCC
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -836,11 +836,11 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_Normal_Expect_ReturnHCC
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = symmetricMemory.RegisterSymmetricMem(ptr, TWO_M, &win);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -863,16 +863,16 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_ParaError_Expect_Return
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     ret = symmetricMemory.RegisterSymmetricMem(nullptr, TWO_M, &win);
@@ -881,19 +881,19 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_ParaError_Expect_Return
     EXPECT_EQ(ret, HCCL_E_PARA);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(eq(ptr+1), any(), any())
+        .with(eq(ptr+1), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     ret = symmetricMemory.RegisterSymmetricMem(ptr+1, TWO_M, &win);
     EXPECT_EQ(ret, HCCL_E_PTR);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(eq(ptr+2), any(), any())
+        .with(eq(ptr+2), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_ERROR_INTERNAL_ERROR));
     ret = symmetricMemory.RegisterSymmetricMem(ptr+2, TWO_M, &win);
     EXPECT_EQ(ret, HCCL_E_PARA);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(eq(ptr+3), outBoundP(&ptr, sizeof(ptr)), any())
+        .with(eq(ptr+3), outBoundP(&ptr, sizeof(ptr)), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     ret = symmetricMemory.RegisterSymmetricMem(ptr+3, TWO_M, &win);
     size_t asize = TWO_M - 1;
@@ -929,15 +929,15 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_TwoRegister_Expect_Retu
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -953,11 +953,11 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_TwoRegister_Expect_Retu
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .stubs()
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     ret = symmetricMemory.RegisterSymmetricMem(ptr, TWO_M, &win);
@@ -983,15 +983,15 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_Offset_Is_Failed_Expect
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -1007,11 +1007,11 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_Offset_Is_Failed_Expect
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = symmetricMemory.RegisterSymmetricMem(ptr, TWO_M, &win);
     EXPECT_EQ(ret, HCCL_E_INTERNAL);
@@ -1034,15 +1034,15 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_MapFailed_Expect_Return
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -1058,11 +1058,11 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_MapFailed_Expect_Return
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(aclrtMapMem)
         .stubs()
@@ -1088,15 +1088,15 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_AddSymmetricWindowFaile
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -1109,11 +1109,11 @@ TEST_F(SymmetricMemoryTest, ut_RegisterSymmetricMem_When_AddSymmetricWindowFaile
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = symmetricMemory.RegisterSymmetricMem(ptr, TWO_M, &win);
     EXPECT_EQ(ret, HCCL_E_OOM);
@@ -1142,15 +1142,15 @@ TEST_F(SymmetricMemoryTest, ut_DeRegisterSymmetricMem_When_Normal_Expect_ReturnH
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -1169,11 +1169,11 @@ TEST_F(SymmetricMemoryTest, ut_DeRegisterSymmetricMem_When_Normal_Expect_ReturnH
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     ret = symmetricMemory.RegisterSymmetricMem(ptr, TWO_M, &win);
@@ -1200,15 +1200,15 @@ TEST_F(SymmetricMemoryTest, ut_DeRegisterSymmetricMem_When_FreePhysical_Is_Faile
     void* handle = reinterpret_cast<void*>(0x3000000);
     MOCKER_CPP(aclrtMemGetAddressRange)
         .stubs()
-        .with(any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
+        .with(mockcpp::any(), outBoundP(&ptr, sizeof(ptr)), outBoundP(&bsize, sizeof(bsize)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtReserveMemAddressNoUCMemory)
         .stubs()
-        .with(outBoundP(&heapBase_, sizeof(heapBase_)), any(), any(), any(), any())
+        .with(outBoundP(&heapBase_, sizeof(heapBase_)), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(aclrtMemRetainAllocationHandle)
         .stubs()
-        .with(any(), outBoundP(&handle, sizeof(handle)))
+        .with(mockcpp::any(), outBoundP(&handle, sizeof(handle)))
         .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(hrtMalloc)
         .stubs()
@@ -1227,11 +1227,11 @@ TEST_F(SymmetricMemoryTest, ut_DeRegisterSymmetricMem_When_FreePhysical_Is_Faile
     int32_t remoteShareablePids[2] = {0,1};
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareablePids, sizeof(remoteShareablePids)), eq((u64)sizeof(int32_t)))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&SymmetricMemoryAgent::ExchangeInfo)
         .expects(once())
-        .with(any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
+        .with(mockcpp::any(), outBoundP((void*)remoteShareableInfos, sizeof(remoteShareableInfos)), eq((u64)sizeof(ShareableInfo)))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     ret = symmetricMemory.RegisterSymmetricMem(ptr, TWO_M, &win);

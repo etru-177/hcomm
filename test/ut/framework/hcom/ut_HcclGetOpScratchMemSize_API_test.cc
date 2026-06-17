@@ -67,7 +67,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_ReduceScatterNormal_
     // Mock HcomGetCommByGroup 并设置有效的 hcclComm
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     MOCKER_CPP(&hrtGetDeviceTypeBySocVersion).stubs().will(returnValue(HCCL_SUCCESS));
@@ -85,7 +85,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_ReduceScatterDetermi
     // Mock HcomGetCommByGroup 并设置有效的 hcclComm
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     MOCKER_CPP(&hrtGetDeviceTypeBySocVersion).stubs().will(returnValue(HCCL_SUCCESS));
@@ -104,7 +104,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_AllToAllNormal_Expec
     // Mock HcomGetCommByGroup 并设置有效的 hcclComm
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = GetOpScratchMemSize(false, HCCL_CMD_ALLTOALL, hcomOpParam.get(), 
@@ -119,7 +119,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_BroadcastSmallData_E
     // Mock HcomGetCommByGroup 并设置有效的 hcclComm
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     hcomOpParam->count = (1 * 1024 * 1024) / dataTypeSize;
@@ -136,7 +136,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_BroadcastLargeData_E
     // Mock HcomGetCommByGroup 并设置有效的 hcclComm
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     hcomOpParam->count = (64 * 1024 * 1024) / dataTypeSize;
@@ -152,7 +152,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_BroadcastLargeData_E
 TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_GetCommByGroupFail_Expect_NotFound) {
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_E_NOT_FOUND));
     HcclResult result = GetOpScratchMemSize(false, HCCL_CMD_ALLTOALL, hcomOpParam.get(), 
         opMemSize, dataTypeSize, rankSize, serverNum);
@@ -164,7 +164,7 @@ TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_GetCommByGroupFail_E
 TEST_F(GetOpScratchMemSizeTest, Ut_GetOpScratchMemSize_When_GetDeviceTypeFail_Expect_InternINTERNAL) {
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&hrtGetDeviceTypeBySocVersion).stubs().will(returnValue(HCCL_E_INTERNAL));
     HcclResult result = GetOpScratchMemSize(false, HCCL_CMD_REDUCE_SCATTER, hcomOpParam.get(), 

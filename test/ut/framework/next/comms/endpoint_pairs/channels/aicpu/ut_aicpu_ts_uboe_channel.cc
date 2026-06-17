@@ -197,11 +197,11 @@ TEST_F(AicpuTsUboeChannelTest, Ut_ProcessUboeState_AllStates_Transitions) {
 
     MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const u8 *, u32))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(invoke(stub_Socket_SendAsync));
     MOCKER_CPP(&Hccl::Socket::RecvAsync, void(Hccl::Socket::*)(u8 *, u32))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(invoke(stub_Socket_RecvAsync));
     MOCKER_CPP(&AicpuTsUboeChannel::BuildConnection).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
 

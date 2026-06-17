@@ -110,7 +110,7 @@ TEST_F(CcuContextTest, CtxTest)
 {
     MOCKER(HrtGetDevice).defaults().will(returnValue(0));
     MOCKER(CcuDeviceManager::ReleaseCke).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER_CPP(&CcuTransportGroup::CheckTransportCntCke).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CcuTransportGroup::Destroy).stubs();
     MOCKER_CPP(&CcuTransport::ReleaseTransRes).stubs();
@@ -119,7 +119,7 @@ TEST_F(CcuContextTest, CtxTest)
     MOCKER(CcuDeviceManager::AllocXn).stubs().will(invoke(CtxAllocXnStub));
     MOCKER(&CcuDeviceManager::GetLoopChannelId)
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(CcuDeviceManager::GetXnBaseAddr).stubs().will(returnValue((HcclResult)HcclResult::HCCL_SUCCESS));
 
@@ -211,7 +211,7 @@ TEST_F(CcuContextTest, TestSharedRes)
 {
     MOCKER(HrtGetDevice).defaults().will(returnValue(0));
     MOCKER(CcuDeviceManager::ReleaseCke).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER_CPP(&CcuTransportGroup::CheckTransportCntCke).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CcuTransportGroup::Destroy).stubs();
     MOCKER_CPP(&CcuTransport::ReleaseTransRes).stubs();
@@ -220,7 +220,7 @@ TEST_F(CcuContextTest, TestSharedRes)
     MOCKER(CcuDeviceManager::AllocXn).stubs().will(invoke(CtxAllocXnStub));
     MOCKER(&CcuDeviceManager::GetLoopChannelId)
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(CcuDeviceManager::GetXnBaseAddr).stubs().will(returnValue((HcclResult)HcclResult::HCCL_SUCCESS));
 

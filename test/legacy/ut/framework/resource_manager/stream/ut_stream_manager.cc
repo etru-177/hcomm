@@ -208,7 +208,7 @@ TEST_F(StreamManagerTest, Ut_CaptureSlaveStream_When_rtModel_Null_Expect_NullPtr
     rtModel_t rtModel = nullptr;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), outBound(rtModel), outBound(isCapture))
+        .with(mockcpp::any(), outBound(rtModel), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_E_RUNTIME));
 
@@ -231,7 +231,7 @@ TEST_F(StreamManagerTest, Ut_CaptureSlaveStream_When_GetModelId_ERROR_Expect_Int
     rtModel_t rtModel = (void *)0x100;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), outBound(rtModel), outBound(isCapture))
+        .with(mockcpp::any(), outBound(rtModel), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_E_RUNTIME));
 
@@ -254,7 +254,7 @@ TEST_F(StreamManagerTest, Ut_CaptureSlaveStream_When_AddStreamToModel_ERROR_Inte
     rtModel_t rtModel = (void *)0x100;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), outBound(rtModel), outBound(isCapture))
+        .with(mockcpp::any(), outBound(rtModel), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(&AddStreamToModel).stubs().will(returnValue(HCCL_E_RUNTIME));
@@ -277,7 +277,7 @@ TEST_F(StreamManagerTest, Ut_CaptureSlaveStream_Expect_no_throw)
     rtModel_t rtModel = (void *)0x100;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), outBound(rtModel), outBound(isCapture))
+        .with(mockcpp::any(), outBound(rtModel), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(&AddStreamToModel).stubs().will(returnValue(HCCL_SUCCESS));

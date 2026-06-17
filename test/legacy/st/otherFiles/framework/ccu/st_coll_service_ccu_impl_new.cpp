@@ -97,13 +97,13 @@ TEST(NewCollServiceCcuImplTest, should_return_success_when_calling_init)
 TEST(NewCollServiceCcuImplTest, should_return_success_when_calling_LoadWithOpBasedMode)
 {
     // when
-    MOCKER_CPP(&CollServiceBase::RegisterOpbasedStream).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CollServiceBase::RegisterOpbasedStream).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     shared_ptr<InsQueue> insQueue = make_shared<InsQueue>();
-    MOCKER_CPP(&NewCollServiceCcuImpl::Orchestrate).stubs().with(any()).will(returnValue(insQueue));
+    MOCKER_CPP(&NewCollServiceCcuImpl::Orchestrate).stubs().with(mockcpp::any()).will(returnValue(insQueue));
     vector<LinkData> links;
-    MOCKER_CPP(&NewCollServiceCcuImpl::GetCcuLinks).stubs().with(any()).will(returnValue(links));
-    MOCKER_CPP(&SocketManager::BatchCreateSockets).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER_CPP(&CcuInsPreprocessor::Preprocess).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&NewCollServiceCcuImpl::GetCcuLinks).stubs().with(mockcpp::any()).will(returnValue(links));
+    MOCKER_CPP(&SocketManager::BatchCreateSockets).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuInsPreprocessor::Preprocess).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&OffloadStreamManager::SizeOfSlaves).stubs();
     MOCKER_CPP(&Interpreter::Submit).stubs();
 
@@ -189,7 +189,7 @@ TEST(NewCollServiceCcuImplTest, should_return_success_when_calling_getCcuTaskInf
     std::vector<CcuTaskParam> ccuTaskParam(1);
     ccuTaskParam[0].dieId = 0;
     ccuTaskParam[0].argSize = 13;
-    MOCKER_CPP(&Mc2Compont::GetCcuTaskInfo).stubs().with(any()).will(returnValue(ccuTaskParam));
+    MOCKER_CPP(&Mc2Compont::GetCcuTaskInfo).stubs().with(mockcpp::any()).will(returnValue(ccuTaskParam));
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
     NewCollServiceCcuImpl collServiceCcuImpl(comm.get());
     rtCcuTaskGroup_t group;

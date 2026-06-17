@@ -34,8 +34,8 @@ protected:
     }
 
     virtual void SetUp() {
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(0));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(0));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
 
         std::cout << "A Test case in RtsqA5 SetUP" << std::endl;
@@ -128,7 +128,7 @@ TEST_F(RtsqA5Test, launch_task_with_loop_back)
     rtsq.sqHead_  = oldHead;
     rtsq.sqDepth_ = AC_SQE_MAX_CNT;
 
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(oldHead));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(oldHead));
     rtsq.RefreshInfo();
     rtsq.RefreshInfo();
     u32 newTail = (rtsq.sqTail_ + rtsq.pendingSqeCnt) % rtsq.sqDepth_;
@@ -262,7 +262,7 @@ TEST_F(RtsqA5Test, query_sq_status_by_type)
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
 
     GlobalMockObject::reset();
-    MOCKER(halSqCqQuery).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.QuerySqStatusByType(RtsqBase::QueryDrvSqCqPtopType::CQE_STATUS), DrvApiException);
 }
 
@@ -271,7 +271,7 @@ TEST_F(RtsqA5Test, query_sq_base_addr)
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
 
     GlobalMockObject::reset();
-    MOCKER(halSqCqQuery).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.QuerySqBaseAddr(), DrvApiException);
 }
 
@@ -280,6 +280,6 @@ TEST_F(RtsqA5Test, config_sq_status_by_type)
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
 
     GlobalMockObject::reset();
-    MOCKER(halSqCqConfig).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(halSqCqConfig).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.ConfigSqStatusByType(RtsqBase::ConfigDrvSqCqPtopType::TAIL, 1), DrvApiException);
 }

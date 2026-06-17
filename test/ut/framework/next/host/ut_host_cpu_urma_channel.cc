@@ -40,7 +40,7 @@ protected:
         Hccl::IpAddress remoteIp("2.0.0.0");
 
         MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
-        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
         RdmaHandle rdmaHandle = (void*)0x1000000;
         MOCKER(&Hccl::RdmaHandleManager::GetByAddr).stubs().will(returnValue(rdmaHandle));
@@ -169,7 +169,7 @@ TEST_F(HostCpuUrmaChannelTest, Ut_When_ParseInputParam_NullSocket_Expect_Success
     MOCKER(HcommEndpointStartListen).stubs().will(returnValue(static_cast<HcommResult>(HCCL_SUCCESS)));
     MOCKER(&Hccl::RdmaHandleManager::GetByAddr).stubs().will(returnValue(rdmaHandle_));
     MOCKER(RaSocketSetWhiteListStatus).stubs().will(returnValue(0));
-    MOCKER_CPP(&hcomm::SocketMgr::GetSocket).stubs().with(any(), outBound(fakeSocket)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&hcomm::SocketMgr::GetSocket).stubs().with(mockcpp::any(), outBound(fakeSocket)).will(returnValue(HCCL_SUCCESS));
 
     auto impl = std::make_unique<HostCpuUrmaChannel>(endpointHandle, channelDesc);
     // ParseInputParam should succeed, BuildSocket will create a new socket

@@ -132,7 +132,7 @@ void SetupAndRunCollectiveOperation(
     Hccl::CommParams commParams;
     Hccl::HcclCommunicator* hcclComm = new Hccl::HcclCommunicator(commParams);
     hcclComm->pimpl->rankSize = 4;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
 
     int ret = HCCL_SUCCESS;
@@ -186,7 +186,7 @@ TEST_F(HcomTest, HcomGetRankIdV2_func)
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     char group[] = "hccl_world_group";
     u32 rankId = 0;
@@ -207,7 +207,7 @@ TEST_F(HcomTest, HcomGetRankIdV2_func_3)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     char group[64] = "hccl_world_group";
     u32 rankId = 0;
@@ -227,7 +227,7 @@ TEST_F(HcomTest, HcomGetWorkspaceSubStreamNumV2_func)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::CalcCollOffloadOpRes).stubs().will(returnValue(HCCL_SUCCESS));
     
     char *group = nullptr;
@@ -258,7 +258,7 @@ TEST_F(HcomTest, HcomGetWorkspaceMemSizeV2_func)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::CalcCollOffloadOpRes).stubs().will(returnValue(HCCL_SUCCESS));
     std::string opType = "HcomAllReduce";
     u64 count = 0;
@@ -284,7 +284,7 @@ TEST_F(HcomTest, HcomGetWorkspaceMemSizeV2_func_datatype_err)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::CalcCollOffloadOpRes).stubs().will(returnValue(HCCL_SUCCESS));
     std::string opType = "HcomAllReduce";
     u64 count = 0;
@@ -311,7 +311,7 @@ TEST_F(HcomTest, HcomGetWorkspaceMemSizeV2_func_err)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::CalcCollOffloadOpRes).stubs().will(returnValue(HCCL_SUCCESS));
     std::string opType = "HcomAllReduce";
     u64 count = 0;
@@ -339,7 +339,7 @@ TEST_F(HcomTest, HcomSetWorkspaceResource_V2_func)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&CommunicatorImpl::SetCollOffloadSlaveStreams).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCollOffloadScratchBuf).stubs().will(returnValue(HCCL_SUCCESS));
     u64 memSize = 0;
@@ -381,7 +381,7 @@ TEST_F(HcomTest, HcomAllGatherV2_func)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -431,7 +431,7 @@ TEST_F(HcomTest, ut_hcom_allreduce_v2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -483,7 +483,7 @@ TEST_F(HcomTest, ut_hcom_HcomReduceScatterV2_v2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -533,7 +533,7 @@ TEST_F(HcomTest, st_hcom_allreduce_v2_2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -583,7 +583,7 @@ TEST_F(HcomTest, ut_hcom_allreduce_v2_3)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -633,7 +633,7 @@ TEST_F(HcomTest, ut_hcom_HcomBroadcastV2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -683,7 +683,7 @@ TEST_F(HcomTest, ut_hcom_HcomAlltoAllV2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -736,7 +736,7 @@ TEST_F(HcomTest, ut_hcom_HcomReduceV2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -786,7 +786,7 @@ TEST_F(HcomTest, ut_hcom_HcomAlltoAllVV2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -847,7 +847,7 @@ TEST_F(HcomTest, Ut_HcomAlltoAllVCV2_When_Normal_Input_Expect_Success)
     int a = 0;
     rtStream_t stream = static_cast<rtStream_t>(&a);
 
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result = HcomAlltoAllVCV2(sendBuf, sendCountMatrix, sendType, recvBuf, recvType, NULL, stream, "testAlltoallvc");
     EXPECT_EQ(result, HCCL_SUCCESS);
 }
@@ -864,7 +864,7 @@ TEST_F(HcomTest, ut_hcom_HcomSend_v2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -918,7 +918,7 @@ TEST_F(HcomTest, ut_hcom_HcomRecv_v2)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -982,7 +982,7 @@ TEST_F(HcomTest, ut_HcomGetAlltoAllStagedWorkSpaceMemSizeV2)
     char group[] = "hccl_world_group";
     u64 memSize = 10;
 
-    MOCKER_CPP(&HcclCommunicator::CalcCollOffloadOpRes).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::CalcCollOffloadOpRes).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcomGetAlltoAllStagedWorkSpaceMemSizeV2(group, &sendcounts, &sdispls, dataType, &recvCounts, &rdispls, dataType, memSize);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -1121,7 +1121,7 @@ TEST_F(HcomTest, ut_hcom_HcomGraphSendV2_When_Normal_Expect_ReturnlsHCCL_SUCCESS
     HcclGroupParamsV2 hcclGroupParamsV2;
     Hccl::CommParams commParams;
     Hccl::HcclCommunicator* hcclComm = new Hccl::HcclCommunicator(commParams);
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -1165,7 +1165,7 @@ TEST_F(HcomTest, ut_hcom_HcomGraphReceiveV2_When_Normal_Expect_ReturnlsHCCL_SUCC
     HcclGroupParamsV2 hcclGroupParamsV2;
     Hccl::CommParams commParams;
     Hccl::HcclCommunicator* hcclComm = new Hccl::HcclCommunicator(commParams);
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().will(returnValue(HCCL_SUCCESS));
     int ret = HCCL_SUCCESS;
     rtError_t rt_ret = RT_ERROR_NONE;
@@ -1406,7 +1406,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_Normal_Expect_Success)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCount = 1;
@@ -1417,7 +1417,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_Normal_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomAllGatherVV2(tag, sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, group, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1444,7 +1444,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_DipHas0_Expect_Success)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     void *sendBuf = FAKE_PTR;
     u64 sendCount = 1;
@@ -1455,7 +1455,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_DipHas0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomAllGatherVV2(tag, sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, group, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1482,7 +1482,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_OutputEq0_Expect_Success)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     void *sendBuf = FAKE_PTR;
     u64 sendCount = 0;
@@ -1493,7 +1493,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_OutputEq0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomAllGatherVV2(tag, sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, group, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1520,7 +1520,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_CountNotFixCounts_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     void *sendBuf = FAKE_PTR;
     u64 sendCount = 1;
@@ -1531,7 +1531,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_CountNotFixCounts_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomAllGatherVV2(tag, sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, group, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1558,7 +1558,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_CountTooLarge_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     void *sendBuf = FAKE_PTR;
     u64 sendCount = 0x7ffffffffff;
@@ -1569,7 +1569,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_CountTooLarge_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomAllGatherVV2(tag, sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, group, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1596,7 +1596,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_DatatypeNotSurport_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
  
     void *sendBuf = FAKE_PTR;
     u64 sendCount = 1;
@@ -1607,7 +1607,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_DatatypeNotSurport_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomAllGatherVV2(tag, sendBuf, sendCount, recvBuf, &recvCounts, &recvDispls, sendType, group, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
@@ -1634,7 +1634,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_SingleRank)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf{};
     u64 sendCount;
@@ -1645,7 +1645,7 @@ TEST_F(HcomTest, Ut_HcomAllGatherVV2_When_SingleRank)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     // 回退： 空count
     sendBuf = FAKE_PTR;
     sendCount = 0;
@@ -1688,7 +1688,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_Normal_Expect_Success)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1,1};
@@ -1700,7 +1700,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_Normal_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1727,7 +1727,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_DipHas0_Expect_Success)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1,1};
@@ -1739,7 +1739,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_DipHas0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1766,7 +1766,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_InuputCountEq0_Expect_Success)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {0,0};
@@ -1778,7 +1778,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_InuputCountEq0_Expect_Success)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_SUCCESS);
@@ -1805,7 +1805,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_CountNotFixCounts_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1,1};
@@ -1817,7 +1817,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_CountNotFixCounts_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1844,7 +1844,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_CountTooLarge_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1,1};
@@ -1856,7 +1856,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_CountTooLarge_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_E_PARA);
@@ -1883,7 +1883,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_DatatypeNotSurport_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1,1};
@@ -1895,7 +1895,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_DatatypeNotSurport_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
@@ -1922,7 +1922,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_ReduceOpNotSurport_Expect_Error)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1,1};
@@ -1934,7 +1934,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_ReduceOpNotSurport_Expect_Error)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult result =
         HcomReduceScatterVV2(tag, sendBuf, &sendCounts, &sendDispls, recvBuf, recvCount, dataType, op, group, stream);
     EXPECT_EQ(result, HCCL_E_NOT_SUPPORT);
@@ -1961,7 +1961,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_Single_Rank)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     void *sendBuf = FAKE_PTR;
     u64 sendCounts[FAKE_RANK_SIZE] = {1};
@@ -1973,7 +1973,7 @@ TEST_F(HcomTest, Ut_HcomReduceScatterVV2_When_Single_Rank)
     int a = 1;
     aclrtStream stream = static_cast<aclrtStream>(&a);
  
-    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::LoadOffloadCollOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
      // 回退： 空count
     sendBuf = FAKE_PTR;
     recvCount = 0;
@@ -2107,8 +2107,8 @@ void ExecuteHcomSelectV2Success(AcceleratorState accelerator = AcceleratorState:
     bool ifAiv = false;
     std::string algName = "";
 
-    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).defaults().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).defaults().with(mockcpp::any()).will(ignoreReturnValue());
 
     std::vector<HcclCMDType> hcomSupportOpType;
     GetSupportOpType(hcomSupportOpType, accelerator);
@@ -2175,7 +2175,7 @@ TEST_F(HcomTest, ut_HcomGraphSelectAlgV2_When_UnNormal_Expect_ReturnError)
     ret = HcomGraphSelectAlgV2(comm, group, opType, count, dataType, op, aivCoreLimit, ifAiv, algName);
     EXPECT_EQ(HCCL_E_SUSPENDING, ret);
 
-    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     hcclComm->pimpl->isSuspended = false;
     hcclComm->pimpl->commExecuteConfig.accState = AcceleratorState::AIV;
     opType = HcclCMDType::HCCL_CMD_REDUCE;
@@ -2238,9 +2238,9 @@ TEST_F(HcomTest, ut_HcclGetAlgExecParamV2_When_Normal_Expect_ReturnHCCL_SUCCESS)
     u64 len = 0;
     int32_t aivCoreLimit = 2;
 
-    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).defaults().with(any()).will(ignoreReturnValue());
-    MOCKER_CPP(&CommunicatorImpl::GetAlgExecParam).defaults().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).defaults().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::GetAlgExecParam).defaults().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
 
     HcclResult ret = HcclGetAlgExecParamV2(
         tag, group, count, inputPtr, outputPtr, opType, clearEnable, dataType, op, commContext, len, aivCoreLimit);    

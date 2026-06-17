@@ -45,8 +45,8 @@ protected:
     {
         MOCKER(HrtDrvMemCpy).stubs().with().will(invoke(HrtDrvMemCpyStub));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(0));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(0));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         
         std::cout << "A Test case in NsRecoveryHandlerFuncTest SetUp" << std::endl;
@@ -177,7 +177,7 @@ TEST_F(NsRecoveryHandlerFuncTest, test_handle_clean)
     liteBinaryStream.Dump(uniqueId);
     StreamLite stream(uniqueId);
     MOCKER_CPP(&StreamLiteMgr::GetMaster).stubs().with().will(returnValue(&stream));
-    MOCKER_CPP(&NsRecoveryHandlerFunc::DeviceQuery).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&NsRecoveryHandlerFunc::DeviceQuery).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
 
     auto timeout   = std::chrono::milliseconds(100);
     auto startTime = std::chrono::steady_clock::now();
@@ -197,12 +197,12 @@ TEST_F(NsRecoveryHandlerFuncTest, test_handle_clean)
 
 TEST_F(NsRecoveryHandlerFuncTest, test_device_query)
 {
-    MOCKER(halTsdrvCtl).stubs().with(any()).will(returnValue(DRV_ERROR_NOT_SUPPORT));
+    MOCKER(halTsdrvCtl).stubs().with(mockcpp::any()).will(returnValue(DRV_ERROR_NOT_SUPPORT));
     auto ret = NsRecoveryHandlerFunc::GetInstance().DeviceQuery(0, 0, 0);
     EXPECT_EQ(ret, HcclResult::HCCL_E_DRV);
     GlobalMockObject::verify();
 
-    MOCKER(halTsdrvCtl).stubs().with(any()).will(returnValue(DRV_ERROR_NONE));
+    MOCKER(halTsdrvCtl).stubs().with(mockcpp::any()).will(returnValue(DRV_ERROR_NONE));
     ret = NsRecoveryHandlerFunc::GetInstance().DeviceQuery(0, 0, 0);
     EXPECT_EQ(ret, HcclResult::HCCL_SUCCESS);
 }

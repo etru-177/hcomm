@@ -37,9 +37,9 @@ protected:
 
     virtual void SetUp()
     {
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(1)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(1)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
 
         std::cout << "A Test case in RtsqA5 SetUP" << std::endl;
@@ -135,7 +135,7 @@ TEST_F(RtsqA5Test, launch_task_with_loop_back)
     rtsq.sqHead_  = oldHead;
     rtsq.sqDepth_ = AC_SQE_MAX_CNT;
 
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(oldHead));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(oldHead));
     rtsq.RefreshInfo();
     rtsq.RefreshInfo();
     u32 newTail = (rtsq.sqTail_ + rtsq.pendingSqeCnt) % rtsq.sqDepth_;
@@ -277,7 +277,7 @@ TEST_F(RtsqA5Test, query_sq_status_by_type)
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
 
     GlobalMockObject::reset();
-    MOCKER(halSqCqQuery).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.QuerySqStatusByType(drvSqCqPropType_t::DRV_SQCQ_PROP_SQ_CQE_STATUS), DrvApiException);
 }
 
@@ -286,7 +286,7 @@ TEST_F(RtsqA5Test, query_sq_base_addr)
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
 
     GlobalMockObject::reset();
-    MOCKER(halSqCqQuery).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.QuerySqBaseAddr(), DrvApiException);
 }
 
@@ -295,29 +295,29 @@ TEST_F(RtsqA5Test, config_sq_status_by_type)
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
 
     GlobalMockObject::reset();
-    MOCKER(halSqCqConfig).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(halSqCqConfig).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.ConfigSqStatusByType(drvSqCqPropType_t::DRV_SQCQ_PROP_SQ_TAIL, 1), DrvApiException);
 }
 
 TEST_F(RtsqA5Test, Ut_CopyLocBufToSq_THROW)
 {
     RtsqA5 rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
-    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(any()).will(returnValue(2));
+    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(2));
     rtsq.sqTail_ = 6;
     rtsq.sqDepth_ = 16;
     rtsq.pendingSqeCnt = 8;
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(1));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.CopyLocBufToSq(), InternalException);
 
     rtsq.pendingSqeCnt = 11;
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(1));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.CopyLocBufToSq(), InternalException);
 
-    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(any()).will(returnValue(10));
+    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(10));
     rtsq.sqTail_ = 1;
     rtsq.sqDepth_ = 16;
     rtsq.pendingSqeCnt = 8;
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(1));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(rtsq.CopyLocBufToSq(), InternalException);
 }
 

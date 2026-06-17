@@ -71,8 +71,8 @@ protected:
 TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_InterfaceOk_Expect_Return_Ok)
 {
     CcuTransportGroup *group = (CcuTransportGroup *)0x12345678;
-    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(any(), any()).will(returnValue(group));
-    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(group));
+    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -93,7 +93,7 @@ TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_InterfaceOk_Expect_Return_Ok
 
 TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuJettyMgrCreateResUnavailiable_Expect_Return_Nullptr)
 {
-    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_E_UNAVAIL));
+    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_E_UNAVAIL));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -112,7 +112,7 @@ TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuJettyMgrCreateResUnavaili
 
 TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuJettyMgrCreateResUnexpectedError_Expect_Return_Nullptr)
 {
-    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_E_PARA));
+    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_E_PARA));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -131,8 +131,8 @@ TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuJettyMgrCreateResUnexpect
 
 TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuTransportMgrCreateResUnavailiable_Expect_Return_Nullptr)
 {
-    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_E_UNAVAIL));
+    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_E_UNAVAIL));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -151,8 +151,8 @@ TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuTransportMgrCreateResUnav
 
 TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuTransportMgrCreateResUnexpectedError_Expect_Return_Nullptr)
 {
-    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_E_PARA));
+    MOCKER_CPP(&CcuJettyMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_E_PARA));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -172,8 +172,8 @@ TEST_F(CcuInsPreprocessorTest, St_CreateCcuCtx_When_CcuTransportMgrCreateResUnex
 TEST_F(CcuInsPreprocessorTest, should_return_success_when_calling_preprocess)
 {
     // when
-    MOCKER_CPP(&CcuInsPreprocessor::PrepareCcuCtx).stubs().with(any(), any()).will(ignoreReturnValue());
-    MOCKER_CPP(&CcuResPackMgr::PrepareAlloc).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuInsPreprocessor::PrepareCcuCtx).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuResPackMgr::PrepareAlloc).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuInsPreprocessor::Confirm).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuInsPreprocessor::RegisterCtx).stubs().will(ignoreReturnValue());
 
@@ -191,8 +191,8 @@ TEST_F(CcuInsPreprocessorTest, should_return_success_when_calling_preprocess)
 TEST_F(CcuInsPreprocessorTest, should_throw_when_calling_preprocess)
 {
     // when
-    MOCKER_CPP(&CcuInsPreprocessor::PrepareCcuCtx).stubs().with(any(), any()).will(ignoreReturnValue());
-    MOCKER_CPP(&CcuResPackMgr::PrepareAlloc).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuInsPreprocessor::PrepareCcuCtx).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuResPackMgr::PrepareAlloc).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuInsPreprocessor::Confirm).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuInsPreprocessor::RegisterCtx).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::AcceleratorFallback).stubs().will(returnValue(HCCL_SUCCESS));
@@ -211,7 +211,7 @@ TEST_F(CcuInsPreprocessorTest, should_throw_when_calling_preprocess)
 TEST_F(CcuInsPreprocessorTest, should_return_success_when_calling_prepareccuctx)
 {
     // when
-    MOCKER_CPP(&CcuInsPreprocessor::InsPreprocess).stubs().with(any(), any(), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuInsPreprocessor::InsPreprocess).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
 
     // then
     CommunicatorImpl *communicator;
@@ -233,7 +233,7 @@ TEST_F(CcuInsPreprocessorTest, should_return_success_when_calling_prepareccuctx)
 TEST_F(CcuInsPreprocessorTest, should_bypass_inspreprocess_when_calling_prepareccuctx)
 {
     // when
-    MOCKER_CPP(&CcuInsPreprocessor::InsPreprocess).stubs().with(any(), any(), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuInsPreprocessor::InsPreprocess).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
 
     // then
     CommunicatorImpl *communicator;
@@ -259,7 +259,7 @@ TEST_F(CcuInsPreprocessorTest, should_bypass_inspreprocess_when_calling_preparec
 TEST_F(CcuInsPreprocessorTest, should_return_when_calling_prepareccuctx)
 {
     // when
-    MOCKER_CPP(&CcuInsPreprocessor::InsPreprocess).stubs().with(any(), any(), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuInsPreprocessor::InsPreprocess).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
 
     // then
     CommunicatorImpl *communicator;
@@ -288,7 +288,7 @@ TEST_F(CcuInsPreprocessorTest, should_normal_process_when_calling_inspreprocess)
     ctxSignature.Append("a");
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
-        .with(outBound(ctxSignature), any(), any(), any())
+        .with(outBound(ctxSignature), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     CcuResPack ccuResPack;
     ccuResPack.handles.push_back(&ctxSignature);
@@ -298,18 +298,18 @@ TEST_F(CcuInsPreprocessorTest, should_normal_process_when_calling_inspreprocess)
     ccuResPack2.handles.push_back(&ctxSignature2);
     MOCKER_CPP(&CcuResPackMgr::GetCcuResPack)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(ccuResPack))
         .then(returnValue(ccuResPack2));
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(CcuCtxMgr::AllocRes).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CcuInsPreprocessor::CreateCcuCtxGroup)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&RegisteredCcuCtxMgr::HasRegistered)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(false))
         .then(returnValue(false))
         .then(returnValue(true));
@@ -367,18 +367,18 @@ TEST_F(CcuInsPreprocessorTest, should_transport_resalloc_fail_when_calling_inspr
     ctxSignature.Append("a");
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
-        .with(outBound(ctxSignature), any(), any(), any())
+        .with(outBound(ctxSignature), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     CcuResPack ccuResPack;
     ccuResPack.handles.push_back(&ctxSignature);
-    MOCKER_CPP(&CcuResPackMgr::GetCcuResPack).stubs().with(any()).will(returnValue(ccuResPack));
-    MOCKER_CPP(&RegisteredCcuCtxMgr::HasRegistered).stubs().with(any(), any(), any()).will(returnValue(false));
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(CcuCtxMgr::AllocRes).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuResPackMgr::GetCcuResPack).stubs().with(mockcpp::any()).will(returnValue(ccuResPack));
+    MOCKER_CPP(&RegisteredCcuCtxMgr::HasRegistered).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     bool transportStatus = false;
     MOCKER_CPP(&CcuInsPreprocessor::CreateCcuCtxGroup)
         .stubs()
-        .with(any(), any(), outBound(transportStatus))
+        .with(mockcpp::any(), mockcpp::any(), outBound(transportStatus))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     // then
@@ -407,17 +407,17 @@ TEST_F(CcuInsPreprocessorTest, should_resalloc_fail_when_calling_inspreprocess)
     ctxSignature.Append("a");
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
-        .with(outBound(ctxSignature), any(), any(), any())
+        .with(outBound(ctxSignature), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     CcuResPack ccuResPack;
     ccuResPack.handles.push_back(&ctxSignature);
-    MOCKER_CPP(&CcuResPackMgr::GetCcuResPack).stubs().with(any()).will(returnValue(ccuResPack));
-    MOCKER_CPP(&RegisteredCcuCtxMgr::HasRegistered).stubs().with(any(), any(), any()).will(returnValue(false));
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(CcuCtxMgr::AllocRes).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_E_PARA));
+    MOCKER_CPP(&CcuResPackMgr::GetCcuResPack).stubs().with(mockcpp::any()).will(returnValue(ccuResPack));
+    MOCKER_CPP(&RegisteredCcuCtxMgr::HasRegistered).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_E_PARA));
     MOCKER_CPP(&CcuInsPreprocessor::CreateCcuCtxGroup)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     // then
@@ -446,8 +446,8 @@ TEST_F(CcuInsPreprocessorTest, should_no_throw_when_calling_transportsconnect)
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     DevType devType = DevType::DEV_TYPE_910A;
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(devType));
-    MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(any(), any()).will(returnValue((JfcHandle)0));
-    MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId).stubs().with(any()).will(returnValue(std::pair<uint32_t, uint32_t>(0,0)));
+    MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue((JfcHandle)0));
+    MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId).stubs().with(mockcpp::any()).will(returnValue(std::pair<uint32_t, uint32_t>(0,0)));
     vector<std::pair<CcuTransport*, LinkData>> transports;
     IpAddress localIp;
     IpAddress remoteIp;
@@ -461,13 +461,13 @@ TEST_F(CcuInsPreprocessorTest, should_no_throw_when_calling_transportsconnect)
     CcuTransport::CclBufferInfo locCclBufInfo;
     CcuTransport *ccuTransport = new CcuTransport(fakeSocket.get(), std::move(c), locCclBufInfo);
     transports.push_back(make_pair(ccuTransport, linkData));
-    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(any(), any()).will(returnValue(transports));
+    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(transports));
     
     MOCKER_CPP(&CcuTransport::GetStatus)
         .stubs()
         .with()
         .will(returnValue((CcuTransport::TransStatus)CcuTransport::TransStatus::READY));
-    MOCKER_CPP(&CcuTransport::SetHandshakeMsg).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuTransport::SetHandshakeMsg).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
@@ -498,7 +498,7 @@ TEST_F(CcuInsPreprocessorTest, should_throw_when_calling_transportsconnect)
     CcuTransport::CclBufferInfo locCclBufInfo;
     CcuTransport *ccuTransport = new CcuTransport(fakeSocket, std::move(c), locCclBufInfo);
     transports.push_back(make_pair(ccuTransport, linkData));
-    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(any(), any()).will(returnValue(transports));
+    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(transports));
     
     MOCKER_CPP(&CcuTransport::GetStatus)
         .stubs()
@@ -537,7 +537,7 @@ TEST_F(CcuInsPreprocessorTest, should_throw_when_calling_getstatus)
     CcuTransport::CclBufferInfo locCclBufInfo;
     CcuTransport *ccuTransport = new CcuTransport(fakeSocket, std::move(c), locCclBufInfo);
     transports.push_back(make_pair(ccuTransport, linkData));
-    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(any(), any()).will(returnValue(transports));
+    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(transports));
     MOCKER_CPP(&CcuTransport::GetStatus)
         .stubs()
         .with()
@@ -564,8 +564,8 @@ TEST_F(CcuInsPreprocessorTest, should_no_throw_when_calling_registerctx)
     CcuResPackMgr *ccuResPackMgr = new CcuResPackMgr();
     CcuResPack ccuResPack;
     MOCKER_CPP(&CcuCommunicator::GetCcuResPackMgr).stubs().with().will(returnValue(ccuResPackMgr));
-    MOCKER_CPP(&CcuResPackMgr::GetCcuResPack).stubs().with(any()).will(returnValue(ccuResPack));
-    MOCKER(InsExeQue::RegisterExtendInstruction).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuResPackMgr::GetCcuResPack).stubs().with(mockcpp::any()).will(returnValue(ccuResPack));
+    MOCKER(InsExeQue::RegisterExtendInstruction).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
 
     // then
     CommunicatorImpl *comm;
@@ -609,7 +609,7 @@ TEST_F(CcuInsPreprocessorTest, should_no_throw_when_calling_fallback)
     // when
     GlobalMockObject::verify();
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(CcuCtxMgr::ReleaseRes).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::ReleaseRes).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CcuResPackMgr::Fallback).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&CcuTransportMgr::Fallback).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&CcuTransportGroupMgr::Fallback).stubs().with().will(ignoreReturnValue());
@@ -633,7 +633,7 @@ TEST_F(CcuInsPreprocessorTest, should_error_log_when_calling_fallback)
     // when
     GlobalMockObject::verify();
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(CcuCtxMgr::ReleaseRes).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_E_PARA));
+    MOCKER(CcuCtxMgr::ReleaseRes).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_E_PARA));
     MOCKER_CPP(&CcuResPackMgr::Fallback).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&CcuTransportMgr::Fallback).stubs().with().will(ignoreReturnValue());
     MOCKER_CPP(&CcuTransportGroupMgr::Fallback).stubs().with().will(ignoreReturnValue());
@@ -659,8 +659,8 @@ TEST_F(CcuInsPreprocessorTest, should_when_calling_createccuctx)
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     DevType devType = DevType::DEV_TYPE_910A;
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(devType));
-    MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(any(), any()).will(returnValue((JfcHandle)0));
-    MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId).stubs().with(any()).will(returnValue(std::pair<uint32_t, uint32_t>(0,0)));
+    MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue((JfcHandle)0));
+    MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId).stubs().with(mockcpp::any()).will(returnValue(std::pair<uint32_t, uint32_t>(0,0)));
     vector<CcuTransport *> transports;
     IpAddress localIp;
     IpAddress remoteIp;
@@ -675,8 +675,8 @@ TEST_F(CcuInsPreprocessorTest, should_when_calling_createccuctx)
     CcuTransport *ccuTransport = new CcuTransport(fakeSocket.get(), std::move(c), locCclBufInfo);
     transports.push_back(ccuTransport);
     CcuTransportGroup *group = new CcuTransportGroup(transports, 1);
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(ccuTransport));
-    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(any(), any()).will(returnValue(group));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(ccuTransport));
+    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(group));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -707,8 +707,8 @@ TEST_F(CcuInsPreprocessorTest, should_throw_socket_timeout_transportsconnect)
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     DevType devType = DevType::DEV_TYPE_910A;
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(devType));
-    MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(any(), any()).will(returnValue((JfcHandle)0));
-    MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId).stubs().with(any()).will(returnValue(std::pair<uint32_t, uint32_t>(0,0)));
+    MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue((JfcHandle)0));
+    MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId).stubs().with(mockcpp::any()).will(returnValue(std::pair<uint32_t, uint32_t>(0,0)));
     vector<std::pair<CcuTransport*, LinkData>> transports;
     IpAddress localIp;
     IpAddress remoteIp;
@@ -722,13 +722,13 @@ TEST_F(CcuInsPreprocessorTest, should_throw_socket_timeout_transportsconnect)
     CcuTransport::CclBufferInfo locCclBufInfo;
     CcuTransport *ccuTransport = new CcuTransport(fakeSocket.get(), std::move(c), locCclBufInfo);
     transports.push_back(make_pair(ccuTransport, linkData));
-    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(any(), any()).will(returnValue(transports));
+    MOCKER_CPP(&CcuTransportMgr::GetUnConfirmedTrans).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(transports));
     
     MOCKER_CPP(&CcuTransport::GetStatus)
         .stubs()
         .with()
         .will(returnValue((CcuTransport::TransStatus)CcuTransport::TransStatus::SOCKET_TIMEOUT));
-    MOCKER_CPP(&CcuTransport::SetHandshakeMsg).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CcuTransport::SetHandshakeMsg).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
@@ -746,8 +746,8 @@ TEST_F(CcuInsPreprocessorTest, RecoverCcuTransportCtx_test1)
 {
     CcuTransportGroup *group;
     CcuTransport *ccuTrans;
-    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(any(), any()).will(returnValue(group));
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any(), outBound(ccuTrans)).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(group));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any(), outBound(ccuTrans)).will(returnValue(HcclResult::HCCL_SUCCESS));
      MOCKER(&HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
     CommunicatorImpl *communicator;
     CcuInsPreprocessor preprocessor(communicator);

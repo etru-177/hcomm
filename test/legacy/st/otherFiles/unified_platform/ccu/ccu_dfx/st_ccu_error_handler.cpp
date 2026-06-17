@@ -86,11 +86,11 @@ protected:
 
         // 打桩CcuConnection构造函数中所需的调用
         JfcHandle jfcHandle = 0;
-        MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(any(), any()).will(returnValue(jfcHandle));
+        MOCKER_CPP(&RdmaHandleManager::GetJfcHandle).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(jfcHandle));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(Hccl::DevType::DEV_TYPE_910A));
         MOCKER_CPP(&RdmaHandleManager::GetDieAndFuncId)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(std::pair<uint32_t, uint32_t>(0, 0)));
             BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
         LinkData linkData(portType, 0, 1, 0, 1);
@@ -162,7 +162,7 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_loc_post_sem)
     MaskSignal sem;
     sem.Reset(1);            // sem id
     uint16_t mask = 0x0010;  // mask
-    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(any(), any(), any()).will(returnValue(0xabcd));
+    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(0xabcd));
 
     shared_ptr<CcuRepBase> rep = make_shared<CcuRepLocPostSem>(sem, mask);
     ErrorInfoBase baseInfo{0, 0, 1, 10, 0};
@@ -182,7 +182,7 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_loc_wait_sem)
     MaskSignal sem;
     sem.Reset(1);            // sem id
     uint16_t mask = 0x0010;  // mask
-    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(any(), any(), any()).will(returnValue(0xabcd));
+    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(0xabcd));
 
     shared_ptr<CcuRepBase> rep = make_shared<CcuRepLocWaitSem>(sem, mask);
     ErrorInfoBase baseInfo{0, 0, 1, 10, 0};
@@ -235,7 +235,7 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_rem_wait_sem)
     utCcuTransport->locRes.cntCkes.push_back(100);
     utCcuTransport->locRes.cntCkes.push_back(101);
 
-    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(any(), any(), eq(101)).will(returnValue(0xabcd));
+    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(101)).will(returnValue(0xabcd));
 
     shared_ptr<CcuRepBase> rep = make_shared<CcuRepRemWaitSem>(*utCcuTransport, semIndex, mask);
     ErrorInfoBase baseInfo{0, 0, 1, 10, 0};
@@ -262,7 +262,7 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_rem_post_var)
     uint16_t paramIndex = 0;
     Variable param;
     param.Reset(1);  // param id
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
 
     auto utCcuConnection = MockCcuConnection(7);  // channelId
     CcuTransport::CclBufferInfo locCclBufInfo;
@@ -303,13 +303,13 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_rem_wait_group)
 
     vector<CcuTransport*> transports {utCcuTransport1.get(), utCcuTransport2.get(), utCcuTransport3.get()};
     // 打桩CcuTransportGroup构造函数与析构函数的调用
-    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&CcuTransportGroup::CheckTransportCntCke).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&CcuTransportGroup::CheckTransportCntCke).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(CcuDeviceManager::ReleaseCke).defaults().will(returnValue(HcclResult::HCCL_SUCCESS));
     CcuTransportGroup transportGroup{transports, 0};    // 创建CcuTransportGroup
     transportGroup.cntCkesGroup.push_back(100);
 
-    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(any(), any(), eq(100)).will(returnValue(0xabcd));
+    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(100)).will(returnValue(0xabcd));
 
     shared_ptr<CcuRepBase> rep = make_shared<CcuRepWaitGroup>(transportGroup, semIndex, mask);
     ErrorInfoBase baseInfo{0, 0, 1, 10, 0};
@@ -338,7 +338,7 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_post_shared_var)
 
     Variable srcVar;
     srcVar.Reset(2);  // srcVar id
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     Variable dstVar;
     dstVar.Reset(3);  // dstVar id
@@ -386,20 +386,20 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_read)
     Variable locToken;
     locToken.Reset(2);  // locToken id
     Memory loc{locAddr, locToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     Address remAddr;
     remAddr.Reset(3);  // remAddr id
     Variable remToken;
     remToken.Reset(4);  // remToken id
     Memory rem{remAddr, remToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(3)).will(returnValue(0xc));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(4)).will(returnValue(0xd));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(3)).will(returnValue(0xc));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(4)).will(returnValue(0xd));
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -434,20 +434,20 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_write)
     Variable locToken;
     locToken.Reset(2);  // locToken id
     Memory loc{locAddr, locToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     Address remAddr;
     remAddr.Reset(3);  // remAddr id
     Variable remToken;
     remToken.Reset(4);  // remToken id
     Memory rem{remAddr, remToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(3)).will(returnValue(0xc));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(4)).will(returnValue(0xd));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(3)).will(returnValue(0xc));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(4)).will(returnValue(0xd));
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -478,20 +478,20 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_local_cpy)
     Variable srcToken;
     srcToken.Reset(2);  // srcToken id
     Memory src{srcAddr, srcToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     Address dstAddr;
     dstAddr.Reset(3);  // dstAddr id
     Variable dstToken;
     dstToken.Reset(4);  // dstToken id
     Memory dst{dstAddr, dstToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(3)).will(returnValue(0xc));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(4)).will(returnValue(0xd));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(3)).will(returnValue(0xc));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(4)).will(returnValue(0xd));
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -521,20 +521,20 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_local_reduce)
     Variable srcToken;
     srcToken.Reset(2);  // srcToken id
     Memory src{srcAddr, srcToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     Address dstAddr;
     dstAddr.Reset(3);  // dstAddr id
     Variable dstToken;
     dstToken.Reset(4);  // dstToken id
     Memory dst{dstAddr, dstToken};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(3)).will(returnValue(0xc));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(4)).will(returnValue(0xd));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(3)).will(returnValue(0xc));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(4)).will(returnValue(0xd));
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -570,15 +570,15 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_buf_read)
     Variable token;
     token.Reset(2);  // token id
     Memory src{addr, token};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     CcuRep::CcuBuffer dst;
     dst.Reset(3);  // dst id
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -612,15 +612,15 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_buf_write)
     Variable token;
     token.Reset(2);  // token id
     Memory dst{addr, token};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     CcuRep::CcuBuffer src;
     src.Reset(3);  // src id
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -650,15 +650,15 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_buf_loc_read)
     Variable token;
     token.Reset(2);  // token id
     Memory src{addr, token};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     CcuRep::CcuBuffer dst;
     dst.Reset(3);  // dst id
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -687,15 +687,15 @@ TEST_F(CcuErrorHandlerTest, test_error_info_when_rep_type_is_buf_loc_write)
     Variable token;
     token.Reset(2);  // token id
     Memory dst{addr, token};
-    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(any(), any(), eq(1)).will(returnValue(0xa));
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(2)).will(returnValue(0xb));
+    MOCKER(CcuErrorHandler::GetCcuGSAValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(1)).will(returnValue(0xa));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(2)).will(returnValue(0xb));
 
     CcuRep::CcuBuffer src;
     src.Reset(3);  // src id
 
     Variable len;
     len.Reset(5);
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), eq(5)).will(returnValue(0xe));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(5)).will(returnValue(0xe));
 
     MaskSignal sem;
     sem.Reset(5);  // sem id
@@ -798,7 +798,7 @@ TEST_F(CcuErrorHandlerTest, test_loop_group_error_info)
     loopGroupXn.loopInsCnt = 5;
     loopGroupXn.expandOffset = 3;
     loopGroupXn.expandCnt = 2;
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), any()).will(returnValue(loopGroupXn.value));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(loopGroupXn.value));
 
     shared_ptr<CcuRepBase> rep = make_shared<CcuRepLoopGroup>(parallelParam, offsetParam);
     ErrorInfoBase baseInfo{0, 0, 1, 10, 0};
@@ -828,17 +828,17 @@ TEST_F(CcuErrorHandlerTest, test_gen_error_info_loop_should_throw_exception)
     loop->Reference(loopBlock);
 
     MockCcuContext mockCcuCtx{};
-    MOCKER_CPP(&MockCcuContext::GetRepByInstrId).stubs().with(any())
+    MOCKER_CPP(&MockCcuContext::GetRepByInstrId).stubs().with(mockcpp::any())
         .will(returnValue(nullRep))
         .then(returnValue(static_pointer_cast<CcuRepBase>(loop)));
 
     // Failed to find Loop REP from CcuContext
     EXPECT_THROW(CcuErrorHandler::GenErrorInfoLoop(baseInfo, mockCcuCtx, errorInfo), CcuApiException);
 
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), any()).will(returnValue(0x5));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(0x5));
     CcuLoopContext loopCtx{};
-    MOCKER(CcuErrorHandler::GetCcuLoopContext).stubs().with(any(), any(), any()).will(returnValue(loopCtx));
-    MOCKER_CPP(&CcuRepBlock::GetRepByInstrId).stubs().with(any()).will(returnValue(nullRep));
+    MOCKER(CcuErrorHandler::GetCcuLoopContext).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(loopCtx));
+    MOCKER_CPP(&CcuRepBlock::GetRepByInstrId).stubs().with(mockcpp::any()).will(returnValue(nullRep));
     // Failed to find REP from Loop
     EXPECT_THROW(CcuErrorHandler::GenErrorInfoLoop(baseInfo, mockCcuCtx, errorInfo), CcuApiException);
 }
@@ -849,7 +849,7 @@ TEST_F(CcuErrorHandlerTest, test_gen_error_info_loop)
     MaskSignal sem;
     sem.Reset(0xa);          // sem id
     uint16_t mask = 0x0010;  // mask
-    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(any(), any(), eq(0xa)).will(returnValue(0xabcd));
+    MOCKER(CcuErrorHandler::GetCcuCKEValue).stubs().with(mockcpp::any(), mockcpp::any(), eq(0xa)).will(returnValue(0xabcd));
 
     // Mock LoopBlock
     shared_ptr<CcuRepLoopBlock> loopBlock = make_shared<CcuRepLoopBlock>("loop_block_label");
@@ -870,7 +870,7 @@ TEST_F(CcuErrorHandlerTest, test_gen_error_info_loop)
 
     LoopXm loopXm{};
     loopXm.loopCnt = 5; // loopCnt
-    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(any(), any(), any()).will(returnValue(loopXm.value));
+    MOCKER(CcuErrorHandler::GetCcuXnValue).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(loopXm.value));
 
     CcuLoopContext loopCtx{};   // currentIns = 2, currentCnt = 3, addrStride = 0xaabbccdd
     loopCtx.part10.currentIns = 0;
@@ -880,7 +880,7 @@ TEST_F(CcuErrorHandlerTest, test_gen_error_info_loop)
     loopCtx.part10.addrStride = 0b011101;
     loopCtx.part11.addrStride = 0b1110111100110011;
     loopCtx.part12.addrStride = 0b1010101010;
-    MOCKER(CcuErrorHandler::GetCcuLoopContext).stubs().with(any(), any(), any()).will(returnValue(loopCtx));
+    MOCKER(CcuErrorHandler::GetCcuLoopContext).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(loopCtx));
 
     ErrorInfoBase baseInfo{0, 0, 0, 1, 0};  // currentInsId = 2
     vector<CcuErrorInfo> errorInfo{};

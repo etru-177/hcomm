@@ -140,7 +140,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         setenv("HCCL_OP_RETRY_ENABLE", "L0:0, L1:0, L2:0", 1);
         std::cout << "A Test SetUP" << std::endl;
@@ -12246,7 +12246,7 @@ TEST_F(HcomTest, ut_hcom_TopoInfoRanktableParser)
 
     MOCKER_CPP(&TopoInfoRanktableParser::LoadConfigString)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = myTopoinfoRoletable.ParserRoleTable(roleTableInfo);
     EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
@@ -12319,7 +12319,7 @@ TEST_F(HcomTest, ut_hcom_91093_InitByFile_invalid_superPodId)
     MOCKER_CPP(&HcclCommunicatorAttrs::CheckSuperDeviceId,
          HcclResult(HcclCommunicatorAttrs::*)(const RankTable_t &rankTable))
 	.stubs()
-	.with(any())
+	.with(mockcpp::any())
 	.will(returnValue(HCCL_SUCCESS));
 
     ret = HcomInitByFile(rank_table_file, rank_ID);
@@ -12478,7 +12478,7 @@ TEST_F(HcomTest, ut_hcom_91093_InitByFile)
     .will(returnValue(HCCL_SUCCESS));
 	MOCKER(hrtRaGetSingleSocketVnicIpInfo)
 	.stubs()
-	.with(any())
+	.with(mockcpp::any())
 	.will(invoke(stub_hrtRaGetSingleSocketVnicIpInfo));
     ret = hrtSetDevice(0);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -12489,7 +12489,7 @@ TEST_F(HcomTest, ut_hcom_91093_InitByFile)
 
     MOCKER_CPP(&HcclCommunicatorAttrs::CheckSuperDeviceId, HcclResult(HcclCommunicatorAttrs::*)(const RankTable_t &rankTable))
 	.stubs()
-	.with(any())
+	.with(mockcpp::any())
 	.will(returnValue(HCCL_SUCCESS));
 
     ret = HcomInitByFile(rank_table_file, rank_ID);

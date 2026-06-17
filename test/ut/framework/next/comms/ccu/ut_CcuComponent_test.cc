@@ -29,7 +29,7 @@ public:
         // 将enableEntryLog默认返回为true
         MOCKER(GetExternalInputHcclEnableEntryLog)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(true));
     }
     void TearDown() override {

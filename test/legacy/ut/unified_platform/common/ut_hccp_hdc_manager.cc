@@ -46,7 +46,7 @@ TEST_F(HccpHdcManagerTest, hccp_hdc_manager_getInstance)
 	DevId fakedevPhyId1  = 4;
     MOCKER(HrtGetDevicePhyIdByIndex)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(fakedevPhyId))
         .then(returnValue(fakedevPhyId1));
     // when
@@ -69,7 +69,7 @@ TEST_F(HccpHdcManagerTest, hccp_hdc_manager_init)
 	DevId fakedevPhyId   = 3;
     MOCKER(HrtGetDevicePhyIdByIndex)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(fakedevPhyId));
     // when
     HccpHdcManager::GetInstance().Init(deviceLogicId);

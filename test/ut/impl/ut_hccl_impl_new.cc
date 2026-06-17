@@ -52,7 +52,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&HcclCommunicator::InitPreResource)
             .stubs()
@@ -154,8 +154,8 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_Normal_Return_HCCL_SUCCESS)
     TestConstructParam(params, rankTable, 3);
     std::unique_ptr<HcclCommunicator> communicator(new (std::nothrow) HcclCommunicator());
 
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     communicator->Init(params, rankTable);
 
     SingleSubCommTransport singleTrans;
@@ -163,27 +163,27 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_Normal_Return_HCCL_SUCCESS)
     TransportIOMem transMem;
     InitSendRecvTestData(singleTrans, items);
 
-    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
    // stubs in CreateDestSockets
-    MOCKER_CPP(&TransportManager::UpdateIsInterRdma).stubs().with(any(), outBound(false), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&TransportManager::UpdateIsInterRdma).stubs().with(mockcpp::any(), outBound(false), mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&TransportManager::MakeRemoteLinkInfo).stubs().will(returnValue(HCCL_SUCCESS));
 
     // stubs in IsHccsTransport
-    MOCKER(hrtGetPairDeviceLinkType).stubs().with(any(), any(), outBound(LinkTypeInServer::HCCS_SW_TYPE)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDeviceLinkType).stubs().with(mockcpp::any(), mockcpp::any(), outBound(LinkTypeInServer::HCCS_SW_TYPE)).will(returnValue(HCCL_SUCCESS));
 
     MOCKER(Is310PDevice).stubs().will(returnValue(false));
-    MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
    // stubs in CreateLink
-    MOCKER(hrtErrMSetErrorContextPub).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(hrtSetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::TransportInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtErrMSetErrorContextPub).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(hrtSetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::TransportInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtResetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::CheckBatchSendRecvLinkStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtResetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::CheckBatchSendRecvLinkStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocketManager::DestroySockets, void(HcclSocketManager::*)(const std::string&))
-    .stubs().with(any()).will(ignoreReturnValue());
+    .stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     std::string tag = "batch_send_recv_test";
     ret = communicator->transportManager_->AllocBatchSendRecvLinks( items.data(), items.size(), tag, transMem, singleTrans, 
@@ -200,8 +200,8 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_GroupModeAndAllocSliceMemFa
     TestConstructParam(params, rankTable, 3);
     std::unique_ptr<HcclCommunicator> communicator(new (std::nothrow) HcclCommunicator());
 
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     communicator->Init(params, rankTable);
 
     SingleSubCommTransport singleTrans;
@@ -211,10 +211,10 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_GroupModeAndAllocSliceMemFa
 
     communicator->transportManager_->SetGroupMode(true);
 
-    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtSetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::AllocSliceMem).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
-    MOCKER(hrtResetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtSetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::AllocSliceMem).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER(hrtResetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::string tag = "batch_send_recv_test";
     ret = communicator->transportManager_->AllocBatchSendRecvLinks(items.data(), items.size(), tag, transMem, singleTrans,
@@ -231,8 +231,8 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_hrtSetDevice_Failed_Return_
     TestConstructParam(params, rankTable, 3);
     std::unique_ptr<HcclCommunicator> communicator(new (std::nothrow) HcclCommunicator());
 
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     communicator->Init(params, rankTable);
 
     SingleSubCommTransport singleTrans;
@@ -240,10 +240,10 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_hrtSetDevice_Failed_Return_
     TransportIOMem transMem;
     InitSendRecvTestData(singleTrans, items);
 
-    MOCKER(hrtSetDevice).stubs().with(any()).will(returnValue(HCCL_E_RUNTIME));
+    MOCKER(hrtSetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_RUNTIME));
 
-    MOCKER(hrtResetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::CheckBatchSendRecvLinkStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtResetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::CheckBatchSendRecvLinkStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::string tag = "batch_send_recv_test";
     ret = communicator->transportManager_->AllocBatchSendRecvLinks( items.data(), items.size(), tag, transMem, singleTrans, 
@@ -260,8 +260,8 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_CreateSingleLinkSocket_Fail
     TestConstructParam(params, rankTable, 3);
     std::unique_ptr<HcclCommunicator> communicator(new (std::nothrow) HcclCommunicator());
 
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     communicator->Init(params, rankTable);
 
     SingleSubCommTransport singleTrans;
@@ -269,27 +269,27 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_CreateSingleLinkSocket_Fail
     TransportIOMem transMem;
     InitSendRecvTestData(singleTrans, items);
 
-    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
    // stubs in CreateDestSockets
-    MOCKER_CPP(&TransportManager::UpdateIsInterRdma).stubs().with(any(), outBound(false), any()).will(ignoreReturnValue());
+    MOCKER_CPP(&TransportManager::UpdateIsInterRdma).stubs().with(mockcpp::any(), outBound(false), mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&TransportManager::MakeRemoteLinkInfo).stubs().will(returnValue(HCCL_SUCCESS));
 
     // stubs in IsHccsTransport
-    MOCKER(hrtGetPairDeviceLinkType).stubs().with(any(), any(), outBound(LinkTypeInServer::HCCS_SW_TYPE)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDeviceLinkType).stubs().with(mockcpp::any(), mockcpp::any(), outBound(LinkTypeInServer::HCCS_SW_TYPE)).will(returnValue(HCCL_SUCCESS));
 
     MOCKER(Is310PDevice).stubs().will(returnValue(false));
-    MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&HcclSocketManager::CreateSingleLinkSocket).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
 
    // stubs in CreateLink
-    MOCKER(hrtErrMSetErrorContextPub).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(hrtSetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::TransportInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtErrMSetErrorContextPub).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(hrtSetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::TransportInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(hrtResetDevice).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::CheckBatchSendRecvLinkStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtResetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TransportManager::CheckBatchSendRecvLinkStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocketManager::DestroySockets, void(HcclSocketManager::*)(const std::string&))
-    .stubs().with(any()).will(ignoreReturnValue());
+    .stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     std::string tag = "batch_send_recv_test";
     ret = communicator->transportManager_->AllocBatchSendRecvLinks( items.data(), items.size(), tag, transMem, singleTrans, 
@@ -306,8 +306,8 @@ TEST_F(HcclImplTest, ut_CheckBatchSendRecvLinkStatus_When_LinkIsNullPtr_Return_H
     TestConstructParam(params, rankTable, 3);
     std::unique_ptr<HcclCommunicator> communicator(new (std::nothrow) HcclCommunicator());
 
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     communicator->Init(params, rankTable);
 
     TransportRequest transportReq1;
@@ -329,7 +329,7 @@ TEST_F(HcclImplTest, ut_CheckBatchSendRecvLinkStatus_When_LinkIsNullPtr_Return_H
     singleTrans.links.resize(2, nullptr);
     singleTrans.status.resize(2, TransportStatus::INIT);
 
-    MOCKER_CPP(&NotifyPool::UnregisterOp).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&NotifyPool::UnregisterOp).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::string tag = "test";
     ret = communicator->transportManager_->CheckBatchSendRecvLinkStatus(tag, singleTrans, false);
@@ -346,10 +346,10 @@ TEST_F(HcclImplTest, ut_SelectAlg_when_broadcast_910C_Expect_ReturnIs_BroadcastM
     params.deviceType = DevType::DEV_TYPE_910_93;
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
 
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -388,11 +388,11 @@ TEST_F(HcclImplTest, ut_SelectAlg_when_broadcast_910C_Expect_ReturnIs_BroadcastM
 
     MOCKER_CPP(&HcclCommunicator::HandleAclGraphFirstOpAivBuff)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterDfxInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(StarsCounter).stubs().will(returnValue(HCCL_SUCCESS));
     AivOpArgs opArgs{HcclCMDType::HCCL_CMD_BROADCAST,

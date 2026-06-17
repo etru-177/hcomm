@@ -70,7 +70,7 @@ TEST(ChannelManagerTest, TestChannelCreate_PFECreateFailed) {
     // 模拟PFEManager::PfeCreate返回未使用的PFE信息
     CfgBasePara para;
     para.dieId = 0;
-    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(any()).will(returnValue(CcuPfeInfo{false, 0, 0, 0}));
+    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(mockcpp::any()).will(returnValue(CcuPfeInfo{false, 0, 0, 0}));
 
     // 调用ChannelManager::ChannelCreate
     struct ChannelInfo info = channelManager.ChannelCreate(para);
@@ -85,7 +85,7 @@ TEST(ChannelManagerTest, TestChannelCreate_ChannelCreateFailed) {
     CfgBasePara para;
     para.dieId = 0;
 
-    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(any()).will(returnValue(CcuPfeInfo{true, 0, 0, 0}));
+    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(mockcpp::any()).will(returnValue(CcuPfeInfo{true, 0, 0, 0}));
 
     // 模拟ChannelManager中所有通道都已使用
     channelManager.channelInfo_[0][0].isUsed = true;
@@ -103,13 +103,13 @@ TEST(ChannelManagerTest, TestChannelCreate_JettyCtxCreateFailed) {
     CfgBasePara para;
     para.dieId = 0;
 
-    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(any()).will(returnValue(CcuPfeInfo{true, 0, 0, 0}));
+    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(mockcpp::any()).will(returnValue(CcuPfeInfo{true, 0, 0, 0}));
 
     // 模拟ChannelManager中有未使用的通道资源
     channelManager.channelInfo_[0][0].isUsed = false;
 
     // 模拟LocalJettyContextManager::JettyCtxCreate返回失败
-    MOCKER_CPP(&LocalJettyContextManager::JettyCtxCreate).stubs().with(any()).will(returnValue(INVILD_U8));
+    MOCKER_CPP(&LocalJettyContextManager::JettyCtxCreate).stubs().with(mockcpp::any()).will(returnValue(INVILD_U8));
 
     // 调用ChannelManager::ChannelCreate
     struct ChannelInfo info = channelManager.ChannelCreate(para);
@@ -123,13 +123,13 @@ TEST(ChannelManagerTest, TestChannelCreate_Success) {
     // 模拟PFEManager::PfeCreate返回使用的PFE信息
     CfgBasePara para;
     para.dieId = 0;
-    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(any()).will(returnValue(CcuPfeInfo{true, 0, 0, 0}));
+    MOCKER_CPP(&PfeManager::PfeCreate).stubs().with(mockcpp::any()).will(returnValue(CcuPfeInfo{true, 0, 0, 0}));
 
     // 模拟ChannelManager中有未使用的通道资源
     channelManager.channelInfo_[0][0].isUsed = false;
 
     // 模拟LocalJettyContextManager::JettyCtxCreate返回成功
-    MOCKER_CPP(&LocalJettyContextManager::JettyCtxCreate).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&LocalJettyContextManager::JettyCtxCreate).stubs().with(mockcpp::any()).will(returnValue(0));
 
     // 调用ChannelManager::ChannelCreate
     struct ChannelInfo info = channelManager.ChannelCreate(para);

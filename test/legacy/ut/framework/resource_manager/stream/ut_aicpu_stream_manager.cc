@@ -102,7 +102,7 @@ TEST_F(AicpuStreamManagerTest, Ut_AclGraphCaptureFreeStream_When_GetModelId_ERRO
     bool isCapture = true;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), any(), outBound(isCapture))
+        .with(mockcpp::any(), mockcpp::any(), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_E_RUNTIME));
 
@@ -118,7 +118,7 @@ TEST_F(AicpuStreamManagerTest, Ut_AclGraphCaptureFreeStream_When_AddStreamToMode
     bool isCapture = true;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), any(), outBound(isCapture))
+        .with(mockcpp::any(), mockcpp::any(), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(&AddStreamToModel).stubs().will(returnValue(HCCL_E_RUNTIME));
@@ -135,7 +135,7 @@ TEST_F(AicpuStreamManagerTest, Ut_AclGraphCaptureFreeStream_When_AddStreamToMode
     bool isCapture = true;
     MOCKER(&GetStreamCaptureInfo)
         .stubs()
-        .with(any(), any(), outBound(isCapture))
+        .with(mockcpp::any(), mockcpp::any(), outBound(isCapture))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(&GetModelId).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(&AddStreamToModel).stubs().will(returnValue(HCCL_SUCCESS));

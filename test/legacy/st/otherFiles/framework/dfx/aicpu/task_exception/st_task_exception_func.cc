@@ -166,7 +166,7 @@ TEST_F(TaskExceptionFuncTest, ShouldContinueOnWaitTimeout)
 
     TaskExceptionFunc &instance = TaskExceptionFunc::GetInstance();
     instance.Register(&streamLite);
-    MOCKER(halCqReportRecv).stubs().with(any(), any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_WAIT_TIMEOUT)));
+    MOCKER(halCqReportRecv).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_WAIT_TIMEOUT)));
     instance.Call();
 }
 
@@ -180,6 +180,6 @@ TEST_F(TaskExceptionFuncTest, ShouldContinueOnNonNoneError)
 
     TaskExceptionFunc &instance = TaskExceptionFunc::GetInstance();
     instance.Register(&streamLite);
-    MOCKER(halCqReportRecv).stubs().with(any(), any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_NO_DEVICE)));
+    MOCKER(halCqReportRecv).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_NO_DEVICE)));
     instance.Call();
 }

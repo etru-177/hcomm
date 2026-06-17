@@ -47,9 +47,9 @@ protected:
         kernelParam->comm.devType = DevType::DEV_TYPE_950;
         kernelParam->op.algOperator.opMode = OpMode::OPBASE;
 
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         std::cout << "A Test case in HcclMc2ExTest SetUp" << std::endl;
     }
@@ -218,7 +218,7 @@ TEST_F(HcclMc2ExTest, Ut_HcclCheckFinishByStream_When_StreamIsFinished_Expect_Re
     StreamLite master(masterBuff);
     StreamLite slave(slaveBuff);
     MOCKER_CPP(&StreamLiteMgr::GetMaster).stubs().with().will(returnValue(&master));
-    MOCKER_CPP(&StreamLiteMgr::GetSlave).stubs().with(any()).will(returnValue(&slave));
+    MOCKER_CPP(&StreamLiteMgr::GetSlave).stubs().with(mockcpp::any()).will(returnValue(&slave));
 
     halSqCqQueryInfo queryInfo;
     queryInfo.tsId     = 0;
@@ -229,9 +229,9 @@ TEST_F(HcclMc2ExTest, Ut_HcclCheckFinishByStream_When_StreamIsFinished_Expect_Re
     queryInfo.value[0] = 0;
     queryInfo.value[1] = 0;
 
-    MOCKER(halSqCqQuery).stubs().with(any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
-    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(any()).will(returnValue(u32(0)));
-    MOCKER_CPP(&RtsqA5::QuerySqTail).stubs().with(any()).will(returnValue(u32(0)));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
+    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(u32(0)));
+    MOCKER_CPP(&RtsqA5::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(u32(0)));
     EXPECT_EQ(HCCL_SUCCESS, ::HcclCheckFinishByStream(comm));
 }
 
@@ -253,7 +253,7 @@ TEST_F(HcclMc2ExTest, Ut_HcclCheckFinishByStream_When_StreamIsRunning_Expect_Ret
     StreamLite master(masterBuff);
     StreamLite slave(slaveBuff);
     MOCKER_CPP(&StreamLiteMgr::GetMaster).stubs().with().will(returnValue(&master));
-    MOCKER_CPP(&StreamLiteMgr::GetSlave).stubs().with(any()).will(returnValue(&slave));
+    MOCKER_CPP(&StreamLiteMgr::GetSlave).stubs().with(mockcpp::any()).will(returnValue(&slave));
 
     halSqCqQueryInfo queryInfo;
     queryInfo.tsId     = 0;
@@ -264,9 +264,9 @@ TEST_F(HcclMc2ExTest, Ut_HcclCheckFinishByStream_When_StreamIsRunning_Expect_Ret
     queryInfo.value[0] = 0;
     queryInfo.value[1] = 0;
 
-    MOCKER(halSqCqQuery).stubs().with(any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
-    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(any()).will(returnValue(u32(0)));
-    MOCKER_CPP(&RtsqA5::QuerySqTail).stubs().with(any()).will(returnValue(u32(8)));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
+    MOCKER_CPP(&RtsqA5::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(u32(0)));
+    MOCKER_CPP(&RtsqA5::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(u32(8)));
     EXPECT_EQ(HCCL_E_UNAVAIL, ::HcclCheckFinishByStream(comm));
 }
 
@@ -296,7 +296,7 @@ TEST_F(HcclMc2ExTest, Ut_HcclLaunchCcoreWait_When_ValidParams_Expect_ReturnSucce
     queryInfo.value[0] = 0;
     queryInfo.value[1] = 0;
 
-    MOCKER(halSqCqQuery).stubs().with(any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
     MOCKER_CPP(&StreamLiteMgr::GetMaster).stubs().with().will(returnValue(&master));
     auto rtsq = static_cast<RtsqA5 *>(master.GetRtsq());
     MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::CCoreNotifyWait).stubs().will(ignoreReturnValue());
@@ -331,7 +331,7 @@ TEST_F(HcclMc2ExTest, Ut_HcclLaunchCcorePost_When_ValidParams_Expect_ReturnSucce
     queryInfo.value[0] = 0;
     queryInfo.value[1] = 0;
 
-    MOCKER(halSqCqQuery).stubs().with(any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any(), outBoundP(&queryInfo, sizeof(queryInfo))).will(returnValue(0));
     MOCKER_CPP(&StreamLiteMgr::GetMaster).stubs().with().will(returnValue(&master));
     auto rtsq = static_cast<RtsqA5 *>(master.GetRtsq());
     MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::CCoreNotifyRecord).stubs().will(ignoreReturnValue());

@@ -42,13 +42,13 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         g_stubDevType = DevType::DEV_TYPE_910B;
         MockGetSendRecvCnt();
         MOCKER(halGetDeviceInfo)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(StubhalGetDeviceInfo));
         std::cout << "MC2TaskDispatcher_UT Test SetUP" << std::endl;
     }
@@ -244,7 +244,7 @@ TEST_F(MC2TaskDispatcher_UT, ipcPreSyncEx_errPara)
 TEST_F(MC2TaskDispatcher_UT, ipcPreSyncOnMainStream)
 {
     StubHccCommRes commRes;
-    MOCKER_CPP(&HcclTraceInfo::Flush).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclTraceInfo::Flush).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HccCommResParamTask paramTask = commRes.StubHccCommResParamTask();
     AicpuKfcRpcServer::RpcMsgBody msgBody;
     paramTask.mc2WorkSpace.workSpace = uint64_t(&msgBody);

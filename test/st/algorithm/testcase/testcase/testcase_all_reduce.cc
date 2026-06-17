@@ -1425,7 +1425,7 @@ TEST_F(AllReduceTest, allreduce_AllReduceRingFor91093Executor_Ring)
 TEST_F(AllReduceTest, allreduce_aiv_ax_AllReduceSmallCountAivRdmaExecutor)
 {
     MOCKER(GetExternalInputHcclAivMode).stubs().will(returnValue(true));
-    MOCKER(HcclD2DMemcpyAsync).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclD2DMemcpyAsync).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(hccl::ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
 
     RankTable_For_LLT gen;
@@ -1450,7 +1450,7 @@ TEST_F(AllReduceTest, allreduce_aiv_ax_AllReduceSmallCountAivRdmaExecutor)
 TEST_F(AllReduceTest, allreduce_aiv_ax_AllReduceMidCountAivRdmaExecutor)
 {
     MOCKER(GetExternalInputHcclAivMode).stubs().will(returnValue(true));
-    MOCKER(HcclD2DMemcpyAsync).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclD2DMemcpyAsync).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(hccl::ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
 
     RankTable_For_LLT gen;

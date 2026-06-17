@@ -90,13 +90,13 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         g_stubDevType = DevType::DEV_TYPE_910B;
         MockGetSendRecvCnt();
         MOCKER(halGetDeviceInfo)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(invoke(StubhalGetDeviceInfo));
         MOCKER(QuerySqStatusByType)
             .stubs()
@@ -138,13 +138,13 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         g_stubDevType = DevType::DEV_TYPE_910B;
         MockGetSendRecvCnt();
         MOCKER(halGetDeviceInfo)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(invoke(StubhalGetDeviceInfo));
         std::cout << "MC2AicpuInterfaceV2_UT Test SetUP" << std::endl;
     }
@@ -280,8 +280,8 @@ TEST_F(MC2AicpuInterface_UT, RunAicpuRpcSrvGroupLaunch_debugModeOnlyCube)
 TEST_F(MC2AicpuInterfaceV2_UT, RunAicpuRpcSrvLaunch_debugModeWaitComm)
 {
     // 模拟产生了异常cq
-    MOCKER(halCqReportRecv).stubs().with(any()).will(invoke(StubhalCqReportRecv));
-    MOCKER(halSqCqQuery).stubs().with(any()).will(invoke(StubhalSqCqQuery));
+    MOCKER(halCqReportRecv).stubs().with(mockcpp::any()).will(invoke(StubhalCqReportRecv));
+    MOCKER(halSqCqQuery).stubs().with(mockcpp::any()).will(invoke(StubhalSqCqQuery));
     MOCKER(AicpuSqeContext::QuerySqeInfoByTaskId).stubs().will(returnValue(HCCL_SUCCESS));
     StubHccCommRes commRes;
     HccCommResParamTask paramTask = commRes.StubHccCommResParamTask();
@@ -324,7 +324,7 @@ TEST_F(MC2AicpuInterfaceV2_UT, RunAicpuRpcSrvLaunch_debugModeWaitComm)
     MOCKER(memcpy_s).stubs().will(returnValue(EOK));
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL))
     .then(returnValue(HCCL_SUCCESS));
     StubSqeBuffer stub;

@@ -114,7 +114,7 @@ TEST_F(CcuCtxFactoryTest, should_return_success_when_calling_register_create)
     // when
     GlobalMockObject::verify(); 
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(CcuDeviceManager::ReleaseCke).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuDeviceManager::ReleaseCke).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -138,8 +138,8 @@ TEST_F(CcuCtxFactoryTest, should_return_success_when_calling_register_create)
     transports.push_back(ccuTransport);
     std::unique_ptr<CcuTransportGroup> ccuTransportGrp = std::make_unique<CcuTransportGroup>(transports, 0);
     ccuTransportGrp->grpStatus = TransportGrpStatus::INIT;
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(ccuTransport));
-    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(any(), any()).will(returnValue(ccuTransportGrp.get()));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(ccuTransport));
+    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ccuTransportGrp.get()));
     
     //then
     std::unique_ptr<CcuInstructionAllGatherMesh1D> ccuIns = std::make_unique<CcuInstructionAllGatherMesh1D>();
@@ -162,7 +162,7 @@ TEST_F(CcuCtxFactoryTest, should_return_nullptr_when_transport_mgr_prepare_creat
     // when
     GlobalMockObject::verify(); 
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-    MOCKER(CcuDeviceManager::ReleaseCke).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuDeviceManager::ReleaseCke).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(GenerateCcuCtxSignature)
         .stubs()
         .will(returnValue(HcclResult::HCCL_SUCCESS));
@@ -186,9 +186,9 @@ TEST_F(CcuCtxFactoryTest, should_return_nullptr_when_transport_mgr_prepare_creat
     transports.push_back(ccuTransport);
     std::unique_ptr<CcuTransportGroup> ccuTransportGrp = std::make_unique<CcuTransportGroup>(transports, 0);
     ccuTransportGrp->grpStatus = TransportGrpStatus::INIT;
-    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(any()).will(returnValue(ccuTransport));
+    MOCKER_CPP(&CcuTransportMgr::PrepareCreate).stubs().with(mockcpp::any()).will(returnValue(ccuTransport));
     CcuTransportGroup *fakePtr = nullptr;
-    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(any(), any()).will(returnValue(fakePtr));
+    MOCKER_CPP(&CcuTransportGroupMgr::PrepareCreate).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(fakePtr));
     
     //then
     std::unique_ptr<CcuInstructionAllGatherMesh1D> ccuIns = std::make_unique<CcuInstructionAllGatherMesh1D>();

@@ -18,13 +18,13 @@ public:
         // 将enableEntryLog默认返回为true
         MOCKER(GetExternalInputHcclEnableEntryLog)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(true));
         // MOCK掉对communicator层的依赖，保证分层测试
         HcclCommunicator commun_mock;
         MOCKER_CPP_VIRTUAL(commun_mock, &HcclCommunicator::AllReduceOutPlace)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     }
     void TearDown() override {

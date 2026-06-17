@@ -135,7 +135,7 @@ TEST_F(HcomutCommManagerTest, ut_V2_gradient_Manage_Split_API)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     HcclGroupParamsV2 params;
     params.pComm = hcclComm;
@@ -167,7 +167,7 @@ TEST_F(HcomutCommManagerTest, ut_hcomv2_backlog_group)
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     HcclGroupParamsV2 params;
     params.pComm = hcclComm;
@@ -178,7 +178,7 @@ TEST_F(HcomutCommManagerTest, ut_hcomv2_backlog_group)
     int ret = HCCL_SUCCESS;
     MOCKER_CPP(static_cast<HcclResult (CommunicatorImpl::*)(const CommParams &subCommParams, const std::vector<u32> &rankIds, CommunicatorImpl *subCommImpl)>(&CommunicatorImpl::CreateSubComm))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::SetCommExecuteConfig).stubs().will(ignoreReturnValue());
     ret = HcomCreateGroupImplV2(strGroup, groupRanksNum, rankIds);
@@ -299,7 +299,7 @@ TEST_F(HcomutCommManagerTest, St_HcomGetRankSizeV2_When_InvalidGetRankSize_Expec
     CommManager::GetInstance(0).GetCommInfoV2().commParams = commParams;
     CommManager::GetInstance(0).GetCommInfoV2().isUsed = true;
     CommManager::GetInstance(0).GetCommInfoV2().pComm = hcclComm;
-    MOCKER(HrtGetDevice).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetDevice).stubs().with(mockcpp::any()).will(returnValue(0));
     
     HcclGroupParamsV2 params;
     params.pComm = hcclComm;
@@ -352,7 +352,7 @@ TEST_F(HcomutCommManagerTest, st_HcomInitByStringV2_expectHCCL_E_INTERNAL)
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
 
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER_CPP(&CommManager::SetCommAcceleratorV2).stubs().will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HcomInitByStringV2(rank_table_string.c_str(), "0");

@@ -158,7 +158,7 @@ TEST(UbCiUpdaterManagerTest, should_no_throw_when_calling_BatchCreate)
 
     MOCKER_CPP_VIRTUAL(*newUbConn, &DevUbConnection::GetStatus).stubs().will(returnValue((RmaConnStatus)RmaConnStatus::READY));
     MOCKER_CPP_VIRTUAL(*newUbConn2, &DevUbConnection::GetStatus).stubs().will(returnValue((RmaConnStatus)RmaConnStatus::READY));
-    MOCKER_CPP(&RmaConnManager::Create).stubs().with(any(), any(), any())
+    MOCKER_CPP(&RmaConnManager::Create).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(static_cast<RmaConnection*>(newUbConn.get())))
             .then(returnValue(static_cast<RmaConnection*>(newUbConn2.get())));
  

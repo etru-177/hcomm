@@ -125,8 +125,8 @@ TEST_F(GlobalMemMgrMulThreadTest, Ut_GlobalMemMgr_InicNic_When_DeviceSameID_Expe
 {
     // 测试正常情况：多线程获取实例
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(hrtGetDeviceRefreshStubSameId));
-    MOCKER(HcclNetInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetDeInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetDeInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     const int threadCount = 16;
     std::vector<std::thread> threads;

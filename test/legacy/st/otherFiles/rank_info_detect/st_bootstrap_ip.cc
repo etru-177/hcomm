@@ -64,7 +64,7 @@ TEST_F(GetBootstrapIpTest, Ut_GetBootstrapIp_When_hostIfInfos_Empty_Expect_THROW
 {
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
 
     // check
     EXPECT_THROW(GetBootstrapIp(1), InternalException);
@@ -75,7 +75,7 @@ TEST_F(GetBootstrapIpTest, Ut_GetAllValidHostIfInfos_When_ifInfos_Empty_Expect_T
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("lo", IpAddress("0.0.0.0")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", false, CastBin2Bool};
@@ -93,7 +93,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_ifInfos_lo_Expect_Right_Ip)
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("lo", IpAddress("127.0.0.1")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", false, CastBin2Bool};
@@ -116,7 +116,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_ifInfos_docker_Expect_Right)
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("docker", IpAddress("127.0.0.1")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", false, CastBin2Bool};
@@ -136,7 +136,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_ifInfos_normal_Expect_Right)
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("normal", IpAddress("127.0.0.1")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", false, CastBin2Bool};
@@ -156,7 +156,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_ifInfos_error_Expect_Right)
 {
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", true, CastBin2Bool};
@@ -176,7 +176,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_Config_HCCL_IF_IP_Expect_Righ
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("lo", IpAddress("127.0.0.2")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", true, CastBin2Bool};
@@ -196,7 +196,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_Config_HCCL_SOCKET_IFNAME_Exp
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("lo", IpAddress("127.0.0.3")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", true, CastBin2Bool};
@@ -216,7 +216,7 @@ TEST_F(GetBootstrapIpTest, Ut_FindLocalHostIp_When_Config_HCCL_SOCKET_IFNAME_Inv
     // when
     std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
     hostIfInfos.push_back(std::make_pair("lo", IpAddress("127.0.0.3")));
-    MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
+    MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", true, CastBin2Bool};

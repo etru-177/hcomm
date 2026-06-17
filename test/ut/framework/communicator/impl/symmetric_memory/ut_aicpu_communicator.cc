@@ -101,9 +101,9 @@ TEST_F(AicpuCommunicatorTest, Ut_ExecOp_When_SymMemEnabled_Expect_ReturnIsHCCL_S
         .stubs()
         .will(returnValue(HCCL_SUCCESS));
 
-    MOCKER_CPP(&HcclCommAicpu::Orchestrate).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommAicpu::PrepareSymmetricMemory).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
-    MOCKER_CPP(&DeviceMem::create).stubs().with(any()).will(returnValue(DeviceMem()));
+    MOCKER_CPP(&HcclCommAicpu::Orchestrate).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommAicpu::PrepareSymmetricMemory).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&DeviceMem::create).stubs().with(mockcpp::any()).will(returnValue(DeviceMem()));
 
     std::string newTag = "tag_test_taskException";
     std::string algName = "algName_test_taskException";

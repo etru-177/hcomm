@@ -642,7 +642,7 @@ TEST_F(AllToAllVTest, alltoallv_test_910B_opbase_AclGraph_RunAlltoAllDirectFullm
     void *pmockModel = &mockModel;
     MOCKER(rtStreamGetCaptureInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     RankTable_For_LLT gen;

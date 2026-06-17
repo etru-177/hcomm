@@ -94,14 +94,14 @@ TEST_F(LaunchAicpuUT, CacheTaskOpInfo_ExtendInfoNotSupported_Expect_ReturnSucces
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
         .stubs()
-        .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+        .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
         .will(returnValue(ACL_SUCCESS));
 
     aclrtStreamAttrValue value;
     value.cacheOpInfoSwitch = 1;
     MOCKER(aclrtGetStreamAttribute)
         .stubs()
-        .with(any(), any(), outBoundP(&value, sizeof(value)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&value, sizeof(value)))
         .will(returnValue(ACL_SUCCESS));
 
     MOCKER(hrtCacheLastTaskExtendInfo)
@@ -122,14 +122,14 @@ TEST_F(LaunchAicpuUT, CacheTaskOpInfo_ExtendInfoCallSuccess_Expect_ReturnSuccess
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
         .stubs()
-        .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+        .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
         .will(returnValue(ACL_SUCCESS));
 
     aclrtStreamAttrValue value;
     value.cacheOpInfoSwitch = 1;
     MOCKER(aclrtGetStreamAttribute)
         .stubs()
-        .with(any(), any(), outBoundP(&value, sizeof(value)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&value, sizeof(value)))
         .will(returnValue(ACL_SUCCESS));
 
     MOCKER(hrtCacheLastTaskExtendInfo)
@@ -150,14 +150,14 @@ TEST_F(LaunchAicpuUT, CacheTaskOpInfo_ExtendInfoCallFailed_Expect_ReturnRuntimeE
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
         .stubs()
-        .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+        .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
         .will(returnValue(ACL_SUCCESS));
 
     aclrtStreamAttrValue value;
     value.cacheOpInfoSwitch = 1;
     MOCKER(aclrtGetStreamAttribute)
         .stubs()
-        .with(any(), any(), outBoundP(&value, sizeof(value)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&value, sizeof(value)))
         .will(returnValue(ACL_SUCCESS));
 
     MOCKER(hrtCacheLastTaskExtendInfo)
@@ -268,14 +268,14 @@ TEST_F(LaunchAicpuUT, AicpuAclKernelLaunchV2_When_CacheTaskOpInfoSuccess_Expect_
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
         .stubs()
-        .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+        .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
         .will(returnValue(ACL_SUCCESS));
 
     aclrtStreamAttrValue value;
     value.cacheOpInfoSwitch = 1;
     MOCKER(aclrtGetStreamAttribute)
         .stubs()
-        .with(any(), any(), outBoundP(&value, sizeof(value)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&value, sizeof(value)))
         .will(returnValue(ACL_SUCCESS));
 
     MOCKER(hrtCacheLastTaskExtendInfo)

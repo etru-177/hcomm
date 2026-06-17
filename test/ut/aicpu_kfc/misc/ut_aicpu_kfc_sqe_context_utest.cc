@@ -42,10 +42,10 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         g_stubDevType = DevType::DEV_TYPE_910B;
-        MOCKER(halGetDeviceInfo).stubs().with(any()).will(invoke(StubhalGetDeviceInfo));
+        MOCKER(halGetDeviceInfo).stubs().with(mockcpp::any()).will(invoke(StubhalGetDeviceInfo));
         std::cout << "MC2SqeContext_UT Test SetUP" << std::endl;
     }
     virtual void TearDown()

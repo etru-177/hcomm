@@ -63,6 +63,6 @@ TEST_F(ConnectionsBuilderTest, CreateRmaConnections_test)
     string opTag = "test";
     DevUbConnection  ubConnection((void *)0x100, link.GetLocalAddr(), link.GetRemoteAddr(), OpMode::OPBASE);
     RmaConnection   *rmaConnection = &ubConnection;
-    MOCKER_CPP(&RmaConnManager::Create).stubs().with(any(),any()).will(returnValue(rmaConnection));
+    MOCKER_CPP(&RmaConnManager::Create).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(rmaConnection));
     connBuilder.CreateRmaConnections(opTag, links);
 }

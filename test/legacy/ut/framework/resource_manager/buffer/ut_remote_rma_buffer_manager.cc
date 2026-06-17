@@ -64,7 +64,7 @@ TEST_F(RemoteRmaBufManagerTest, create_link_data_is_RDMA)
 
     void *rdmaHandle = (void *)0x100;
 
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
 
     unique_ptr<RemoteRmaBuffer> remoteRmaBuffer = remoteRmaBufManager.Create(linkData);
     EXPECT_EQ(RmaType::RDMA, remoteRmaBuffer->GetRmaType());
@@ -89,7 +89,7 @@ TEST_F(RemoteRmaBufManagerTest, create_link_data_is_UB)
  
     void *rdmaHandle = (void *)0x300;
  
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
  
     unique_ptr<RemoteRmaBuffer> remoteRmaBuffer = remoteRmaBufManager.Create(linkData);
     EXPECT_EQ(RmaType::UB, remoteRmaBuffer->GetRmaType());

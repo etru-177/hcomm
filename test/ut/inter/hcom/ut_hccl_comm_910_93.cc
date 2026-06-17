@@ -72,7 +72,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         DlTdtFunction::GetInstance().DlTdtFunctionInit();
         TsdOpen(1, 2);
@@ -87,7 +87,7 @@ protected:
         .will(returnValue(HCCL_SUCCESS));
         MOCKER(hrtRaGetSingleSocketVnicIpInfo)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(stub_hrtRaGetSingleSocketVnicIpInfo));
 
         ResetInitState();
@@ -280,8 +280,8 @@ void* inter_all_reduce_outplace_task_91093(void* parg)
     sal_memset(hcom_info.params.id.internal, HCCL_ROOT_INFO_BYTES, 0, sizeof(hcom_info.params.id.internal));
     sal_memcpy(hcom_info.params.id.internal, sizeof(HcclRootInfo), &para_info->rootInfo, sizeof(HcclRootInfo));
 
-    MOCKER_CPP(&GraphMgr::GraphCtxMgr::ConstructFftsNotifyRecordRemoteCtx).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&CollAlgOperator::Is2U2PInfer).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&GraphMgr::GraphCtxMgr::ConstructFftsNotifyRecordRemoteCtx).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgOperator::Is2U2PInfer).stubs().with(mockcpp::any()).will(returnValue(true));
     hcom_info.pComm.reset(new(std::nothrow) hccl::hcclComm(HCCL_ALLREDUCE_DATA_SLICE, HCCL_ALLREDUCE_DATA_SLICE, HCCL_WORLD_GROUP));
     rtModel_t model = (void *)1;
 
@@ -1719,7 +1719,7 @@ void* inter_broadcast_task_91093(void* parg)
     s32 portNum = 7;
     MOCKER(hrtGetHccsPortNum)
         .stubs()
-        .with(any(), outBound(portNum))
+        .with(mockcpp::any(), outBound(portNum))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     para_t* para_info = (para_t*)parg;

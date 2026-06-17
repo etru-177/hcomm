@@ -45,7 +45,7 @@ TEST_F(UtCpuHcommChannelFenceOnThread, Ut_HcommChannelFenceOnThread_When_950_Nor
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::ChannelFence)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     res = HcommChannelFenceOnThread(thread, channel);
     EXPECT_EQ(res, HCCL_SUCCESS);
@@ -56,7 +56,7 @@ TEST_F(UtCpuHcommChannelFenceOnThread, Ut_HcommChannelFenceOnThread_When_950_Thr
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::ChannelFence)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     // thread is cast to void — nullptr is acceptable.
     res = HcommChannelFenceOnThread(0, channel);
@@ -75,7 +75,7 @@ TEST_F(UtCpuHcommChannelFenceOnThread, Ut_HcommChannelFenceOnThread_When_950_Cha
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::ChannelFence)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_E_INTERNAL));
     res = HcommChannelFenceOnThread(thread, channel);
     EXPECT_EQ(res, HCCL_E_INTERNAL);

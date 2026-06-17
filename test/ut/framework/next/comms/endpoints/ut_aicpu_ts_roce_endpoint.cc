@@ -308,8 +308,8 @@ TEST_F(AicpuTsRoceEndpointTest, Ut_UnregisterMemory_Delegates_Returns_SUCCESS) {
 }
 
 TEST_F(AicpuTsRoceEndpointTest, Ut_TwoInitsSameDevicePhyId_ShareOneNetDevSlot) {
-    MOCKER(hrtGetDevice).stubs().with(any()).will(invoke(StubHrtGetDeviceWriteZeroEp));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(0U)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevice).stubs().with(mockcpp::any()).will(invoke(StubHrtGetDeviceWriteZeroEp));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), outBound(0U)).will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclNetDevOpen).stubs().will(invoke(StubHcclNetDevOpenForEp));
     MOCKER(HcclNetDevClose).stubs().will(invoke(StubHcclNetDevCloseForEp));
     MOCKER_CPP(&hccl::NetworkManager::CreateRdmaHandle).stubs().will(invoke(StubCreateRdmaHandleEp));
@@ -339,8 +339,8 @@ TEST_F(AicpuTsRoceEndpointTest, Ut_TwoInitsSameDevicePhyId_ShareOneNetDevSlot) {
 }
 
 TEST_F(AicpuTsRoceEndpointTest, Ut_Init_DeviceRoce_WhenDepsMocked_Returns_SUCCESS) {
-    MOCKER(hrtGetDevice).stubs().with(any()).will(invoke(StubHrtGetDeviceWriteZeroEp));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(0U)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevice).stubs().with(mockcpp::any()).will(invoke(StubHrtGetDeviceWriteZeroEp));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), outBound(0U)).will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclNetDevOpen).stubs().will(invoke(StubHcclNetDevOpenForEp));
     MOCKER(HcclNetDevClose).stubs().will(invoke(StubHcclNetDevCloseForEp));
     MOCKER_CPP(&hccl::NetworkManager::CreateRdmaHandle).stubs().will(invoke(StubCreateRdmaHandleEp));

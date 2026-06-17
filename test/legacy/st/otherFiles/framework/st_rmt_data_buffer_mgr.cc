@@ -175,7 +175,7 @@ TEST_F(RmtDataBufferMgrTest, get_GetBuffer_opbase_success)
     RmtDataBufferMgr rmtDataBufferMgr(memTransportLiteMgr, algInfo);
 
     Buffer buffer1(0x100, 10);
-    MOCKER_CPP(&MemTransportLite::GetRmtBuffer).stubs().with(any()).will(returnValue(buffer1));
+    MOCKER_CPP(&MemTransportLite::GetRmtBuffer).stubs().with(mockcpp::any()).will(returnValue(buffer1));
     DataBuffer buffer2 = rmtDataBufferMgr.GetBuffer(linkData, BufferType::SCRATCH);
     std::cout << "buffer2 addr: " << buffer2.GetAddr() << std::endl;
     std::cout << "buffer2 size: " << buffer2.GetSize() << std::endl;

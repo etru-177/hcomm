@@ -54,7 +54,7 @@ TEST_F(UtCpuHcommChannelNotifyRecordOnThread, Ut_HcommChannelNotifyRecordOnThrea
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::NotifyRecord)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     res = HcommChannelNotifyRecordOnThread(thread, channel, notifyIdx);
     EXPECT_EQ(res, HCCL_SUCCESS);
@@ -65,7 +65,7 @@ TEST_F(UtCpuHcommChannelNotifyRecordOnThread, Ut_HcommChannelNotifyRecordOnThrea
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::NotifyRecord)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     // On 950, thread is not used, so it could be nullptr.
     res = HcommChannelNotifyRecordOnThread(0, channel, notifyIdx);
@@ -84,7 +84,7 @@ TEST_F(UtCpuHcommChannelNotifyRecordOnThread, Ut_HcommChannelNotifyRecordOnThrea
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::NotifyRecord)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_E_INTERNAL));
     res = HcommChannelNotifyRecordOnThread(thread, channel, notifyIdx);
     EXPECT_EQ(res, HCCL_E_INTERNAL);

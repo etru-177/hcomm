@@ -137,7 +137,7 @@ TEST_F(SocketManagerTest, ut_SocketManagerTest_LocalServer)
     u32 ifnumVersion = 3;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&ifnumVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&ifnumVersion))
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret;
     std::shared_ptr<HcclSocketManager> socketManager = nullptr;
@@ -224,7 +224,7 @@ TEST_F(SocketManagerTest, ut_SocketManagerTest_LocalClient)
     u32 ifnumVersion = 3;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&ifnumVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&ifnumVersion))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclNetDevGetTlsStatus)
     .stubs()
@@ -396,7 +396,7 @@ TEST_F(SocketManagerTest, ut_NetDev_error)
 
     MOCKER_CPP(&NetDevContext::Init)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     HcclNetDevCtx portCtx;
@@ -417,11 +417,11 @@ TEST_F(SocketManagerTest, ut_Socket_Abort)
 
     MOCKER(IsSupportRaSocketAbort)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(stub_IsSupportRaSocketAbort));
     MOCKER(hrtRaSocketNonBlockBatchAbort)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // device Nic

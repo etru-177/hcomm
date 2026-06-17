@@ -135,7 +135,7 @@ TEST_F(SocketTest, Ut_SendAsync_When_RaSocketSuccess_Expect_Success)
 
     int sendResultOut = SOCK_EAGAIN;
     MOCKER(stub_SocketRaGetAsyncReqResult).stubs()
-    .with(any(), outBoundP(&sendResultOut))
+    .with(mockcpp::any(), outBoundP(&sendResultOut))
     .will(returnValue(OTHERS_EAGAIN))
     .then(returnValue(0));
 
@@ -205,7 +205,7 @@ TEST_F(SocketTest, Ut_RecvAsync_When_RaSocketSuccess_Expect_Success)
 
     int recvResultOut = SOCK_EAGAIN;
     MOCKER(stub_SocketRaGetAsyncReqResult).stubs()
-    .with(any(), outBoundP(&recvResultOut))
+    .with(mockcpp::any(), outBoundP(&recvResultOut))
     .will(returnValue(OTHERS_EAGAIN))
     .then(returnValue(0));
 

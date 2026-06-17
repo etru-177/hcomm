@@ -205,11 +205,11 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
-        MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(any());
+        MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any());
 
         LinkData linkData(BasePortType(PortDeploymentType::DEV_NET, ConnectProtoType::UB), 0, 1, 0, 1);
         DevUbConnection  ubConnection((void *)0x100, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -278,7 +278,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_copy)
     StreamLite stream(notifyLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
     
@@ -297,7 +297,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_copy_extend)
     StreamLite stream(notifyLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
     
@@ -315,7 +315,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_LocalReduce)
     StreamLite stream(notifyLite1);
     RtsqA5     rtsq(0, 1, 2);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
     Interpret(insLocalReduce, stream, &mockResMgrFetcher);
@@ -375,7 +375,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_copy_extend_err)
     StreamLite stream(notifyLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
     insLocalCopyExtend.srcBuffer_.size = 0;
@@ -391,7 +391,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_post_to)
     NotifyLite *validNotify = &notify;
     MOCKER_CPP(&QueueNotifyLiteMgr::Get)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(nullNotify))
         .then(returnValue(validNotify));
 
@@ -402,7 +402,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_post_to)
     StreamLite stream(streamLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::NotifyRecordLoc).stubs().with(any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::NotifyRecordLoc).stubs().with(mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
     
@@ -416,14 +416,14 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_post_to)
     CntNto1NotifyLite *validCntNotify = &cntNtify;
     MOCKER_CPP(&CntNto1NotifyLiteMgr::Get)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(nullCntNotify))
         .then(returnValue(validCntNotify));
 
     InsLocalPostTo insLocalPostToCounter(1, NotifyType::COUNTER, 0);
     insLocalPostToCounter.SetPostQid(0);
 
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::CntNto1NotifyRecord).stubs().with(any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::CntNto1NotifyRecord).stubs().with(mockcpp::any());
 
     EXPECT_THROW(Interpret(insLocalPostToCounter, stream, &mockResMgrFetcher), NullPtrException);
     Interpret(insLocalPostToCounter, stream, &mockResMgrFetcher);
@@ -438,7 +438,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_wait_from)
     NotifyLite *validNotify = &notify;
     MOCKER_CPP(&QueueNotifyLiteMgr::Get)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(nullNotify))
         .then(returnValue(validNotify));
 
@@ -449,8 +449,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_wait_from)
     StreamLite stream(streamLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, static_cast<void (RtsqA5::*)(u32)>(&RtsqA5::NotifyWait)).stubs().with(any());
-    MOCKER_CPP_VIRTUAL(rtsq, static_cast<void (RtsqA5::*)(u32, u32)>(&RtsqA5::NotifyWait)).stubs().with(any());
+    MOCKER_CPP_VIRTUAL(rtsq, static_cast<void (RtsqA5::*)(u32)>(&RtsqA5::NotifyWait)).stubs().with(mockcpp::any());
+    MOCKER_CPP_VIRTUAL(rtsq, static_cast<void (RtsqA5::*)(u32, u32)>(&RtsqA5::NotifyWait)).stubs().with(mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
 
@@ -464,14 +464,14 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_wait_from)
     Cnt1tonNotifyLite *validCntNotify = &cntNtify;
     MOCKER_CPP(&Cnt1tonNotifyLiteMgr::Get)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(nullCntNotify))
         .then(returnValue(validCntNotify));
 
     InsLocalWaitFrom insLocalWaitFromCounter(0, NotifyType::COUNTER, 0);
     insLocalWaitFromCounter.SetWaitQid(1);
 
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::Cnt1toNNotifyWait).stubs().with(any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::Cnt1toNNotifyWait).stubs().with(mockcpp::any());
 
     EXPECT_THROW(Interpret(insLocalWaitFromCounter, stream, &mockResMgrFetcher), NullPtrException);
     Interpret(insLocalWaitFromCounter, stream, &mockResMgrFetcher);
@@ -485,7 +485,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_bcast_post)
     Cnt1tonNotifyLite *validNotify = &notify;
     MOCKER_CPP(&Cnt1tonNotifyLiteMgr::Get)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(nullNotify))
         .then(returnValue(validNotify));
 
@@ -497,7 +497,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_bcast_post)
     StreamLite stream(streamLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::Cnt1toNNotifyRecord).stubs().with(any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::Cnt1toNNotifyRecord).stubs().with(mockcpp::any(), mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
 
@@ -513,7 +513,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_wait_group)
     CntNto1NotifyLite *validNotify = &notify;
     MOCKER_CPP(&CntNto1NotifyLiteMgr::Get)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(nullNotify))
         .then(returnValue(validNotify));
 
@@ -525,7 +525,7 @@ TEST_F(InsToSqeRuleV82Test, Interpret_local_wait_group)
     StreamLite stream(streamLite1);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::CntNto1NotifyWait).stubs().with(any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::CntNto1NotifyWait).stubs().with(mockcpp::any(), mockcpp::any());
 
     StubResMgrFetcher mockResMgrFetcher;
 
@@ -542,12 +542,12 @@ TEST_F(InsToSqeRuleV82Test, Interpret_wait_ready)
     MemTransportLite *stubTransportPtr1 = transportLite.get();
     MOCKER_CPP(&MemTransportLiteMgr::GetOffload)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
     MOCKER_CPP(&MemTransportLiteMgr::GetOpbase)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
 
@@ -575,12 +575,12 @@ TEST_F(InsToSqeRuleV82Test, Interpret_post_ready)
     MemTransportLite *stubTransportPtr1 = transportLite.get();
     MOCKER_CPP(&MemTransportLiteMgr::GetOffload)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
     MOCKER_CPP(&MemTransportLiteMgr::GetOpbase)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
 
@@ -603,12 +603,12 @@ TEST_F(InsToSqeRuleV82Test, Interpret_wait_fin)
     MemTransportLite *stubTransportPtr1 = transportLite.get();
     MOCKER_CPP(&MemTransportLiteMgr::GetOffload)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
     MOCKER_CPP(&MemTransportLiteMgr::GetOpbase)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
 
@@ -631,12 +631,12 @@ TEST_F(InsToSqeRuleV82Test, Interpret_post_fin)
     MemTransportLite *stubTransportPtr1 = transportLite.get();
     MOCKER_CPP(&MemTransportLiteMgr::GetOffload)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
     MOCKER_CPP(&MemTransportLiteMgr::GetOpbase)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(stubTransportPtr0))
         .then(returnValue(stubTransportPtr1));
 
@@ -656,8 +656,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_write)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -678,8 +678,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_write_is_empty_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -698,8 +698,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_write_insWrite_size_is_0)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -722,8 +722,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_write_insWrite_size_isnot_0_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -745,8 +745,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_write_insWriteReduce_size_is_0)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -769,8 +769,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_write_insWriteReduce_size_isnot_0_er
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -792,8 +792,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_read)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -814,8 +814,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_read_is_empty_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -834,8 +834,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_read_insRead_size_is_0)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -858,8 +858,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_read_insRead_size_isnot_0_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -881,8 +881,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_read_insReadReduce_size_is_0)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -905,8 +905,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_batch_read_insReadReduce_size_isnot_0_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -928,8 +928,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -948,8 +948,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -968,8 +968,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_extend)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     u64          size = 100;
     DataBuffer    localBuffer(0x1234560, size);
@@ -989,8 +989,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_extend_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     u64          size = 100;
     DataBuffer    localBuffer(0x1234560, size);
@@ -1010,8 +1010,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_reduce)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1030,8 +1030,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_reduce_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1050,8 +1050,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_read)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1070,8 +1070,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_read_reduce)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1090,8 +1090,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_reduce_with_fin)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1110,8 +1110,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_reduce_with_fin_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1130,8 +1130,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_with_fin)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1149,8 +1149,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_with_fin_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     DataSlice localSlice(BufferType::SCRATCH, 0, 100);
     DataSlice remoteSlice(BufferType::SCRATCH, 0, 100);
@@ -1168,8 +1168,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_with_fin_extend)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     u64          size = 100;
     DataBuffer    localBuffer(0x1234560, size);
@@ -1188,8 +1188,8 @@ TEST_F(InsToSqeRuleV82Test, Interpret_write_with_fin_extend_err)
 
     transportLite->impl = std::make_unique<StubTransportLiteImpl>();
     MemTransportLite *stubTransportPtr = transportLite.get();
-    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(any(), any()).then(returnValue(stubTransportPtr));
-    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOffload).stubs().with(mockcpp::any(), mockcpp::any()).then(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportLiteMgr::GetOpbase).stubs().with(mockcpp::any()).then(returnValue(stubTransportPtr));
 
     u64          size = 100;
     DataBuffer    localBuffer(0x1234560, size);

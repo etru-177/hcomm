@@ -88,7 +88,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(GetExternalInputHcclLinkTimeOut)
             .stubs()
@@ -118,33 +118,33 @@ void public_stubs(bool needStubOp)
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtTraceCreateWithAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hccl::RegisterKernel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitProfiler)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocketManager::ServerInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     if (needStubOp) {
         MOCKER_CPP(&HcclCommunicator::ExecOp)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     }
 }
@@ -1086,7 +1086,7 @@ void* inter_broadcast_task_0(void* parg)
     s32 portNum = 7;
     MOCKER(hrtGetHccsPortNum)
         .stubs()
-        .with(any(), outBound(portNum))
+        .with(mockcpp::any(), outBound(portNum))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     para_t* para_info = (para_t*)parg;
@@ -1872,7 +1872,7 @@ TEST_F(HcclCommTest, ut_create_comm_by_alg)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     u32 ret = implBase->Init(params, rankTable);
@@ -1900,7 +1900,7 @@ TEST_F(HcclCommTest, TestCommTypeStar) {
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     u32 ret = implBase->Init(params, rankTable);
@@ -1931,7 +1931,7 @@ TEST_F(HcclCommTest, TestCommTypeWholeNHR) {
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     u32 ret = implBase->Init(params, rankTable);
@@ -1964,7 +1964,7 @@ TEST_F(HcclCommTest, TestCommTypeWholeNHRV1) {
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     u32 ret = implBase->Init(params, rankTable);
@@ -1996,7 +1996,7 @@ TEST_F(HcclCommTest, TestCommTypeWholeAHC_BROKE) {
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     u32 ret = implBase->Init(params, rankTable);
@@ -2028,7 +2028,7 @@ TEST_F(HcclCommTest, TestCommTypeWholeNB) {
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     u32 ret = implBase->Init(params, rankTable);
@@ -2063,7 +2063,7 @@ TEST_F(HcclCommTest, ut_create_comm_tag_null)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -2213,7 +2213,7 @@ TEST_F(HcclCommTest, ut_comm_inner_create)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -3428,7 +3428,7 @@ TEST_F(HcclCommTest, ut_SetAlgType)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3464,7 +3464,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_1dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3504,7 +3504,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_1dev_ring_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3544,7 +3544,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_1dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3584,7 +3584,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_1dev_hd_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3624,7 +3624,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_1dev_ring_mesh)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3664,7 +3664,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_2dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3704,7 +3704,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_2dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3744,7 +3744,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_2dev_hd_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3786,12 +3786,12 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_3dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicatorAttrs::IsStandardCard)
 	.stubs()
-    .with(any())
+    .with(mockcpp::any())
 	.will(returnValue(true));
 
     MOCKER_CPP_VIRTUAL(*implBase, &HcclCommunicator::IsStandardCard)
@@ -3837,7 +3837,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_3dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, ranks, groupCommonData);
@@ -3866,7 +3866,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_3dev_hd_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP_VIRTUAL(*implBase, &HcclCommunicator::IsStandardCard)
@@ -3875,7 +3875,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_3dev_hd_ring)
 
     MOCKER_CPP(&HcclCommunicatorAttrs::IsStandardCard)
 	.stubs()
-    .with(any())
+    .with(mockcpp::any())
 	.will(returnValue(true));
 
     ret = implBase->Init(params, ranks, groupCommonData);
@@ -3917,7 +3917,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_4dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3958,7 +3958,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_4dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4000,7 +4000,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_4dev_hd_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4041,7 +4041,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_4dev_default)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4081,7 +4081,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_8dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4122,7 +4122,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_8dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4163,7 +4163,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_1server_8dev_default)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4204,7 +4204,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_4dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4245,7 +4245,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_4dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4286,7 +4286,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_4dev_hd_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4327,7 +4327,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_4dev_default)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4368,7 +4368,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_8dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4409,7 +4409,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_8dev_mesh_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4450,7 +4450,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_8dev_hd_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4490,7 +4490,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_1server_8dev_default)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP_VIRTUAL(*implBase, &HcclCommunicator::IsStandardCard)
@@ -4541,7 +4541,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_7server_1dev_default)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4582,7 +4582,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_7server_1dev_ring_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4623,7 +4623,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_7server_1dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4663,7 +4663,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_8server_1dev_default)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4704,7 +4704,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_8server_1dev_ring_ring)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -4745,7 +4745,7 @@ TEST_F(HcclCommTest, ut_SetAlgType_module_8server_1dev_ring_hd)
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, ranks, groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -5143,9 +5143,9 @@ TEST_F(HcclCommTest, hcclCommAttr_SetRanksPort)
 
 TEST_F(HcclCommTest, hcclComm_ReleasePreemptSocket)
 {
-    MOCKER_CPP(&PreemptPortManager::Release).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetCloseDev).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetDeInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&PreemptPortManager::Release).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetCloseDev).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetDeInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtGetPairDevicePhyId).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtGetDeviceIndexByPhyId).stubs().will(returnValue(HCCL_SUCCESS));
 
@@ -5179,12 +5179,12 @@ TEST_F(HcclCommTest, hcclComm_ReleasePreemptSocket)
 
 TEST_F(HcclCommTest, hcclComm_InitRankInfoSubGroup_devPortSwitchOn_branch)
 {
-    MOCKER_CPP(&HcclCommunicatorAttrs::GetInlineReduceSwitchOn).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclCommunicatorAttrs::GetMeshAggregationRankSize).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&HcclCommunicatorAttrs::GetUsedRdmaLevel0).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclCommunicator::SetWorldGroupInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(SetRetryEnable).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(IsHostUseDevNic).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::GetInlineReduceSwitchOn).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclCommunicatorAttrs::GetMeshAggregationRankSize).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&HcclCommunicatorAttrs::GetUsedRdmaLevel0).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::SetWorldGroupInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(SetRetryEnable).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(IsHostUseDevNic).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::vector<RankInfo> rankLists= {};
     RankInfo node;
@@ -5224,11 +5224,11 @@ TEST_F(HcclCommTest, ut_InitRaResource_notSupportChangelink)
     MOCKER(IsHostUseDevNic).stubs().with(outBound(true)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().will(returnValue(true));
     MOCKER(Is310PDevice).stubs().will(returnValue(true));
-    MOCKER_CPP(&HcclCommunicator::InitNic).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetPairDevicePhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitNic).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDevicePhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     // rts无法访问备用die（客户自定义） -> 不支持借轨
-    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(any()).will(returnValue(HCCL_E_RUNTIME));
+    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_RUNTIME));
     // 网络资源初始化失败（不初始化备用资源）
     ret = communicator->InitRaResource();
     EXPECT_EQ(ret, HCCL_E_NOT_SUPPORT);
@@ -5238,17 +5238,17 @@ TEST_F(HcclCommTest, ut_InitRaResource_notSupportChangelink)
 
 TEST_F(HcclCommTest, hcclComm_InitRaResource_devVnicSocket_branch)
 {
-    MOCKER(IsHostUseDevNic).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(& HcclCommunicator::InitSocketManager).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::IsEnableRoce).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::GenSupportRdmaLite).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::GetSupportRdmaLite).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclCommunicator::ReleasePreemptSocket).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(IsHostUseDevNic).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(& HcclCommunicator::InitSocketManager).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::IsEnableRoce).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::GenSupportRdmaLite).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::GetSupportRdmaLite).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::ReleasePreemptSocket).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclCommunicator hcclCommunicator;
     hcclCommunicator.userRankSize_ = 2;
@@ -5287,12 +5287,12 @@ TEST_F(HcclCommTest, hcclComm_InitRaResource_devVnicSocket_branch)
 TEST_F(HcclCommTest, hcclComm_InitNic_IsEnableBackupLink_branch1)
 {
     setenv("HCCL_INTRA_ROCE_ENABLE", "1", 1);
-    MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetNeedInitNicFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclCommunicator::ReleasePreemptSocket).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetNeedInitNicFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::ReleasePreemptSocket).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     
     HcclIpAddress remoteIp{"10.10.10.11"};
     std::shared_ptr<HcclSocket> listenSocket(new (std::nothrow)HcclSocket("my tag2", nullptr, remoteIp, 0,
@@ -5338,30 +5338,30 @@ TEST_F(HcclCommTest, hcclComm_InitNic_IsEnableBackupLink_branch1)
 
 TEST_F(HcclCommTest, hcclComm_InitRankInfoSubGroup_devicePortSwitchOn)
 {
-    MOCKER_CPP(&HcclCommunicatorAttrs::SethbRankInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::TransformRankList).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetServerNum).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetModuleInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SethbRankInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::TransformRankList).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetServerNum).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetModuleInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetSuperPodInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetLocalRankInfoSubGroup).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetInterModeInSuperPod).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetSuperPodInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetLocalRankInfoSubGroup).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetInterModeInSuperPod).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER_CPP(&HcclCommunicatorAttrs::UpdateNicList).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::CheckLocalRankInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::CalAndSetMeshAggRankSize).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicatorAttrs::IsEnableRoce).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&HcclCommunicatorAttrs::SetWorldGroupInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::UpdateNicList).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::CheckLocalRankInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::CalAndSetMeshAggRankSize).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicatorAttrs::IsEnableRoce).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicatorAttrs::SetWorldGroupInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(HcclCheckLogLevel).stubs().with(any()).will(returnValue(false));
-    MOCKER(IsHostUseDevNic).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclCheckLogLevel).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(IsHostUseDevNic).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicatorAttrs::SetInnerServerAverageDevice,
         HcclResult (HcclCommunicatorAttrs::*)(const std::vector<RankInfo> &rankList))
-        .stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+        .stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicatorAttrs::InitTopoInfo,
         HcclResult (HcclCommunicatorAttrs::*)(const std::vector<RankInfo> &rankList))
-        .stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+        .stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclCommunicatorAttrs hcomattr;
     
@@ -5399,9 +5399,9 @@ TEST_F(HcclCommTest, hcclComm_SetWorldGroupInfo)
 TEST_F(HcclCommTest, hcclComm_AllGatherV_call)
 {
     MOCKER_CPP(&HcclCommunicator::IsAtomicInit).stubs().will(returnValue(true));
-    MOCKER_CPP(&HcclCommunicator::ExecOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCallbackTask::CallbackRegStream).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::StreamIsCapture).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::ExecOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCallbackTask::CallbackRegStream).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::StreamIsCapture).stubs().with(mockcpp::any()).will(returnValue(false));
     MOCKER_CPP(&hcclImpl::SetHDCModeInfo).stubs().will(returnValue(HCCL_SUCCESS));
 
     HcclCommunicator hcclCommunicator;
@@ -5429,9 +5429,9 @@ TEST_F(HcclCommTest, hcclComm_AllGatherV_call)
 TEST_F(HcclCommTest, hcclComm_AllGatherVOutPlace_call)
 {
     MOCKER_CPP(&HcclCommunicator::IsAtomicInit).stubs().will(returnValue(true));
-    MOCKER_CPP(&HcclCommunicator::ExecOp).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCallbackTask::CallbackRegStream).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::StreamIsCapture).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommunicator::ExecOp).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCallbackTask::CallbackRegStream).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::StreamIsCapture).stubs().with(mockcpp::any()).will(returnValue(false));
     MOCKER_CPP(&hcclImpl::SetHDCModeInfo).stubs().will(returnValue(HCCL_SUCCESS));
 
     HcclCommunicator hcclCommunicator;

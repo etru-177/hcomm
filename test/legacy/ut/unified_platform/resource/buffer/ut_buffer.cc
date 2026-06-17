@@ -33,10 +33,10 @@ protected:
 
     virtual void SetUp()
     {
-        MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue((void *)fakeAddr));
-        MOCKER(HrtFreeHost).stubs().with(any());
-        MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)fakeAddr));
-        MOCKER(HrtFree).stubs().with(any());
+        MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue((void *)fakeAddr));
+        MOCKER(HrtFreeHost).stubs().with(mockcpp::any());
+        MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)fakeAddr));
+        MOCKER(HrtFree).stubs().with(mockcpp::any());
         std::cout << "A Test case in DataBufManager SetUP" << std::endl;
     }
 

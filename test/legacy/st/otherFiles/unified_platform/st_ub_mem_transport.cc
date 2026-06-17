@@ -188,11 +188,11 @@ static u32               fakeKeySize          = 10;
 
 static void Mock()
 {
-    MOCKER(HrtMemAsyncCopy).stubs().with(any());
-    MOCKER(HrtReduceAsync).stubs().with(any());
+    MOCKER(HrtMemAsyncCopy).stubs().with(mockcpp::any());
+    MOCKER(HrtReduceAsync).stubs().with(mockcpp::any());
     std::pair<TokenIdHandle, uint32_t> fakeTokenInfo = std::make_pair(0x12345678, 1);
     MOCKER_CPP(&RdmaHandleManager::GetTokenIdInfo).stubs().will(returnValue(fakeTokenInfo));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtStreamDestroy).stubs();
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
     fakeLocalOutParam.handle       = fakeNotifyHandleAddr;
@@ -200,19 +200,19 @@ static void Mock()
     fakeLocalOutParam.tokenId      = fakeTokenId;
     fakeLocalOutParam.targetSegVa  = fakeTargetSegVa;
     fakeLocalOutParam.keySize      = fakeKeySize;
-    MOCKER(HrtRaUbLocalMemReg).stubs().with(any(), any()).will(returnValue(fakeLocalOutParam));
+    MOCKER(HrtRaUbLocalMemReg).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(fakeLocalOutParam));
     fakeRemoteOutParam.handle      = fakeNotifyHandleAddr;
     fakeRemoteOutParam.targetSegVa = fakeTargetSegVa;
-    MOCKER(HrtRaUbRemoteMemImport).stubs().with(any(), any(), any(), any()).will(returnValue(fakeRemoteOutParam));
+    MOCKER(HrtRaUbRemoteMemImport).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeRemoteOutParam));
     MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
-    MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+    MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
 
-    MOCKER(HrtNotifyRecord).stubs().with(any());
-    MOCKER(HrtNotifyWaitWithTimeOut).stubs().with(any());
+    MOCKER(HrtNotifyRecord).stubs().with(mockcpp::any());
+    MOCKER(HrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any());
     MOCKER(GetUbToken).stubs().will(returnValue(1));
 }
 
@@ -289,7 +289,7 @@ TEST(UbMemTransportTest, UbMemTransport_get_status)
     RaSocketFdHandleParam fakeParam(fakeFdHandle, fakeFdStatus);
 
     MOCKER(RaGetOneSocket).stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeParam));
 
     // 需要发送 finish
@@ -334,7 +334,7 @@ TEST(UbMemTransportTest, UbMemTransport_get_status)
     MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(ignoreReturnValue());
     
     MOCKER(RaGetOneSocket).stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeParam));
 
     // 不需要发送finish
@@ -399,7 +399,7 @@ TEST(UbMemTransportTest, UbMemTransport_send_recv_exchange_data)
     RaSocketFdHandleParam fakeParam(fakeFdHandle, fakeFdStatus);
 
     MOCKER(RaGetOneSocket).stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeParam));
 
     int max_times = 10;
@@ -458,7 +458,7 @@ TEST(UbMemTransportTest, UbMemTransport_send_recv_finish)
     RaSocketFdHandleParam fakeParam(fakeFdHandle, fakeFdStatus);
 
     MOCKER(RaGetOneSocket).stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeParam));
 
     int max_times = 10;

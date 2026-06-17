@@ -71,7 +71,7 @@ protected:
         rdmaHandle = (void*)0x1000000;
         
         MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
-        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
         MOCKER(&Hccl::RdmaHandleManager::GetByAddr).stubs().will(returnValue(rdmaHandle));
         MOCKER(RaSocketSetWhiteListStatus).stubs().will(returnValue(0));
     }
@@ -140,7 +140,7 @@ TEST_F(CpuUrmaEndpointTest, Ut_When_ServerSocketGetListenPort_Normal_Expect_HCCL
     uint32_t portValue = 60001;
 
     MOCKER_CPP(&hcomm::ServerSocketManager::ServerSocketStartListen).stubs()
-        .with(any(), any(), any(), outBoundP(&portValue, sizeof(portValue)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&portValue, sizeof(portValue)))
         .will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(endpoint->ServerSocketGetListenPort(&port), HCCL_SUCCESS);
 }

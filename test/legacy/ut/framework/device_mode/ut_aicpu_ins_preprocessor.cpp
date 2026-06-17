@@ -44,7 +44,7 @@ protected:
         MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
         MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
         MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-        MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+        MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
         MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
         std::cout << "A Test case in CommunicatorImplTest SetUP" << std::endl;
@@ -88,7 +88,7 @@ TEST_F(AicpuInsPreprocessorTest, should_no_throw_when_calling_getAicpuResBuffer)
 
 TEST_F(AicpuInsPreprocessorTest, should_no_throw_when_calling_allocInterRankNotifies)
 {
-    MOCKER_CPP(&ConnLocalNotifyManager::ApplyFor).stubs().with(any(), any());
+    MOCKER_CPP(&ConnLocalNotifyManager::ApplyFor).stubs().with(mockcpp::any(), mockcpp::any());
     CommunicatorImpl comm;
     comm.InitNotifyManager();
     AicpuInsPreprocessor aicpuInsPreprocessor(&comm);
@@ -101,11 +101,11 @@ TEST_F(AicpuInsPreprocessorTest, should_no_throw_when_calling_allocInterRankNoti
 
 TEST_F(AicpuInsPreprocessorTest, should_no_throw_when_calling_batchBuildTransports)
 {
-    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(any(), any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(any());
-    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(any(), any());
+    MOCKER_CPP(&ConnectionsBuilder::BatchBuild).stubs().with(mockcpp::any(), mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOpbasedTransports).stubs().with(mockcpp::any());
+    MOCKER_CPP(&MemTransportManager::BatchBuildOffloadTransports).stubs().with(mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&MemTransportManager::IsAllOpbasedTransportReady).stubs().with().will(returnValue(true));
-    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady).stubs().with(mockcpp::any()).will(returnValue(true));
     
     CommunicatorImpl comm;
     comm.InitMemTransportManager();
@@ -125,8 +125,8 @@ TEST_F(AicpuInsPreprocessorTest, should_no_throw_when_calling_batchBuildTranspor
 
 TEST_F(AicpuInsPreprocessorTest, should_no_throw_when_calling_packResAndCopyToDev)
 {
-    MOCKER_CPP(&AicpuInsPreprocessor::PackOpData).stubs().with(any(), any(), any()).will(returnValue(std::vector<char>{'1'}));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
+    MOCKER_CPP(&AicpuInsPreprocessor::PackOpData).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(std::vector<char>{'1'}));
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     CommunicatorImpl comm;
     comm.InitMemTransportManager();

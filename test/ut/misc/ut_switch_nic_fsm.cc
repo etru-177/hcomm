@@ -105,7 +105,7 @@ TEST_F(SwitchNicFsmTestCase, ut_Agent_SwitchNicSuc)
     std::shared_ptr<OpRetryAgentRunning> opRetryAgentRunning = std::make_shared<OpRetryAgentRunning>();
     KfcExecStatus opInfo;
     opInfo.execStatus.kfcStatus = KfcStatus::kPlanSwitch;
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any(), outBound(opInfo)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any(), outBound(opInfo)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclNetDevGetPortStatus).stubs().will(returnValue(0));
     MOCKER_CPP(&OpRetryBase::IssueResponse).stubs().will(returnValue(HCCL_SUCCESS));
@@ -113,10 +113,10 @@ TEST_F(SwitchNicFsmTestCase, ut_Agent_SwitchNicSuc)
     bool needCheckDefaultNic = true;
     bool needCheckBackupNic = true;
     MOCKER_CPP(&OpRetryBase::GetSwitchRanks).stubs()
-        .with(any(), outBound(needCheckDefaultNic), outBound(needCheckBackupNic))
+        .with(mockcpp::any(), outBound(needCheckDefaultNic), outBound(needCheckBackupNic))
         .will(returnValue(HCCL_SUCCESS));
     RetryCommand command = RETRY_CMD_NOTIFY_SWITCH_SUC;
-    MOCKER_CPP(&OpRetryBase::WaitCommand).stubs().with(any(), outBound(command)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommand).stubs().with(mockcpp::any(), outBound(command)).will(returnValue(HCCL_SUCCESS));
     agentRetryCtx->localRetryInfo_.opInfo.execStatus.kfcStatus = KfcStatus::kSwitchError;
     HcclResult ret = opRetryAgentRunning->ProcessEvent(agentRetryCtx.get());
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -151,8 +151,8 @@ TEST_F(SwitchNicFsmTestCase, ut_Server_SwitchNicSuc)
 
     RetryInfo retryInfo;
     retryInfo.retryState = RETRY_STATE_SEND_SWITCH_INFO;
-    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::WaitActiveSwitchInfo).stubs().with(any()).will(invoke(WaitActiveSwitchInfo_Stub));
+    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(mockcpp::any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitActiveSwitchInfo).stubs().with(mockcpp::any()).will(invoke(WaitActiveSwitchInfo_Stub));
     MOCKER_CPP(&OpRetryBase::IssueCommand).stubs().will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = retryServerRunning->ProcessEvent(serverRetryCtx.get());
@@ -173,14 +173,14 @@ TEST_F(SwitchNicFsmTestCase, ut_agent_WaitCmd)
     std::shared_ptr<SwitchNicAgentWaitCmd> agentWaitCmd = std::make_shared<SwitchNicAgentWaitCmd>();
     {
         RetryCommand command = RETRY_CMD_NOTIFY_SWITCH_SUC;
-        MOCKER_CPP(&OpRetryBase::WaitCommand).stubs().with(any(), outBound(command)).will(returnValue(HCCL_SUCCESS));
+        MOCKER_CPP(&OpRetryBase::WaitCommand).stubs().with(mockcpp::any(), outBound(command)).will(returnValue(HCCL_SUCCESS));
         HcclResult ret = agentWaitCmd->ProcessEvent(agentRetryCtx.get());
         EXPECT_EQ(ret, HCCL_SUCCESS);
     }
 
     {
         RetryCommand command = RETRY_CMD_NOTIFY_SWITCH_FAIL;
-        MOCKER_CPP(&OpRetryBase::WaitCommand).stubs().with(any(), outBound(command)).will(returnValue(HCCL_SUCCESS));
+        MOCKER_CPP(&OpRetryBase::WaitCommand).stubs().with(mockcpp::any(), outBound(command)).will(returnValue(HCCL_SUCCESS));
         HcclResult ret = agentWaitCmd->ProcessEvent(agentRetryCtx.get());
         EXPECT_EQ(ret, HCCL_SUCCESS);
     }
@@ -264,9 +264,9 @@ TEST_F(SwitchNicFsmTestCase, ut_server_CollectSingle)
 {
     RetryInfo retryInfo;
     retryInfo.retryState = RETRY_STATE_SEND_SWITCH_INFO;
-    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(mockcpp::any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::IssueCommand).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any())
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any())
         .will(returnValue(HCCL_E_AGAIN))
         .then(returnValue(HCCL_SUCCESS));
     std::shared_ptr<SwitchNicServerCheckAllSwitchRanks> serverCheck = std::make_shared<SwitchNicServerCheckAllSwitchRanks>();

@@ -199,7 +199,7 @@ TEST_F(InterpreterTest, Ut_Submit_When_input_Expect_NO_THROW)
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
     MOCKER(HrtGetDevice).defaults().will(returnValue(0));
     MOCKER(CcuDeviceManager::ReleaseCke).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&CcuTransportGroup::CheckTransports).stubs().with(mockcpp::any()).will(returnValue(true));
     MOCKER_CPP(&CcuTransportGroup::CheckTransportCntCke).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CcuTransportGroup::Destroy).stubs();
     MOCKER_CPP(&CcuTransport::ReleaseTransRes).stubs();

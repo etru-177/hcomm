@@ -256,7 +256,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         static s32  call_cnt = 0;
         string name = std::to_string(call_cnt++) +"_" + __PRETTY_FUNCTION__;

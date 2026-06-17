@@ -53,7 +53,7 @@ TEST_F(CollCommAicpuTest, Ut_Resume_CallsProcessUrmaRes_And_ResetsNsRecoveryFlag
     // Mock ProcessUrmaRes to avoid running heavy logic; return success
     MOCKER_CPP(&CollCommAicpu::ProcessUrmaRes, HcclResult(CollCommAicpu::*)(HcclChannelUrmaRes*, bool))
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclChannelUrmaRes commParam{};

@@ -88,7 +88,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A TestCase SetUP" << std::endl;
     }
@@ -116,12 +116,12 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_send_link)
 
     MOCKER_CPP(&TcpSendThreadPool::AddSendTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TransportHeterogIbv::GetState)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ConnState::CONN_STATE_COMPLETE));
 
     hcclImpl impl;
@@ -165,7 +165,7 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_improbe)
 
     MOCKER_CPP(&TransportHeterogIbv::GetState)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ConnState::CONN_STATE_COMPLETE));
 
     hcclImpl impl;
@@ -230,12 +230,12 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_imrecv)
 
     MOCKER_CPP(&TcpRecvTask::SetRecvEntry)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtEpollCtlMod)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     impl.Imrecv(buffer, sizeof(data), HCCL_DATA_TYPE_INT8, msg, requestPtr);
@@ -252,12 +252,12 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_TcpfdHandleCheck)
 
     MOCKER(halEschedSubmitEvent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     MOCKER_CPP(&TransportHeterogIbv::GetState)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ConnState::CONN_STATE_COMPLETE));
 
     unsigned int devId = 0;
@@ -278,12 +278,12 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_tcpEschedFinishProcess)
 
     MOCKER(halEschedSubmitEvent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     MOCKER_CPP(&TransportHeterogIbv::GetState)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ConnState::CONN_STATE_COMPLETE));
 
     unsigned int devId = 0;
@@ -302,7 +302,7 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_sendWork)
 {
       MOCKER_CPP(&TransportHeterogIbv::TcpSendImm)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret;
@@ -320,12 +320,12 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_sendWork)
 
     MOCKER_CPP(&TransportHeterogIbv::GetState)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ConnState::CONN_STATE_COMPLETE));
 
     MOCKER(halEschedSubmitEvent)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     ret = tcpThreadPool.SendWork(entry);
@@ -338,7 +338,7 @@ TEST_F(MPI_TCP_SENDRECV_TEST, ut_mpi_tcp_TcpSearchRequestStatus)
 {
     MOCKER_CPP(&TransportHeterogIbv::GetState)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ConnState::CONN_STATE_COMPLETE));
 
     HcclResult ret;

@@ -98,7 +98,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&HcclCommunicator::InitPreResource)
         .stubs()
@@ -590,7 +590,7 @@ static inline void ConstructCommTestCase910B(AHCEnvType ahcEnvType, AHCCommType 
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -700,7 +700,7 @@ static inline void ConstructCommTestCase91093(AHCEnvType ahcEnvType, AHCCommType
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -860,7 +860,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllReduceAHCExecute910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -977,7 +977,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllReduceAHCBrokeExecute910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -1090,7 +1090,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllReduceAHCExecute91093)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -1188,7 +1188,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllReduceAHCBrokeExecute91093)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -1282,7 +1282,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllReduceNULLAHCExecute91093)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -1373,7 +1373,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AICPU_AHC_Default_91093)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -1431,7 +1431,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AHC_Mesh_910_93){
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -1504,7 +1504,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllGatherAHCExecuteSingleBuffer910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -1610,7 +1610,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllGatherAHCBrokeExecuteSingleBuffer910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -1713,7 +1713,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllGatherAHCExecuteDoubleBuffer910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -1819,7 +1819,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_AllGatherAHCBrokeExecuteDoubleBuffer910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -1922,7 +1922,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCExecuteSingleBuffer910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -1976,7 +1976,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCExecuteSingleBuffer910B)
     CollReduceScatterExecutor collReduceScatterExecutor(dispatcher, topoMatcher);
     MOCKER_CPP_VIRTUAL(collReduceScatterExecutor, &CollReduceScatterExecutor::RunLoop)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     u64 reduceAttrBitMap;
     ReduceScatterRing reducescatterRing(dispatcher);
@@ -2030,7 +2030,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCBrokeExecuteSingleBuffer9
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -2084,7 +2084,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCBrokeExecuteSingleBuffer9
     CollReduceScatterExecutor collReduceScatterExecutor(dispatcher, topoMatcher);
     MOCKER_CPP_VIRTUAL(collReduceScatterExecutor, &CollReduceScatterExecutor::RunLoop)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     u64 reduceAttrBitMap;
     ReduceScatterRing reducescatterRing(dispatcher);
@@ -2134,7 +2134,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCExecuteDoubleBuffer910B)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -2189,7 +2189,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCExecuteDoubleBuffer910B)
     CollReduceScatterExecutor collReduceScatterExecutor(dispatcher, topoMatcher);
     MOCKER_CPP_VIRTUAL(collReduceScatterExecutor, &CollReduceScatterExecutor::RunLoop)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     u64 reduceAttrBitMap;
@@ -2244,7 +2244,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCBrokeExecuteDoubleBuffer9
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -2299,7 +2299,7 @@ TEST_F(HcclImplAlgTestAHCAllreduce, ut_ReduceScatterAHCBrokeExecuteDoubleBuffer9
     CollReduceScatterExecutor collReduceScatterExecutor(dispatcher, topoMatcher);
     MOCKER_CPP_VIRTUAL(collReduceScatterExecutor, &CollReduceScatterExecutor::RunLoop)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     u64 reduceAttrBitMap;
     ReduceScatterRing reducescatterRing(dispatcher);

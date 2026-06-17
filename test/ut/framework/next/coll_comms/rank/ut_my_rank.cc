@@ -61,10 +61,10 @@ protected:
 
     void MockerFuncs()
     {
-        MOCKER_CPP(&Hccl::SocketManager::GetConnectedSocket).stubs().with(any()).will(returnValue((Hccl::Socket*)0xab));
-        MOCKER_CPP(&hccl::CommMems::GetTagMemoryHandles).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER_CPP(&hcomm::EndpointMgr::RegisterMemory).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(HcommCcuInsCreate).stubs().with(any()).will(returnValue(CcuResult::CCU_SUCCESS));
+        MOCKER_CPP(&Hccl::SocketManager::GetConnectedSocket).stubs().with(mockcpp::any()).will(returnValue((Hccl::Socket*)0xab));
+        MOCKER_CPP(&hccl::CommMems::GetTagMemoryHandles).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER_CPP(&hcomm::EndpointMgr::RegisterMemory).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(HcommCcuInsCreate).stubs().with(mockcpp::any()).will(returnValue(CcuResult::CCU_SUCCESS));
         MOCKER_CPP(&hccl::MyRank::TryInitCcuInstance).stubs().will(returnValue(HCCL_SUCCESS));
     }
 
@@ -78,7 +78,7 @@ protected:
 TEST_F(MyRankTest, Ut_When_QueryListenPort_Listen_Port_Expect_SUCCESS)
 {
     uint32_t devPort = 60001;
-    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(mockcpp::any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
 
     aclrtBinHandle binHandle;
     CommConfig config;
@@ -110,7 +110,7 @@ TEST_F(MyRankTest, Ut_When_QueryListenPort_Listen_Port_Expect_SUCCESS)
 TEST_F(MyRankTest, Ut_When_QueryListenPort_InValid_Port_Expect_E_PARA)
 {
     uint32_t devPort = 1919000;
-    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(mockcpp::any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
 
     aclrtBinHandle binHandle;
     CommConfig config;
@@ -134,8 +134,8 @@ TEST_F(MyRankTest, Ut_When_BatchCreateChannels_Expect_SUCCESS)
 {
     setenv("HCCL_DFS_CONFIG", "task_exception:on", 1);
     uint32_t devPort = 60001;
-    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&Hccl::IRankGraph::GetDeviceId).stubs().with(any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
+    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(mockcpp::any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Hccl::IRankGraph::GetDeviceId).stubs().with(mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
     MockerFuncs();
     ChannelHandle channelHandle = 0xab;
     MOCKER(hcomm::ChannelProcess::CreateChannelsLoop)
@@ -204,10 +204,10 @@ TEST_F(MyRankTest, Ut_When_BatchCreateChannels_Expect_SUCCESS)
     EXPECT_EQ(myRank.newChannels_.size(), 1);
     EXPECT_EQ(myRank.newChannels_[0], std::make_pair(channelIdx2, RmtEp2reuseIdx0));
 
-    MOCKER_CPP(&hcomm::ChannelProcess::ChannelGetStatus).stubs().with(any()).will(returnValue(HCCL_E_AGAIN));
-    MOCKER_CPP(&Hccl::EnvSocketConfig::GetLinkTimeOut).stubs().with(any()).will(returnValue((s32)(1)));
+    MOCKER_CPP(&hcomm::ChannelProcess::ChannelGetStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_AGAIN));
+    MOCKER_CPP(&Hccl::EnvSocketConfig::GetLinkTimeOut).stubs().with(mockcpp::any()).will(returnValue((s32)(1)));
     EXPECT_EQ(myRank.BatchConnectChannels(channelDesc, hostChannelHandleList, 3), HCCL_E_TIMEOUT);
-    MOCKER_CPP(&hcomm::ChannelProcess::ChannelGetStatus).stubs().with(any()).will(returnValue(HCCL_E_TIMEOUT));
+    MOCKER_CPP(&hcomm::ChannelProcess::ChannelGetStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_TIMEOUT));
     EXPECT_EQ(myRank.BatchConnectChannels(channelDesc, hostChannelHandleList, 3), HCCL_E_TIMEOUT);
     unsetenv("HCCL_DFS_CONFIG");
 }
@@ -327,9 +327,9 @@ TEST_F(MyRankTest, Ut_Init_When_Resource_Fail_Expect_Fail)
 TEST_F(MyRankTest, St_BatchCreateChannels_When_Resource_fallback_Expect_Return_HCCL_E_UNAVAIL)
 {
     uint32_t devPort = 60001;
-    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcommEndpointStartListen).stubs().with(any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
-    MOCKER(HcommChannelDestroy).stubs().with(any(), any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
+    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(mockcpp::any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcommEndpointStartListen).stubs().with(mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
+    MOCKER(HcommChannelDestroy).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
     MockerFuncs();
 
     aclrtBinHandle binHandle;
@@ -410,9 +410,9 @@ TEST_F(MyRankTest, St_BatchCreateChannels_When_Resource_fallback_Expect_Return_H
 TEST_F(MyRankTest, St_BatchCreateChannels_Multi_Times_When_fallback_Expect_Return_HCCL_E_UNAVAIL)
 {
     uint32_t devPort = 60001;
-    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcommEndpointStartListen).stubs().with(any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
-    MOCKER(HcommChannelDestroy).stubs().with(any(), any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
+    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(mockcpp::any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcommEndpointStartListen).stubs().with(mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
+    MOCKER(HcommChannelDestroy).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
     MockerFuncs();
 
     aclrtBinHandle binHandle;

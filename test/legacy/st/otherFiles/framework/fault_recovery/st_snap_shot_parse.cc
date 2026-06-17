@@ -299,8 +299,8 @@ TEST_F(SnapShotParserTest, SnapshotGenerate_test_3){
     char str[] = "hello world!";
     size_t usnapshotBufSize = sizeof(str);
     SnapShotBuf localBuff;
-    MOCKER_CPP(&SnapShotParser::DeAllSnapShotStaticBuf).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&SnapShotParser::DeAllSnapShotDynamicBuf).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeAllSnapShotStaticBuf).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeAllSnapShotDynamicBuf).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     auto res = SnapShotParser::GetInstance().ParseSnapshotToLocalBuff(str, usnapshotBufSize, localBuff);
 }
 
@@ -406,7 +406,7 @@ TEST_F(SnapShotParserTest, DeAllSnapShotStaticBufTest){
 
     size_t groupNum = 0;
     buf << groupNum;
-    MOCKER_CPP(&SnapShotParser::DeserializeCommInfo).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeserializeCommInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = parser.DeAllSnapShotStaticBuf(buf, localBuff);
     EXPECT_EQ(HCCL_SUCCESS, ret);
     buf.Clear();
@@ -427,8 +427,8 @@ TEST_F(SnapShotParserTest, DeAllSnapShotStaticBufTest_2){
     size_t groupNum = 1;
     buf << groupNum;
     buf << a;
-    MOCKER_CPP(&SnapShotParser::DeserializeCommInfo).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&SnapShotParser::DeserializeSubCommInfo).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeserializeCommInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeserializeSubCommInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     
     HcclResult ret = parser.DeAllSnapShotStaticBuf(buf, localBuff);
     EXPECT_EQ(HCCL_SUCCESS, ret);
@@ -442,8 +442,8 @@ TEST_F(SnapShotParserTest, TestSuccessfulParse_ParseSnapshotToLocalBuff)
     uint32_t snapshotBufSize = 8; // Matching size
     SnapShotBuf localBuff;
     SnapShotParser& parser = SnapShotParser::GetInstance();
-    MOCKER_CPP(&SnapShotParser::DeAllSnapShotStaticBuf).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&SnapShotParser::DeAllSnapShotDynamicBuf).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeAllSnapShotStaticBuf).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeAllSnapShotDynamicBuf).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(HCCL_SUCCESS, parser.ParseSnapshotToLocalBuff(snapshotBuf, snapshotBufSize, localBuff));
     delete[] static_cast<uint32_t*>(snapshotBuf);
 }
@@ -518,8 +518,8 @@ TEST_F(SnapShotParserTest, St_ParseSnapshotToLocalBuff_When_Error_Expect_OK_Retu
     uint32_t snapshotBufSize = 8; // Matching size
     SnapShotBuf localBuff;
     SnapShotParser& parser = SnapShotParser::GetInstance();
-    MOCKER_CPP(&SnapShotParser::DeAllSnapShotStaticBuf).stubs().with(any(), any()).will(throws(InternalException("")));
-    MOCKER_CPP(&SnapShotParser::DeAllSnapShotDynamicBuf).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SnapShotParser::DeAllSnapShotStaticBuf).stubs().with(mockcpp::any(), mockcpp::any()).will(throws(InternalException("")));
+    MOCKER_CPP(&SnapShotParser::DeAllSnapShotDynamicBuf).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(HCCL_E_INTERNAL, parser.ParseSnapshotToLocalBuff(snapshotBuf, snapshotBufSize, localBuff));
     delete[] static_cast<uint32_t*>(snapshotBuf);
 }

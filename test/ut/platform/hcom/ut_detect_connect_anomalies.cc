@@ -127,7 +127,7 @@ TEST_F(DetectConnectionAnomaliesSt, addIpQueue2)
 
 TEST_F(DetectConnectionAnomaliesSt, GetStatus)
 {
-    MOCKER_CPP(&HcclSocket::GetStatus).stubs().with(any()).will(returnValue(HcclSocketStatus::SOCKET_OK));
+    MOCKER_CPP(&HcclSocket::GetStatus).stubs().with(mockcpp::any()).will(returnValue(HcclSocketStatus::SOCKET_OK));
     HcclIpAddress ipAddr("192.168.1.1");
     HcclIpAddress localIpAddr("192.168.1.2");
     std::shared_ptr<HcclSocket> newSocket(new (std::nothrow)HcclSocket("detect",
@@ -149,7 +149,7 @@ TEST_F(DetectConnectionAnomaliesSt, GetStatus)
     MOCKER(GetExternalInputDfsConnectionFaultDetectionTime)
     .stubs()
     .will(returnValue(1));
-    MOCKER_CPP(&HcclSocket::GetStatus).stubs().with(any()).will(returnValue(HcclSocketStatus::SOCKET_ERROR));
+    MOCKER_CPP(&HcclSocket::GetStatus).stubs().with(mockcpp::any()).will(returnValue(HcclSocketStatus::SOCKET_ERROR));
     ret = DetectConnectionAnomalies::GetInstance(2).GetStatus(errInfo, newSocket);
     EXPECT_EQ(ret, HCCL_E_TIMEOUT);
     GlobalMockObject::verify();
@@ -187,7 +187,7 @@ TEST_F(DetectConnectionAnomaliesSt, CreateDetectNicLinks)
     DetectConnectionAnomalies::GetInstance(4).broadCastTime = 1;
     MOCKER_CPP(&HcclSocket::Accept)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TIMEOUT));
     ErrInfo errInfo;
     errInfo.localRankInfo.devicePhyId = 0;
@@ -204,11 +204,11 @@ TEST_F(DetectConnectionAnomaliesSt, CreateDetectNicLinks)
 
     MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     DetectInfo info;
     SendInfo sendInfo;
@@ -235,15 +235,15 @@ TEST_F(DetectConnectionAnomaliesSt, CreateDetectVnicLinks)
 
     MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocket::Accept)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TIMEOUT));
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ErrInfo errInfo;
     errInfo.localRankInfo.devicePhyId = 1;
@@ -260,7 +260,7 @@ TEST_F(DetectConnectionAnomaliesSt, CreateDetectVnicLinks)
 
     MOCKER_CPP(&DetectConnectionAnomalies::AddWhiteList)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = DetectConnectionAnomalies::GetInstance(5).CreateDetectVnicLinks(errInfo);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -328,7 +328,7 @@ TEST_F(DetectConnectionAnomaliesSt, addIpQueue4)
 
 TEST_F(DetectConnectionAnomaliesSt, AddWhiteList)
 {
-    MOCKER_CPP(&HcclSocket::AddWhiteList).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclSocket::AddWhiteList).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclIpAddress ipAddr("192.168.1.1");
     HcclIpAddress localIpAddr("192.168.1.2");
     NicType nicType = NicType::DEVICE_NIC_TYPE;
@@ -350,22 +350,22 @@ TEST_F(DetectConnectionAnomaliesSt, Connect_test)
 {
     MOCKER_CPP(&HcclSocket::Connect)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&NetworkManager::StartHostNet)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS)); 
 
     MOCKER_CPP(&NetworkManager::StopHostNet)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS)); 
 
     MOCKER_CPP(&DetectConnectionAnomalies::GetStatus)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TCP_CONNECT));
 
     struct ErrInfo errInfo;

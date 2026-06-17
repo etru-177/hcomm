@@ -37,9 +37,9 @@ protected:
 
     virtual void SetUp()
     {
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         std::cout << "A Test case in UbConnLite SetUP" << std::endl;
     }
@@ -94,8 +94,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Read)
     EXPECT_EQ(1, ubConn.GetUbJettyLiteAttr().dbAddr_);
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
     RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
     RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
@@ -140,8 +140,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Read_Slice)
     rmt.GetTokenValue();
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.Read(loc, rmt, cfg, stream, out));
 }
 
@@ -175,8 +175,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_ReadReduce_Slice)
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
     ReduceIn            reduceIn(DataType::INT8, ReduceOp::SUM);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.ReadReduce(reduceIn, loc, rmt, stream, cfg, out));
 }
 
@@ -210,8 +210,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_ReadReduce)
     ReduceIn            reduceIn(DataType::INT8, ReduceOp::SUM);
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.ReadReduce(reduceIn, loc, rmt, stream, cfg, out));
 }
 
@@ -244,8 +244,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Write)
     rmt.GetTokenValue();
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.Write(loc, rmt, cfg, stream, out));
 }
 
@@ -278,8 +278,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Write_Slice)
     rmt.GetTokenValue();
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.Write(loc, rmt, cfg, stream, out));
 }
 
@@ -315,10 +315,10 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReduceWithNotify)
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
 
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
 
     EXPECT_NO_THROW(
         ubConn.WriteReduceWithNotify(DataType::INT8, ReduceOp::SUM, loc, rmt, cfg, stream, out, notify, notifyData));
@@ -368,10 +368,10 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReduceWithNotify_Slice)
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
 
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(
         ubConn.WriteReduceWithNotify(DataType::INT8, ReduceOp::SUM, loc, rmt, cfg, stream, out, notify, notifyData));
     EXPECT_NO_THROW(
@@ -414,10 +414,10 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify)
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
 
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.WriteWithNotify(loc, rmt, cfg, out, notify, stream, notifyData));
 }
 
@@ -455,8 +455,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify_Detour)
     EXPECT_NO_THROW(ubConn.Write(loc, rmt, cfg, stream, out));
 
     ubConn.ci = 1;
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(0));
     EXPECT_NO_THROW(ubConn.WriteWithNotify(loc, rmt, cfg, out, notify, stream, notifyData));
     EXPECT_EQ(1, ubConn.piDetourCount);
     EXPECT_EQ(0, ubConn.ciDetourCount);
@@ -497,13 +497,13 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify_Throw)
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
     ubConn.ci = 0;
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(1));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(0));
     EXPECT_THROW(ubConn.WriteWithNotify(loc, rmt, cfg, out, notify, stream, notifyData), InternalException);
 
     ubConn.ci = 2;
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(1));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(ubConn.WriteWithNotify(loc, rmt, cfg, out, notify, stream, notifyData), InternalException);
     EXPECT_EQ(1, ubConn.piDetourCount);
 }
@@ -537,10 +537,10 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify_Slice)
     rmt.GetTokenValue();
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
-    MOCKER(memcpy_s).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(memcpy_s).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.WriteWithNotify(loc, rmt, cfg, out, notify, stream, notifyData));
 }
 
@@ -575,8 +575,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_InlineWrite)
     u16 write_dsize(1);
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.InlineWrite(&write_data, write_dsize, rmt, cfg, stream, out));
 }
 
@@ -609,8 +609,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReducee)
     rmt.GetTokenValue();
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.WriteReduce(DataType::INT8, ReduceOp::SUM, loc, stream, rmt, cfg, out));
 }
 
@@ -643,8 +643,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReduce_Slice)
     rmt.GetTokenValue();
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_NO_THROW(ubConn.WriteReduce(DataType::INT8, ReduceOp::SUM, loc, stream, rmt, cfg, out));
 }
 
@@ -666,8 +666,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead)
     ConnLiteOperationOut out;
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     ubConn.BatchOneSidedRead({loc}, {rmt}, cfg, stream, out);
 }
 
@@ -689,7 +689,7 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedWrite)
     ConnLiteOperationOut out;
     std::vector<char> uniqueId{};
     StreamLite stream(uniqueId);
-    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(any()).will(returnValue(1));
-    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
+    MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     ubConn.BatchOneSidedWrite({loc}, {rmt}, cfg, stream, out);
 }

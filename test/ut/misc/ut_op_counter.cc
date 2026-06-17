@@ -48,7 +48,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -149,12 +149,12 @@ TEST_F(OpCounterTest, ut_clear_opCounter)
     
     MOCKER(hrtMemSet)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(hrtGetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
  
     HcclResult ret = OpExeCounter::GetInstance(0).InitCounter();

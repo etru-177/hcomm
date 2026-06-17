@@ -140,7 +140,7 @@ TEST_F(EndpointMonitorTest, Ut_ProcessUbAsyncEvents_CoverAllBranches)
         HCCL_E_PARA);
     EXPECT_EQ(g_monitor.RegisterToEndpointMonitor(0, nullptr), HCCL_E_PTR);
 
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(devPhyId)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), outBound(devPhyId)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(&myUtEndpoint, &UtStubEndpoint::GetAsyncEvents).stubs().will(returnValue(HCCL_E_NOT_SUPPORT));
     EXPECT_EQ(g_monitor.RegisterToEndpointMonitor(0, reinterpret_cast<EndpointHandle>(&myUtEndpoint)), HCCL_SUCCESS);
     EXPECT_EQ(g_monitor.UnRegisterToEndpointMonitor(), HCCL_SUCCESS);
@@ -148,7 +148,7 @@ TEST_F(EndpointMonitorTest, Ut_ProcessUbAsyncEvents_CoverAllBranches)
     GlobalMockObject::verify();
 
     g_monitor.epHandleSet_.emplace(reinterpret_cast<u64>(&myUtEndpoint));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(devPhyId)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), outBound(devPhyId)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(&myUtEndpoint, &UtStubEndpoint::GetAsyncEvents)
         .stubs()
         .will(returnValue(HCCL_SUCCESS))

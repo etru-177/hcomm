@@ -121,22 +121,22 @@ static char              fakeName[65]         = "testRtsNotify";
 
 static void Mock()
 {
-    MOCKER(HrtMemAsyncCopy).stubs().with(any());
-    MOCKER(HrtReduceAsync).stubs().with(any());
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtMemAsyncCopy).stubs().with(mockcpp::any());
+    MOCKER(HrtReduceAsync).stubs().with(mockcpp::any());
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtStreamDestroy).stubs();
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtIpcOpenNotify).stubs().with(any()).will(returnValue((void *)fakeNotifyHandleAddr));
+    MOCKER(HrtIpcOpenNotify).stubs().with(mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
     MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
-    MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+    MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
 
-    MOCKER(HrtNotifyRecord).stubs().with(any());
-    MOCKER(HrtNotifyWaitWithTimeOut).stubs().with(any());
+    MOCKER(HrtNotifyRecord).stubs().with(mockcpp::any());
+    MOCKER(HrtNotifyWaitWithTimeOut).stubs().with(mockcpp::any());
 }
 
 class P2PTransportTest : public testing::Test {

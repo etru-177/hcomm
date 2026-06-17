@@ -56,7 +56,7 @@ protected:
         CommunicatorImpl comm;
         socketManager    = new SocketManager(comm, 0, 1, 0, mockProducer);
         hccpSocketHandle = new int(0);
-        MOCKER(HrtRaSocketInit).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+        MOCKER(HrtRaSocketInit).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
     }
 
     virtual void TearDown()
@@ -121,17 +121,17 @@ TEST_F(RmaConnManagerTest,
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -223,14 +223,14 @@ TEST_F(RmaConnManagerTest, should_return_normally_when_calling_addwhitelist_with
     GenRankTableFile1Ser8Dev();
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
@@ -240,9 +240,9 @@ TEST_F(RmaConnManagerTest, should_return_normally_when_calling_addwhitelist_with
     impl.Init(commParams, "ranktable.json", config);
     RmaConnManager rmaConnManager(impl);
 
-    MOCKER_CPP(&SocketHandleManager::Get).stubs().with(any(), any()).will(returnValue(hccpSocketHandle));
+    MOCKER_CPP(&SocketHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hccpSocketHandle));
 
-    MOCKER(HrtRaSocketWhiteListAdd).stubs().with(any(), any(), any());
+    MOCKER(HrtRaSocketWhiteListAdd).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     DelRankTableFile();
     delete devPtr;
@@ -269,18 +269,18 @@ TEST_F(RmaConnManagerTest, should_return_valid_ptr_when_calling_creatermadevnetc
     GenRankTableFile1Ser8Dev();
 
     void *devMemPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(devMemPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(devMemPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
 
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -317,16 +317,16 @@ TEST_F(RmaConnManagerTest, should_return_valid_ptr_when_calling_creatermadevnetc
         .then(returnValue((SocketStatus)SocketStatus::TIMEOUT));
 
     RdmaHandle rdmaHandle;
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
 
     QpHandle qpHandle;
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(qpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(qpHandle));
 
     DevBuffer devBuffer(100, 100);
     Buffer *buffer = &devBuffer;
-    MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any()).will(returnValue(buffer));
+    MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(buffer));
 
-    MOCKER(HrtRaMrReg).stubs().with(any(), any());
+    MOCKER(HrtRaMrReg).stubs().with(mockcpp::any(), mockcpp::any());
 
     auto res1 = rmaConnManager.CreateRdmaConn(socket, commParams.commId, *linkData);
     EXPECT_NE(nullptr, res1);
@@ -359,18 +359,18 @@ TEST_F(RmaConnManagerTest, should_return_valid_ptr_when_calling_createdevubconn_
     GenRankTableFile1Ser8Dev();
 
     void *devMemPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(devMemPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(devMemPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
         MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -407,10 +407,10 @@ TEST_F(RmaConnManagerTest, should_return_valid_ptr_when_calling_createdevubconn_
 
     RdmaHandle rdmaHandle = (void*)0x100;
     cout << 0 << endl;
-    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+    MOCKER_CPP(&RdmaHandleManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
 
     QpHandle qpHandle;
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(qpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(qpHandle));
 
     auto res1 = rmaConnManager.CreateUbConn(socket, commParams.commId, linkData);
     cout << 1 << endl;
@@ -449,7 +449,7 @@ TEST_F(RmaConnManagerTest, should_no_throw_when_calling_BatchCreate)
 
     MOCKER_CPP_VIRTUAL(*newUbConn, &DevUbConnection::GetStatus).stubs().will(returnValue((RmaConnStatus)RmaConnStatus::READY));
     MOCKER_CPP_VIRTUAL(*newUbConn2, &DevUbConnection::GetStatus).stubs().will(returnValue((RmaConnStatus)RmaConnStatus::READY));
-    MOCKER_CPP(&RmaConnManager::Create).stubs().with(any(), any(), any())
+    MOCKER_CPP(&RmaConnManager::Create).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(static_cast<RmaConnection*>(newUbConn.get())))
             .then(returnValue(static_cast<RmaConnection*>(newUbConn2.get())));
  
@@ -547,17 +547,17 @@ TEST_F(RmaConnManagerTest, should_delete_all_when_calling_batchdeletejettys_with
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -638,17 +638,17 @@ TEST_F(RmaConnManagerTest, should_delete_all_when_calling_batchdeletejettys_with
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -732,17 +732,17 @@ TEST_F(RmaConnManagerTest, should_delete_part_when_calling_batchdeletejettys_wit
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -825,17 +825,17 @@ TEST_F(RmaConnManagerTest, should_failed_when_calling_batchdeletejettys_with_inv
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -919,17 +919,17 @@ TEST_F(RmaConnManagerTest, should_failed_when_calling_batchdeletejettys_with_inv
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -1013,17 +1013,17 @@ TEST_F(RmaConnManagerTest, should_failed_when_calling_batchdeletejettys_with_inv
     collOpParams.staticShape = true;
 
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(), any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(devPtr));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(commParams.devType));
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     impl.rankGraph = make_unique<RankGraph>(0);
     impl.rankGraph->peers_[0] = make_shared<NetInstance::Peer>(0, 0, 0, 0);
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const std::string &))
-        .stubs().with(any()).will(ignoreReturnValue());
+        .stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitRankGraph, void(CommunicatorImpl::*)(const string &rankTablePath)).
-        stubs().with(any()).will(ignoreReturnValue());
+        stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());

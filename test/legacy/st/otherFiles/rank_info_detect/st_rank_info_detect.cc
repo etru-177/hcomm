@@ -57,24 +57,24 @@ protected:
 
     virtual void SetUp()
     {
-        MOCKER(HrtRaSocketInit).stubs().with(any(), any()).will(ignoreReturnValue());
-        MOCKER_CPP(&HccpPeerManager::Init).stubs().with(any()).will(ignoreReturnValue());
-        MOCKER_CPP(&HccpPeerManager::DeInit).stubs().with(any()).will(ignoreReturnValue());
+        MOCKER(HrtRaSocketInit).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+        MOCKER_CPP(&HccpPeerManager::Init).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+        MOCKER_CPP(&HccpPeerManager::DeInit).stubs().with(mockcpp::any()).will(ignoreReturnValue());
         SocketHandle hostSocketHandle;
-        MOCKER_CPP(&HostSocketHandleManager::Create).stubs().with(any(), any()).will(returnValue(hostSocketHandle));
-        MOCKER(HrtRaSocketWhiteListAdd).stubs().with(any(), any(), any()).will(ignoreReturnValue());
+        MOCKER_CPP(&HostSocketHandleManager::Create).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(hostSocketHandle));
+        MOCKER(HrtRaSocketWhiteListAdd).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
         MOCKER(HrtGetDevice).stubs().with().will(returnValue(0));
-        MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(0)));
-        MOCKER(HrtRaInit).stubs().with(any()).will(ignoreReturnValue());
-        MOCKER(HrtRaDeInit).stubs().with(any()).will(ignoreReturnValue());
+        MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(0)));
+        MOCKER(HrtRaInit).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+        MOCKER(HrtRaDeInit).stubs().with(mockcpp::any()).will(ignoreReturnValue());
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_950));
         std::vector<std::pair<std::string, IpAddress>> hostIfInfos;
         hostIfInfos.push_back(std::make_pair("lo", IpAddress("127.0.0.1")));
-        MOCKER(HrtGetHostIf).stubs().with(any()).will(returnValue(hostIfInfos));
-        MOCKER(HrtRaSocketTryListenOneStart).stubs().with(any(), any()).will(returnValue(true));
+        MOCKER(HrtGetHostIf).stubs().with(mockcpp::any()).will(returnValue(hostIfInfos));
+        MOCKER(HrtRaSocketTryListenOneStart).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(true));
         MOCKER(HrtGetDeviceCount).stubs().with().will(returnValue(8));
-        MOCKER(HrtSetDevice).stubs().with(any()).will(ignoreReturnValue());
-        MOCKER(HrtResetDevice).stubs().with(any()).will(ignoreReturnValue());
+        MOCKER(HrtSetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+        MOCKER(HrtResetDevice).stubs().with(mockcpp::any()).will(ignoreReturnValue());
         std::cout << "A Test case in RankInfoDetectTest SetUP" << std::endl;
     }
 
@@ -92,12 +92,12 @@ protected:
 TEST_F(RankInfoDetectTest, St_SetupServer_When_Invalid_Ip_Expect_THROW)
 {
     // when
-    MOCKER(GetBootstrapIp).stubs().with(any()).will(returnValue(IpAddress()));
+    MOCKER(GetBootstrapIp).stubs().with(mockcpp::any()).will(returnValue(IpAddress()));
     MOCKER_CPP(&RankInfoDetect::GetHostListenPort).stubs().with().will(returnValue(60000));
     SocketHandle socketHandle;
     MOCKER_CPP(&RankInfoDetect::GetHostSocketHandle).stubs().with().will(returnValue(socketHandle));
-    MOCKER_CPP(&RankInfoDetect::SetupRankInfoDetectService).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER_CPP(&RankInfoDetect::GetRootHandle).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetect::SetupRankInfoDetectService).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetect::GetRootHandle).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // check
     shared_ptr<RankInfoDetect> rankInfoDetect = make_shared<RankInfoDetect>();
@@ -109,8 +109,8 @@ TEST_F(RankInfoDetectTest, St_GetHostSocketHandle_When_Whitelist_Expect_AddHost_
 {
     // when
     MOCKER(HrtGetDeviceCount).stubs().with().will(returnValue(8));
-    MOCKER(HrtRaSocketWhiteListAdd).stubs().with(any(), any()).will(ignoreReturnValue());
-    MOCKER(HrtRaSocketSetWhiteListStatus).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtRaSocketWhiteListAdd).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
+    MOCKER(HrtRaSocketSetWhiteListStatus).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     EnvHostNicConfig envConfig;
     EnvHostNicConfig &fakeEnvConfig = envConfig;
     fakeEnvConfig.whitelistDisable = CfgField<bool>{"HCCL_WHITELIST_DISABLE", false, CastBin2Bool};
@@ -141,7 +141,7 @@ TEST_F(RankInfoDetectTest, St_ClientInit_When_InpSt_Expect_NO_THROW)
 TEST_F(RankInfoDetectTest, St_ServerInit_When_Invalid_Port_Expect_ListenPreempt)
 {
     // when
-    MOCKER_CPP(&PreemptPortManager::ListenPreempt).stubs().with(any(), any(), any()).will(throws(InternalException("aaa")));
+    MOCKER_CPP(&PreemptPortManager::ListenPreempt).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(throws(InternalException("aaa")));
 
     // check
     shared_ptr<RankInfoDetect> rankInfoDetect = make_shared<RankInfoDetect>();
@@ -152,8 +152,8 @@ TEST_F(RankInfoDetectTest, St_ServerInit_When_Invalid_Port_Expect_ListenPreempt)
 TEST_F(RankInfoDetectTest, St_SetupAgent_When_InpSt_Expect_NO_THROW)
 {
     // when
-    MOCKER_CPP(&RankInfoDetectClient::Setup).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetectClient::Setup).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     
     // check
     RankInfoDetect rankInfoDetect;
@@ -164,7 +164,7 @@ TEST_F(RankInfoDetectTest, St_SetupAgent_When_InpSt_Expect_NO_THROW)
 TEST_F(RankInfoDetectTest, St_SetupRankInfoDetectService_When_InpSt_Expect_NO_THROW)
 {
     // when
-    MOCKER_CPP(&RankInfoDetectService::Setup).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankInfoDetectService::Setup).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // check
     RankInfoDetect rankInfoDetect;
@@ -177,7 +177,7 @@ TEST_F(RankInfoDetectTest, St_SetupRankInfoDetectService_When_InpSt_Expect_NO_TH
 TEST_F(RankInfoDetectTest, St_SetupRankInfoDetectService_When_Setup_Fail_Expect_THROW)
 {
     // when
-    MOCKER_CPP(&RankInfoDetectService::Setup).stubs().with(any()).will(throws(InternalException("aaa")));
+    MOCKER_CPP(&RankInfoDetectService::Setup).stubs().with(mockcpp::any()).will(throws(InternalException("aaa")));
 
     // check
     RankInfoDetect rankInfoDetect;

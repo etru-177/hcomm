@@ -57,7 +57,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(hrtProfRegisterCtrlCallback)
         .stubs()
@@ -134,14 +134,14 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallv_8p_mesh_aiv)
     .will(returnValue(true));
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::InitNic)
     .stubs()
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&AlltoAllOperator::IsSatisfyAlltoAllAivCondition)
     .stubs()
@@ -211,7 +211,7 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallv_8p_mesh_aiv)
 
     MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = implBase->AlltoAllV(inputMem.ptr(), (void *)sendCounts, (void *)sdispls, sendDataType, outputMem.ptr(),
         (void *)recvCounts, (void *)rdispls, recvDataType, stream.ptr(), tag);
@@ -248,14 +248,14 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallv_8p_mesh_aiv_capture)
     .will(returnValue(true));
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::InitNic)
     .stubs()
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&AlltoAllOperator::IsSatisfyAlltoAllAivCondition)
     .stubs()
@@ -265,7 +265,7 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallv_8p_mesh_aiv_capture)
     void *pmockModel = &mockModel;    
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     ret = implBase->AtomicInitSet();
@@ -365,14 +365,14 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallv_8p_mesh_aiv_capture_multi_op)
     .will(returnValue(true));
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::InitNic)
     .stubs()
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&AlltoAllOperator::IsSatisfyAlltoAllAivCondition)
     .stubs()
@@ -382,7 +382,7 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallv_8p_mesh_aiv_capture_multi_op)
     void *pmockModel = &mockModel;    
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     ret = implBase->AtomicInitSet();
@@ -492,14 +492,14 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoallvc_8p_mesh_aiv)
     .will(returnValue(true));
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::InitNic)
     .stubs()
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&AlltoAllOperator::IsSatisfyAlltoAllAivCondition)
     .stubs()
@@ -598,14 +598,14 @@ TEST_F(HcclImplAlltoAllAIVTest, ut_alltoall_rdma_mesh_aiv)
     .will(returnValue(true));
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::InitNic)
     .stubs()
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&AlltoAllOperator::IsSatisfyAlltoAllAivCondition)
     .stubs()

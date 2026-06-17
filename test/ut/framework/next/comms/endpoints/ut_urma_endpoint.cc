@@ -41,7 +41,7 @@ protected:
         endpointDesc.loc.device.devPhyId = 0;
 
         MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
-        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     }
 
     virtual void TearDown()
@@ -87,7 +87,7 @@ TEST_F(UrmaEndpointTest, Ut_When_ServerSocketGetListenPort_Normal_Expect_HCCL_SU
 
     MOCKER_CPP(&hcomm::ServerSocketManager::ServerSocketStartListen)
         .stubs()
-        .with(any(), any(), any(), outBoundP(&portValue, sizeof(portValue)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&portValue, sizeof(portValue)))
         .will(returnValue(HCCL_SUCCESS));
     uint32_t port = 0;
     EXPECT_EQ(endpoint->ServerSocketGetListenPort(&port), HCCL_SUCCESS);
@@ -123,7 +123,7 @@ TEST_F(UrmaEndpointTest, Ut_When_ServerSocketGetListenPort_StartListenReturnsPor
 
     MOCKER_CPP(&hcomm::ServerSocketManager::ServerSocketStartListen)
         .stubs()
-        .with(any(), any(), any(), outBoundP(&portValue, sizeof(portValue)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&portValue, sizeof(portValue)))
         .will(returnValue(HCCL_SUCCESS));
     uint32_t port = 0;
     EXPECT_EQ(endpoint->ServerSocketGetListenPort(&port), HCCL_E_NETWORK);
@@ -137,7 +137,7 @@ TEST_F(UrmaEndpointTest, Ut_When_ServerSocketGetListenPort_StartListenReturnsInv
 
     MOCKER_CPP(&hcomm::ServerSocketManager::ServerSocketStartListen)
         .stubs()
-        .with(any(), any(), any(), outBoundP(&portValue, sizeof(portValue)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&portValue, sizeof(portValue)))
         .will(returnValue(HCCL_SUCCESS));
     uint32_t port = 0;
     EXPECT_EQ(endpoint->ServerSocketGetListenPort(&port), HCCL_E_NETWORK);

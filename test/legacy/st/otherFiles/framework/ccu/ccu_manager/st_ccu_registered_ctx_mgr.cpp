@@ -77,8 +77,8 @@ TEST(RegisteredCcuCtxMgrTest, should_return_fail_when_calling_hasregistered)
 TEST(RegisteredCcuCtxMgrTest, should_return_success_when_calling_register)
 {
     // when
-    MOCKER(InsExeQue::RegisterExtendInstruction).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(InsExeQue::DeregisterExtendInstruction).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(InsExeQue::RegisterExtendInstruction).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(InsExeQue::DeregisterExtendInstruction).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
 
     RegisteredCcuCtxMgr registeredCcuCtxMgr(1);
     CcuCtxSignature ctxSignature;

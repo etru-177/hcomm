@@ -131,7 +131,7 @@ TEST_F(CcuUrmaChannelTest, Ut_GetStatus_DfxInfo_TEST) {
     ch.impl_->transStatus_ = CcuTransport::TransStatus::READY;
     MOCKER_CPP(&CcuConnection::Describe, HcclResult (CcuConnection::*)(std::string&))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     ret = ch.GetStatus();
     EXPECT_EQ(ret, ChannelStatus::READY);
@@ -143,7 +143,7 @@ TEST_F(CcuUrmaChannelTest, Ut_GetStatus_DfxInfo_TEST) {
     ch.isFirstPrintChannelInfo_ = true; // 需要重置为true才能触发Describe的调用
     MOCKER_CPP(&CcuConnection::Describe, HcclResult (CcuConnection::*)(std::string&))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HcclResult::HCCL_E_PARA));
     ret = ch.GetStatus();
     EXPECT_EQ(ret, ChannelStatus::FAILED);

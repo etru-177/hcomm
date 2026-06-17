@@ -181,11 +181,11 @@ TEST_F(GlobalMemMgrTest, ut_global_mem_mgr_backupInit)
     MOCKER(hrtGetDeviceType).stubs().will(invoke(hrtGetDeviceTypeForTest));
     MOCKER(hrtRaGetDeviceIP).stubs().will(invoke(hrtRaGetDeviceIPForTest));
     MOCKER(hrtRaGetDeviceAllNicIP).stubs().will(invoke(hrtRaGetDeviceAllNicIPForTest));
-    MOCKER(HcclNetInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclSocketManager::ServerInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocketManager::ServerDeInit, HcclResult(HcclSocketManager::*)(const HcclNetDevCtx, u32))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclNetDevCtx ctx;
@@ -208,8 +208,8 @@ HcclResult hrtGetDeviceRefreshForTest(s32* deviceLogicID)
 TEST_F(GlobalMemMgrTest, Ut_GlobalMemMgr_InicNic_When_Normal_Expect_Success)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(hrtGetDeviceRefreshForTest));
-    MOCKER(HcclNetInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcclNetDeInit).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetDeInit).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = GlobalMemRegMgr::GetInstance().InitNic();
     EXPECT_EQ(ret, HCCL_SUCCESS);

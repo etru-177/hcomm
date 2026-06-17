@@ -312,8 +312,8 @@ TEST_F(HcclCommunicatorHostTest, Ut_HcclGetAlgExecParam_When_Normal_Expect_Retur
     params.deviceType = DevType::DEV_TYPE_910_93;
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
 
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::AllocAlgResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::AllocAlgResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->AtomicInitSet();
     EXPECT_EQ(ret, HCCL_SUCCESS);

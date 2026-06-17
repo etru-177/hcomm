@@ -91,9 +91,9 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
-        MOCKER_CPP(&HcomGraphOptimizer::SetSuperKernelScopeAttr).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER_CPP(&HcomGraphOptimizer::SetSuperKernelScopeAttr).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
     virtual void TearDown()
@@ -226,12 +226,12 @@ TEST_F(HcomGraphOptimizerTest, ut_Initialize_to_Finalize)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomGraphOptimizer::GetTaskNumAndCheckForceUnknown)
@@ -273,13 +273,13 @@ TEST_F(HcomGraphOptimizerTest, ut_Initialize_to_Finalize_51)
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(HcomGetHccsLinkNum)
     .stubs()
-    .with(any(), outBound(numHccsLink))
+    .with(mockcpp::any(), outBound(numHccsLink))
     .will(returnValue(HCCL_SUCCESS));
 
     u32 rankSize = 2;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBoundP(&rankSize))
+    .with(mockcpp::any(), outBoundP(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
 
     // 实验室场景 hcom_init成功：成功
@@ -341,7 +341,7 @@ TEST_F(HcomGraphOptimizerTest, ut_Initialize_to_Finalize_51)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
 
     DevType type610 = DevType::DEV_TYPE_310P1;
@@ -477,7 +477,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionOpInfo)
 
     // MOCKER_CPP(&ge::ComputeGraph::GetDirectNode)
     // .stubs()
-    // .with(any())
+    // .with(mockcpp::any())
     // .will(returnValue(ops));
     // ret = fusionHcomAllReduceOp.GetFusionOps(graph, fusionOps);
     // ret = fusionHcomAllReduceOp.GetFusionOpInfo(nodePtr, fusionOps);
@@ -487,7 +487,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionOpInfo)
 
     MOCKER(HcomGetCCLBufferAvailableSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(stub_HcomGetCCLBufferAvailableSize));
 
     MOCKER(&HcomOpUtils::GetAllInputsTensorMemSize)
@@ -528,7 +528,7 @@ TEST_F(HcomGraphOptimizerTest, ut_FuseOps)
     segments.push_back(2);
     MOCKER(HcomGetSplitStrategy)
     .stubs()
-    .with(any(), any(), outBound(segments))
+    .with(mockcpp::any(), mockcpp::any(), outBound(segments))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomAllReduceFusion::RunFusionOps)
@@ -558,7 +558,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionStrategy)
     segments.push_back(2);
     MOCKER(HcomGetSplitStrategy)
     .stubs()
-    .with(any(), any(), outBound(segments), outBound(configured))
+    .with(mockcpp::any(), mockcpp::any(), outBound(segments), outBound(configured))
     .will(returnValue(HCCL_SUCCESS));
     std::string group = HCCL_WORLD_GROUP;
     int64_t fusionid = HCOM_ATTR_FUSION_ID_DEFAULT;
@@ -612,7 +612,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetNodeUnknownShapeInfo_unknown)
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(is_unknown))
+    .with(mockcpp::any(), outBound(is_unknown))
     .will(returnValue(ge::GRAPH_SUCCESS));
 
     ret = fusionHcomAllReduceOp.GetNodeUnknownShapeInfo(fusionOps[0], bUnknownShapeNodeStatus);
@@ -825,7 +825,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
 
         std::cout << "A Test SetUP" << std::endl;
@@ -959,12 +959,12 @@ TEST_F(HcomGraphOptimizerTest, ut_HcomReduceScatter_OptimizeFusedGraph)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcomGraphOptimizer::GetTaskNumAndCheckForceUnknown)
     .stubs()
@@ -1034,12 +1034,12 @@ TEST_F(HcomGraphOptimizerTest, ut_HcomAllGather_OptimizeFusedGraph)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(HcomGetDeviceType)
     .stubs()
@@ -1112,12 +1112,12 @@ TEST_F(HcomGraphOptimizerTest, ut_HcomRemoteRead_OptimizeFusedGraph)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
     ge_ret = graphOptimizers.at(HCCL_GRAPH_OPTIMIZER_NAME)->OptimizeFusedGraph(*graph);
     EXPECT_EQ(ge_ret, ge::SUCCESS);
@@ -1183,12 +1183,12 @@ TEST_F(HcomGraphOptimizerTest, ut_HcomReveive_OptimizeFusedGraph)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
     ge::AttrUtils::HasAttr(*descPtr0, "DUMMY_SET_TRUE_DTYPE");
     ge::AttrUtils::HasAttr(*descPtr0, "DUMMY_SET_TRUE_SHAPE");
@@ -1208,7 +1208,7 @@ TEST_F(HcomGraphOptimizerTest, ut_OriginalGraphShapeTypeCfg)
     ge::Status ge_ret;
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(true))
+    .with(mockcpp::any(), outBound(true))
     .will(returnValue(ge::GRAPH_SUCCESS));
     HcomGraphOptimizer graphOptimizer;
     ge::ComputeGraphPtr graph = std::make_shared<ge::ComputeGraph>("test_graph");
@@ -1239,7 +1239,7 @@ TEST_F(HcomGraphOptimizerTest, ut_SetUnknownShapAttr)
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(false))
+    .with(mockcpp::any(), outBound(false))
     .will(returnValue(ge::GRAPH_SUCCESS));
 
     MOCKER_CPP(&ge::GEContext::GetOption)
@@ -1276,7 +1276,7 @@ TEST_F(HcomGraphOptimizerTest, ut_SetUnknownShapAttr_AlltoAllv)
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(false))
+    .with(mockcpp::any(), outBound(false))
     .will(returnValue(ge::GRAPH_SUCCESS));
 
     MOCKER_CPP(&ge::GEContext::GetOption)
@@ -1487,7 +1487,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionOpInfo_Reduce)
 
     MOCKER(HcomGetCCLBufferAvailableSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(stub_HcomGetCCLBufferAvailableSize));
 
     MOCKER(&HcomOpUtils::GetAllInputsTensorMemSize)
@@ -1537,7 +1537,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionSegments_1)
     uint64_t inputTensorSize = 200*1024*1024;
     MOCKER(&HcomOpUtils::GetAllInputsTensorOriginSize)
     .stubs()
-    .with(any(), outBound(inputTensorSize))
+    .with(mockcpp::any(), outBound(inputTensorSize))
     .will(returnValue(HCCL_SUCCESS));
 
     std::vector<uint32_t> segmentIndex;
@@ -1564,7 +1564,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionSegments_2)
     uint64_t inputTensorSize = 500*1024*1024;
     MOCKER(&HcomOpUtils::GetAllInputsTensorOriginSize)
     .stubs()
-    .with(any(), outBound(inputTensorSize))
+    .with(mockcpp::any(), outBound(inputTensorSize))
     .will(returnValue(HCCL_SUCCESS));
 
     std::vector<uint32_t> segmentIndex;
@@ -1607,7 +1607,7 @@ TEST_F(HcomGraphOptimizerTest, ut_OptimizeFusedGraph_allreduce)
     char *group = "127.0.0.1%eth0_60000_0_1698475280390992";
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomGraphOptimizer::GetTaskNumAndCheckForceUnknown)
@@ -1617,7 +1617,7 @@ TEST_F(HcomGraphOptimizerTest, ut_OptimizeFusedGraph_allreduce)
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
 
     HcomGraphOptimizer graphOptimizer;
@@ -1656,13 +1656,13 @@ TEST_F(HcomGraphOptimizerTest, ut_OptimizeFusedGraph_broadcast)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
 
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
 
     HcomGraphOptimizer graphOptimizer;
@@ -1692,18 +1692,18 @@ TEST_F(HcomGraphOptimizerTest, ut_OptimizeFusedGraph_broadcast_unknown)
     u64 streamNumber = 4;
     MOCKER(HcomGetWorkspaceSubStreamNum)
     .stubs()
-    .with(any(), outBound(streamNumber))
+    .with(mockcpp::any(), outBound(streamNumber))
     .will(returnValue(HCCL_SUCCESS));
 
     u32 rankSize = 8;
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any(), outBound(&rankSize))
+    .with(mockcpp::any(), outBound(&rankSize))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(true))
+    .with(mockcpp::any(), outBound(true))
     .will(returnValue(ge::GRAPH_SUCCESS));
 
     HcomGraphOptimizer graphOptimizer;
@@ -1757,7 +1757,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionOpInfo_Reduce_by_comm_pytorch)
 
     MOCKER(HcomGetCCLBufferAvailableSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(stub_HcomGetCCLBufferAvailableSize));
 
     MOCKER(&HcomOpUtils::GetAllInputsTensorMemSize)
@@ -1796,7 +1796,7 @@ TEST_F(HcomGraphOptimizerTest, ut_GetFusionOpInfo_AllReduce_by_comm_pytorch)
 
     MOCKER(HcomGetCCLBufferAvailableSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(stub_HcomGetCCLBufferAvailableSize));
 
     MOCKER(&HcomOpUtils::GetAllInputsTensorMemSize)
@@ -2207,12 +2207,12 @@ TEST_F(HcomGraphOptimizerTest, utCalculateSegmentIndexFromHomeExport)
 
     MOCKER_CPP(&HcomAllReduceFusion::GetPathFromDefault)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomAllReduceFusion::GetInformationFromLibrary)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = ops.CalculateSegmentIndex(fusionHash, tensorFusionLimit, segmentIndex);
@@ -2258,7 +2258,7 @@ TEST_F(HcomGraphOptimizerTest, ut_offlinebuild_calcSubStreamNum)
 
     MOCKER_CPP(&HcomGraphOptimizer::CalAndSetOpWorkerSpaceForKnowShape)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     type = HCCL_KERNEL_OP_TYPE_BROADCAST;
@@ -2509,7 +2509,7 @@ TEST_F(HcomGraphOptimizerTest, ut_FuseHcomReduceScatterNode1)
 
     MOCKER(HcomGetCCLBufferAvailableSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(stub_HcomGetCCLBufferAvailableSize));
 
     MOCKER(&HcomOpUtils::GetAllInputsTensorMemSize)
@@ -2670,7 +2670,7 @@ TEST_F(HcomGraphOptimizerTest, ut_SetknownShapAttr)
 
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(false))
+    .with(mockcpp::any(), outBound(false))
     .will(returnValue(ge::GRAPH_SUCCESS));
 
     MOCKER(&HcomOpUtils::GetAllInputsTensorMemSize)
@@ -2722,7 +2722,7 @@ TEST_F(HcomGraphOptimizerTest, ut_getAlltoAllvcStagedScratchMemSize)
 
     MOCKER(GetExternalInputHcclAlgoConfig)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(GetExternalInputHcclAlgoConfig_stub));
 
     MOCKER(&HcomOpUtils::GetVectorFromTensor)
@@ -2735,22 +2735,22 @@ TEST_F(HcomGraphOptimizerTest, ut_getAlltoAllvcStagedScratchMemSize)
 
     MOCKER(HcomGetRankId)
     .stubs()
-    .with(any(), outBound(&rankId))
+    .with(mockcpp::any(), outBound(&rankId))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetRankSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(&HcomOpUtils::CheckAlltoAllvcRank)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(HcomGetAlltoAllvcStagedWorkSpaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = KernelInfo.GetOpWorkspaceMemSize(*nodeptr, HCCL_KERNEL_OP_TYPE_ALLTOALLVC, opMemSize);
@@ -2965,12 +2965,12 @@ TEST_F(HcomGraphOptimizerTest, ut_CalAndSetOpWorkerSpaceForKnowShape)
     u32 shapeType = ORIGINAL_GRAPH_KNOWNSHAPE_TYPE;
     MOCKER_CPP(&HcomGraphOptimizer::GetOriginalGraphShapeTypeFromDesc)
     .stubs()
-    .with(any(), outBound(shapeType))
+    .with(mockcpp::any(), outBound(shapeType))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcomGraphOptimizer::GetOpWorkspaceMemSize)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ge::NodePtr nodeptr(new NodeTest);
@@ -2988,7 +2988,7 @@ TEST_F(HcomGraphOptimizerTest, ut_OptimizeOriginalGraphDynamicGraphNoSuperkernel
     ge::Status ge_ret;
     MOCKER(&ge::NodeUtils::GetNodeUnknownShapeStatus)
     .stubs()
-    .with(any(), outBound(true))
+    .with(mockcpp::any(), outBound(true))
     .will(returnValue(ge::GRAPH_SUCCESS));
 
     HcomGraphOptimizer graphOptimizer;

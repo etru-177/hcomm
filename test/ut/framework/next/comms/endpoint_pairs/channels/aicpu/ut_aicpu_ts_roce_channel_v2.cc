@@ -52,7 +52,7 @@ protected:
         Hccl::DevType dev = Hccl::DevType::DEV_TYPE_950;
         MOCKER(Hccl::HrtGetDevice).stubs().will(returnValue(0));
         MOCKER(Hccl::HrtGetDeviceType).stubs().will(returnValue(dev));
-        MOCKER(Hccl::HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<Hccl::DevId>(0)));
+        MOCKER(Hccl::HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<Hccl::DevId>(0)));
         RdmaHandle rdmaHandle = (void *)0x1000000;
         MOCKER(HcommEndpointStartListen).stubs().will(returnValue(static_cast<HcommResult>(HCCL_SUCCESS)));
 
@@ -62,11 +62,11 @@ protected:
                                       Hccl::SocketRole::SERVER, Hccl::NicType::HOST_NIC_TYPE);
         
         MOCKER_CPP(&Hccl::Socket::GetStatus).stubs().will(returnValue((Hccl::SocketStatus)Hccl::SocketStatus::OK));
-        MOCKER(Hccl::HrtRaNdaQpCreate).stubs().with(any(), any(), any(), any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(Hccl::HrtRaNdaCqCreate).stubs().with(any(), any(), any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(Hccl::HrtRaNdaCqDestroy).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(Hccl::HrtRaQpDestroy).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(RaGetQpAttr).stubs().with(any(), any()).will(returnValue(0));
+        MOCKER(Hccl::HrtRaNdaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(Hccl::HrtRaNdaCqCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(Hccl::HrtRaNdaCqDestroy).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(Hccl::HrtRaQpDestroy).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(RaGetQpAttr).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(0));
         
         EndpointDesc endpointDesc{};
         endpointDesc.protocol = COMM_PROTOCOL_ROCE;
@@ -120,12 +120,12 @@ TEST_F(AicpuTsRoceChannelV2Test, Ut_When_Normal_Init_Expect_HCCL_SUCCESS)
     MOCKER_CPP(&Hccl::Socket::GetStatus).stubs().will(returnValue((Hccl::SocketStatus)Hccl::SocketStatus::OK));
     MOCKER_CPP(&DevRdmaConnectionV2::CreateQp).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&DevRdmaConnectionV2::ModifyQp).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuTsRoceChannelV2::NotifyVecPack).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuTsRoceChannelV2::ConnVecPack).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuTsRoceChannelV2::BufferVecPack).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuTsRoceChannelV2::NotifyVecUnpack).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuTsRoceChannelV2::ConnVecUnpackProc).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuTsRoceChannelV2::RmtBufferVecUnpackProc).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuTsRoceChannelV2::NotifyVecPack).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuTsRoceChannelV2::ConnVecPack).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuTsRoceChannelV2::BufferVecPack).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuTsRoceChannelV2::NotifyVecUnpack).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuTsRoceChannelV2::ConnVecUnpackProc).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuTsRoceChannelV2::RmtBufferVecUnpackProc).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     // construct
     void* memHandle = static_cast<void*>(localRdmaRmaBuffer.get());
@@ -340,7 +340,7 @@ TEST_F(AicpuTsRoceChannelV2Test, Ut_When_BuildSocket_NullSocket_Expect_Success)
     channelDesc.memHandles = &memHandle;
     channelDesc.memHandleNum = 1;
     auto channel = std::make_unique<AicpuTsRoceChannelV2>(endpointHandle, channelDesc, CommEngine::COMM_ENGINE_AICPU);
-    MOCKER_CPP(&hcomm::SocketMgr::GetSocket).stubs().with(any(), outBound(fakeSocket)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&hcomm::SocketMgr::GetSocket).stubs().with(mockcpp::any(), outBound(fakeSocket)).will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(channel->Init(), HCCL_SUCCESS);
     std::cout << "End Ut_When_BuildSocket_NullSocket_Expect_Success" << std::endl;
 }

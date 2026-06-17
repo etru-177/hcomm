@@ -60,7 +60,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&HcclCommunicator::InitPreResource)
         .stubs()
@@ -131,7 +131,7 @@ TEST_F(HcclImplAlgTest, ut_ReduceComm)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -204,7 +204,7 @@ TEST_F(HcclImplAlgTest, ut_ReduceScatterComm)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -279,7 +279,7 @@ TEST_F(HcclImplAlgTest, ut_ReduceScatterMeshExecutor)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -357,7 +357,7 @@ TEST_F(HcclImplAlgTest, ut_ReduceScatterRingExecutor_HD)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -432,7 +432,7 @@ TEST_F(HcclImplAlgTest, ut_ReduceScatterRingExecutor_Ring)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -506,7 +506,7 @@ TEST_F(HcclImplAlgTest, ut_CollMultiRingAllReduceAndMultiRootScatter)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -558,11 +558,11 @@ TEST_F(HcclImplAlgTest, ut_CollMultiRingAllReduceAndMultiRootScatter)
 
     MOCKER(LocalNotify::Wait)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(LocalNotify::Post)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CollCommExecutor::GetRingsOrderByTopoType)
     .stubs()

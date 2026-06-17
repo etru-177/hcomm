@@ -74,7 +74,7 @@ TEST_F(AdapterRtsTest, HrtGetDevicePhyIdByIndex_return_zero)
 {
     // Given
     DevType fakeDeviceType = DevType::DEV_TYPE_NOSOC;
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(fakeDeviceType));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(fakeDeviceType));
 
     // when
     u32 devicePhyId   = 1;
@@ -90,12 +90,12 @@ TEST_F(AdapterRtsTest, HrtGetDevicePhyIdByIndex_return_ok)
 {
     // Given
     DevType fakeDeviceType = DevType::DEV_TYPE_910A2;
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(fakeDeviceType));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(fakeDeviceType));
 
     int32_t fakeDevicePhyId = 0;
     MOCKER(aclrtGetPhyDevIdByLogicDevId)
         .stubs()
-        .with(any(), outBoundP(&fakeDevicePhyId, sizeof(fakeDevicePhyId)))
+        .with(mockcpp::any(), outBoundP(&fakeDevicePhyId, sizeof(fakeDevicePhyId)))
         .will(returnValue(RT_ERROR_NONE));
     // when
     int32_t deviceLogicId = 1;
@@ -179,7 +179,7 @@ TEST_F(AdapterRtsTest, HrtSetDevice_return_nok)
 TEST_F(AdapterRtsTest, HrtResetDevice_return_nok)
 {
     // Given
-    MOCKER(aclrtResetDevice).stubs().with(any()).will(returnValue(1));
+    MOCKER(aclrtResetDevice).stubs().with(mockcpp::any()).will(returnValue(1));
 
     // then
     EXPECT_THROW(HrtResetDevice(1), RuntimeApiException);
@@ -202,7 +202,7 @@ TEST_F(AdapterRtsTest, HrtGetDeviceCount_return_nok)
 {
     u32 fakeCount = 2;
     // Given
-    MOCKER(aclrtGetDeviceCount).stubs().with(any()).will(returnValue(1));
+    MOCKER(aclrtGetDeviceCount).stubs().with(mockcpp::any()).will(returnValue(1));
 
     // then
     EXPECT_THROW(HrtGetDeviceCount(), RuntimeApiException);
@@ -215,7 +215,7 @@ TEST_F(AdapterRtsTest, HrtIpcSetNotifyName_return_ok)
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A3));
     MOCKER(aclrtNotifyGetExportKey)
         .stubs()
-        .with(any(), outBoundP(fakeName, sizeof(fakeName)), any())
+        .with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any())
         .will(returnValue(ACL_SUCCESS));
 
     // when
@@ -242,7 +242,7 @@ TEST_F(AdapterRtsTest, HrtGetNotifyID_return_ok)
     u32 fakeNotifyID = 123;
     MOCKER(aclrtGetNotifyId)
         .stubs()
-        .with(any(), outBoundP(&fakeNotifyID, sizeof(fakeNotifyID)))
+        .with(mockcpp::any(), outBoundP(&fakeNotifyID, sizeof(fakeNotifyID)))
         .will(returnValue(ACL_SUCCESS));
 
     // when
@@ -269,7 +269,7 @@ TEST_F(AdapterRtsTest, HrtGetStreamId_return_ok)
     s32 fakeStreamId = 123;
     MOCKER(aclrtStreamGetId)
         .stubs()
-        .with(any(), outBoundP(&fakeStreamId, sizeof(fakeStreamId)))
+        .with(mockcpp::any(), outBoundP(&fakeStreamId, sizeof(fakeStreamId)))
         .will(returnValue(ACL_SUCCESS));
 
     // when
@@ -410,7 +410,7 @@ TEST_F(AdapterRtsTest, HrtMemcpy_reserved_return_nok)
 TEST_F(AdapterRtsTest, HrtIpcSetMemoryName_return_nok)
 {
     // Given
-    MOCKER(aclrtIpcMemGetExportKey).stubs().with(any()).will(returnValue(1));
+    MOCKER(aclrtIpcMemGetExportKey).stubs().with(mockcpp::any()).will(returnValue(1));
 
     // then
     char_t fakeName[16] = "fakeName";
@@ -503,7 +503,7 @@ TEST_F(AdapterRtsTest, HrtNotifyCreate_return_ok)
     RtNotify_t fakeRtsNotify = (RtNotify_t *)0x1000000;
     MOCKER(aclrtCreateNotify)
         .stubs()
-        .with(outBoundP(&fakeRtsNotify, sizeof(fakeRtsNotify)), any())
+        .with(outBoundP(&fakeRtsNotify, sizeof(fakeRtsNotify)), mockcpp::any())
         .will(returnValue(RT_ERROR_NONE));
 
     // when
@@ -546,7 +546,7 @@ TEST_F(AdapterRtsTest, HrtPointerGetAttributes_return_ok)
 	aclrtPtrAttributes  ptrAttr
         = {.location = {.id = 0, .type = aclrtMemLocationType::ACL_MEM_LOCATION_TYPE_DEVICE}, .pageSize = 32 };
     // Given
-    MOCKER(aclrtPointerGetAttributes).stubs().with(any(), outBoundP(&ptrAttr, sizeof(ptrAttr))).will(
+    MOCKER(aclrtPointerGetAttributes).stubs().with(mockcpp::any(), outBoundP(&ptrAttr, sizeof(ptrAttr))).will(
 		returnValue(ACL_SUCCESS));
 
     // when
@@ -581,7 +581,7 @@ TEST_F(AdapterRtsTest, HrtDevMemAlignWithPage_pagesize_zero)
     // Given
     aclrtPtrAttributes ptrAttr
 	    = {.location = {.id = 0, .type = aclrtMemLocationType::ACL_MEM_LOCATION_TYPE_DEVICE}, .pageSize = 0};
-    MOCKER(HrtPointerGetAttributes).stubs().with(any()).will(returnValue(ptrAttr));
+    MOCKER(HrtPointerGetAttributes).stubs().with(mockcpp::any()).will(returnValue(ptrAttr));
 
     // when
     void *ptr     = nullptr;
@@ -599,7 +599,7 @@ TEST_F(AdapterRtsTest, HrtDevMemAlignWithPage_pargesize_nzero)
     // Given
     aclrtPtrAttributes ptrAttr
 	    = {.location = {.id = 0, .type = aclrtMemLocationType::ACL_MEM_LOCATION_TYPE_DEVICE}, .pageSize = 32};
-    MOCKER(HrtPointerGetAttributes).stubs().with(any()).will(returnValue(ptrAttr));
+    MOCKER(HrtPointerGetAttributes).stubs().with(mockcpp::any()).will(returnValue(ptrAttr));
     // when
     // when
     void *ptr     = (void *)4;
@@ -632,7 +632,7 @@ TEST_F(AdapterRtsTest, HrtNotifyGetAddr_return_ok)
     uint64_t fakeAddr = 1;
     MOCKER(rtGetNotifyAddress)
         .stubs()
-        .with(any(), outBoundP(&fakeAddr, sizeof(fakeAddr)))
+        .with(mockcpp::any(), outBoundP(&fakeAddr, sizeof(fakeAddr)))
         .will(returnValue(RT_ERROR_NONE));
 
     // when
@@ -664,7 +664,7 @@ TEST_F(AdapterRtsTest, HrtIpcOpenNotify_return_ok)
 {
     // Given
     RtNotify_t fakePtr = nullptr;
-    MOCKER(aclrtNotifySetImportPid).stubs().with(outBoundP(&fakePtr, sizeof(fakePtr)), any(), any()).will(returnValue(RT_ERROR_NONE));
+    MOCKER(aclrtNotifySetImportPid).stubs().with(outBoundP(&fakePtr, sizeof(fakePtr)), mockcpp::any(), mockcpp::any()).will(returnValue(RT_ERROR_NONE));
 
     // when
     RtNotify_t ptr = HrtIpcOpenNotify(nullptr);
@@ -831,7 +831,7 @@ TEST_F(AdapterRtsTest, test_HrtNotifyCreateWithFlag_return_ok)
     rtNotify_t fakeRtsNotify = (rtNotify_t *)0x1000000;
     MOCKER(aclrtCreateNotify)
         .stubs()
-        .with(outBoundP(&fakeRtsNotify, sizeof(fakeRtsNotify)), any())
+        .with(outBoundP(&fakeRtsNotify, sizeof(fakeRtsNotify)), mockcpp::any())
         .will(returnValue(RT_ERROR_NONE));
 
     // when
@@ -844,7 +844,7 @@ TEST_F(AdapterRtsTest, test_HrtNotifyCreateWithFlag_return_ok)
 TEST_F(AdapterRtsTest, HrtNotifyCreateWithFlag_return_nok)
 {
     // Given
-    MOCKER(aclrtCreateNotify).stubs().with(any(), any(), any()).will(returnValue(1));
+    MOCKER(aclrtCreateNotify).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(1));
 
     // then
     EXPECT_THROW(HrtNotifyCreateWithFlag(100, 100), RuntimeApiException);
@@ -891,7 +891,7 @@ TEST_F(AdapterRtsTest, test_HrtStreamGetSqId_ok)
 {
     u32 fakeSqId = 100;
     // Given
-    MOCKER(rtStreamGetSqid).stubs().with(any(), outBoundP(&fakeSqId, sizeof(fakeSqId))).will(returnValue(0));
+    MOCKER(rtStreamGetSqid).stubs().with(mockcpp::any(), outBoundP(&fakeSqId, sizeof(fakeSqId))).will(returnValue(0));
     auto res = HrtStreamGetSqId((void *)100);
     EXPECT_EQ(fakeSqId, res);
 }
@@ -899,7 +899,7 @@ TEST_F(AdapterRtsTest, test_HrtStreamGetSqId_ok)
 TEST_F(AdapterRtsTest, test_HrtStreamGetSqId_nok)
 {
     // Given
-    MOCKER(rtStreamGetSqid).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(rtStreamGetSqid).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(HrtStreamGetSqId((void *)100), RuntimeApiException);
 }
 
@@ -915,7 +915,7 @@ TEST_F(AdapterRtsTest, test_HrtIpcOpenNotifyWithFlag_ok)
     RtNotify_t fakePtr = nullptr;
     MOCKER(aclrtNotifyImportByKey)
         .stubs()
-        .with(outBoundP(&fakePtr, sizeof(fakePtr)), any(),any())
+        .with(outBoundP(&fakePtr, sizeof(fakePtr)), mockcpp::any(),mockcpp::any())
         .will(returnValue(RT_ERROR_NONE));
     auto res = HrtIpcOpenNotifyWithFlag("test", 100);
     EXPECT_EQ(res, fakePtr);
@@ -985,7 +985,7 @@ TEST_F(AdapterRtsTest, HrtEventCreateWithFlag_return_ok)
 {
     // Given
     RtEvent_t fakePtr = nullptr;
-    MOCKER(aclrtCreateEventWithFlag).stubs().with(outBoundP(&fakePtr, sizeof(fakePtr)), any()).will(returnValue(RT_ERROR_NONE));
+    MOCKER(aclrtCreateEventWithFlag).stubs().with(outBoundP(&fakePtr, sizeof(fakePtr)), mockcpp::any()).will(returnValue(RT_ERROR_NONE));
 
     // when
     RtEvent_t ptr = HrtEventCreateWithFlag(2);
@@ -1050,7 +1050,7 @@ TEST_F(AdapterRtsTest, HrtEventQueryStatus_return_init_ok)
     RtEvent_t fakePtr = nullptr;
     aclrtEventWaitStatus status = ACL_EVENT_WAIT_STATUS_NOT_READY;
     MOCKER(aclrtQueryEventWaitStatus).stubs()
-        .with(any(), outBoundP(&status, sizeof(status)))
+        .with(mockcpp::any(), outBoundP(&status, sizeof(status)))
         .will(returnValue(ACL_SUCCESS));
 
     // then
@@ -1064,7 +1064,7 @@ TEST_F(AdapterRtsTest, HrtEventQueryStatus_return_recorded_ok)
     RtEvent_t fakePtr = nullptr;
     aclrtEventWaitStatus status = ACL_EVENT_WAIT_STATUS_COMPLETE;
     MOCKER(aclrtQueryEventWaitStatus).stubs()
-        .with(any(), outBoundP(&status, sizeof(status)))
+        .with(mockcpp::any(), outBoundP(&status, sizeof(status)))
         .will(returnValue(ACL_SUCCESS));
 
     // then
@@ -1094,7 +1094,7 @@ TEST_F(AdapterRtsTest, HrtUbDevQueryToken_run_OK)
     info.tokenValue  = 20;
     // Given
     MOCKER(rtUbDevQueryInfo).stubs()
-        .with(any(), outBoundP(static_cast<void *>(&info), sizeof(rtMemUbTokenInfo)))
+        .with(mockcpp::any(), outBoundP(static_cast<void *>(&info), sizeof(rtMemUbTokenInfo)))
         .will(returnValue(RT_ERROR_NONE));
     // then
     std::pair<u32, u32> res = HrtUbDevQueryToken(0xffff, 20);
@@ -1109,7 +1109,7 @@ TEST_F(AdapterRtsTest, HrtUbDevQueryToken_run_NOK)
     info.tokenValue  = 20;
     // Given
     MOCKER(rtUbDevQueryInfo).stubs()
-        .with(any(), outBoundP(static_cast<void *>(&info), sizeof(info)))
+        .with(mockcpp::any(), outBoundP(static_cast<void *>(&info), sizeof(info)))
         .will(returnValue(1));
     // then
     std::pair<u32, u32> res = HrtUbDevQueryToken(0xffff, 20);

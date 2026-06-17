@@ -62,8 +62,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_GetRangeStr_When_InputValue_Expect_NO_TH
 TEST_F(HcclPreemptPortManagerV2Test, Ut_ListenPreempt_When_InputValue_Expect_NO_THROW)
 {
     // when
-    MOCKER_CPP(&PreemptPortManager::PreemptPortInRange).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&PreemptPortManager::PreemptPortInRange).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     IpAddress remoteIp{"10.10.10.10"};
@@ -84,8 +84,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_ListenPreempt_When_InputValue_Expect_NO_
 TEST_F(HcclPreemptPortManagerV2Test, Ut_PreemptPortInRange_When_Exist_IP_Expect_Use_Occupied)
 {
     // when
-    MOCKER_CPP(&Socket::Listen, bool(Socket::*)(u32 &port)).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&Socket::Listen, bool(Socket::*)(u32 &port)).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     IpAddress remoteIp{"10.10.10.10"};
@@ -110,8 +110,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_PreemptPortInRange_When_Exist_IP_Expect_
 TEST_F(HcclPreemptPortManagerV2Test, Ut_PreemptPortInRange_When_New_IP_Expect_HCCL_E_PARA)
 {
     // when
-    MOCKER_CPP(&Socket::Listen, bool(Socket::*)(u32 &port)).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&Socket::Listen, bool(Socket::*)(u32 &port)).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     IpAddress remoteIp{"10.10.10.10"};
@@ -156,8 +156,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_IsAlreadyListening_When_Right_Expect_tru
 TEST_F(HcclPreemptPortManagerV2Test, Ut_ReleasePreempt_When_InputValue_Expect_NO_THROW)
 {
     // when
-    MOCKER_CPP(&PreemptPortManager::IsAlreadyListening).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&PreemptPortManager::IsAlreadyListening).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     IpAddress remoteIp{"10.10.10.10"};
@@ -180,8 +180,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_ReleasePreempt_When_InputValue_Expect_NO
 TEST_F(HcclPreemptPortManagerV2Test, Ut_ReleasePreempt_When_Ref_Count_2_Expect_NO_ERASE)
 {
     // when
-    MOCKER_CPP(&PreemptPortManager::IsAlreadyListening).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&PreemptPortManager::IsAlreadyListening).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     
     // then
     IpAddress remoteIp{"10.10.10.10"};
@@ -205,8 +205,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_ReleasePreempt_When_Ref_Count_2_Expect_N
 TEST_F(HcclPreemptPortManagerV2Test, Ut_ReleasePreempt_When_Ref_Count_ERROR_Expect_THROW)
 {
     // when
-    MOCKER_CPP(&PreemptPortManager::IsAlreadyListening).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&PreemptPortManager::IsAlreadyListening).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     IpAddress remoteIp{"10.10.10.10"};
@@ -228,8 +228,8 @@ TEST_F(HcclPreemptPortManagerV2Test, Ut_ReleasePreempt_When_Ref_Count_ERROR_Expe
 TEST_F(HcclPreemptPortManagerV2Test, Ut_Release_When_InputValue_Expect_NO_THROW)
 {
     // when
-    MOCKER_CPP(&PreemptPortManager::ReleasePreempt).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&PreemptPortManager::ReleasePreempt).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&IpAddress::InitBinaryAddr).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     IpAddress remoteIp{"10.10.10.10"};

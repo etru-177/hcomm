@@ -103,7 +103,7 @@ TEST_F(LocalCtxUt, CreateCtxAiCpuMode) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -130,7 +130,7 @@ TEST_F(LocalCtxUt, CreateCtxFFTSMode) {
 
     MOCKER(GetExternalInputHcclEnableFfts)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -141,12 +141,12 @@ TEST_F(LocalCtxUt, CreateCtxFFTSMode) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(false));
 
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE));
 
     DispatcherCtxPtr ctx;
@@ -167,7 +167,7 @@ TEST_F(LocalCtxUt, CreateCtxNorMalMode) {
 
     MOCKER(GetExternalInputHcclEnableFfts)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(false));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -178,12 +178,12 @@ TEST_F(LocalCtxUt, CreateCtxNorMalMode) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(false));
 
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE));
 
     DispatcherCtxPtr ctx;
@@ -201,7 +201,7 @@ TEST_F(LocalCtxUt, CreateCtxERRMode) {
     u32 devicePhyId = INVALID_UINT;
     MOCKER(hrtGetDevicePhyIdByIndex)
     .stubs()
-    .with(any(), outBound(devicePhyId))
+    .with(mockcpp::any(), outBound(devicePhyId))
     .will(returnValue(HCCL_SUCCESS));
     DispatcherCtxPtr ctx;
     HcclResult ret = CreateDispatcherCtx(&ctx, devicePhyId);
@@ -216,7 +216,7 @@ TEST_F(LocalCtxUt, LocalCopyAICpu) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
 
@@ -251,7 +251,7 @@ TEST_F(LocalCtxUt, LocalCopyFfts) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -291,7 +291,7 @@ TEST_F(LocalCtxUt, LocalCopyNormal) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -330,7 +330,7 @@ TEST_F(LocalCtxUt, LocalCopyERR) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -370,7 +370,7 @@ TEST_F(LocalCtxUt, LocalCopyWithReduceNormal) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -427,7 +427,7 @@ TEST_F(LocalCtxUt, LocalLaunchTaskExtendNormal) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -482,7 +482,7 @@ TEST_F(LocalCtxUt, LocalInitTaskNormal) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -526,7 +526,7 @@ TEST_F(LocalCtxUt, HcclLocalNotifyRecordNormal) {
 
     MOCKER(GetExternalInputHcclAicpuUnfold)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;

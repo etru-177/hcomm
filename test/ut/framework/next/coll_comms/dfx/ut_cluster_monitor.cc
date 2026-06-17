@@ -131,7 +131,7 @@ TEST_F(ClusterMonitorTest, Ut_CreateMonitorLinksAsync_When_NormalInput_Expect_Cr
     g_monitor.clusterLinkContext_["comm2"].push(std::make_pair(uid2, context2));
     linksLock.unlock();
 
-    MOCKER_CPP(&Hccl::EnvSocketConfig::GetLinkTimeOut).stubs().with(any()).will(returnValue((s32)(5)));
+    MOCKER_CPP(&Hccl::EnvSocketConfig::GetLinkTimeOut).stubs().with(mockcpp::any()).will(returnValue((s32)(5)));
     g_monitor.CreateHBLinksAsync();
 
     u32 uncompletedCount = 3;
@@ -184,7 +184,7 @@ TEST_F(ClusterMonitorTest, Ut_RecvMonitorFrame_When_NormalInput_Expect_RecvFrame
     uint64_t compSize = 0;
     MOCKER(SocketRecvNb)
     .stubs()
-    .with(any(), any(), any(), outBoundP(&compSize, sizeof(uint64_t *)))
+    .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&compSize, sizeof(uint64_t *)))
     .will(invoke(SocketRecvNb))    // 第1次走真实函数
     .then(returnValue(HCCL_E_AGAIN));  // 第2次返回特定值
 

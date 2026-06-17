@@ -424,14 +424,14 @@ TEST_F(ZeroCopyMemoryAgentUt, ut_agent_test)
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion)
         .expects(atMost(2))
-        .with(any(), any(), outBoundP(&interfaceVersion))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret;
     u32 recvBufLen = 64;
     u64 compSize = 64;
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(invoke(stub_ZeroCopyMemoryAgentSt_Send));
     MOCKER_CPP(&HcclSocket::IRecv).stubs().will(invoke(stub_ZeroCopyMemoryAgent_IRecv));
     MOCKER(aclrtMapMem).stubs().will(returnValue(ACL_SUCCESS));
@@ -540,7 +540,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_AgentFunc_When_UseAsyncSocketApi_ExpectNorm)
     MOCKER(GetIsSupSockBatchCloseImmed).stubs().will(invoke(stub_SocketManagerTest_GetIsSupSockBatchCloseImmed));
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion).expects(atMost(2))
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret; 
 
@@ -592,7 +592,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_RequestBatchSendAsync_When_CombineAckAndReq_Exp
     MOCKER(GetIsSupSockBatchCloseImmed).stubs().will(invoke(stub_SocketManagerTest_GetIsSupSockBatchCloseImmed));
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion).expects(atMost(2))
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret; 
 
@@ -638,7 +638,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_RequestBatchSendAsync_When_SocketSendFailed_Exp
     MOCKER(GetIsSupSockBatchCloseImmed).stubs().will(invoke(stub_SocketManagerTest_GetIsSupSockBatchCloseImmed));
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion).expects(atMost(2))
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret; 
 
@@ -680,7 +680,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_RequestBatchSendAsync_When_SocketSendFailed_Exp
     // SendAsync后，GetResult表明send失败场景
     HcclResult sendReqRet = HCCL_E_TCP_TRANSFER;
     MOCKER_CPP(&HcclSocket::GetAsyncReqResult).stubs()
-    .with(any(), outBound(sendReqRet))
+    .with(mockcpp::any(), outBound(sendReqRet))
     .will(returnValue(HCCL_E_AGAIN))
     .then(returnValue(HCCL_SUCCESS));
     agent.sendMgrs_[1].AddRequest(false, agent.exchangeDataForSend_);
@@ -711,7 +711,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_RequestBatchRecvAsync_When_SocketRecvFailed_Exp
     MOCKER(GetIsSupSockBatchCloseImmed).stubs().will(invoke(stub_SocketManagerTest_GetIsSupSockBatchCloseImmed));
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion).expects(atMost(2))
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret; 
 
@@ -742,7 +742,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_RequestBatchRecvAsync_When_SocketRecvFailed_Exp
     // RecvAsync后，GetResult表明Recv失败场景
     void *handle = (void*)0x02;
     MOCKER_CPP(&HcclSocket::RecvAsync).stubs()
-    .with(any(), any(), any(), outBoundP(&handle))
+    .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&handle))
     .will(returnValue(HCCL_SUCCESS));
     agent.recvMgrs_[1].recvIndex_ = 0;
     agent.recvMgrs_[1].lastRecvSize_ = 0;
@@ -752,7 +752,7 @@ TEST_F(ZeroCopyMemoryAgentUt, Ut_RequestBatchRecvAsync_When_SocketRecvFailed_Exp
   
     HcclResult recvReqRet = HCCL_E_TCP_TRANSFER;
     MOCKER_CPP(&HcclSocket::GetAsyncReqResult).stubs()
-    .with(any(), outBound(recvReqRet))
+    .with(mockcpp::any(), outBound(recvReqRet))
     .will(returnValue(HCCL_E_AGAIN))
     .then(returnValue(HCCL_SUCCESS));
     agent.CheckBatchRecvAsyncResult();

@@ -77,7 +77,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_CommIsNotDefault_Expect_Success)
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -94,13 +94,13 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_CommIsDefault_Expect_Success) {
     // Mock HcomGetCommByGroup
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, testGroup, count, counts, 
@@ -116,13 +116,13 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_GroupIsNull_Expect_Success) {
     // Mock HcomGetCommByGroup
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, nullptr, count, counts, 
@@ -139,7 +139,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_GetCommByGroupFail_Expect_Error)
     // Mock HcomGetCommByGroup 返回失败
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_E_NOT_FOUND));
     
     HcclResult result = HcomSelectAlg(testComm, testGroup, count, counts, 
@@ -155,7 +155,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_HcclSelectAlgFail_Expect_Error) 
     // Mock hcclComm::HcclSelectAlg 返回失败
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -172,7 +172,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_OpTypeIsAllGather_Expect_Success
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -189,7 +189,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_OpTypeIsReduceScatter_Expect_Suc
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -206,7 +206,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_ReduceOpIsMax_Expect_Success) {
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -223,7 +223,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_DataTypeIsInt32_Expect_Success) 
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -240,7 +240,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_CountIsZero_Expect_Success) {
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -257,7 +257,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_AivCoreLimitIsNonZero_Expect_Suc
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -274,7 +274,7 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_CountsIsNull_Expect_Success) {
     // Mock hcclComm::HcclSelectAlg 方法
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     
     HcclResult result = HcomSelectAlg(testComm, HCCL_WORLD_GROUP, count, counts, 
@@ -291,13 +291,13 @@ TEST_F(HcomSelectAlgTest, Ut_HcomSelectAlg_When_DefaultCommAndSelectAlgFail_Expe
     // Mock HcomGetCommByGroup
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(comm))
+    .with(mockcpp::any(), outBound(comm))
     .will(returnValue(HCCL_SUCCESS));
     
     // Mock hcclComm::HcclSelectAlg 返回失败
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_PARA));
     
     HcclResult result = HcomSelectAlg(testComm, testGroup, count, counts, 

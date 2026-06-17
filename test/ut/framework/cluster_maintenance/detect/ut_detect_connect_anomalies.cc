@@ -168,7 +168,7 @@ TEST_F(DetectConnectAnomaliesTest, CreateServers_CreateVnicThread_Success)
     ErrInfo errInfo;
     MOCKER_CPP(&DetectConnectionAnomalies::CreateDetectVnicLinks)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = dca_->CreateServers(errInfo);
@@ -190,7 +190,7 @@ TEST_F(DetectConnectAnomaliesTest, CreateServers_CreateNicThread_Success)
 
     MOCKER_CPP(&DetectConnectionAnomalies::CreateDetectNicLinks)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = dca_->CreateServers(errInfo);
@@ -221,7 +221,7 @@ TEST_F(DetectConnectAnomaliesTest, CreateClients_Success)
 
     MOCKER_CPP(&DetectConnectionAnomalies::CreateClient)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = dca_->CreateClients(errInfo, linkClientThreads);

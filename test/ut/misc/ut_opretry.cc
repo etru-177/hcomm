@@ -52,7 +52,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -185,19 +185,19 @@ HcclResult stub_WaitChangeLink(OpRetryBase* that, std::shared_ptr<HcclSocket> so
 
 TEST_F(RetryTest, ut_retry_Agent_processEvent)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
 
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     u32 rankId = 0;
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().will(returnValue(HCCL_SUCCESS));
     OpRetryAgentParam agentParam;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
@@ -239,7 +239,7 @@ TEST_F(RetryTest, ut_retry_Agent_processEvent)
     commandinfo.command = RETRY_CMD_RUNNING;
     MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId)
     .stubs()
-    .with(any(), outBound(commandinfo))
+    .with(mockcpp::any(), outBound(commandinfo))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::GetRetryInfo)
     .stubs()
@@ -255,12 +255,12 @@ TEST_F(RetryTest, ut_retry_Agent_processEvent)
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     // OpRetryAgentRunning ParseKfcErr
     std::shared_ptr<OpRetryAgentRunning> agentRunning = std::make_shared<OpRetryAgentRunning>();
@@ -290,9 +290,9 @@ TEST_F(RetryTest, ut_retry_Agent_processEvent)
     RetryContext context2(agentParam, retryAgentWaitCmd);
     context1comd.command = RETRY_CMD_STOP_AICPU;
     context2.isChangeLinkInfoInit_ = true;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_STOP_AICPU;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -306,78 +306,78 @@ TEST_F(RetryTest, ut_retry_Agent_processEvent)
         opId, curOpId);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_CLEAR_STREAM;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CLEAR_STREAM;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_RESET_NOTIFY;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_RESET_NOTIFY;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_CHECK_OPNAME;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::GetRetryInfo).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::GetRetryInfo).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CHECK;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_CAN_RETRY;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CAN_RETRY;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     // 删除205s超时用例 影响线上llt运行时长
     context1comd.command = RETRY_CMD_STOP_STREAM;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_STOP_STREAM;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_CHECK_LINK;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::GetLinkPortStatus).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::GetLinkPortStatus).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CHECK_LINK;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_STOP_TRANSPORT;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetTransportStatusForStop).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetTransportStatusForResume).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetTransportStatusForStop).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetTransportStatusForResume).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_STOP_TRANSPORT;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context1comd.command = RETRY_CMD_RESUME_TRANSPORT;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetTransportStatusForStop).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetTransportStatusForResume).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetTransportStatusForStop).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetTransportStatusForResume).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_RESUME_TRANSPORT;
     ret = retryAgentWaitCmd->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -389,41 +389,41 @@ TEST_F(RetryTest, ut_retry_Agent_processEvent)
     context3.state_ = RETRY_STATE_POLL_AICPU_STOPED;
     opInfo.execStatus.kfcStatus = KfcStatus::kRuning;
     context3.SetRetryState(RETRY_STATE_POLL_AICPU_STOPED, retryAgentPollAicpuStop);
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any(), outBound(opInfo)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any(), outBound(opInfo)).will(returnValue(0));
     ret = retryAgentPollAicpuStop->ProcessEvent(&context3);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context3.state_ = RETRY_STATE_POLL_STREAM_STOPED;
     context3.SetRetryState(RETRY_STATE_POLL_STREAM_STOPED, retryAgentPollAicpuStop);
     opInfo.execStatus.kfcStatus = KfcStatus::kStopExec;
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any(), outBound(opInfo)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any(), outBound(opInfo)).will(returnValue(0));
     ret = retryAgentPollAicpuStop->ProcessEvent(&context3);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     context3.state_ = RETRY_STATE_POLL_AICPU_RETRYEND;
     context3.SetRetryState(RETRY_STATE_POLL_AICPU_RETRYEND, retryAgentPollAicpuStop);
     opInfo.execStatus.kfcStatus = KfcStatus::kEnd;
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any(), outBound(opInfo)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any(), outBound(opInfo)).will(returnValue(0));
     ret = retryAgentPollAicpuStop->ProcessEvent(&context3);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     //RetryAgentRetryFail Agent状态机初始化
     std::shared_ptr<OpRetryAgentRetryFail> retryAgentRetryFail = std::make_shared<OpRetryAgentRetryFail>();
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(0));
     RetryContext context4(agentParam, retryAgentRetryFail);
     ret = retryAgentRetryFail->ProcessEvent(&context4);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     //OpRetryAgentResponseLinkInfo Agent状态机初始化
     std::shared_ptr<OpRetryAgentResponseLinkInfo> retryAgentResponseLinkInfo = std::make_shared<OpRetryAgentResponseLinkInfo>();
-    MOCKER_CPP(&OpRetryBase::IssueLinkPortCheckResult).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::IssueLinkPortCheckResult).stubs().with(mockcpp::any()).will(returnValue(0));
     RetryContext context5(agentParam, retryAgentResponseLinkInfo);
     ret = retryAgentResponseLinkInfo->ProcessEvent(&context5);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
     //OpRetryAgentWaitChangeLinkInfo Agent状态机初始化
     std::shared_ptr<OpRetryAgentWaitChangeLinkInfo> retryAgentWaitChangeLinkInfo = std::make_shared<OpRetryAgentWaitChangeLinkInfo>();
-    MOCKER_CPP(&OpRetryBase::WaitChangeLink).stubs().with(any()).will(invoke(stub_WaitChangeLink));
+    MOCKER_CPP(&OpRetryBase::WaitChangeLink).stubs().with(mockcpp::any()).will(invoke(stub_WaitChangeLink));
     RetryContext context6(agentParam, retryAgentWaitChangeLinkInfo);
     context6.localChangeLinkInfo_.remoteRankNum = 1;
     ret = retryAgentWaitChangeLinkInfo->ProcessEvent(&context6);
@@ -433,9 +433,9 @@ TEST_F(RetryTest, ut_retry_Agent_processEvent)
 
 TEST_F(RetryTest, ut_retry_Server_processEvent)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -627,9 +627,9 @@ TEST_F(RetryTest, ut_retry_Server_processEvent)
 
 TEST_F(RetryTest, ut_retry_Server_SetNeedRetryServerRank)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -679,9 +679,9 @@ TEST_F(RetryTest, ut_retry_Server_SetNeedRetryServerRank)
 
 TEST_F(RetryTest, ut_retry_Server_handleErrTimeout)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     HcclIpAddress remoteIp = HcclIpAddress("192.168.100.112");
@@ -730,8 +730,8 @@ TEST_F(RetryTest, ut_retry_Server_handleErrTimeout)
 
 TEST_F(RetryTest, ut_retry_base_function)
 {
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -804,9 +804,9 @@ TEST_F(RetryTest, ut_retry_base_function)
 
 TEST_F(RetryTest, ut_retry_base_function_withLink)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(OpRetryManager::GetLinkInfoByIdentifier).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(OpRetryManager::GetLinkInfoByIdentifier).stubs().with(mockcpp::any()).will(returnValue(0));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     std::shared_ptr<HcclSocket> ServerSocket1(new (std::nothrow)HcclSocket("Retryfunction1",
@@ -833,10 +833,10 @@ TEST_F(RetryTest, ut_retry_base_function_withLink)
     context.localRetryInfo_.opInfo.opId.isSendRecv = true;
     ret = retrySon->InitChangeLinkInfo(&context);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    MOCKER(HrtRaRdmaGetHandle).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetPairDevicePhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaRdevGetPortStatus).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER(HrtRaRdmaGetHandle).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDevicePhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaRdevGetPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
     HcclNetDevCtx netDevCtx;
     ret = HcclNetOpenDev(&netDevCtx, NicType::DEVICE_NIC_TYPE, 0, 0, HcclIpAddress("0.0.0.0"));
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -858,9 +858,9 @@ HcclResult stub_GetLinkInfoByIdentifier(s32 deviceLogicID, const std::string &id
 
 TEST_F(RetryTest, ut_retry_base_function_withIncreLink)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(OpRetryManager::GetLinkInfoByIdentifier).stubs().with(any()).will(invoke(stub_GetLinkInfoByIdentifier));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(OpRetryManager::GetLinkInfoByIdentifier).stubs().with(mockcpp::any()).will(invoke(stub_GetLinkInfoByIdentifier));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     std::shared_ptr<HcclSocket> ServerSocket1(new (std::nothrow)HcclSocket("Retryfunction1",
@@ -903,8 +903,8 @@ TEST_F(RetryTest, ut_retry_base_function_LinkManager)
 
 TEST_F(RetryTest, ut_retry_base_function_withopid)
 {
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -992,9 +992,9 @@ TEST_F(RetryTest, ut_hrtNotifyReset)
 
 TEST_F(RetryTest, ut_Init_Agent)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any()).will(returnValue(0));
     u32 rankId = 0;
     u32 rankSize = 1;
     HcclCommConnections commConnect;
@@ -1028,7 +1028,7 @@ TEST_F(RetryTest, ut_Init_Agent)
     OpRetryServerInfo serverInfo = {localIp, 16666, 0};
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_RUNNING;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
 	OpRetryManager opRetryManager;
     opRetryManager.RegisterOpRetryMachine(agentParam, rankSize, commConnect.isRoot,
         commConnect.serverConnections, serverInfo);
@@ -1096,9 +1096,9 @@ TEST_F(RetryTest, ut_PrintAgentInfoAfterFail)
 }
 
 TEST_F(RetryTest, ut_retry_Server_SetNeedRetryServerRank_RDMA_Err) {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -1156,21 +1156,21 @@ HcclResult stub_GetQpnErr(Heartbeat *heartbeat, const std::string &identifier,
 
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_sendRecv)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(invoke(stub_GetQpnErr));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(invoke(stub_GetQpnErr));
 
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclCommConnections commConnect;
     OpRetryAgentParam agentParam;
     agentParam.h2dPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_H2D, sizeof(KfcExecControl)));
@@ -1228,19 +1228,19 @@ HcclResult stub_GetQpnErr1(Heartbeat *heartbeat, const std::string &identifier,
 
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr1)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(invoke(stub_GetQpnErr1));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(invoke(stub_GetQpnErr1));
 
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     OpRetryAgentParam agentParam;
     u32 rankId = 0;
@@ -1296,24 +1296,24 @@ HcclResult stub_GetQpnErr2(Heartbeat *heartbeat, const std::string &identifier,
 
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr2)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(invoke(stub_GetQpnErr2));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(invoke(stub_GetQpnErr2));
 
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtRaRdmaGetHandle).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaRdevGetPortStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaRdmaGetHandle).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaRdevGetPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HCCL_SUCCESS;
 
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     OpRetryAgentParam agentParam;
     u32 rankId = 0;
@@ -1376,16 +1376,16 @@ HcclResult stub_GetQpnErr3(Heartbeat *heartbeat, const std::string &identifier,
  
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_SEND)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(invoke(stub_GetQpnErr3));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(invoke(stub_GetQpnErr3));
  
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtRaRdmaGetHandle).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaRdevGetPortStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaRdmaGetHandle).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaRdevGetPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
  
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
@@ -1393,8 +1393,8 @@ TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_SEND)
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     OpRetryAgentParam agentParam;
     agentParam.h2dPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_H2D, sizeof(KfcExecControl)));
     agentParam.d2hPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_D2H, sizeof(KfcExecStatus)));
@@ -1445,16 +1445,16 @@ HcclResult stub_GetQpnErr5(Heartbeat *heartbeat, const std::string &identifier,
 }
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_RECV)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(invoke(stub_GetQpnErr5));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(invoke(stub_GetQpnErr5));
  
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtRaRdmaGetHandle).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaRdevGetPortStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaRdmaGetHandle).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaRdevGetPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
  
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
@@ -1463,8 +1463,8 @@ TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_RECV)
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     OpRetryAgentParam agentParam;
     agentParam.h2dPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_H2D, sizeof(KfcExecControl)));
     agentParam.d2hPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_D2H, sizeof(KfcExecStatus)));
@@ -1510,23 +1510,23 @@ TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_RECV)
  
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_remainSendErr)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(returnValue(0));
  
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtRaRdmaGetHandle).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaRdevGetPortStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaRdmaGetHandle).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaRdevGetPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
  
     HcclResult ret = HCCL_SUCCESS;
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     OpRetryAgentParam agentParam;
     u32 rankId = 0;
@@ -1578,16 +1578,16 @@ TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_remainSendErr)
  
 TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_remainRECVErr)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Get).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&HDCommunicate::Put).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Get).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&HDCommunicate::Put).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&Heartbeat::GetQpnErr).stubs().with(mockcpp::any()).will(returnValue(0));
  
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HrtRaRdmaGetHandle).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtRaRdevGetPortStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaRdmaGetHandle).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtRaRdevGetPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
  
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
@@ -1595,8 +1595,8 @@ TEST_F(RetryTest, ut_retry_Agent_ParseRdmaErr_bsr_remainRECVErr)
     //OpRetryAgentRunning Agent状态机初始化
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_STOP_AICPU;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     OpRetryAgentParam agentParam;
     agentParam.h2dPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_H2D, sizeof(KfcExecControl)));
     agentParam.d2hPtr.reset(new (std::nothrow) hccl::HDCommunicate(0, HCCL_HDC_TYPE_D2H, sizeof(KfcExecStatus)));
@@ -1823,7 +1823,7 @@ HcclResult stub_BroadcastCqeErr(Heartbeat *heartbeat, const std::string &identif
 
 TEST_F(RetryTest, ut_retry_Agent_WaitCmdCanRetryCase)
 {
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     u32 rankId = 0;
     
@@ -1854,11 +1854,11 @@ TEST_F(RetryTest, ut_retry_Agent_WaitCmdCanRetryCase)
     RetryContext context2(agentParam, retryAgentWaitCmd);
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_CAN_RETRY;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&Heartbeat::ClearCqeErr).stubs().with(any()).will(invoke(stub_ClearCqeErr));
-    MOCKER_CPP(&Heartbeat::BroadcastCqeErr).stubs().with(any()).will(invoke(stub_BroadcastCqeErr));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Heartbeat::ClearCqeErr).stubs().with(mockcpp::any()).will(invoke(stub_ClearCqeErr));
+    MOCKER_CPP(&Heartbeat::BroadcastCqeErr).stubs().with(mockcpp::any()).will(invoke(stub_BroadcastCqeErr));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     context2.isChangeLinkInfoInit_ = true;
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CAN_RETRY;
@@ -1877,7 +1877,7 @@ TEST_F(RetryTest, ut_retry_Agent_WaitCmdCanRetryCase)
 
 TEST_F(RetryTest, ut_retry_Agent_WaitCmdCanRetryCase_BSR) 
 {
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
 
     //RetryAgentWaitCmd Agent状态机初始化
@@ -1909,11 +1909,11 @@ TEST_F(RetryTest, ut_retry_Agent_WaitCmdCanRetryCase_BSR)
     RetryContext context2(agentParam, retryAgentWaitCmd);
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_CAN_RETRY;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&Heartbeat::ClearCqeErr).stubs().with(any()).will(invoke(stub_ClearCqeErr));
-    MOCKER_CPP(&Heartbeat::BroadcastCqeErr).stubs().with(any()).will(invoke(stub_BroadcastCqeErr));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Heartbeat::ClearCqeErr).stubs().with(mockcpp::any()).will(invoke(stub_ClearCqeErr));
+    MOCKER_CPP(&Heartbeat::BroadcastCqeErr).stubs().with(mockcpp::any()).will(invoke(stub_BroadcastCqeErr));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     context2.isChangeLinkInfoInit_ = true;
     context2.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CAN_RETRY;
@@ -2001,9 +2001,9 @@ TEST_F(RetryTest, ut_retry_Server_processError)
 
 TEST_F(RetryTest, ut_retry_Server_OpName_Inconsistent)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -2051,7 +2051,7 @@ TEST_F(RetryTest, ut_retry_Server_OpName_Inconsistent)
     {
        mapinfo.second =  info;
     }
-    MOCKER_CPP(&OpRetryBase::CheckOpName).stubs().with(any()).will(returnValue(HCCL_E_OPRETRY_FAIL));
+    MOCKER_CPP(&OpRetryBase::CheckOpName).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_OPRETRY_FAIL));
     context1.needRetryServerRanks_.emplace_back(0);
     ret = retryServerCheckOp->ProcessEvent(&context1);
     EXPECT_EQ(context1.isNeedReportOpRetryErr, true);
@@ -2103,11 +2103,11 @@ TEST_F(RetryTest, ut_retry_Agent_OpName_Inconsistent)
     context1.localRetryInfo_.isNeedReportOpRetryErr = false;
     RetryCommandInfo context1comd;
     context1comd.command = RETRY_CMD_RETRY_CONSTRAINT_FAIL;
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context1comd)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&Heartbeat::ClearCqeErr).stubs().with(any()).will(invoke(stub_ClearCqeErr));
-    MOCKER_CPP(&Heartbeat::BroadcastCqeErr).stubs().with(any()).will(invoke(stub_BroadcastCqeErr));
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context1comd)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmdWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&Heartbeat::ClearCqeErr).stubs().with(mockcpp::any()).will(invoke(stub_ClearCqeErr));
+    MOCKER_CPP(&Heartbeat::BroadcastCqeErr).stubs().with(mockcpp::any()).will(invoke(stub_BroadcastCqeErr));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     context1.isChangeLinkInfoInit_ = true;
     context1.localRetryInfo_.retryState = RETRY_STATE_WAIT_CMD_CAN_RETRY;
@@ -2128,7 +2128,7 @@ TEST_F(RetryTest, ut_retry_Agent_OpName_Inconsistent)
     std::shared_ptr<OpRetryAgentRetryFail> opRetryAgentRetryFail = std::make_shared<OpRetryAgentRetryFail>();
     RetryContext context2(agentParam, opRetryAgentRetryFail);
     context2.localRetryInfo_.isNeedReportOpRetryErr = true;
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = opRetryAgentRetryFail->ProcessEvent(&context2);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
@@ -2169,7 +2169,7 @@ TEST_F(RetryTest, ut_retry_Agent_Inplace_Err)
     opInfo.execStatus.kfcStatus = KfcStatus::kRetryError;
     context1.SetRetryState(RETRY_STATE_POLL_AICPU_STOPED, retryAgentPollAicpuStop);
     context1.localRetryInfo_.isNeedReportOpRetryErr = false;
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any(), outBound(opInfo)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any(), outBound(opInfo)).will(returnValue(0));
     HcclResult ret = retryAgentPollAicpuStop->ProcessEvent(&context1);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     EXPECT_EQ(context1.localRetryInfo_.isNeedReportOpRetryErr, true);
@@ -2178,9 +2178,9 @@ TEST_F(RetryTest, ut_retry_Agent_Inplace_Err)
 
 TEST_F(RetryTest, ut_retry_Server_Inplace_Err)
 {
-    MOCKER_CPP(&OpRetryBase::Send).stubs().with(any()).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(any()).will(returnValue(0));
-    MOCKER(hrtCtxSetCurrent).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::Send).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::Recv).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(hrtCtxSetCurrent).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     HcclIpAddress localIp = HcclIpAddress("192.168.100.110");
     u32 rankId = 0;
@@ -2221,7 +2221,7 @@ TEST_F(RetryTest, ut_retry_Server_Inplace_Err)
     info.retryInfo = retryinfo;
 
     //RetryServerWaitResp 
-    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     std::shared_ptr<OpRetryServerWaitResp> retryServerWaitResp = std::make_shared<OpRetryServerWaitResp>();
     RetryContext context1(ServerSockets, retryServerWaitResp, agentInfo);
     context1.SetRetryState(RETRY_STATE_WAIT_AICPU_STOPED, retryServerWaitResp);
@@ -2275,7 +2275,7 @@ TEST_F(RetryTest, ut_retry_agent_wait_resume_processEvent)
     context1comd.command = RESUME_CMD_RUNNING;
     MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId)
         .stubs()
-        .with(any(), outBound(context1comd))
+        .with(mockcpp::any(), outBound(context1comd))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::IssueResponse).stubs().will(returnValue(HCCL_E_TIMEOUT));
     ret = opRetryAgentWaitResume->ProcessEvent(&context);
@@ -2285,7 +2285,7 @@ TEST_F(RetryTest, ut_retry_agent_wait_resume_processEvent)
     context1comd.command = RESUME_CMD_CHECK_LINK;
     MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId)
         .stubs()
-        .with(any(), outBound(context1comd))
+        .with(mockcpp::any(), outBound(context1comd))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::IssueResponse).stubs().will(returnValue(HCCL_E_TIMEOUT));
     ret = opRetryAgentWaitResume->ProcessEvent(&context);
@@ -2295,7 +2295,7 @@ TEST_F(RetryTest, ut_retry_agent_wait_resume_processEvent)
     opRetryAgentWaitResume->keepTimeout_ = std::chrono::seconds(0);
     MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId)
         .stubs()
-        .with(any(), outBound(context1comd))
+        .with(mockcpp::any(), outBound(context1comd))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::GetRetryInfo).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::IssueResponse).stubs().will(returnValue(HCCL_E_TIMEOUT));
@@ -2324,7 +2324,7 @@ TEST_F(RetryTest, ut_retry_agent_wait_resume_processEvent)
     context1comd.command = RETRY_CMD_RETRY_FAIL;
     MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId)
     .stubs()
-    .with(any(), outBound(context1comd))
+    .with(mockcpp::any(), outBound(context1comd))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().will(returnValue(HCCL_SUCCESS));
     ret = opRetryAgentWaitCmd->ProcessEvent(&context);
@@ -2473,7 +2473,7 @@ TEST_F(RetryTest, ut_retry_opbase_switch_state)
 
     std::shared_ptr<OpRetryServerRetryFail> opRetryServerRetryFail = std::make_shared<OpRetryServerRetryFail>();
     RetryContext context1(ServerSockets, opRetryServerRetryFail, agentInfo);
-    MOCKER_CPP(&OpRetryBase::IssueCommandWithOpId).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&OpRetryBase::IssueCommandWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
     context1.needRetryServerRanks_.push_back(0);
     context1.isServerStateWaitResume_ = false;
     context1.isRootRetryCtx_ = true;
@@ -2510,10 +2510,10 @@ TEST_F(RetryTest, ut_retry_Agent_Resume_Check_Link)
     agentParam.setTransportStatusCallback = setTransportStatusCallback;
     agentParam.getSwitchRanksCallback = getSwitchRanksCallback;
 
-    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::GetLinkPortStatus).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::IssueLinkPortCheckResult).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetTransportStatusForStop).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::InitChangeLinkInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::GetLinkPortStatus).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::IssueLinkPortCheckResult).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetTransportStatusForStop).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::shared_ptr<ResumeAgentCheckLink> opRetryAgentResumeCheckLink = std::make_shared<ResumeAgentCheckLink>();
     RetryContext context1(agentParam, opRetryAgentResumeCheckLink);
@@ -2526,17 +2526,17 @@ TEST_F(RetryTest, ut_retry_Agent_Resume_Check_Link)
     std::shared_ptr<ResumeAgentChangeLink> opRetryAgentResumeChangeLink = std::make_shared<ResumeAgentChangeLink>();
     RetryContext context2(agentParam, opRetryAgentResumeChangeLink);
     opInfo.execStatus.kfcStatus = KfcStatus::kResumeChanged;
-    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(any(), outBound(opInfo)).will(returnValue(0));
-    MOCKER_CPP(&OpRetryBase::IssueResponse).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::GetOpExecInfo).stubs().with(mockcpp::any(), outBound(opInfo)).will(returnValue(0));
+    MOCKER_CPP(&OpRetryBase::IssueResponse).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::SetOpExecCmd).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = opRetryAgentResumeChangeLink->WaitAndRespLinkChanged(&context2, nextState);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();
 
     RetryCommandInfo context3comd;
     context3comd.command = RETRY_CMD_RESUME_TRANSPORT;
-    MOCKER_CPP(&OpRetryBase::WaitChangeLink).stubs().with(any()).will(invoke(stub_WaitChangeLink));
-    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(any(), outBound(context3comd)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitChangeLink).stubs().with(mockcpp::any()).will(invoke(stub_WaitChangeLink));
+    MOCKER_CPP(&OpRetryBase::WaitCommandWithOpId).stubs().with(mockcpp::any(), outBound(context3comd)).will(returnValue(HCCL_SUCCESS));
     RetryContext context3(agentParam, opRetryAgentResumeChangeLink);
     context3.localChangeLinkInfo_.remoteRankNum = 1;
     ret = opRetryAgentResumeChangeLink->WaitResumeCmdResumeTransport(&context3);
@@ -2547,19 +2547,19 @@ TEST_F(RetryTest, ut_retry_Agent_Resume_Check_Link)
     context4.localChangeLinkInfo_.isChangeLinkFlag = true;
     MOCKER_CPP(&ResumeAgentChangeLink::WaitResumeCmdResumeTransport)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::SetTransportStatusForResume)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&OpRetryBase::SetOpChangeLinkInfo)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&ResumeAgentChangeLink::WaitAndRespLinkChanged)
         .stubs()
-        .with(any(), outBound(nextState))
+        .with(mockcpp::any(), outBound(nextState))
         .will(returnValue(HCCL_SUCCESS));
     ret = opRetryAgentResumeChangeLink->ProcessEvent(&context4);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -2596,7 +2596,7 @@ TEST_F(RetryTest, ut_retry_Server_Resume_Check_Link)
     std::shared_ptr<ResumeServerCheckAllLink> retryServerResumeCheckAllLink = std::make_shared<ResumeServerCheckAllLink>();
     RetryContext context(ServerSockets, retryServerResumeCheckAllLink, agentInfo);
 
-    MOCKER_CPP(&OpRetryBase::WaitLinkPortCheckResult).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitLinkPortCheckResult).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = retryServerResumeCheckAllLink->WaitAgentCheckLinkResult(&context);
 
     RetryState nextState = RETRY_RESUME_STATE_SERVER_CHANGE_LINK;
@@ -2611,15 +2611,15 @@ TEST_F(RetryTest, ut_retry_Server_Resume_Check_Link)
     context.serverSockets_[0].linkPortStatus.defaultPort = true;
     ret = retryServerResumeCheckAllLink->CheckAllLink(&context, nextState);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    MOCKER_CPP(&ResumeServerCheckAllLink::WaitAgentCheckLinkResult).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&ResumeServerCheckAllLink::CheckAllLink).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&ResumeServerCheckAllLink::WaitAgentCheckLinkResult).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&ResumeServerCheckAllLink::CheckAllLink).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = retryServerResumeCheckAllLink->ProcessEvent(&context);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
     std::shared_ptr<ResumeServerChangeLink> retryServerResumeChangeLink = std::make_shared<ResumeServerChangeLink>();
     RetryContext context1(ServerSockets, retryServerResumeChangeLink, agentInfo);
-    MOCKER_CPP(&OpRetryBase::IssueChangeLink).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&OpRetryBase::IssueCommandWithOpId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::IssueChangeLink).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::IssueCommandWithOpId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = retryServerResumeChangeLink->CmdAgentChangeLink(&context1);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
@@ -2627,17 +2627,17 @@ TEST_F(RetryTest, ut_retry_Server_Resume_Check_Link)
     RetryInfo retryInfo;
     retryInfo.retryState = RETRY_STATE_AGENT_RUNNING;
     retryInfo.opInfo.execStatus.kfcStatus = KfcStatus::kResumeChanged;
-    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(mockcpp::any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
     ret = retryServerResumeChangeLink->WaitAllChangeLinkResult(&context1, nextState);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
     retryInfo.retryState = RETRY_STATE_RESP_RUNNING_ERR;
-    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&OpRetryBase::WaitResponse).stubs().with(mockcpp::any(), outBound(retryInfo)).will(returnValue(HCCL_SUCCESS));
     ret = retryServerResumeChangeLink->WaitAllChangeLinkResult(&context1, nextState);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
-    MOCKER_CPP(&ResumeServerChangeLink::CmdAgentChangeLink).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&ResumeServerChangeLink::WaitAllChangeLinkResult).stubs().with(any(), outBound(nextState)).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&ResumeServerChangeLink::CmdAgentChangeLink).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&ResumeServerChangeLink::WaitAllChangeLinkResult).stubs().with(mockcpp::any(), outBound(nextState)).will(returnValue(HCCL_SUCCESS));
     ret = retryServerResumeChangeLink->ProcessEvent(&context1);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }

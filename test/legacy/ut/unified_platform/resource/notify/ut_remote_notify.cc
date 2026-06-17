@@ -33,10 +33,10 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType::DEV_TYPE_910A2));
-        MOCKER(HrtIpcOpenNotify).stubs().with(any()).will(returnValue((void *)fakeNotifyHandleAddr));
-        MOCKER(HrtIpcOpenNotifyWithFlag).stubs().with(any(), any()).will(returnValue((void *)fakeNotifyHandleAddr));
+        MOCKER(HrtIpcOpenNotify).stubs().with(mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
+        MOCKER(HrtIpcOpenNotifyWithFlag).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
         MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
-        MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+        MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
         std::cout << "A Test case in IpcRemoteNotifyTest SetUP" << std::endl;
     }
 
@@ -70,9 +70,9 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType::DEV_TYPE_910A2));
-        MOCKER(HrtIpcOpenNotify).stubs().with(any()).will(returnValue((void *)fakeNotifyHandleAddr));
+        MOCKER(HrtIpcOpenNotify).stubs().with(mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
         MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
-        MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+        MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
         std::cout << "A Test case in RdmaRemoteNotifyTest SetUP" << std::endl;
     }
 

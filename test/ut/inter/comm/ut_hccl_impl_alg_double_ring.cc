@@ -73,7 +73,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&Heartbeat::Init)
         .stubs()
@@ -83,15 +83,15 @@ protected:
         .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&Stream::ptr)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue((void*)0x12345678));
         MOCKER_CPP(&Stream::IsMainStream)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(false));
         MOCKER(hrtNotifyWaitWithTimeOut)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
         setenv("HCCL_OP_RETRY_ENABLE", "L0:0, L1:0, L2:0", 1);
         std::cout << "A Test SetUP" << std::endl;
@@ -188,7 +188,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_CollReduceScatterDoubleRingExecutor_Ring)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -286,7 +286,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_CollReduceScatterFastDoubleRingFor91093Exec
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -381,7 +381,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_SuperPod_CollReduceScatterDoubleRingExecuto
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
@@ -482,7 +482,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_CollReduceDoubleRingExecutor_Ring)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -548,7 +548,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_CollReduceDoubleRingExecutor_Ring_level2)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -750,7 +750,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_CollAllGatherDoubleRingExecutor_Ring)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollNativeExecutorBase::CheckCommSize)
@@ -828,7 +828,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_SelectAlg)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->AtomicInitSet();
@@ -880,7 +880,7 @@ TEST_F(HcclImplAlgTestDoubleRing, ut_CollReduceScatterDoubleRingExecutor_UpdateO
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);

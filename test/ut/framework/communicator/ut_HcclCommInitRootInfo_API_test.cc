@@ -17,7 +17,7 @@ public:
         // 将建链超时时间设置为1s，减少测试用例运行时间
         MOCKER(GetExternalInputHcclLinkTimeOut)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(1));
     }
     void TearDown() override {

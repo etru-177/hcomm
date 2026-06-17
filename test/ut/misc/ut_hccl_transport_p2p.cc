@@ -94,7 +94,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -212,7 +212,7 @@ TEST_F(LinkPcieTest, ut_RxAsync)
 
     MOCKER(&HcclD2DMemcpyAsync)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ret = linktmp->TxAsync(txMems, streamObj);
@@ -415,11 +415,11 @@ TEST_F(LinkPcieTest, ut_function_for_device)
     unsigned int temp = 1;
     MOCKER_CPP(&TransportDeviceIbverbs::TxSendWrlistExt)
         .stubs()
-        .with(any(), any(), any(), outBoundP(&temp))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&temp))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtRDMADBSend)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     DeviceMem input =  DeviceMem::alloc(1);
     DeviceMem output =  DeviceMem::alloc(1);
@@ -567,7 +567,7 @@ TEST_F(LinkPcieTest, ut_SpecifyLink)
     // 设置成功
     linktmp->recvPid_ = INVALID_INT;
     LinkTypeInServer linkType = LinkTypeInServer::SIO_TYPE;
-    MOCKER(hrtGetPairDeviceLinkType).stubs().with(any(), any(), outBound(linkType)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDeviceLinkType).stubs().with(mockcpp::any(), mockcpp::any(), outBound(linkType)).will(returnValue(HCCL_SUCCESS));
     HcclResult ret = linktmp->SetLinkType();
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
@@ -579,7 +579,7 @@ TEST_F(LinkPcieTest, ut_SpecifyLink)
     GlobalMockObject::verify();
 
     linkType = LinkTypeInServer::HCCS_TYPE;
-    MOCKER(hrtGetPairDeviceLinkType).stubs().with(any(), any(), outBound(linkType)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDeviceLinkType).stubs().with(mockcpp::any(), mockcpp::any(), outBound(linkType)).will(returnValue(HCCL_SUCCESS));
     ret = linktmp->SetLinkType();
     EXPECT_EQ(ret, HCCL_E_NOT_SUPPORT);
 
@@ -587,7 +587,7 @@ TEST_F(LinkPcieTest, ut_SpecifyLink)
     ret = hrtIpcSetMemoryAttr(&name, ACL_RT_IPC_MEM_ATTR_ACCESS_LINK, 1);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
-    MOCKER(aclrtIpcMemSetAttr).stubs().with(any()).will(returnValue(1));
+    MOCKER(aclrtIpcMemSetAttr).stubs().with(mockcpp::any()).will(returnValue(1));
     ret = hrtIpcSetMemoryAttr(&name, ACL_RT_IPC_MEM_ATTR_ACCESS_LINK, 1);
     EXPECT_EQ(ret, HCCL_E_RUNTIME);
 }

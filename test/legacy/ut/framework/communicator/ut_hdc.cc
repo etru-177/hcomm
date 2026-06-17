@@ -49,12 +49,12 @@ protected:
     {
         memset_s(hostBuf, sizeof(hostBuf), 0, sizeof(hostBuf));
         memset_s(hostCache, sizeof(hostCache), 0, sizeof(hostCache));
-        MOCKER(HrtMallocHost).stubs().with(any(), any()).will(returnValue(static_cast<void *>(hostBuf)))
+        MOCKER(HrtMallocHost).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<void *>(hostBuf)))
                                                         .then(returnValue(static_cast<void *>(hostCache)));
 
         memset_s(devBuf, sizeof(devBuf), 0, sizeof(devBuf));
         memset_s(devCache, sizeof(devCache), 0, sizeof(devCache));
-        MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(static_cast<void *>(devBuf)))
+        MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(static_cast<void *>(devBuf)))
                                                     .then(returnValue(static_cast<void *>(devCache)));
 
         MOCKER(HrtDrvMemCpy).stubs().with().will(invoke(HrtDrvMemCpyStub));
@@ -331,7 +331,7 @@ TEST_F(HdcTest, hccl_hdc_h2d_unSupport_devMemReg)
 
     MOCKER(halMemCtl)
     .expects(atMost(1))
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     HDCommunicate hdcHost(devid, flag, buffLen);

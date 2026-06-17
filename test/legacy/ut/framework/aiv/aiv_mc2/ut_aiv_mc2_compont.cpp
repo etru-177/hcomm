@@ -97,10 +97,10 @@ TEST_F(AivMc2CompontTest, should_return_fail_when_calling_AllocCommResource_tili
 TEST_F(AivMc2CompontTest, should_return_success_when_calling_GenerateCommContext)
 {
     // when
-    MOCKER(CcuRep::GetTokenInfo).stubs().with(any(), any()).will(returnValue(1000));
+    MOCKER(CcuRep::GetTokenInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1000));
     HcclCombinOpParam opParam;
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(&opParam)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x10000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(&opParam)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x10000));
 
     // then
     CommunicatorImpl comm{};
@@ -128,10 +128,10 @@ TEST_F(AivMc2CompontTest, should_return_success_when_calling_GenerateCommContext
 TEST_F(AivMc2CompontTest, should_throw_InternalException_when_calling_GenerateCommContext_CclBuffer_Null)
 {
     // when
-    MOCKER(CcuRep::GetTokenInfo).stubs().with(any(), any()).will(returnValue(1000));
+    MOCKER(CcuRep::GetTokenInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1000));
     HcclCombinOpParam opParam;
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(&opParam)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x10000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(&opParam)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x10000));
 
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();

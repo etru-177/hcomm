@@ -54,8 +54,8 @@ protected:
 TEST_F(RankInfoDispatherTest, St_ProcessOneSendEvent_When_Input_Right_Expect_Send_Ok)
 {
     // when
-    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(mockcpp::any()).will(returnValue(true));
     
     // then
     IpAddress remoteIp;
@@ -94,7 +94,7 @@ TEST_F(RankInfoDispatherTest, St_ProcessOneSendEvent_When_Input_Error_Expect_Sto
     EXPECT_EQ(workers.stop_, true);
 
     // when
-    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(any()).will(returnValue(false)).then(returnValue(true));
+    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(mockcpp::any()).will(returnValue(false)).then(returnValue(true));
     RankInfoDispather::SendState txS;
     RankInfoDispather::FdContext fdCtx;
     fdCtx.txState = txS;
@@ -106,7 +106,7 @@ TEST_F(RankInfoDispatherTest, St_ProcessOneSendEvent_When_Input_Error_Expect_Sto
     EXPECT_EQ(workers.stop_, true);
 
     // when
-    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(mockcpp::any()).will(returnValue(false));
 
     // check
     EXPECT_NO_THROW(workers.ProcessOneSendEvent(1, socket->fdHandle));
@@ -116,7 +116,7 @@ TEST_F(RankInfoDispatherTest, St_ProcessOneSendEvent_When_Input_Error_Expect_Sto
 TEST_F(RankInfoDispatherTest, St_SendHeader_When_ISend_Ok_Expect_Return_True)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(true));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(true));
 
     // then
     IpAddress remoteIp;
@@ -139,7 +139,7 @@ TEST_F(RankInfoDispatherTest, St_SendHeader_When_ISend_Ok_Expect_Return_True)
 TEST_F(RankInfoDispatherTest, St_SendHeader_When_ISend_False_Expect_Return_False)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(false));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(false));
 
     // then
     IpAddress remoteIp;
@@ -163,7 +163,7 @@ TEST_F(RankInfoDispatherTest, St_SendHeader_When_ISend_False_Expect_Return_False
 TEST_F(RankInfoDispatherTest, St_SendState_Send_When_ISend_Ok_Expect_SendHeader)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(true));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(true));
     
     // then
     IpAddress remoteIp;
@@ -183,7 +183,7 @@ TEST_F(RankInfoDispatherTest, St_SendState_Send_When_ISend_Ok_Expect_SendHeader)
 TEST_F(RankInfoDispatherTest, St_SendState_Send_When_ISend_Ok_Expect_SendBody)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(true));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(true));
     
     // then
     IpAddress remoteIp;
@@ -207,7 +207,7 @@ TEST_F(RankInfoDispatherTest, St_SendState_Send_When_ISend_Ok_Expect_SendBody)
 TEST_F(RankInfoDispatherTest, St_SendState_Send_When_ISend_False_Expect_Return_False)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(false));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(false));
 
     //when
     IpAddress remoteIp;
@@ -227,12 +227,12 @@ TEST_F(RankInfoDispatherTest, St_SendState_Send_When_ISend_False_Expect_Return_F
 TEST_F(RankInfoDispatherTest, St_ProcessSend_When_Send_Again_Expect_Return_TimeOut)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(false));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(false));
     MOCKER_CPP(&RankInfoDispather::SendOnce).stubs().with().will(ignoreReturnValue());
     u32 eventsNum1 = 1;
     MOCKER(HrtRaWaitEventHandle)
         .stubs()
-        .with(any(), any(), any(), any(), outBound(eventsNum1))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(eventsNum1))
         .will(returnValue(HCCL_SUCCESS));
 
     EnvSocketConfig envConfig;
@@ -260,12 +260,12 @@ TEST_F(RankInfoDispatherTest, St_ProcessSend_When_Send_Again_Expect_Return_TimeO
 TEST_F(RankInfoDispatherTest, St_ProcessSend_When_EventsNum_Error_Expect_Return_TimeOut)
 {
     // when
-    MOCKER(HrtRaSocketNonBlockSend).stubs().with(any(), any(), any()).will(returnValue(false));
+    MOCKER(HrtRaSocketNonBlockSend).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(false));
     MOCKER_CPP(&RankInfoDispather::SendOnce).stubs().with().will(ignoreReturnValue());
     u32 eventsNum = 0;
     MOCKER(HrtRaWaitEventHandle)
         .stubs()
-        .with(any(), any(), any(), any(), outBound(eventsNum))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(eventsNum))
         .will(returnValue(HCCL_E_NETWORK));
 
     // then
@@ -286,8 +286,8 @@ TEST_F(RankInfoDispatherTest, St_ProcessSend_When_EventsNum_Error_Expect_Return_
 TEST_F(RankInfoDispatherTest, St_SendOnce_When_InputValue_Expect_NO_THROW)
 {
     // when
-    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(mockcpp::any()).will(returnValue(true));
     
     // then
     IpAddress remoteIp;
@@ -312,8 +312,8 @@ TEST_F(RankInfoDispatherTest, St_SendOnce_When_InputValue_Expect_NO_THROW)
 TEST_F(RankInfoDispatherTest, St_SendOnce_When_Input_Error_Expect_THROW)
 {
     // when
-    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(any()).will(returnValue(false)).then(returnValue(true));
-    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&RankInfoDispather::SendState::Send).stubs().with(mockcpp::any()).will(returnValue(false)).then(returnValue(true));
+    MOCKER_CPP(&RankInfoDispather::SendState::IsOk).stubs().with(mockcpp::any()).will(returnValue(false));
     
     // then
     IpAddress remoteIp;

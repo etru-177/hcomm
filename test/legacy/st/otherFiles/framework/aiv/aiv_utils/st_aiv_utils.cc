@@ -53,7 +53,7 @@ TEST_F(AivUtilsTest, aiv_utils_test)
     char* returnValueChar = returnValueVec;
     MOCKER(realpath)
     .stubs()
-    .with(any(), outBound(path))
+    .with(mockcpp::any(), outBound(path))
     .will(returnValue(returnValueChar));
     RegisterKernel();
 
@@ -62,17 +62,17 @@ TEST_F(AivUtilsTest, aiv_utils_test)
 
     MOCKER(getenv)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(libPathPtr));
 
     MOCKER(ReadBinFile)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     MOCKER(realpath)
     .stubs()
-    .with(any(), outBound(path))
+    .with(mockcpp::any(), outBound(path))
     .will(returnValue(nullptr));
     RegisterKernel();
 
@@ -80,7 +80,7 @@ TEST_F(AivUtilsTest, aiv_utils_test)
     path = resolvePath2;
     MOCKER(realpath)
     .stubs()
-    .with(any(), outBound(path))
+    .with(mockcpp::any(), outBound(path))
     .will(returnValue(returnValueChar));
     RegisterKernel();
 

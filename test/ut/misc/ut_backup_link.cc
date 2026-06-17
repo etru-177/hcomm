@@ -55,7 +55,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
     }
     virtual void TearDown()
@@ -127,7 +127,7 @@ TEST_F(BackupLinkTest, ut_DestroyAlgResource)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     communicator->Init(params, rankTable);
@@ -156,7 +156,7 @@ TEST_F(BackupLinkTest, ut_DestroyNetworkResources)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     communicator->Init(params, rankTable);
@@ -187,7 +187,7 @@ TEST_F(BackupLinkTest, ut_DeinitNic)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink)
@@ -257,7 +257,7 @@ TEST_F(BackupLinkTest, ut_GetRemoteRankList)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     communicator->Init(params, rankTable);
@@ -310,7 +310,7 @@ TEST_F(BackupLinkTest, ut_GetIncreRemoteRankList)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     communicator->Init(params, rankTable);
@@ -335,7 +335,7 @@ TEST_F(BackupLinkTest, ut_SetMachinePara)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     communicator->Init(params, rankTable);
@@ -348,7 +348,7 @@ TEST_F(BackupLinkTest, ut_SetMachinePara)
 
     MOCKER(hrtGetPairDevicePhyId)
     .stubs()
-    .with(any(), any())
+    .with(mockcpp::any(), mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     RankInfo loaclRankInfo;
     RankInfo remoteRankInfo;
@@ -373,7 +373,7 @@ TEST_F(BackupLinkTest, ut_RefreshAlgResponseTransportRes)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommAicpu::CalcResRequest)
@@ -427,7 +427,7 @@ TEST_F(BackupLinkTest, ut_HcclOpExecChangeLinkProcess)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     ChangeLinkInfo changeLinkInfo;
@@ -436,7 +436,7 @@ TEST_F(BackupLinkTest, ut_HcclOpExecChangeLinkProcess)
     changeLinkInfo.isUseDefaultPort[0] = true;
     MOCKER_CPP(&AicpuHdc::GetOpExecChangeLink)
     .stubs()
-    .with(any(), outBound(changeLinkInfo))
+    .with(mockcpp::any(), outBound(changeLinkInfo))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommAicpu::RefreshAlgResponseTransportRes)
@@ -504,7 +504,7 @@ TEST_F(BackupLinkTest, ut_TsdProcessOpen)
     // 新版本driver（主备hccp进程日志可以获取）
     s32 apiVersion = 0x72318; // MAJOR:0x07, MINOR:0x23, PATCH:0x18 新版本号
     MOCKER(hrtHalGetAPIVersion).stubs().with(outBound(apiVersion)).will(returnValue(ret));
-    MOCKER(hrtGetPairDevicePhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDevicePhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = NetworkManager::GetInstance(0).TsdProcessOpen(false);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
@@ -521,7 +521,7 @@ TEST_F(BackupLinkTest, ut_ReAllocTransportResource)
     HcclResult ret = HCCL_SUCCESS;
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommAicpu::CalcResRequest)
@@ -595,11 +595,11 @@ TEST_F(BackupLinkTest, ut_InitRaResource_notSupportChangelink)
     MOCKER(IsHostUseDevNic).stubs().with(outBound(true)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().will(returnValue(true));
     MOCKER(Is310PDevice).stubs().will(returnValue(true));
-    MOCKER_CPP(&HcclCommunicator::InitNic).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetPairDevicePhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitNic).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDevicePhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     // rts无法访问备用die（客户自定义） -> 不支持借轨
-    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(any()).will(returnValue(HCCL_E_RUNTIME));
+    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_RUNTIME));
     // 网络资源初始化失败（不初始化备用资源）
     ret = communicator->InitRaResource();
     EXPECT_EQ(ret, HCCL_E_NOT_SUPPORT);
@@ -630,11 +630,11 @@ TEST_F(BackupLinkTest, ut_InitRaResource_SupportChangelink)
     MOCKER(IsHostUseDevNic).stubs().with(outBound(true)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::IsEnableBackupLink).stubs().will(returnValue(true));
     MOCKER(Is310PDevice).stubs().will(returnValue(true));
-    MOCKER_CPP(&HcclCommunicator::InitNic).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtGetPairDevicePhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitNic).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetPairDevicePhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     // rts可以访问备用die（默认） -> 支持借轨
-    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     // 网络资源初始化成功（不初始化备用资源）
     ret = communicator->InitRaResource();;
     EXPECT_EQ(ret, HCCL_SUCCESS);

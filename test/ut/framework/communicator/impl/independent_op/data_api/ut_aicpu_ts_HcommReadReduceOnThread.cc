@@ -76,7 +76,7 @@ TEST_F(UtAicpuTsHcommReadReduceOnThread, Ut_HcommReadReduceOnThread_When_BuildLo
     auto *const transportLitePtr = reinterpret_cast<Hccl::UbTransportLiteImpl *>(devHandle);
     MOCKER_CPP_VIRTUAL(transportLitePtr, &Hccl::UbTransportLiteImpl::BuildLocRmaBufferLite)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_E_INTERNAL));
 
     res = HcommReadReduceOnThread(thread, devHandle, dst, src, count, dataType, reduceOp);

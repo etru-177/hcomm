@@ -98,11 +98,11 @@ TEST_F(SymmetricMemoryAgentTest, ut_ExchangeInfo_When_Normal_Expect_ReturnHCCL_S
     memcpy_s(dataPkt.data, PACKET_DATA_MAX_LEN, &a, sizeof(int));
     MOCKER_CPP(&HcclSocket::IRecv)
         .stubs()
-        .with(outBoundP(reinterpret_cast<void*>(&dataPkt), sizeof(Packet)), any(), outBound(len))
+        .with(outBoundP(reinterpret_cast<void*>(&dataPkt), sizeof(Packet)), mockcpp::any(), outBound(len))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(GetExternalInputHcclLinkTimeOut)
         .stubs()
@@ -204,11 +204,11 @@ TEST_F(SymmetricMemoryAgentTest, ut_ExchangeInfo_When_TimeOut_Expect_ReturnHCCL_
     memcpy_s(dataPkt.data, PACKET_DATA_MAX_LEN, &a, sizeof(int));
     MOCKER_CPP(&HcclSocket::IRecv)
         .stubs()
-        .with(outBoundP(reinterpret_cast<void*>(&dataPkt), sizeof(Packet)), any(), outBound(len))
+        .with(outBoundP(reinterpret_cast<void*>(&dataPkt), sizeof(Packet)), mockcpp::any(), outBound(len))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(GetExternalInputHcclLinkTimeOut)
         .stubs()
@@ -248,7 +248,7 @@ TEST_F(SymmetricMemoryAgentTest, ut_ExchangeInfo_When_RecvIsFailed_Expect_Return
         .will(returnValue(HCCL_E_TCP_TRANSFER));
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(GetExternalInputHcclLinkTimeOut)
         .stubs()
@@ -285,7 +285,7 @@ TEST_F(SymmetricMemoryAgentTest, ut_ExchangeInfo_When_SendIsFailed_Expect_Return
     memcpy_s(dataPkt.data, PACKET_DATA_MAX_LEN, &a, sizeof(int));
     MOCKER_CPP(&HcclSocket::IRecv)
         .stubs()
-        .with(outBoundP(reinterpret_cast<void*>(&dataPkt), sizeof(Packet)), any(), outBound(len))
+        .with(outBoundP(reinterpret_cast<void*>(&dataPkt), sizeof(Packet)), mockcpp::any(), outBound(len))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
         .stubs()

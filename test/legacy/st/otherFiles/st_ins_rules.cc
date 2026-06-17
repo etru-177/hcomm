@@ -305,13 +305,13 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER(HrtIpcOpenNotify).stubs().with(any()).will(returnValue((void *)fakeNotifyHandleAddr));
+        MOCKER(HrtIpcOpenNotify).stubs().with(mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
         MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
         MOCKER(HrtGetDevice).stubs().will(returnValue(0));
         MOCKER(HrtNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
-        MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+        MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
         MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
-        MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+        MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
         MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
 
         std::cout << "A Test case in InsRulesTest SetUP" << std::endl;
@@ -346,7 +346,7 @@ TEST(InsRulesTest, Interpret_local_post_to)
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtCntNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
     MOCKER(HrtGetCntNotifyId).stubs().will(returnValue(fakeNotifyId));
-    MOCKER(HrtNotifyRecord).stubs().with(any(), any()).will(ignoreReturnValue());
+    MOCKER(HrtNotifyRecord).stubs().with(mockcpp::any(), mockcpp::any()).will(ignoreReturnValue());
 
     RtsNotify *nullLocalNotify = nullptr;
 
@@ -357,7 +357,7 @@ TEST(InsRulesTest, Interpret_local_post_to)
 
     MOCKER_CPP(&QueueNotifyManager::Get)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(nullLocalNotify))
         .then(returnValue(validLocalNotify));
 
@@ -365,8 +365,8 @@ TEST(InsRulesTest, Interpret_local_post_to)
     insLocalPostTo.SetPostQid(0);
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -404,7 +404,7 @@ TEST(InsRulesTest, Interpret_local_wait_from)
 
     MOCKER_CPP(&QueueNotifyManager::Get)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(nullLocalNotify))
         .then(returnValue(validLocalNotify));
 
@@ -412,8 +412,8 @@ TEST(InsRulesTest, Interpret_local_wait_from)
     insLocalWaitFrom.SetWaitQid(1);
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -433,13 +433,13 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_not_zero_one_tas
     u32  fakePid              = 100;
     char fakeName[65]         = "testRtsNotify";
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtIpcOpenNotify).stubs().with(any()).will(returnValue((void *)fakeNotifyHandleAddr));
+    MOCKER(HrtIpcOpenNotify).stubs().with(mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
     MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
-    MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+    MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
 
     StubCommunicatorImpl fakeComm;
@@ -457,7 +457,7 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_not_zero_one_tas
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -475,12 +475,12 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_not_zero_one_tas
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -506,7 +506,7 @@ TEST(InsRulesTest, Interpret_write_reduce_dev_net_ub_slice_is_not_zero_one_task)
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -524,12 +524,12 @@ TEST(InsRulesTest, Interpret_write_reduce_dev_net_ub_slice_is_not_zero_one_task)
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -547,13 +547,13 @@ TEST(InsRulesTest, Interpret_write_reduce_with_fin_dev_net_ub_slice_is_not_zero_
     u32  fakePid              = 100;
     char fakeName[65]         = "testRtsNotify";
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-    MOCKER(HrtIpcOpenNotify).stubs().with(any()).will(returnValue((void *)fakeNotifyHandleAddr));
+    MOCKER(HrtIpcOpenNotify).stubs().with(mockcpp::any()).will(returnValue((void *)fakeNotifyHandleAddr));
     MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
-    MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+    MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
     
     StubCommunicatorImpl fakeComm;
@@ -571,7 +571,7 @@ TEST(InsRulesTest, Interpret_write_reduce_with_fin_dev_net_ub_slice_is_not_zero_
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -589,12 +589,12 @@ TEST(InsRulesTest, Interpret_write_reduce_with_fin_dev_net_ub_slice_is_not_zero_
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -620,7 +620,7 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_zero_one_task)
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -637,12 +637,12 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_zero_one_task)
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -668,7 +668,7 @@ TEST(InsRulesTest, Interpret_read_reduce_dev_net_ub_slice_is_not_zero_one_task)
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -685,12 +685,12 @@ TEST(InsRulesTest, Interpret_read_reduce_dev_net_ub_slice_is_not_zero_one_task)
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -716,7 +716,7 @@ TEST(InsRulesTest, Interpret_read_dev_net_ub_slice_is_not_zero_one_task)
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -733,12 +733,12 @@ TEST(InsRulesTest, Interpret_read_dev_net_ub_slice_is_not_zero_one_task)
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -776,8 +776,8 @@ TEST(InsRulesTest, Interpret_wait_group_fin)
     comm.connLocalCntNotifyManager->ApplyFor(0, links);
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -804,7 +804,7 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_zero_one_task_cn
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -821,12 +821,12 @@ TEST(InsRulesTest, Interpret_write_with_fin_dev_net_ub_slice_is_zero_one_task_cn
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -852,7 +852,7 @@ TEST(InsRulesTest, Interpret_write_reduce_with_fin_dev_net_ub_slice_is_zero_one_
     StubUbMemTransport                ubTransport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BaseMemTransport *stubTransportPtr = &ubTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -870,12 +870,12 @@ TEST(InsRulesTest, Interpret_write_reduce_with_fin_dev_net_ub_slice_is_zero_one_
     MOCKER_CPP(&LocalRmaBufManager::Get,
                LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, const PortData &, BufferType))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(localRmaBuffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -898,7 +898,7 @@ TEST(InsRulesTest, Interpret_write_p2p)
     StubP2PTransport               p2pTransport(locRes, attr, link, fakeSocket);
 
     BaseMemTransport *stubTransportPtr = &p2pTransport;
-    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(any(), any()).will(returnValue(stubTransportPtr));
+    MOCKER_CPP(&MemTransportManager::GetOpbasedTransport).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(stubTransportPtr));
 
     u64 remote_addr     = 0x100;
     u64 remote_addr_len = 0x100;
@@ -912,11 +912,11 @@ TEST(InsRulesTest, Interpret_write_p2p)
     DevBuffer      devBuffer(100, 100);
     Buffer         *buffer = &devBuffer;
     DataBufManager dataBufManager;
-    MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any()).will(returnValue(buffer));
+    MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(buffer));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -949,8 +949,8 @@ TEST(InsRulesTest, Interpret_local_wait_group)
     insLocalWaitGroup.Append(1);
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -984,8 +984,8 @@ TEST(InsRulesTest, Interpret_local_wait_from_cnt_notify)
         .then(returnValue(&rts1ToNCntNotify));
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -1020,8 +1020,8 @@ TEST(InsRulesTest, Interpret_local_bcast_post)
     insLocalBcastPost.Append(1);
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -1039,14 +1039,14 @@ TEST(InsRulesTest, Interpret_LocalReduce)
     InsLocalReduce insLocalReduce(srcSlice, dstSlice, DataType::FP32, ReduceOp::SUM);
     
     void* ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream stream;
     OpTaskConfig taskConfig{};
     MOCKER(HrtMemAsyncCopy).stubs();
-    MOCKER(HrtReduceAsync).stubs().with(any());
+    MOCKER(HrtReduceAsync).stubs().with(mockcpp::any());
     // when
     Interpret(insLocalReduce, fakeComm, stream, taskConfig);
 }
@@ -1065,8 +1065,8 @@ TEST(InsRulesTest, Interpret_local_copy)
     InsLocalCopy insLocalCopy2(srcSlice2, dstSlice2);
 
     void *ptr = nullptr;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
     Stream       stream;
@@ -1146,8 +1146,8 @@ TEST(InsRulesTest, Interpret_ccu_instruction)
     comm.streamManager = std::make_unique<StreamManager>(&comm);
     MOCKER(CcuCtxMgr::GetTaskParam).stubs().will(invoke(GetTaskParamStub));
     MOCKER(CcuCtxMgr::GetProfilingInfo).stubs().will(invoke(GetProfilingInfoStub));
-    MOCKER_CPP(&Hccl::CcuJettyMgr::GetRemoteRankIdByChannelId).stubs().with(any()).will(returnValue(0x23));
-    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&Hccl::CcuJettyMgr::GetRemoteRankIdByChannelId).stubs().with(mockcpp::any()).will(returnValue(0x23));
+    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     comm.streamManager->opbase = make_unique<OpbaseStreamManager>(&comm);
     comm.streamManager->opbase->master = make_unique<Stream>(&comm);
     comm.currentCollOperator = make_unique<CollOperator>();
@@ -1177,7 +1177,7 @@ TEST(InsRulesTest, Interpret_aiv_instruction)
     s32 fakeStreamId = 123;
     MOCKER(aclrtStreamGetId)
         .stubs()
-        .with(any(), outBoundP(&fakeStreamId, sizeof(fakeStreamId)))
+        .with(mockcpp::any(), outBoundP(&fakeStreamId, sizeof(fakeStreamId)))
         .will(returnValue(ACL_SUCCESS));
 
     Stream       stream;

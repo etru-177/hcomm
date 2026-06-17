@@ -51,8 +51,8 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_950));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(0));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(0));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         MOCKER(&GetKernelExecTimeoutFromEnvConfig).stubs().with().will(returnValue(68));
         MOCKER(Interpret, void(const InsLocalCopy &, const StreamLite &, ResMgrFetcher *)).stubs().will(ignoreReturnValue());
@@ -105,11 +105,11 @@ void MockRtsqA5(CommunicatorImplLite &communicatorImplLite)
     rtsq->sqHead_ = 10;
     rtsq->sqTail_ = 500;
     rtsq->sqDepth_ = 1000;
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::LaunchTask).stubs().with(any());
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyWait).stubs().with(any());
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyRecordLoc).stubs().with(any());
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::SdmaReduce).stubs().with(any());
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::IsRtsqQueueSpaceSufficient).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::LaunchTask).stubs().with(mockcpp::any());
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyWait).stubs().with(mockcpp::any());
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyRecordLoc).stubs().with(mockcpp::any());
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::SdmaReduce).stubs().with(mockcpp::any());
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::IsRtsqQueueSpaceSufficient).stubs().with(mockcpp::any()).will(returnValue(true));
 }
 
 void MockAddTask2InsQueue(std::shared_ptr<InsQueue> insQueue)

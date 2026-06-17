@@ -232,7 +232,7 @@ TEST(MemTransportManagerTest, MemTransportManager_get_all_rmt_rma_buf_dtos)
 TEST(MemTransportManagerTest, MemTransportManager_get_all_rmt_notify_dtos)
 {
     DevType fakeDeviceType = DevType::DEV_TYPE_910A2;
-    MOCKER(HrtGetDeviceType).stubs().with(any()).will(returnValue(fakeDeviceType));
+    MOCKER(HrtGetDeviceType).stubs().with(mockcpp::any()).will(returnValue(fakeDeviceType));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
 
     StubCommunicatorImplTransMgr comm;

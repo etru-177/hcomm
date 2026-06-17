@@ -63,7 +63,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -341,7 +341,7 @@ TEST_F(CommInnerTest, ut_TransportInit)
 {
     MOCKER_CPP(&CommBase::SetTransportType)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     s32 ret = HCCL_SUCCESS;
@@ -526,7 +526,7 @@ TEST_F(CommInnerTest, ut_create_dest_link_memorry_error)
 {
     MOCKER_CPP(&CommBase::TransportInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_MEMORY));
 
     s32 ret = HCCL_SUCCESS;

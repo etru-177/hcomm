@@ -101,12 +101,12 @@ void When_Need_HcclGetRootInfo(void) {
 
     MOCKER_CPP(&HcclSocket::Listen, HcclResult (HcclSocket::*)(u32 port))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&TopoInfoExchangeAgent::Connect)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_E_INTERNAL));
 
     MOCKER(GetExternalInputHcclLinkTimeOut)
@@ -120,17 +120,17 @@ void Ut_MultiServer_MOCK_And_Clusterinfo_File_Create(const char *filename, nlohm
     void *pmockModel = &mockModel;    
     MOCKER(aclmdlRICaptureGetInfo)
         .stubs()
-        .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+        .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
         .will(returnValue(0));
 
     MOCKER_CPP(&HcclCommunicator::StreamIsCapture)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(true));
 
     MOCKER(GetExternalInputHcclEnableEntryLog)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(true));
 
     MOCKER_CPP(&TransportManager::Alloc)
@@ -139,7 +139,7 @@ void Ut_MultiServer_MOCK_And_Clusterinfo_File_Create(const char *filename, nlohm
  
     MOCKER_CPP(&HcclCommunicator::ExecOp)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -162,7 +162,7 @@ void BaseInit::SetUp() {
     s32 portNum = 7;
     MOCKER(hrtGetHccsPortNum)
         .stubs()
-        .with(any(), outBound(portNum))
+        .with(mockcpp::any(), outBound(portNum))
         .will(returnValue(HCCL_SUCCESS));
     static s32  call_cnt = 0;
     string name = std::to_string(call_cnt++) +"_" + __PRETTY_FUNCTION__;

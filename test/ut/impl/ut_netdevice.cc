@@ -94,7 +94,7 @@ protected:
 TEST_F(NetDevUt, TestDeviceDeploymentBusAddr1) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
     bool supportGetVincip = true;
     MOCKER(IsSuppportRaGetSocketVnicIps)
         .stubs()
@@ -116,7 +116,7 @@ TEST_F(NetDevUt, TestDeviceDeploymentBusAddr2) {
     GlobalMockObject::verify();
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
     u32 deviceLogicId;
     hrtGetDeviceIndexByPhyId(info.devicePhyId, deviceLogicId);
     bool supportGetVincip = false;
@@ -136,8 +136,8 @@ TEST_F(NetDevUt, TestDeviceDeploymentBusAddr2) {
 TEST_F(NetDevUt, TestDeviceDeploymentNicAddr) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(true));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     HcclAddress * addr;
     uint32_t addrNum = 0;
     HcclNetDevGetNicAddr(info.devicePhyId, &addr, &addrNum);
@@ -149,8 +149,8 @@ TEST_F(NetDevUt, TestHostDeploymentTcp) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_HOST;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(true));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
     HcclAddress getaddr;
@@ -170,8 +170,8 @@ TEST_F(NetDevUt, TestHostDeploymentTcpERR) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_HOST;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(true));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
     HcclAddress getaddr;
@@ -191,21 +191,21 @@ TEST_F(NetDevUt, TestHostDeploymentRoce) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_HOST;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_ROCE;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(true));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     HcclNetDevInfos infotest = info;
     infotest.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
     HcclNetDev netDevtest;
     EXPECT_EQ(HcclNetDevOpen(&infotest, &netDevtest), HCCL_SUCCESS);
     GlobalMockObject::verify();
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(false));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(false));
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
     EXPECT_EQ(HcclNetDevClose(netDev), HCCL_SUCCESS);
     GlobalMockObject::verify();
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     EXPECT_EQ(HcclNetDevClose(netDevtest), HCCL_SUCCESS);
     GlobalMockObject::verify();
 }
@@ -239,23 +239,23 @@ TEST_F(NetDevUt, TestDeviceDeploymentRoce) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_ROCE;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     HcclNetDevInfos infotest = info;
     infotest.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
     HcclNetDev netDevtest;
     EXPECT_EQ(HcclNetDevOpen(&infotest, &netDevtest), HCCL_SUCCESS);
     GlobalMockObject::verify();
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(false));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(false));
 
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
 
     EXPECT_EQ(HcclNetDevClose(netDev), HCCL_SUCCESS);
     GlobalMockObject::verify();
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     EXPECT_EQ(HcclNetDevClose(netDevtest), HCCL_SUCCESS);
     GlobalMockObject::verify();
 }
@@ -265,15 +265,15 @@ TEST_F(NetDevUt, TestDeviceDeploymentRoceBackup) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = true;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_ROCE;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     HcclNetDevInfos infotest = info;
     infotest.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
     HcclNetDev netDevtest;
     EXPECT_EQ(HcclNetDevOpen(&infotest, &netDevtest), HCCL_SUCCESS);
     GlobalMockObject::verify();
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(false));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(false));
     DevType deviceType = DevType::DEV_TYPE_910_93;
     MOCKER(hrtGetDeviceType)
         .stubs()
@@ -283,15 +283,15 @@ TEST_F(NetDevUt, TestDeviceDeploymentRoceBackup) {
     LinkTypeInServer linkType = LinkTypeInServer::SIO_TYPE;
     MOCKER(hrtGetPairDeviceLinkType)
     .stubs()
-    .with(any(), any(), outBound(linkType))
+    .with(mockcpp::any(), mockcpp::any(), outBound(linkType))
     .will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
 
     EXPECT_EQ(HcclNetDevClose(netDev), HCCL_SUCCESS);
     GlobalMockObject::verify();
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
     EXPECT_EQ(HcclNetDevClose(netDevtest), HCCL_SUCCESS);
     GlobalMockObject::verify();
 }
@@ -301,8 +301,8 @@ TEST_F(NetDevUt, TestDeviceDeploymentTcp) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
 
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
@@ -324,8 +324,8 @@ TEST_F(NetDevUt, TestDeviceDeploymentTcpERR) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_TCP;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
-    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(any()).will(returnValue(true));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER(GetExternalInputHcclIsTcpMode).stubs().with(mockcpp::any()).will(returnValue(true));
 
     EXPECT_EQ(HcclNetDevOpen(&info, &netDev), HCCL_SUCCESS);
 
@@ -369,7 +369,7 @@ TEST_F(NetDevUt, TestDeviceDeploymentBus) {
     info.netdevDeployment = HcclNetDevDeployment::HCCL_NETDEV_DEPLOYMENT_DEVICE;
     info.isBackup = false;
     info.addr.protoType = HcclProtoType::HCCL_PROTO_TYPE_BUS;
-    MOCKER(Is310PDevice).stubs().with(any()).will(returnValue(false));
+    MOCKER(Is310PDevice).stubs().with(mockcpp::any()).will(returnValue(false));
     u32 deviceLogicId;
     hrtGetDeviceIndexByPhyId(info.devicePhyId, deviceLogicId);
 

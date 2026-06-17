@@ -18,7 +18,7 @@ public:
         // MOCK掉对communicator层的依赖，保证分层测试
         MOCKER_CPP(&HcclCommunicator::DeactivateCommMemory)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     }
     void TearDown() override {

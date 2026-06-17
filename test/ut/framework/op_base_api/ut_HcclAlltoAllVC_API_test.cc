@@ -17,12 +17,12 @@ public:
         UT_USE_1SERVER_1RANK_AS_DEFAULT;
         MOCKER(GetExternalInputHcclEnableEntryLog)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(true));
         HcclCommunicator commun_mock;
         MOCKER_CPP_VIRTUAL(commun_mock, &HcclCommunicator::AlltoAllVCOutPlace)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     }
     void TearDown() override {
@@ -40,7 +40,7 @@ TEST_F(HcclAlltoAllVCTest, Ut_HcclAlltoAllVC_When_GroupModeSuccess_Expect_Return
 {
     MOCKER(taskAppend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     Ut_Buf_Create(sendBuf, HCCL_COM_DATA_SIZE);
     sendCountMatrix = (u64*)sal_malloc(1 * sizeof(u64));

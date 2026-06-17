@@ -129,7 +129,7 @@ TEST_F(CollServiceDefaultImplTest, test_orchestrate_with_ins)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     EXPECT_NO_THROW(service.OrchestrateWithIns(op));
 }
@@ -153,7 +153,7 @@ TEST_F(CollServiceDefaultImplTest, test_orchestrate_with_prim)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, PrimQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     EXPECT_NO_THROW(service.OrchestrateWithPrim(op));
 }
@@ -266,7 +266,7 @@ TEST_F(CollServiceDefaultImplTest, col_service_default_impl_load_with_op_based_m
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     service.connectionsBuilders[comm.id] = std::make_unique<ConnectionsBuilder>(comm);
     DevType devType = DevType::DEV_TYPE_910A;
@@ -305,7 +305,7 @@ TEST_F(CollServiceDefaultImplTest, col_service_default_impl_load_with_op_based_m
 
     comm.streamManager->opbase->slaves.push_back(std::make_unique<Stream>(nullptr));
     MOCKER(HcclStreamSynchronize).stubs();
-    MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     EXPECT_NO_THROW(service.LoadWithOpBasedMode(op, std::move(stream)));
 }
 
@@ -350,7 +350,7 @@ TEST_F(CollServiceDefaultImplTest, coll_service_default_impl_orchestrate_with_in
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     service.connectionsBuilders[comm.id] = std::make_unique<ConnectionsBuilder>(comm);
 
@@ -387,7 +387,7 @@ TEST_F(CollServiceDefaultImplTest, coll_service_default_impl_orchestrate_with_in
                                        CHK_RANGE_CLOSED<u64>(1, ULLONG_MAX), [](u64 &i) { i *= 1024 * 1024; });
     algoCfg.bufferSize.isParsed = true;
     MOCKER_CPP(&EnvConfig::GetAlgoConfig).stubs().will(returnValue(algoCfg));
-    MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     EXPECT_NO_THROW(service.LoadWithOpBasedMode(op, std::move(stream)));
 }
 
@@ -395,7 +395,7 @@ std::string topoInfoPath{HCOMM_CODE_ROOT_DIR "/test/legacy/ut/framework/service/
 TEST_F(CollServiceDefaultImplTest, test_base_register_offload_buf)
 {
     MOCKER_CPP(&CommunicatorImpl::GetTopoFilePath).stubs().will(returnValue(topoInfoPath));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
 
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
@@ -405,7 +405,7 @@ TEST_F(CollServiceDefaultImplTest, test_base_register_offload_buf)
     MOCKER(HrtDevMemAlignWithPage).stubs();
     MOCKER(HrtIpcDestroyMemoryName).stubs();
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(devPtr));
 
     GenRankTableFile4p();
     GenTopoFile();
@@ -496,13 +496,13 @@ TEST_F(CollServiceDefaultImplTest, test_init)
     std::pair<TokenIdHandle, uint32_t> retPair = {1, 1};
     MOCKER_CPP(&RdmaHandleManager::GetTokenIdInfo).stubs().will(returnValue(retPair));
     MOCKER_CPP(&CommunicatorImpl::GetTopoFilePath).stubs().will(returnValue(topoInfoPath));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
 
     std::unique_ptr<RdmaHandle> handle = std::make_unique<RdmaHandle>();
     RdmaHandle handlePtr = handle.get();
     MOCKER(HrtRaUbCtxInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(handlePtr));
 
     MOCKER(HrtGetDevice).stubs().will(returnValue(1));
@@ -552,7 +552,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_op_based_mode)
     RdmaHandle handlePtr = handle.get();
     MOCKER(HrtRaUbCtxInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(handlePtr));
 
     GenRankTableFile4p();
@@ -570,7 +570,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_op_based_mode)
     MOCKER_CPP(&CommunicatorImpl::SelectCollService).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::GetTopoFilePath).stubs().will(returnValue(topoInfoPath));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
 
     CommunicatorImpl comm;
     comm.devLogicId = 1;
@@ -580,7 +580,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_op_based_mode)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     CommParams commParams;
@@ -650,7 +650,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_offload_mode)
     RdmaHandle handlePtr = handle.get();
     MOCKER(HrtRaUbCtxInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(handlePtr));
 
     GenRankTableFile4p();
@@ -671,7 +671,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_offload_mode)
     MOCKER_CPP(&CommunicatorImpl::SelectCollService).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommunicatorImpl::GetTopoFilePath).stubs().will(returnValue(topoInfoPath));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
 
     CommunicatorImpl comm;
     comm.devLogicId = 1;
@@ -681,7 +681,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_offload_mode)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     CommParams commParams;
@@ -756,7 +756,7 @@ TEST_F(CollServiceDefaultImplTest, test_add_nop)
 
     std::vector<LinkData> links = {linkData};
 
-    MOCKER(HrtUbDbSend).stubs().with(any(), any());
+    MOCKER(HrtUbDbSend).stubs().with(mockcpp::any(), mockcpp::any());
     service.AddNop(op.opTag, links);
 }
 
@@ -798,7 +798,7 @@ TEST_F(CollServiceDefaultImplTest, col_service_default_impl_update_ub_ci_if_need
     CollServiceDefaultImpl service(&comm);
     service.updatingUbCiEvent = nullptr;
     MOCKER(IfNeedUpdatingUbCi).stubs().will(returnValue(true));
-    MOCKER_CPP(&UbCiUpdaterManager::SaveConnsCi).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&UbCiUpdaterManager::SaveConnsCi).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     CollOperator op;
     op.opTag = "test";
     service.UpdateUbCiIfNeed(op.opTag);
@@ -807,9 +807,9 @@ TEST_F(CollServiceDefaultImplTest, col_service_default_impl_update_ub_ci_if_need
     aclrtEventWaitStatus status = ACL_EVENT_WAIT_STATUS_COMPLETE;
     MOCKER(aclrtQueryEventWaitStatus)
         .stubs()
-        .with(any(), outBoundP(&status, sizeof(status)))
+        .with(mockcpp::any(), outBoundP(&status, sizeof(status)))
         .will(returnValue(ACL_SUCCESS));
-    MOCKER_CPP(&UbCiUpdaterManager::UpdateConnsCi).stubs().with(any());
+    MOCKER_CPP(&UbCiUpdaterManager::UpdateConnsCi).stubs().with(mockcpp::any());
     service.UpdateUbCiIfNeed(op.opTag);
 }
 
@@ -817,10 +817,10 @@ TEST_F(CollServiceDefaultImplTest, AddCountTask)
 {
     DevType devType = DevType::DEV_TYPE_910A;
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(devType));
-    MOCKER(HrtReduceAsync).stubs().with(any());
-    MOCKER(HrtMemcpy).stubs().with(any(), any(), any(), any(), any());
+    MOCKER(HrtReduceAsync).stubs().with(mockcpp::any());
+    MOCKER(HrtMemcpy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
     void *devPtr = nullptr;
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(devPtr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(devPtr));
 
     CommunicatorImpl comm;
     comm.streamManager = make_unique<StreamManager>(&comm);
@@ -842,13 +842,13 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_offload_mode_with_task)
     MOCKER(HrtDevMemAlignWithPage).stubs();
     MOCKER(HrtIpcDestroyMemoryName).stubs();
     MOCKER_CPP(&CommunicatorImpl::GetTopoFilePath).stubs().will(returnValue(topoInfoPath));
-    MOCKER(memset_s).stubs().with(any()).will(returnValue(0));
+    MOCKER(memset_s).stubs().with(mockcpp::any()).will(returnValue(0));
 
     std::unique_ptr<RdmaHandle> handle = std::make_unique<RdmaHandle>();
     RdmaHandle handlePtr = handle.get();
     MOCKER(HrtRaUbCtxInit)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(handlePtr));
 
     GenRankTableFile4p();
@@ -875,7 +875,7 @@ TEST_F(CollServiceDefaultImplTest, test_load_with_offload_mode_with_task)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     CommParams commParams;

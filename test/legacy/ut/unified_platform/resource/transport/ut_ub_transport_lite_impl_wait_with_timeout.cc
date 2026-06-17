@@ -47,9 +47,9 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         std::cout << "A Test case in UbTransportLiteImplWaitWithTimeoutTest SetUp" << std::endl;
     }
@@ -176,7 +176,7 @@ TEST_F(UbTransportLiteImplWaitWithTimeoutTest, UbTransportLiteImpl_WaitWithTimeo
     RmaConnLite rmaConnLite;
     RmaConnLite *connLite =  &rmaConnLite;
     MOCKER_CPP(&UbConnLiteMgr::Get).stubs().will(returnValue(connLite));
-    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(any());
+    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any());
     LinkData linkData(BasePortType(PortDeploymentType::DEV_NET, ConnectProtoType::UB), 0, 1, 0, 1);
     MirrorTaskManager mirrorTaskMgr(0, &GlobalMirrorTasks::Instance(), true);
     auto transportCallback = MemTransportCallback(linkData, mirrorTaskMgr);
@@ -208,7 +208,7 @@ TEST_F(UbTransportLiteImplWaitWithTimeoutTest, UbTransportLiteImpl_WaitWithTimeo
     RmaConnLite rmaConnLite;
     RmaConnLite *connLite =  &rmaConnLite;
     MOCKER_CPP(&UbConnLiteMgr::Get).stubs().will(returnValue(connLite));
-    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(any());
+    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any());
     LinkData linkData(BasePortType(PortDeploymentType::DEV_NET, ConnectProtoType::UB), 0, 1, 0, 1);
     MirrorTaskManager mirrorTaskMgr(0, &GlobalMirrorTasks::Instance(), true);
     auto transportCallback = MemTransportCallback(linkData, mirrorTaskMgr);
@@ -240,7 +240,7 @@ TEST_F(UbTransportLiteImplWaitWithTimeoutTest, UbTransportLiteImpl_WaitWithTimeo
     RmaConnLite rmaConnLite;
     RmaConnLite *connLite =  &rmaConnLite;
     MOCKER_CPP(&UbConnLiteMgr::Get).stubs().will(returnValue(connLite));
-    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(any());
+    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any());
     LinkData linkData(BasePortType(PortDeploymentType::DEV_NET, ConnectProtoType::UB), 0, 1, 0, 1);
     MirrorTaskManager mirrorTaskMgr(0, &GlobalMirrorTasks::Instance(), true);
     auto transportCallback = MemTransportCallback(linkData, mirrorTaskMgr);

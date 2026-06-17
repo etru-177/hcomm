@@ -370,11 +370,11 @@ TEST_F(CommInitTest, ut_transport_ibverbs_createoneqp_not_set_config)
 
     MOCKER_CPP(&TransportIbverbs::IsUseQpCreateWithAttrs).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(HrtRaQpCreate).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(SetQpAttrTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(SetQpAttrTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(SetQpAttrRetryCnt).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(SetQpAttrRetryCnt).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::shared_ptr<TransportIbverbs> IbvPtr = nullptr;
     IbvPtr.reset(new TransportIbverbs(dispatcher, notifyPool, machinePara, timeout));
@@ -419,11 +419,11 @@ TEST_F(CommInitTest, ut_transport_ibverbs_createoneqp_by_config_file)
 
     MOCKER_CPP(&TransportIbverbs::IsUseQpCreateWithAttrs).stubs().will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(HrtRaQpCreate).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(SetQpAttrTimeOut).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(SetQpAttrTimeOut).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER(SetQpAttrRetryCnt).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(SetQpAttrRetryCnt).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     std::shared_ptr<TransportIbverbs> IbvPtr = nullptr;
     IbvPtr.reset(new TransportIbverbs(dispatcher, notifyPool, machinePara, timeout));

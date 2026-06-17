@@ -338,7 +338,7 @@ TEST_F(RankGraphV1DirectTest, Ut_GetLinks_When_NormalCase_Expect_Success)
     rankGraph.netLayer_.push_back(0);
     rankGraph.devType_ = DevType::DEV_TYPE_910_93;
 
-    MOCKER(hrtGetPairDeviceLinkType).stubs().with(any(), any(), outBound(LinkTypeInServer::HCCS_TYPE))
+    MOCKER(hrtGetPairDeviceLinkType).stubs().with(mockcpp::any(), mockcpp::any(), outBound(LinkTypeInServer::HCCS_TYPE))
         .will(returnValue(HCCL_SUCCESS));
 
     RankGraphV1::RankGraphInfo srcGraphInfo;

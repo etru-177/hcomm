@@ -354,7 +354,7 @@ TEST_F(CcuResBatchAllocatorTest, St_GetResourceAndReleaseResHandle_When_resHandl
 TEST_F(CcuResBatchAllocatorTest, St_AllocConsecutiveRes_When_AllocRes_fail_Expect_HCCL_E_PARA)
 {
     // 前置条件
-    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(any(), any(), any(), any(), any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PARA));
     CcuResReq resReq;
     resReq.continuousXnReq[0] = 1;
     auto resRepoPtr = std::make_unique<CcuResRepository>();
@@ -373,9 +373,9 @@ TEST_F(CcuResBatchAllocatorTest, St_AllocConsecutiveRes_When_AllocRes_fail_Expec
 TEST_F(CcuResBatchAllocatorTest, St_TryAllocResHandle_When_AllocContinuousRes_fail_Expect_HCCL_E_PARA)
 {
     // 前置条件
-    MOCKER_CPP(&CcuResBatchAllocator::AllocBlockRes).stubs().with(any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&CcuResBatchAllocator::CcuMissionMgr::Alloc).stubs().with(any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(any(), any(), any(), any(), any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&CcuResBatchAllocator::AllocBlockRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CcuResBatchAllocator::CcuMissionMgr::Alloc).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_E_PARA));
     std::unique_ptr<CcuResRepository> resRepoPtr = std::make_unique<CcuResRepository>();
     uintptr_t handleKey  = reinterpret_cast<uintptr_t>(resRepoPtr.get());
     CcuResReq resReq;
@@ -395,7 +395,7 @@ TEST_F(CcuResBatchAllocatorTest, St_TryAllocResHandle_When_AllocContinuousRes_fa
 TEST_F(CcuResBatchAllocatorTest, St_AllocContinuousRes_When_AllocRes_success_Expect_HCCL_SUCCESS)
 {
     // 前置条件
-    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(any(), any(), any(), any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     CcuResReq resReq;
     auto resRepoPtr = std::make_unique<CcuResRepository>();
     CcuResBatchAllocator ccuResBatchAllocator;
@@ -412,9 +412,9 @@ TEST_F(CcuResBatchAllocatorTest, St_AllocContinuousRes_When_AllocRes_success_Exp
 TEST_F(CcuResBatchAllocatorTest, St_TryAllocResHandle_When_AllocContinuousRes_success_Expect_HCCL_SUCCESS)
 {
     // 前置条件
-    MOCKER_CPP(&CcuResBatchAllocator::AllocBlockRes).stubs().with(any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&CcuResBatchAllocator::CcuMissionMgr::Alloc).stubs().with(any(), any(), any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(any(), any(), any(), any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CcuResBatchAllocator::AllocBlockRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CcuResBatchAllocator::CcuMissionMgr::Alloc).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CcuComponent::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     std::unique_ptr<CcuResRepository> resRepoPtr = std::make_unique<CcuResRepository>();
     uintptr_t handleKey  = reinterpret_cast<uintptr_t>(resRepoPtr.get());
     CcuResReq resReq;

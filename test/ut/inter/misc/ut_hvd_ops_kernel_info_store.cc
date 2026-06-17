@@ -65,7 +65,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -160,7 +160,7 @@ TEST_F(HvdOpsKernelInfoStoreTest, ut_HvdWaitOpKernel)
 
     MOCKER_CPP(&HCCLOpsKernelInfoStore::GetStreamMainFromTaskInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = InfoStore.HvdWaitOpKernel(task, "HorovodWait");
@@ -202,7 +202,7 @@ TEST_F(HvdOpsKernelInfoStoreTest, ut_LoadTask)
 
     MOCKER_CPP(&HvdOpsKernelInfoStore::HCCLOpsKernel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ge::Status ret = InfoStore.LoadTask(task);
     EXPECT_EQ(ret, ge::SUCCESS);
@@ -376,15 +376,15 @@ TEST_F(HvdOpsKernelInfoStoreTest, ut_HvdBroadcastOpKernel)
     
     MOCKER(aclrtProcessReport)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     MOCKER(aclrtLaunchCallback)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(&HCCLOpsKernelInfoStore::GetStreamMainFromTaskInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = InfoStore.HvdBroadcastOpKernel(task, "HorovodBroadcast");
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -434,15 +434,15 @@ TEST_F(HvdOpsKernelInfoStoreTest, ut_HvdAllReduceOpKernel)
     task.kernelHcclInfo[0].dims.resize(1);
     MOCKER(aclrtProcessReport)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     MOCKER(aclrtLaunchCallback)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(&HCCLOpsKernelInfoStore::GetStreamMainFromTaskInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = InfoStore.HvdAllReduceOpKernel(task, "HorovodAllreduce");
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -492,15 +492,15 @@ TEST_F(HvdOpsKernelInfoStoreTest, ut_HvdAllGatherOpKernel)
     task.kernelHcclInfo[0].dims.resize(1);
     MOCKER(aclrtProcessReport)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     MOCKER(aclrtLaunchCallback)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     MOCKER_CPP(&HCCLOpsKernelInfoStore::GetStreamMainFromTaskInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = InfoStore.HvdAllGatherOpKernel(task, "HorovodAllgather");

@@ -42,8 +42,8 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_950));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         std::cout << "A Test case in CommunicatorImplLiteTest SetUp" << std::endl;
     }
@@ -58,9 +58,9 @@ protected:
 
 TEST_F(CommunicatorImplLiteTest, test_load_with_hccl_exception)
 {
-    MOCKER_CPP(&InsExecutor::Execute).stubs().with(any()).will(throws(InternalException("")));
-    MOCKER_CPP(&PrimTranslator::Translate).stubs().with(any()).will(returnValue(std::make_shared<InsQueue>()));
-    MOCKER_CPP(&InsExecutor::ExecuteV82).stubs().with(any()).will(throws(InternalException("")));
+    MOCKER_CPP(&InsExecutor::Execute).stubs().with(mockcpp::any()).will(throws(InternalException("")));
+    MOCKER_CPP(&PrimTranslator::Translate).stubs().with(mockcpp::any()).will(returnValue(std::make_shared<InsQueue>()));
+    MOCKER_CPP(&InsExecutor::ExecuteV82).stubs().with(mockcpp::any()).will(throws(InternalException("")));
     MOCKER_CPP(&CommunicatorImplLite::RegisterRtsqCallback).stubs();
     CommunicatorImplLite service(0);
     service.primTranslator = std::make_unique<PrimTranslator>();
@@ -111,7 +111,7 @@ TEST_F(CommunicatorImplLiteTest, test_load_with_hccl_exception)
 
 TEST_F(CommunicatorImplLiteTest, test_910A2)
 {
-    MOCKER_CPP(&CommunicatorImplLite::GetInsQueue).stubs().with(any()).will(returnValue(std::make_shared<InsQueue>()));
+    MOCKER_CPP(&CommunicatorImplLite::GetInsQueue).stubs().with(mockcpp::any()).will(returnValue(std::make_shared<InsQueue>()));
     CommunicatorImplLite service(0);
     service.primTranslator = std::make_unique<PrimTranslator>();
     service.insExecutor = std::make_unique<InsExecutor>(&service);
@@ -147,8 +147,8 @@ TEST_F(CommunicatorImplLiteTest, test_910A2)
 
 TEST_F(CommunicatorImplLiteTest, test_load_with_any_exception)
 {
-    MOCKER_CPP(&InsExecutor::Execute).stubs().with(any()).will(throws(1));
-    MOCKER_CPP(&PrimTranslator::Translate).stubs().with(any()).will(returnValue(std::make_shared<InsQueue>()));
+    MOCKER_CPP(&InsExecutor::Execute).stubs().with(mockcpp::any()).will(throws(1));
+    MOCKER_CPP(&PrimTranslator::Translate).stubs().with(mockcpp::any()).will(returnValue(std::make_shared<InsQueue>()));
     MOCKER_CPP(&CommunicatorImplLite::RegisterRtsqCallback).stubs();
     CommunicatorImplLite service(0);
     service.primTranslator = std::make_unique<PrimTranslator>();
@@ -201,7 +201,7 @@ TEST_F(CommunicatorImplLiteTest, test_update_comm_with_hccl_exception)
     auto ret = service.UpdateComm(&param);
     EXPECT_EQ(ret, 1);
     
-    MOCKER_CPP(&CommunicatorImplLite::UpdateTransports).stubs().with(any()).will(throws(InternalException("")));
+    MOCKER_CPP(&CommunicatorImplLite::UpdateTransports).stubs().with(mockcpp::any()).will(throws(InternalException("")));
     ret = service.UpdateComm(&param);
     EXPECT_EQ(ret, 1);
 
@@ -212,7 +212,7 @@ TEST_F(CommunicatorImplLiteTest, test_update_comm_with_hccl_exception)
 
 TEST_F(CommunicatorImplLiteTest, test_update_comm_with_any_exception)
 {
-    MOCKER_CPP(&CommunicatorImplLite::UpdateTransports).stubs().with(any()).will(throws(1));
+    MOCKER_CPP(&CommunicatorImplLite::UpdateTransports).stubs().with(mockcpp::any()).will(throws(1));
 
     CommunicatorImplLite service(0);
     service.isSuspended = true;
@@ -244,8 +244,8 @@ TEST_F(CommunicatorImplLiteTest, test_update_comm_success)
 
     // MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
     u8 mockSq[AC_SQE_SIZE * AC_SQE_MAX_CNT]{0};
-    MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-    MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+    MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+    MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
     MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
 
     u32 fakeStreamId = 0;
@@ -259,8 +259,8 @@ TEST_F(CommunicatorImplLiteTest, test_update_comm_success)
     service.GetStreamLiteMgr()->streams.emplace_back(std::make_unique<StreamLite>(uniqueId));
 
     auto rtsq = static_cast<RtsqA5 *>(service.GetStreamLiteMgr()->GetMaster()->GetRtsq());
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyWait).stubs().with(any());
-    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyRecordLoc).stubs().with(any());
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyWait).stubs().with(mockcpp::any());
+    MOCKER_CPP_VIRTUAL(*rtsq, &RtsqA5::NotifyRecordLoc).stubs().with(mockcpp::any());
 
     // 不需要更新资源
     service.isSuspended = true;
@@ -279,7 +279,7 @@ TEST_F(CommunicatorImplLiteTest, test_update_comm_success)
     kernelParam.binaryResAddr = bufferAddress;
     kernelParam.binaryResSize = buffer.size();
 
-    MOCKER_CPP(&MemTransportLiteMgr::ParseAllPackedData).stubs().with(any());
+    MOCKER_CPP(&MemTransportLiteMgr::ParseAllPackedData).stubs().with(mockcpp::any());
     ret = service.UpdateComm(&kernelParam);
     EXPECT_EQ(ret, 0);
 }

@@ -86,7 +86,7 @@ TEST_F(HcclSetConfigTest, ut_CommChannelGetStatus_When_Normal_Expect_ReturnIsHCC
     std::vector<int32_t> statusListCopy{1};
     MOCKER(&ChannelManager::ChannelCommGetStatus)
         .expects(once())
-        .with(any(), any(), outBoundP(statusListCopy.data()))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(statusListCopy.data()))
         .will(returnValue(HCCL_SUCCESS));
  
     // 执行：调用被测函数

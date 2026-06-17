@@ -253,7 +253,7 @@ TEST_F(OneSidedUtV2, ut_HcclBatchPutV2_func)
     desc[0].remoteAddr = remotebuf;
     
     char* rank_table_file = "./ut_opbase_test.json";
-    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::Init, HcclResult(HcclCommunicator::*)(const std::string &)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&CommManager::SetCommAcceleratorV2).stubs().will(returnValue(HCCL_SUCCESS));
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -286,7 +286,7 @@ TEST_F(OneSidedUtV2, ut_HcclBatchPutV2_func)
 
     MOCKER(&HcomCheckUserRankV2)
         .stubs()
-        .with(any(),any())
+        .with(mockcpp::any(),mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     Hccl::CommParams commParams;
     std::unique_ptr<Hccl::HcclCommunicator> communicator = std::make_unique<Hccl::HcclCommunicator>(commParams);

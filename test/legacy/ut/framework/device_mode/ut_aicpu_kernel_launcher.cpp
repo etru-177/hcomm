@@ -45,11 +45,11 @@ protected:
         MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
         MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
         MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-        MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+        MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
         MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
         MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
         std::pair<u32, u32> pair(0, 1);
-        MOCKER(HrtUbDevQueryToken).stubs().with(any(), any()).will(returnValue(pair));
+        MOCKER(HrtUbDevQueryToken).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(pair));
         comm.InitNotifyManager();
         comm.InitSocketManager();
         comm.InitRmaConnManager();

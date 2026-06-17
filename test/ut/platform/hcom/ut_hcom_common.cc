@@ -90,7 +90,7 @@ TEST_F(HcomCommonTest, ut_hcom_HcomCreateCommCCLbuffer)
     std::shared_ptr<hccl::hcclComm> h = std::make_shared<hccl::hcclComm>();
     MOCKER(HcomGetCommByGroup)
     .stubs()
-    .with(any(), outBound(h))
+    .with(mockcpp::any(), outBound(h))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::CreateCommCCLbuffer)

@@ -63,7 +63,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -423,7 +423,7 @@ TEST_F(HcclCommAicpuTest_UT, hcclImpl_BuildOpResParam_ok)
     params.identifier ="tag";
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
 
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
@@ -537,7 +537,7 @@ TEST_F(HcclCommAicpuTest_UT, hcclImpl_BuildOpRemoteLinkP2pResParam_ok)
     params.identifier ="tag";
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
 
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
@@ -625,7 +625,7 @@ TEST_F(HcclCommAicpuTest_UT, CommunicatorCustomTest)
     char c = '1';
     MOCKER(realpath)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(&c));
 
     MOCKER(hrtMemSyncCopy)
@@ -647,10 +647,10 @@ TEST_F(HcclCommAicpuTest_UT, CommunicatorCustomTest)
     AlgResourceResponse algResource;
     std::string newTag = "test111";
 
-    MOCKER_CPP(&HcclCommunicator::BuildOpResParam).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::BuildCustomOpResParam).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::SetMC2EnvFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hcclStreamSynchronize).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::BuildOpResParam).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::BuildCustomOpResParam).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::SetMC2EnvFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hcclStreamSynchronize).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtGetDeviceInfo)
     .stubs()
 	.will(invoke(stub_hrtGetDeviceInfo));
@@ -686,7 +686,7 @@ TEST_F(HcclCommAicpuTest_UT, CommunicatorCustomTest_CloseSwitch)
     char c = '1';
     MOCKER(realpath)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(&c));
 
     MOCKER(hrtMemSyncCopy)
@@ -708,10 +708,10 @@ TEST_F(HcclCommAicpuTest_UT, CommunicatorCustomTest_CloseSwitch)
     AlgResourceResponse algResource;
     std::string newTag = "test111";
 
-    MOCKER_CPP(&HcclCommunicator::BuildOpResParam).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::BuildCustomOpResParam).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::SetMC2EnvFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hcclStreamSynchronize).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::BuildOpResParam).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::BuildCustomOpResParam).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::SetMC2EnvFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hcclStreamSynchronize).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER(hrtGetDeviceInfo)
     .stubs()
 	.will(invoke(stub_hrtGetDeviceInfo_close));

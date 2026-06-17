@@ -431,16 +431,16 @@ TEST_F(HcommCAdptTest, ut_HcommEndpointCheckFeature_When_SupportedFeature_Expect
     s32 devId = 0;
     MOCKER(hrtGetDevice).stubs().with(outBoundP(&devId)).will(returnValue(HCCL_SUCCESS));
 
-    MOCKER_CPP(&Hccl::HccpPeerManager::Init).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&Hccl::HccpPeerManager::Init).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     u32 devPhyId = 0;
-    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(devPhyId)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), outBound(devPhyId)).will(returnValue(HCCL_SUCCESS));
 
     void *fakeRdmaHandle = reinterpret_cast<void *>(0x12345678);
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetByAddr).stubs().will(returnValue(fakeRdmaHandle));
 
     s32 directFlag = DIRECT_FLAG_PCIE;
-    MOCKER(RaNdaGetDirectFlag).stubs().with(any(), outBoundP(&directFlag)).will(returnValue(0));
+    MOCKER(RaNdaGetDirectFlag).stubs().with(mockcpp::any(), outBoundP(&directFlag)).will(returnValue(0));
 
     bool value = false;
     HcommResult ret = HcommEndpointCheckFeature(HCOMM_ENDPOINT_FEATURE_NDA, &endpointDesc, &value);

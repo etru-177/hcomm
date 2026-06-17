@@ -90,7 +90,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -155,7 +155,7 @@ TEST_F(TransportDeviceP2pAiCpu_UT, transport_init_A3_between_servers)
     unsigned int notifyLen = 4;
     MOCKER(halResAddrMap)
     .stubs()
-    .with(any(), any(), outBoundP(&notifyAddr, sizeof(notifyAddr)), outBoundP(&notifyLen, sizeof(notifyLen)))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&notifyAddr, sizeof(notifyAddr)), outBoundP(&notifyLen, sizeof(notifyLen)))
     .will(returnValue(0));
 
     // init

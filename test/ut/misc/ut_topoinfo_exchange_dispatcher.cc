@@ -75,7 +75,7 @@ TEST_F(TopoExchangeDispatcherTest, ut_processOneSendEvent_sendDataFail)
 
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::Send)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     HcclResult ret = HCCL_SUCCESS;
@@ -108,17 +108,17 @@ TEST_F(TopoExchangeDispatcherTest, ut_processOneSendEvent_sendDataSuccess)
 
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::Send)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::IsOk)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     MOCKER(hrtRaCtlEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));;
 
     HcclResult ret = HCCL_SUCCESS;
@@ -151,17 +151,17 @@ TEST_F(TopoExchangeDispatcherTest, ut_processOneSendEvent_sendAgain)
 
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::Send)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::IsOk)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(false));
 
     MOCKER(hrtRaCtlEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_NETWORK));;
 
     HcclResult ret = HCCL_SUCCESS;
@@ -191,7 +191,7 @@ TEST_F(TopoExchangeDispatcherTest, ut_sendHelper_ISendSuccess)
 
     MOCKER_CPP(&HcclSocket::ISend)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     HcclResult ret = HCCL_SUCCESS;
@@ -220,7 +220,7 @@ TEST_F(TopoExchangeDispatcherTest, ut_sendHelper_networkError)
 
     MOCKER_CPP(&HcclSocket::ISend)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_NETWORK));
 
     HcclResult ret = HCCL_SUCCESS;
@@ -249,7 +249,7 @@ TEST_F(TopoExchangeDispatcherTest, ut_sendHelper_internalError)
 
     MOCKER_CPP(&HcclSocket::ISend)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     HcclResult ret = HCCL_SUCCESS;
@@ -309,7 +309,7 @@ TEST_F(TopoExchangeDispatcherTest, ut_processOneSendEvent_sendDataOnceFail)
 
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::Send)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     HcclResult ret = HCCL_SUCCESS;
@@ -322,27 +322,27 @@ TEST_F(TopoExchangeDispatcherTest, ut_broadcastgroupleaderinfo)
 {
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::Send)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
  
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::IsOk)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
  
     MOCKER(hrtRaCtlEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(hrtRaCreateEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(hrtRaDestroyEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     // create dispatcher
@@ -378,27 +378,27 @@ TEST_F(TopoExchangeDispatcherTest, ut_broadcastgroupleaderPortinfo)
 {
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::Send)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
  
     MOCKER_CPP(&TopoInfoExchangeDispather::SendState::IsOk)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
  
     MOCKER(hrtRaCtlEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(hrtRaCreateEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     MOCKER(hrtRaDestroyEventHandle)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
  
     // create dispatcher

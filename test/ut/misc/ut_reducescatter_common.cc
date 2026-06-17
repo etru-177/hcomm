@@ -346,7 +346,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         setenv("HCCL_DFS_CONFIG", "connection_fault_detection_time:0", 1);
         InitEnvParam();

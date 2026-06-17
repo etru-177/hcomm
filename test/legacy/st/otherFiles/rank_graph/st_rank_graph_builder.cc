@@ -71,8 +71,8 @@ TEST_F(RankGraphBuilderTest, st_BuildRankGraph_When_Normal_Expect_Success)
     MOCKER_CPP(&RankGraphBuilder::BuildFromRankTable).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&RankGraph::InitInnerRanks).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&RankGraphBuilder::BuildPeer2PeerLinks).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&DetourService::InsertDetourLinks).stubs().with(any()).will(ignoreReturnValue());
-    MOCKER_CPP(&RankGraphBuilder::UpdateTopoInstForMyRankOnly).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&DetourService::InsertDetourLinks).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(&RankGraphBuilder::UpdateTopoInstForMyRankOnly).stubs().with(mockcpp::any()).will(ignoreReturnValue());
 
     // then
     RankGraphBuilder rankGraphBuilder;
@@ -87,9 +87,9 @@ TEST_F(RankGraphBuilderTest, st_BuildFromRankTable_When_Normal_Expect_Success)
 {
     // 校验BuildFromRankTable的Add(RankId, Peer)
     // when
-    MOCKER_CPP(&PhyTopoBuilder::Build).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&PhyTopoBuilder::Build).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&RankGraph::InitInnerRanks).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&DetourService::InsertDetourLinks).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&DetourService::InsertDetourLinks).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(&RankGraphBuilder::BuildPeer2PeerLinks).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&RankGraphBuilder::AddFabricInfo).stubs().will(ignoreReturnValue());
     // then

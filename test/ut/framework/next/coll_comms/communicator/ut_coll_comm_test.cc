@@ -54,7 +54,7 @@ TEST_F(TestCollComm, test_suspend_success_and_idempotent)
     // mock MyRank::StopLaunch to return success
     MOCKER_CPP(&MyRank::StopLaunch, HcclResult(MyRank:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // attach a MyRank instance (can be real or mocked; method is mocked above)
@@ -95,7 +95,7 @@ TEST_F(TestCollComm, test_clean_success_and_idempotent)
     // mock MyRank::Clean to return success
     MOCKER_CPP(&MyRank::Clean, HcclResult(MyRank:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // attach a MyRank instance
@@ -129,7 +129,7 @@ TEST_F(TestCollComm, test_resume_fail_invalid_and_resume_success)
     // mock MyRank::Resume to return success
     MOCKER_CPP(&MyRank::Resume, HcclResult(MyRank:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // attach a MyRank instance

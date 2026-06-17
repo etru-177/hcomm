@@ -39,7 +39,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -64,7 +64,7 @@ TEST_F(HvdAdapterTest, ut_hvd_adapter_init_release_success)
 {
     MOCKER(aclrtProcessReport)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(ACL_SUCCESS));
     void *stream1;
     void *stream2;

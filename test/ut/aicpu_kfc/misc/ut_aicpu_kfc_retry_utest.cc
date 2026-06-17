@@ -54,12 +54,12 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         g_stubDevType = DevType::DEV_TYPE_910B;
         MOCKER(halGetDeviceInfo)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(invoke(StubhalGetDeviceInfo));
 
         DlHalFunction::GetInstance().DlHalFunctionInit();
@@ -200,7 +200,7 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_normal)
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     StubSqeBuffer sqeBufferStub;
@@ -219,7 +219,7 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_normal)
 
 TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_success_when_op_runing)
 {
-    MOCKER_CPP(&HcclCommAicpu::GenTaskExceptionInfo).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommAicpu::GenTaskExceptionInfo).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     dlog_setlevel(HCCL, DLOG_DEBUG, 1);
 
     KFCResInitTask initTask;
@@ -272,18 +272,18 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_success_when_op_runing)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -338,7 +338,7 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_when_op_end)
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     usleep(10000);
@@ -394,18 +394,18 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_not_support_retry_for_inplace)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -461,18 +461,18 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_not_support_retry_for_disable_retry)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -525,18 +525,18 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_stop)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -592,18 +592,18 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_stop_when_wait_stop_exec)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -670,18 +670,18 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_stop_when_wait_retry)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -748,24 +748,24 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_launch_fail)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
     MOCKER(&AicpuKfcDeprecatedProcess::RetryLaunchHcclOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     usleep(10000);
@@ -831,24 +831,24 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_reset_sq_fail)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
     MOCKER(&AicpuKfcProcess::ResetSqBuff)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     usleep(10000);
@@ -891,24 +891,24 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_init_opexec_status_fail)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
     MOCKER(&AicpuHdcUtils::InitOpExecStatus)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     usleep(10000);
@@ -951,24 +951,24 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_task_exec_fail)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TIMEOUT))
     .then(returnValue(HCCL_SUCCESS));
 
     MOCKER(&AicpuKfcProcess::ResetSqBuff)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     usleep(10000);
@@ -1031,23 +1031,23 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_when_sdma_taskexception)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
     MOCKER(&TaskOrchestrator::IsTaskExceptionForHccs)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true))
     .then(returnValue(true))
     .then(returnValue(false));
@@ -1092,22 +1092,22 @@ TEST_F(MC2AicpuRetry_UT, allreduce_fp16_retry_wait_stop_exec_timeout)
 
     MOCKER(halSqCqQuery)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(halSqCpQueryStub_2));
 
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(&HcclCommAicpu::HcclGetWaitStopExecCmdTimeout)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(1));
 
     MOCKER(&TaskOrchestrator::WaitFinishWhileLoop)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_SUSPENDING))
     .then(returnValue(HCCL_SUCCESS));
 
@@ -1133,14 +1133,14 @@ TEST_F(MC2AicpuRetry_UT, ut_AicpuHcclProcess_function)
     HcclOpExecFSM fsmState;
     MOCKER(&AicpuKfcDeprecatedProcess::LaunchHcclOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_PARA));
     HcclResult ret = Process.HcclOpExecFsmLaunchProcess(ctx, state, errorCode, opParams, beginSqePos, endSqePos);
     EXPECT_EQ(ret, HCCL_E_PARA);
 
     MOCKER(&AicpuHdcUtils::GetOpExecCtrlCmd)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_PARA));
     ret = HcclOpExecFsmStoppingProcess(ctx, state, errorCode);
     EXPECT_EQ(ret, HCCL_E_PARA);
@@ -1151,7 +1151,7 @@ TEST_F(MC2AicpuRetry_UT, ut_AicpuHcclProcess_function)
     KfcStatus opstate;
     MOCKER(&AicpuHdcUtils::SetOpExecStatus)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_PARA));
     ret = UpdateOpExecStatus(ctx, fsmState, opstate, errorCode, beginSqePos);
     EXPECT_EQ(ret, HCCL_E_PARA);
@@ -1160,7 +1160,7 @@ TEST_F(MC2AicpuRetry_UT, ut_AicpuHcclProcess_function)
     KfcCommand cmd = KfcCommand::kExit;
     MOCKER(&AicpuHdcUtils::GetOpExecCtrlCmd)
     .stubs()
-    .with(any(), outBound(cmd))
+    .with(mockcpp::any(), outBound(cmd))
     .will(returnValue(HCCL_SUCCESS));
     ret = HcclOpExecFsmStoppedProcess(ctx, state, errorCode, beginSqePos, opParams, beginSqePos, endSqePos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -1168,7 +1168,7 @@ TEST_F(MC2AicpuRetry_UT, ut_AicpuHcclProcess_function)
     cmd =  KfcCommand::kNone;
     MOCKER(&AicpuHdcUtils::GetOpExecCtrlCmd)
     .stubs()
-    .with(any(), outBound(cmd))
+    .with(mockcpp::any(), outBound(cmd))
     .will(returnValue(HCCL_SUCCESS));
     ret = HcclOpExecFsmStoppingProcess(ctx, state, errorCode);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -1192,13 +1192,13 @@ TEST_F(MC2AicpuRetry_UT, ut_InitProcess_BatchSendRecv_hcclCommAicpu)
 
     MOCKER(&AicpuHdcUtils::InitOpExecStatus)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommAicpu::InitBatchSendRecvOpId,
         HcclResult(HcclCommAicpu::*)(const OpParam&, AlgResourceResponse&))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     comm.retryEnable_ = true;
@@ -1232,18 +1232,18 @@ TEST_F(MC2AicpuRetry_UT, ut_WaitEndProcess_hcclCommAicpu)
 
     MOCKER(QuerySqStatusByType)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(invoke(QuerySqStatusByTypeStub));
 
     MOCKER_CPP(&Stream::ClearLocalBuff)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     KfcCommand cmd = KfcCommand::kStopLaunch;
     MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd)
     .stubs()
-    .with(any(), outBound(cmd))
+    .with(mockcpp::any(), outBound(cmd))
     .will(returnValue(HCCL_SUCCESS));
 
     comm.retryEnable_ = true;
@@ -1288,7 +1288,7 @@ TEST_F(MC2AicpuRetry_UT, allreduce_backGround_stop)
     init_kfc_task(kfcTask);
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     StubSqeBuffer sqeBufferStub;
@@ -1324,7 +1324,7 @@ TEST_F(MC2AicpuRetry_UT, allreduce_ns_stoplaunch)
     init_kfc_task(kfcTask);
     MOCKER(&AicpuDispatcher::LaunchTask)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     usleep(10000);
     StubSqeBuffer sqeBufferStub;
@@ -1385,7 +1385,7 @@ TEST_F(MC2AicpuRetry_UT, allreduce_ns_stopexec_clear_error)
     KFCResInitTask initTask;
     init_kfc_args(initTask);
     EXPECT_EQ(0, RunAicpuKfcResInit(&initTask));
-    MOCKER(halTsdrvCtl).stubs().with(any()).will(returnValue(DRV_ERROR_NOT_SUPPORT));
+    MOCKER(halTsdrvCtl).stubs().with(mockcpp::any()).will(returnValue(DRV_ERROR_NOT_SUPPORT));
     AicpuComContext *ctx = AicpuGetComContext();
     ctx->isStopLaunch = true;
     KfcExecControl request;

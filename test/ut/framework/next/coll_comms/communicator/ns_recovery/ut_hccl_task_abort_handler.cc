@@ -62,7 +62,7 @@ TEST_F(HcclTaskAbortHandlerTest, test_task_abort_handle_call_back_stage_pre_succ
     // 模拟 Suspend 方法返回成功
     MOCKER_CPP(&CollComm::Suspend, HcclResult(CollComm:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // 测试带超时的情况
@@ -94,7 +94,7 @@ TEST_F(HcclTaskAbortHandlerTest, test_task_abort_handle_call_back_stage_pre_fail
     // 模拟 Suspend 方法返回失败
     MOCKER_CPP(&CollComm::Suspend, HcclResult(CollComm:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     // 测试带超时的情况
@@ -129,7 +129,7 @@ TEST_F(HcclTaskAbortHandlerTest, test_task_abort_handle_call_back_stage_post_suc
     // 模拟 Clean 方法返回成功
     MOCKER_CPP(&CollComm::Clean, HcclResult(CollComm:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // 测试带超时的情况
@@ -164,7 +164,7 @@ TEST_F(HcclTaskAbortHandlerTest, test_task_abort_handle_call_back_stage_post_fai
     // 模拟 Clean 方法返回失败
     MOCKER_CPP(&CollComm::Clean, HcclResult(CollComm:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     // 测试带超时的情况

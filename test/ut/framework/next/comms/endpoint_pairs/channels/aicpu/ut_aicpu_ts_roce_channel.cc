@@ -500,7 +500,7 @@ TEST_F(AicpuTsRoceChannelTest, Ut_AssignDispatcherCommId_WritesNonEmptyId) {
 
 TEST_F(AicpuTsRoceChannelTest, Ut_ConfigureMachineParaForTransport_WhenMocksOk_Returns_SUCCESS) {
     DevType devType = DevType::DEV_TYPE_910B;
-    MOCKER(hrtGetDevice).stubs().with(any()).will(invoke(StubHrtGetDeviceWriteZero));
+    MOCKER(hrtGetDevice).stubs().with(mockcpp::any()).will(invoke(StubHrtGetDeviceWriteZero));
     MOCKER(hrtGetDeviceType).stubs().with(outBound(devType)).will(returnValue(HCCL_SUCCESS));
 
     HcommChannelDesc desc{};

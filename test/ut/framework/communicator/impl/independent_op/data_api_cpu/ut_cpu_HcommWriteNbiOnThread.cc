@@ -50,7 +50,7 @@ TEST_F(UtCpuHcommWriteNbiOnThread, Ut_HcommWriteNbiOnThread_When_950_Normal_Expe
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::Write)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     res = HcommWriteNbiOnThread(thread, channel, dst, src, len);
     EXPECT_EQ(res, HCCL_SUCCESS);
@@ -61,7 +61,7 @@ TEST_F(UtCpuHcommWriteNbiOnThread, Ut_HcommWriteNbiOnThread_When_950_Thread_IsNu
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::Write)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     // thread is cast to void — nullptr is acceptable.
     res = HcommWriteNbiOnThread(0, channel, dst, src, len);
@@ -94,7 +94,7 @@ TEST_F(UtCpuHcommWriteNbiOnThread, Ut_HcommWriteNbiOnThread_When_950_Write_Fails
     MOCKER(&hrtGetDeviceType).stubs().with(outBound(t950)).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(channelOnHost, &hcomm::HostCpuRoceChannel::Write)
             .stubs()
-            .with(any(), any())
+            .with(mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_E_INTERNAL));
     res = HcommWriteNbiOnThread(thread, channel, dst, src, len);
     EXPECT_EQ(res, HCCL_E_INTERNAL);

@@ -256,10 +256,10 @@ TEST_F(OneSidedUtV2, ut_HcclBatchPutV2_func)
     EXPECT_EQ(rt_ret, RT_ERROR_NONE);
     char* rank_table_file = "./ut_opbase_test.json";
     MOCKER(RaTlvRequest).stubs().will(returnValue(0));
-    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::TryInitCcuFeature).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     MOCKER_CPP(static_cast<HcclResult (HcclCommunicator::*)(const std::string &)>(&HcclCommunicator::Init))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     CommManager::GetInstance(0).GetCommInfoV2().hcclGroupMap.clear();
     CommManager::GetInstance(0).GetCommInfoV2().pComm = nullptr;
@@ -292,7 +292,7 @@ TEST_F(OneSidedUtV2, ut_HcclBatchPutV2_func)
 
     MOCKER(&HcomCheckUserRankV2)
         .stubs()
-        .with(any(),any())
+        .with(mockcpp::any(),mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     Hccl::CommParams commParams;
     std::unique_ptr<Hccl::HcclCommunicator> communicator = std::make_unique<Hccl::HcclCommunicator>(commParams);

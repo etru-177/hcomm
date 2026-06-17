@@ -54,7 +54,7 @@ protected:
         std::cout << "A Test case in RdmaHandleManagerTest SetUP" << std::endl;
 
         rdmaHandle = new int(0);
-        MOCKER(HrtRaRdmaInit).stubs().with(any(), any()).will(returnValue(rdmaHandle));
+        MOCKER(HrtRaRdmaInit).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(rdmaHandle));
 
         BasePortType basePortType(PortDeploymentType::DEV_NET, ConnectProtoType::RDMA);
     }

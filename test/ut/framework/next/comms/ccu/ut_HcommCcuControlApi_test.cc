@@ -50,7 +50,7 @@ public:
         // 将enableEntryLog默认返回为true
         MOCKER(GetExternalInputHcclEnableEntryLog)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(true));
     }
     void TearDown() override {
@@ -149,7 +149,7 @@ TEST_F(HcommCcuControlApiTest, testName)                                        
         .with(outBoundP(&fakeDeviceLogicId))                                                                \
         .will(returnValue(HcclResult::HCCL_SUCCESS));                                                       \
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()                                                               \
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())                             \
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())                             \
         .will(returnValue(HcclResult::HCCL_SUCCESS));                                                       \
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;                                 \
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);                                                         \
@@ -205,7 +205,7 @@ TEST_F(HcommCcuControlApiTest, Ut_LoopObjectApi_Expect_Success)
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -258,7 +258,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelRegister_When_AllFine_Expect_Ret
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId); // 先处理网络设备，再初始化ccu
@@ -341,7 +341,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelDoWhile_When_AllFine_Expect_Retu
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -402,7 +402,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelNestedIfOuterElse_When_AllFine_E
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -466,7 +466,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelNestedIfInnerElse_When_AllFine_E
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -530,7 +530,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelDoWhileUnified_When_AllFine_Expe
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -591,7 +591,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelLoopAdd_When_AllFine_Expect_Retu
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -653,7 +653,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelRemoteRead_When_AllFine_Expect_R
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -714,7 +714,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelRemoteWrite_When_AllFine_Expect_
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -775,7 +775,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelAlloc_When_AllFine_Expect_Return
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -837,7 +837,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelReduceScatterMesh1d_When_AllFine
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId); // 先处理网络设备，再初始化ccu
@@ -923,7 +923,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelNestedInIfIf_When_AllFine_Expect
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);
@@ -989,7 +989,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelAllGatherMesh1dMem2Mem_When_AllF
         .with(outBoundP(&fakeDeviceLogicId))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(hrtGetDevicePhyIdByIndex).stubs()
-        .with(any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), any())
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(fakeDeviceLogicId)), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
     MockCcuNetworkDeviceDefault(fakeDeviceLogicId);

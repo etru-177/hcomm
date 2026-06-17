@@ -101,10 +101,10 @@ TEST_F(Mc2CompontTest, should_success_when_calling_AllocCommResource_V2)
 TEST_F(Mc2CompontTest, should_return_success_when_calling_Alloc)
 {
     // when
-    MOCKER(CcuRep::GetTokenInfo).stubs().with(any(), any()).will(returnValue(1000));
+    MOCKER(CcuRep::GetTokenInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1000));
     HcclCombinOpParam opParam;
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(&opParam)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x10000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(&opParam)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x10000));
 
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
@@ -120,10 +120,10 @@ TEST_F(Mc2CompontTest, should_return_success_when_calling_Alloc)
 TEST_F(Mc2CompontTest, should_return_success_when_calling_AllocV2)
 {
     // when
-    MOCKER(CcuRep::GetTokenInfo).stubs().with(any(), any()).will(returnValue(1000));
+    MOCKER(CcuRep::GetTokenInfo).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1000));
     HcclCombinOpParam opParam;
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(&opParam)));
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue((void *)0x10000));
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(&opParam)));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue((void *)0x10000));
 
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
@@ -151,12 +151,12 @@ TEST_F(Mc2CompontTest, should_return_success_when_calling_AllocV2)
 
 TEST_F(Mc2CompontTest, should_return_success_when_calling_generateCcuServer)
 {
-    MOCKER(CcuCtxMgr::AllocRes).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(InsExeQue::RegisterExtendInstruction)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(InsExeQue::DeregisterExtendInstruction).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(InsExeQue::DeregisterExtendInstruction).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
     Mc2Compont mc2Compont(comm.get());
@@ -176,12 +176,12 @@ TEST_F(Mc2CompontTest, should_return_success_when_calling_generateCcuServer)
 
 TEST_F(Mc2CompontTest, should_return_success_when_calling_generateCcuServer_and_server_exist)
 {
-    MOCKER(CcuCtxMgr::AllocRes).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(InsExeQue::RegisterExtendInstruction)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER(InsExeQue::DeregisterExtendInstruction).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(InsExeQue::DeregisterExtendInstruction).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
     Mc2Compont mc2Compont(comm.get());
@@ -222,10 +222,10 @@ TEST_F(Mc2CompontTest, should_return_false_when_calling_CompareMissionMap)
 
 TEST_F(Mc2CompontTest, should_return_success_when_calling_generateCcuServer_and_server_exist_multiOp)
 {
-    MOCKER(CcuCtxMgr::AllocRes).stubs().with(any(), any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(CcuCtxMgr::AllocRes).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER(InsExeQue::RegisterExtendInstruction)
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
@@ -265,7 +265,7 @@ TEST_F(Mc2CompontTest, should_return_success_when_calling_getCcuTaskInfo)
     taskParams[0].push_back(param);
     MOCKER(CcuCtxMgr::GetTaskParam)
         .stubs()
-        .with(any(), any(), any(), outBound(taskParams))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(taskParams))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
@@ -310,7 +310,7 @@ TEST_F(Mc2CompontTest, func_FillCollOperator_test)
     config.reduceType = HcclReduceOp::HCCL_REDUCE_SUM;
     config.dataType = HcclDataType::HCCL_DATA_TYPE_FP32;
     config.outputDataType = HcclDataType::HCCL_DATA_TYPE_FP32;
-    MOCKER_CPP(&CommunicatorImpl::CovertToCurrentCollOperator).stubs().with(any(), any(), any());
+    MOCKER_CPP(&CommunicatorImpl::CovertToCurrentCollOperator).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any());
     mc2Compont.FillCollOperator(config);
 }
 
@@ -354,7 +354,7 @@ TEST_F(Mc2CompontTest, func_FillCollOperatorV2_test)
     config.reduceType = HcclReduceOp::HCCL_REDUCE_SUM;
     config.srcDataType = HcclDataType::HCCL_DATA_TYPE_FP32;
     config.dstDataType = HcclDataType::HCCL_DATA_TYPE_FP32;
-    MOCKER_CPP(&CommunicatorImpl::CovertToCurrentCollOperator).stubs().with(any(), any(), any());
+    MOCKER_CPP(&CommunicatorImpl::CovertToCurrentCollOperator).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any());
     mc2Compont.FillCollOperatorV2(config);
 }
 
@@ -436,7 +436,7 @@ TEST_F(Mc2CompontTest, test_MC2AllocCommRes)
     HcclResult(CollAlgComponent::*)(
         const CollAlgOperator &op, const CollAlgParams &params, const string &algName, InsQuePtr queue))
     .stubs()
-    .with(any(), any(), any(), any())
+    .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
     .will(returnValue(HcclResult::HCCL_SUCCESS));
 
     comm.currentCollOperator = std::make_unique<CollOperator>();
@@ -486,7 +486,7 @@ TEST_F(Mc2CompontTest, should_throw_error_when_calling_getCcuTaskInfo)
     taskParams[0].push_back(param);
     MOCKER(CcuCtxMgr::GetTaskParam)
         .stubs()
-        .with(any(), any(), any(), outBound(taskParams))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(taskParams))
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     // then
     std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();

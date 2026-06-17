@@ -57,7 +57,7 @@ TEST_F(TaskAbortHandlerTest, test_task_abort_handle_call_back_stage_pre_success)
 
     MOCKER_CPP(&HcclCommunicator::Suspend, HcclResult(HcclCommunicator:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     auto ret = ProcessTaskAbortHandleCallback(deviceLogicId, stage, time, args);
     EXPECT_EQ(ret, 0);
@@ -83,7 +83,7 @@ TEST_F(TaskAbortHandlerTest, test_task_abort_handle_call_back_stage_pre_fail)
 
     MOCKER_CPP(&HcclCommunicator::Suspend, HcclResult(HcclCommunicator:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
     auto ret = ProcessTaskAbortHandleCallback(deviceLogicId, stage, time, args);
     EXPECT_EQ(ret, 1);

@@ -53,8 +53,8 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(0));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(0));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
         std::cout << "A Test case in UbTransportLiteImplTest SetUP" << std::endl;
     }
@@ -178,7 +178,7 @@ TEST_F(UbTransportLiteImplTest, construct_test)
     RmaConnLite rmaConnLite;
     RmaConnLite *connLite =  &rmaConnLite;
     MOCKER_CPP(&UbConnLiteMgr::Get).stubs().will(returnValue(connLite));
-    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(any());
+    MOCKER_CPP(&MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any());
     LinkData linkData(BasePortType(PortDeploymentType::DEV_NET, ConnectProtoType::UB), 0, 1, 0, 1);
     MirrorTaskManager mirrorTaskMgr(0, &GlobalMirrorTasks::Instance(), true);
     auto transportCallback = MemTransportCallback(linkData, mirrorTaskMgr);
@@ -210,7 +210,7 @@ TEST_F(UbTransportLiteImplTest, construct_test)
     StreamLite stream(uniqueId);
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     MOCKER_CPP(&UbTransportLiteImpl::BuildNotifyWaitTask).stubs();
     MOCKER_CPP(&UbTransportLiteImpl::BuildUbDbSendTask).stubs();

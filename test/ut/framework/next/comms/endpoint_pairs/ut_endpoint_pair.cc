@@ -38,7 +38,7 @@ TEST_F(TestEndpointPair, Ut_EndpointPair_Construct_Expect_HCCL_SUCCESS)
     remoteEndpointDesc.commAddr.addr = remoteIp.GetBinaryAddress().addr;
     remoteEndpointDesc.loc.locType = ENDPOINT_LOC_TYPE_HOST;
 
-    MOCKER_CPP(&SocketMgr::GetSocket).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SocketMgr::GetSocket).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     EndpointPair endpointPair(localEndpointDesc, remoteEndpointDesc, rankIpPortMap);
     HcclResult ret = endpointPair.Init();
@@ -66,7 +66,7 @@ TEST_F(TestEndpointPair, Ut_EndpointPair_Create_Host_Socket_Expect_HCCL_SUCCESS)
     remoteEndpointDesc.commAddr.addr = remoteIp.GetBinaryAddress().addr;
     remoteEndpointDesc.loc.locType = ENDPOINT_LOC_TYPE_HOST;
 
-    MOCKER_CPP(&SocketMgr::GetSocket).stubs().with(any(), any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&SocketMgr::GetSocket).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     EndpointPair endpointPair(localEndpointDesc, remoteEndpointDesc, rankIpPortMap);
     HcclResult ret = endpointPair.Init();

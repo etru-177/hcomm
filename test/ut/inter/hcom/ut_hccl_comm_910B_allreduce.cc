@@ -70,7 +70,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&AlgWrap::TaskAivProfiler)
             .stubs()
@@ -519,33 +519,33 @@ void allreduce_public_stubs(bool needStubOp)
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtTraceCreateWithAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hccl::RegisterKernel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitProfiler)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocketManager::ServerInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     if (needStubOp) {
         MOCKER_CPP(&HcclCommunicator::ExecOp)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     }
 }

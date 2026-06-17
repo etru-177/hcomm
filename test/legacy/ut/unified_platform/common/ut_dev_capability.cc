@@ -58,13 +58,13 @@ protected:
     {
         MOCKER(getenv)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(invoke(getenv_stub_func1));
 
         char c = '1';
         MOCKER(realpath)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(&c));
 
         MOCKER(HrtGetDeviceType)

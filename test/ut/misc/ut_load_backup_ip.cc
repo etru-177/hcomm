@@ -43,7 +43,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         setenv("HCCL_OP_RETRY_ENABLE", "L0:1,L1:1,L2:1", 1);
         DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -89,19 +89,19 @@ TEST_F(LoadBackupIpTest, ut_hrtRaGetDeviceAllNicIP)
     u32 devicePhyId = 0;
     MOCKER(hrtGetDevicePhyIdByIndex)
     .stubs()
-    .with(any(), outBound(devicePhyId))
+    .with(mockcpp::any(), outBound(devicePhyId))
     .will(returnValue(HCCL_SUCCESS));
 
     u32 ifAddrNum = 1;
     MOCKER(hrtGetIfNum)
     .stubs()
-    .with(any(), outBound(ifAddrNum))
+    .with(mockcpp::any(), outBound(ifAddrNum))
     .will(returnValue(0));
 
     u32 ifnumVersion = 3;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&ifnumVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&ifnumVersion))
     .will(returnValue(0));
 
     struct InterfaceInfo ifAddrInfos[1];
@@ -115,7 +115,7 @@ TEST_F(LoadBackupIpTest, ut_hrtRaGetDeviceAllNicIP)
     ifAddrInfos[0].family = AF_INET;
     MOCKER(hrtGetIfAddress)
         .stubs()
-        .with(any(), outBoundP(ifAddrInfos, sizeof(ifAddrInfos)), any())
+        .with(mockcpp::any(), outBoundP(ifAddrInfos, sizeof(ifAddrInfos)), mockcpp::any())
         .will(returnValue(0));
 
     vector<vector<HcclIpAddress>> ipAddr;
@@ -141,7 +141,7 @@ TEST_F(LoadBackupIpTest, ut_topo_detect_backup_ip)
     ipAddr.emplace_back(localIp);
     MOCKER(hrtRaGetDeviceIP)
     .stubs()
-    .with(any(), outBound(ipAddr))
+    .with(mockcpp::any(), outBound(ipAddr))
     .will(returnValue(HCCL_SUCCESS));
 
     vector<vector<HcclIpAddress>> chipIpAddr;
@@ -183,7 +183,7 @@ TEST_F(LoadBackupIpTest, ut_topo_detect_backup_ip_fail)
     ipAddr.emplace_back(localIp);
     MOCKER(hrtRaGetDeviceIP)
     .stubs()
-    .with(any(), outBound(ipAddr))
+    .with(mockcpp::any(), outBound(ipAddr))
     .will(returnValue(HCCL_SUCCESS));
 
     vector<vector<HcclIpAddress>> chipIpAddr;
@@ -218,7 +218,7 @@ TEST_F(LoadBackupIpTest, ut_topo_exchange_verify_backup_ip)
     LinkTypeInServer linkType = LinkTypeInServer::SIO_TYPE;
     MOCKER(hrtGetPairDeviceLinkType)
     .stubs()
-    .with(any(), any(), outBound(linkType))
+    .with(mockcpp::any(), mockcpp::any(), outBound(linkType))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(GetExternalInputInterSuperPodRetryEnable)
@@ -327,7 +327,7 @@ TEST_F(LoadBackupIpTest, ut_cluster_info_backup_ip)
     LinkTypeInServer linkType = LinkTypeInServer::SIO_TYPE;
     MOCKER(hrtGetPairDeviceLinkType)
     .stubs()
-    .with(any(), any(), outBound(linkType))
+    .with(mockcpp::any(), mockcpp::any(), outBound(linkType))
     .will(returnValue(HCCL_SUCCESS));
 
     string rankTableM = rank_table.dump();
@@ -408,7 +408,7 @@ TEST_F(LoadBackupIpTest, ut_cluster_info_backup_ip_fail_e_para)
     LinkTypeInServer linkType = LinkTypeInServer::SIO_TYPE;
     MOCKER(hrtGetPairDeviceLinkType)
     .stubs()
-    .with(any(), any(), outBound(linkType))
+    .with(mockcpp::any(), mockcpp::any(), outBound(linkType))
     .will(returnValue(HCCL_SUCCESS));
 
     string rankTableM = rank_table.dump();

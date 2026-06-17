@@ -397,7 +397,7 @@ TEST_F(MemTransportManagerTest, MemTransportManager_getpackeddata)
     // mock    
     MOCKER_CPP(&MemTransportManager::IsAllOffloadTransportReady, bool(MemTransportManager::*)(const std::string &))
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(true));
  
     // when

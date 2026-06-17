@@ -68,7 +68,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -257,7 +257,7 @@ TEST_F(CommFactoryTest, ut_create_comm)
 
     MOCKER_CPP(&CommBase::IsSupportMC2)
     .stubs()  
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(2));
 
     commParaInfo = CommParaInfo(COMM_COMBINE_ORDER, CommType::COMM_TAG_MESH_COMBINED);
@@ -588,17 +588,17 @@ TEST_F(CommFactoryTest, ut_create_comm_suppod)
 
     MOCKER_CPP(&CommBase::IsSupportInterHccs)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     MOCKER_CPP(&CommBase::CreateDestLink)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CommBase::GetSuperNodeIntraRankIPInfo)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(GetIsSupSockBatchCloseImmed)

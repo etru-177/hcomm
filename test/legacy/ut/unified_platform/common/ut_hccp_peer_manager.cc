@@ -49,7 +49,7 @@ TEST_F(HccpPeerManagerTest, hccp_peer_manager_getInstance)
 	DevId fakedevPhyId1  = 4;
     MOCKER(HrtGetDevicePhyIdByIndex)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(fakedevPhyId))
         .then(returnValue(fakedevPhyId1));
     MOCKER(HrtRaInit).stubs().with();
@@ -75,7 +75,7 @@ TEST_F(HccpPeerManagerTest, hccp_peer_manager_init)
 	DevId fakedevPhyId   = 3;
     MOCKER(HrtGetDevicePhyIdByIndex)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(fakedevPhyId));
     MOCKER(HrtRaDeInit).stubs().with();
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));

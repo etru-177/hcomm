@@ -287,7 +287,7 @@ TEST(ST_HccpPeerManagerTest, st_hccp_peer_manager_getInstance)
 	DevId fakedevPhyId1 = 4;
     MOCKER(HrtGetDevicePhyIdByIndex)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(fakedevPhyId))
         .then(returnValue(fakedevPhyId1));
     MOCKER(HrtRaInit).stubs().with();
@@ -310,7 +310,7 @@ TEST(ST_HccpPeerManagerTest, st_hccp_peer_manager_init)
     s32 deviceLogicId1 = 1;
     s32 deviceLogicId2 = 2;
     s32 fakedevPhyId = 3;
-    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(any()).will(returnValue(static_cast<DevId>(fakedevPhyId)));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any()).will(returnValue(static_cast<DevId>(fakedevPhyId)));
     MOCKER(HrtRaDeInit).stubs().with();
     // when
     HccpPeerManager::GetInstance().Init(deviceLogicId);
@@ -347,14 +347,14 @@ TEST(AdapterHccpTest, HrtRaSocketWhiteListDel_nok)
 
 TEST(AdapterHccpTest, HrtGetHosIf_nok_ra_get_ifnum_error)
 {
-    MOCKER(RaGetIfnum).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(RaGetIfnum).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(HrtGetHostIf(0), NetworkApiException);
 }
 
 TEST(AdapterHccpTest, HrtRaMrReg_deReg_NOK)
 {
     // Given
-    MOCKER(RaMrReg).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(RaMrReg).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
 
     QpHandle qpHandle;
     struct RaMrInfo mrInfo;
@@ -362,7 +362,7 @@ TEST(AdapterHccpTest, HrtRaMrReg_deReg_NOK)
 
     EXPECT_THROW(HrtRaMrReg(qpHandle, mrInfo), NetworkApiException);
 
-    MOCKER(RaMrDereg).stubs().with(any(), any()).will(returnValue(1));
+    MOCKER(RaMrDereg).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(HrtRaMrDereg(qpHandle, mrInfo), NetworkApiException);
 }
 
@@ -373,7 +373,7 @@ TEST(AdapterHccpTest, HrtHrtRaRdmaInit_NOK)
     RdmaHandle rdmaHandle = static_cast<void *>(num);
     MOCKER(RaRdevInit)
         .stubs()
-        .with(any(), any(), any(), outBoundP(&rdmaHandle, sizeof(rdmaHandle)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&rdmaHandle, sizeof(rdmaHandle)))
         .will(returnValue(1));
 
     struct RaInterface rdevInfo;
@@ -390,7 +390,7 @@ TEST_F(AdapterHccpTest, HrtHrtRaRdmaInit_return_HCCP_ELINKDOWN_NOK)
     RdmaHandle rdmaHandle = static_cast<void *>(num);
     MOCKER(RaRdevInit)
         .stubs()
-        .with(any(), any(), any(), outBoundP(&rdmaHandle, sizeof(rdmaHandle)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&rdmaHandle, sizeof(rdmaHandle)))
         .will(returnValue(HCCP_ELINKDOWN));
 
     struct RaInterface rdevInfo;
@@ -403,8 +403,8 @@ TEST_F(AdapterHccpTest, HrtHrtRaRdmaInit_return_HCCP_ELINKDOWN_NOK)
 TEST(AdapterHccpTest, HrtGetHosIf_nok_ra_get_ifaddrs_error)
 {
     unsigned int fakeNum = 1;
-    MOCKER(RaGetIfnum).stubs().with(any(), outBoundP(&fakeNum, sizeof(fakeNum))).will(returnValue(0));
-    MOCKER(RaGetIfaddrs).stubs().with(any(), any(), any()).will(returnValue(1));
+    MOCKER(RaGetIfnum).stubs().with(mockcpp::any(), outBoundP(&fakeNum, sizeof(fakeNum))).will(returnValue(0));
+    MOCKER(RaGetIfaddrs).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(1));
  
     EXPECT_THROW(HrtGetHostIf(0), NetworkApiException);
 }
@@ -423,7 +423,7 @@ TEST(ST_AdapterHccpTest, st_HrtRaUbPostNops_ok)
 
 TEST(ST_AdapterHccpTest, st_HrtRaUbPostNops_exception)
 {
-    MOCKER(RaBatchSendWr).stubs().with(any()).will(returnValue(1));
+    MOCKER(RaBatchSendWr).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(HrtRaUbPostNops(0, 0, 1), NetworkApiException);
 }
 
@@ -540,9 +540,9 @@ TEST(LocalNotifyTest, ipc_local_notify_test)
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_910A2)));
     MOCKER(HrtGetDevice).stubs().will(returnValue(0));
     MOCKER(HrtNotifyCreate).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
-    MOCKER(HrtNotifyGetAddr).stubs().with(any()).will(returnValue(fakeAddress));
+    MOCKER(HrtNotifyGetAddr).stubs().with(mockcpp::any()).will(returnValue(fakeAddress));
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
     MOCKER(HrtDeviceGetBareTgid).stubs().will(returnValue(fakePid));
 };
@@ -560,9 +560,9 @@ TEST(LocalRmaBufferTest, getExchangeDto_test)
     LocalUbRmaBuffer localUbRmaBuffer(devBuf, rdmaHandle);
     localUbRmaBuffer.GetExchangeDto();
 
-    MOCKER(HrtIpcSetMemoryName).stubs().with(any(), any(), any(), any());
-    MOCKER(HrtDevMemAlignWithPage).stubs().with(any(), any(), any(), any(), any());
-    MOCKER(HrtIpcDestroyMemoryName).stubs().with(any());
+    MOCKER(HrtIpcSetMemoryName).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtDevMemAlignWithPage).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
+    MOCKER(HrtIpcDestroyMemoryName).stubs().with(mockcpp::any());
 };
 
 TEST(LocalRmaBufferTest, localubrmabuffer_serialize)
@@ -591,7 +591,7 @@ TEST(LocalRmaBufferTest, localubrmabuffer_serialize)
 
     MOCKER(RaUbLocalMemRegAsync)
         .stubs()
-        .with(any(), any(), outBound(out), outBound(reinterpret_cast<void *>(fakeMemHandle)))
+        .with(mockcpp::any(), mockcpp::any(), outBound(out), outBound(reinterpret_cast<void *>(fakeMemHandle)))
         .will(returnValue(fakeReqHandle));
 
     MOCKER(HrtRaUbLocalMemUnreg).stubs();
@@ -623,7 +623,7 @@ TEST(LocalRmaBufferTest, generate_safe_random_number)
 {
     MOCKER(HrtGetDevice).stubs().will(returnValue(1));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(1)));
-    MOCKER(HrtRaGetSecRandom).stubs().with(any(), any());
+    MOCKER(HrtRaGetSecRandom).stubs().with(mockcpp::any(), mockcpp::any());
     u32 token = GetUbToken();
 };
 
@@ -708,7 +708,7 @@ TEST(DevUbConnectionTest, rma_ub_connection_get_status_return_exchanging_and_ok)
     char *responseMsg = "connect ready!";
     MOCKER_CPP(&Socket::RecvAsync)
         .stubs()
-        .with(outBoundP(reinterpret_cast<u8 *>(responseMsg), (u32)15), any())
+        .with(outBoundP(reinterpret_cast<u8 *>(responseMsg), (u32)15), mockcpp::any())
         .will(returnValue(true));
     // Then
     auto res = devUbConnection.GetStatus();
@@ -750,7 +750,7 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_task)
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
 
@@ -790,10 +790,10 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_task_with_dwqe)
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
-    MOCKER(HrtRaUbPostSend).stubs().with(any(), any()).will(returnValue(postSendRes));
+    MOCKER(HrtRaUbPostSend).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(postSendRes));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
 
@@ -865,7 +865,7 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_read_task_with_dwqe)
     LinkData linkData(portType, 0, 1, 0, 1);
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
-    MOCKER(HrtRaUbPostSend).stubs().with(any(), any()).will(returnValue(postSendRes));
+    MOCKER(HrtRaUbPostSend).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(postSendRes));
 
     // When
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -929,7 +929,7 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_read_reduce_task_with_dwqe)
     LinkData linkData(portType, 0, 1, 0, 1);
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
-    MOCKER(HrtRaUbPostSend).stubs().with(any(), any()).will(returnValue(postSendRes));
+    MOCKER(HrtRaUbPostSend).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(postSendRes));
 
     // When
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -992,7 +992,7 @@ TEST(DevUbConnectionTest, rma_ub_connection_prepare_write_reduce_task_with_dwqe)
     LinkData linkData(portType, 0, 1, 0, 1);
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
-    MOCKER(HrtRaUbPostSend).stubs().with(any(), any()).will(returnValue(postSendRes));
+    MOCKER(HrtRaUbPostSend).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(postSendRes));
 
     // When
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -1027,7 +1027,7 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_with_notify_task)
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
 
@@ -1061,10 +1061,10 @@ TEST(DevUbConnectionTest, rma_net_connection_prepare_write_with_notify_task_with
     BasePortType portType(PortDeploymentType::DEV_NET, ConnectProtoType::UB);
     LinkData linkData(portType, 0, 1, 0, 1);
 
-    MOCKER(HrtRaQpCreate).stubs().with(any(), any(), any()).will(returnValue(fakeQpHandle));
+    MOCKER(HrtRaQpCreate).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(fakeQpHandle));
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
-    MOCKER(HrtRaUbPostSend).stubs().with(any(), any()).will(returnValue(postSendRes));
+    MOCKER(HrtRaUbPostSend).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(postSendRes));
 
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
 
@@ -1131,7 +1131,7 @@ TEST(DevUbConnectionTest, rma_ub_connection_prepare_write_reduce_with_notify_tas
     LinkData linkData(portType, 0, 1, 0, 1);
     HrtRaUbSendWrRespParam postSendRes;
     postSendRes.dwqeSize = 128;
-    MOCKER(HrtRaUbPostSend).stubs().with(any(), any()).will(returnValue(postSendRes));
+    MOCKER(HrtRaUbPostSend).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(postSendRes));
 
     // When
     DevUbConnection devUbConnection(rdmaHandle, linkData.GetLocalAddr(), linkData.GetRemoteAddr(), OpMode::OPBASE);
@@ -1368,7 +1368,7 @@ TEST(NotifyFixedValueTest, notify_fixed_value_get_addr_and_size)
     MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_950));
 
     void *fakeAddr = new int[1];
-    MOCKER(HrtMalloc).stubs().with(any(),any()).will(returnValue(fakeAddr));
+    MOCKER(HrtMalloc).stubs().with(mockcpp::any(),mockcpp::any()).will(returnValue(fakeAddr));
 
     MOCKER(HrtMemcpy).stubs();
 
@@ -1438,7 +1438,7 @@ TEST(LocalRmaBufferTest, getExchangeDto_ipc_test)
 TEST(AdapterHccpTest, RaGetOneSocket_return_err_2)
 {
     u32 connectedNum = 2;
-    MOCKER(RaGetSockets).stubs().with(any(), any(), any(), outBoundP(&connectedNum)).will(returnValue(0));
+    MOCKER(RaGetSockets).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connectedNum)).will(returnValue(0));
 
     SocketHandle socketHandle = nullptr;
     IpAddress ipAddr = IpAddress();
@@ -1453,7 +1453,7 @@ TEST(AdapterHccpTest, RaGetOneSocket_return_err_2)
 
 TEST(AdapterHccpTest, RaSocketCloseOneAsync_return_ok)
 {
-    MOCKER(RaSocketBatchCloseAsync).stubs().with(any(), any(), any()).will(returnValue(0));
+    MOCKER(RaSocketBatchCloseAsync).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(0));
 
     SocketHandle socketHandle = nullptr;
     FdHandle fdHandle = nullptr;
@@ -1464,7 +1464,7 @@ TEST(AdapterHccpTest, RaSocketCloseOneAsync_return_ok)
 
 TEST(AdapterHccpTest, RaSocketListenOneStopAsync_return_ok)
 {
-    MOCKER(RaSocketListenStopAsync).stubs().with(any(), any(), any()).will(returnValue(0));
+    MOCKER(RaSocketListenStopAsync).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(0));
 
     SocketHandle socketHandle = nullptr;
     unsigned int port = 100;
@@ -1482,7 +1482,7 @@ TEST(AdapterHccpTest, RaUbAllocTokenIdHanlde_ok)
 
 TEST(AdapterHccpTest, RaUbFreeTokenIdHandle_exception)
 {
-    MOCKER(RaCtxTokenIdFree).stubs().with(any()).will(returnValue(1));
+    MOCKER(RaCtxTokenIdFree).stubs().with(mockcpp::any()).will(returnValue(1));
     EXPECT_THROW(RaUbFreeTokenIdHandle(0, 0), NetworkApiException);
 }
 
@@ -1512,7 +1512,7 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_ccu)
     MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
 
@@ -1522,12 +1522,12 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_ccu)
 
     Buffer *buf = nullptr;
     LocalRmaBuffer *rmaBuf = nullptr;
-    MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any(), any()).will(returnValue(buf));
+    MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(buf));
     MOCKER_CPP(
         &LocalRmaBufManager::Reg,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(rmaBuf));
     RtsNotify notify(false);
     RtsNotify notify1(false);
@@ -1535,11 +1535,11 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_ccu)
     MOCKER_CPP(&HostDeviceSyncNotifyManager::GetDeviceWaitNotify).stubs().with().will(returnValue(&notify1));
     MOCKER_CPP(&HostDeviceSyncNotifyManager::GetPackedData)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(std::vector<char>{'1', '2'}));
     void *ptr1 = (void*)1;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr1));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr1));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
 
     fakeComm.cclBuffer = DevBuffer::Create(0x100, 0x100);
     fakeComm.status = CommStatus::COMM_READY;
@@ -1589,7 +1589,7 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_ccu)
 
     fakeComm.InitCollService();
     fakeComm.CollAlgComponentInit();
-    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
 
     // 算法组件初始化
     CollAlgOpReq collAlgOpReq;
@@ -1600,26 +1600,26 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_ccu)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::CalcResOffload,
                        HcclResult(CollAlgComponent::*)(const OpType &opType, const u64 &dataSize, const HcclDataType &dataType,
                                                        const OpExecuteConfig &opConfig, CollOffloadOpResReq &resReq))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(collAlgOpReq));
     MOCKER_CPP(&Trace::Save).stubs();
     MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).stubs();
     MOCKER_CPP(&CollServiceAiCpuImpl::AllocOpMem).stubs();
     MOCKER_CPP(&Stream::InitDevPhyId).stubs();
     MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs();
-    MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(any());
-    MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(any());
-    MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(any(), any());
+    MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(mockcpp::any());
+    MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(mockcpp::any());
+    MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(mockcpp::any(), mockcpp::any());
     CollOpParams param = {};
     param.opType = OpType::ALLREDUCE;
     param.dataType = DataType::INT32;
@@ -1640,7 +1640,7 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_aicpu)
     MOCKER(HrtNotifyCreateWithFlag).stubs().will(returnValue((void *)(fakeNotifyHandleAddr)));
     MOCKER(HrtGetNotifyID).stubs().will(returnValue(fakeNotifyId));
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<DevId>(fakeDevPhyId)));
-    MOCKER(HrtIpcSetNotifyName).stubs().with(any(), outBoundP(fakeName, sizeof(fakeName)), any());
+    MOCKER(HrtIpcSetNotifyName).stubs().with(mockcpp::any(), outBoundP(fakeName, sizeof(fakeName)), mockcpp::any());
     MOCKER(HrtNotifyGetOffset).stubs().will(returnValue(fakeOffset));
     MOCKER(HrtGetDeviceType).stubs().will(returnValue(DevType(DevType::DEV_TYPE_950)));
 
@@ -1650,12 +1650,12 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_aicpu)
 
     Buffer *buf = nullptr;
     LocalRmaBuffer *rmaBuf = nullptr;
-    MOCKER_CPP(&DataBufManager::Get).stubs().with(any(), any(), any()).will(returnValue(buf));
+    MOCKER_CPP(&DataBufManager::Get).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(returnValue(buf));
     MOCKER_CPP(
         &LocalRmaBufManager::Reg,
         LocalRmaBuffer * (LocalRmaBufManager::*)(const string &, BufferType, std::shared_ptr<Buffer>, const PortData &, LinkProtocol))
         .stubs()
-        .with(any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(rmaBuf));
     RtsNotify notify(false);
     RtsNotify notify1(false);
@@ -1663,11 +1663,11 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_aicpu)
     MOCKER_CPP(&HostDeviceSyncNotifyManager::GetDeviceWaitNotify).stubs().with().will(returnValue(&notify1));
     MOCKER_CPP(&HostDeviceSyncNotifyManager::GetPackedData)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(std::vector<char>{'1', '2'}));
     void *ptr1 = (void*)1;
-    MOCKER(HrtStreamCreateWithFlags).stubs().with(any(), any()).will(returnValue(ptr1));
-    MOCKER(HrtGetStreamId).stubs().with(any()).will(returnValue(0));
+    MOCKER(HrtStreamCreateWithFlags).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(ptr1));
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
     fakeComm.rankSize = 2;
     fakeComm.cclBuffer = DevBuffer::Create(0x100, 0x100);
     fakeComm.status = CommStatus::COMM_READY;
@@ -1717,7 +1717,7 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_aicpu)
 
     fakeComm.InitCollService();
     fakeComm.CollAlgComponentInit();
-    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&CollAlgComponent::ExecAlgSelect).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
 
     // 算法组件初始化
     CollAlgOpReq collAlgOpReq;
@@ -1728,26 +1728,26 @@ TEST(CommunicatorImplTest, should_success_when_comm_LoadOpbasedCollOp_aicpu)
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
                                                        const string &algName, InsQuePtr queue))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::CalcResOffload,
                        HcclResult(CollAlgComponent::*)(const OpType &opType, const u64 &dataSize, const HcclDataType &dataType,
                                                        const OpExecuteConfig &opConfig, CollOffloadOpResReq &resReq))
         .stubs()
-        .with(any(), any(), any(), any())
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::GetCollAlgOpReq)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(collAlgOpReq));
     MOCKER_CPP(&Trace::Save).stubs();
     MOCKER_CPP(&CommunicatorImpl::ReportProfInfo).stubs();
     MOCKER_CPP(&CollServiceAiCpuImpl::AllocOpMem).stubs();
     MOCKER_CPP(&Stream::InitDevPhyId).stubs();
     MOCKER_CPP(&CollServiceBase::SaveMirrorDfxOpInfo).stubs();
-    MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(any());
-    MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(any());
-    MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(any(), any());
+    MOCKER_CPP(&CollServiceAiCpuImpl::AddPostToUserStream).stubs().with(mockcpp::any());
+    MOCKER_CPP(&CollServiceAiCpuImpl::AddWaitToUserStream).stubs().with(mockcpp::any());
+    MOCKER_CPP(&CollServiceAiCpuImpl::SetHcclKernelLaunchParam).stubs().with(mockcpp::any(), mockcpp::any());
     CollOpParams param = {};
     param.opType = OpType::ALLREDUCE;
     param.dataType = DataType::INT32;
@@ -1820,7 +1820,7 @@ TEST(ST_AdapterRtsTest, DevCapabilityT_Init)
 void MockRaSocketRecv(int ret, unsigned long long recvSize)
 {
     MOCKER(RaSocketRecv).stubs()
-        .with(any(), any(), any(), outBoundP(&recvSize, sizeof(recvSize)))
+        .with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&recvSize, sizeof(recvSize)))
         .will(returnValue(ret));
 }
 

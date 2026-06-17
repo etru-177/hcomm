@@ -316,7 +316,7 @@ TEST_F(HdcTest, hccl_hdc_h2d_unSupport_devMemReg)
 
     MOCKER(halMemCtl)
     .expects(atMost(1))
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
 
     HDCommunicate hdcHost(devid, flag, buffLen);

@@ -59,8 +59,8 @@ protected:
         MOCKER_CPP(&Hccl::CcuComponent::CleanTaskKillState).stubs().will(returnValue(ret));
     }
     void StubCleanDieCkes(const HcclResult ret) {
-        MOCKER_CPP(&CcuComponent::CleanDieCkes).stubs().with(any()).will(returnValue(ret));
-        MOCKER_CPP(&Hccl::CcuComponent::CleanDieCkes).stubs().with(any()).will(returnValue(ret));
+        MOCKER_CPP(&CcuComponent::CleanDieCkes).stubs().with(mockcpp::any()).will(returnValue(ret));
+        MOCKER_CPP(&Hccl::CcuComponent::CleanDieCkes).stubs().with(mockcpp::any()).will(returnValue(ret));
     }
 };
 

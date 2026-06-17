@@ -13,7 +13,7 @@ protected:
 
     static void MockHalTsdrvCtlReturn(int rv)
     {
-        MOCKER(halTsdrvCtl).stubs().with(any()).will(returnValue(rv));
+        MOCKER(halTsdrvCtl).stubs().with(mockcpp::any()).will(returnValue(rv));
     }
 };
 

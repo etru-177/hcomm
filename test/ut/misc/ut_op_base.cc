@@ -95,7 +95,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -112,7 +112,7 @@ TEST_P(OpbaseTest, ut_hcclBroadcast)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table =
     {
@@ -249,7 +249,7 @@ TEST_F(OpbaseTest, ut_hcclAllReduce)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table =
     {
@@ -392,17 +392,17 @@ TEST_F(OpbaseTest, ut_PluginRunner_not_support) {
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(207000));
 
     MOCKER(GetExternalInputHcclEnableFfts)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     MOCKER(GetWorkflowMode)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE));
 
     MOCKER(GetExternalInputTaskExceptionSwitch)
@@ -438,12 +438,12 @@ TEST_F(OpbaseTest, ut_hcclAllReduce_capture)
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(207000));
 
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table =
     {
@@ -587,33 +587,33 @@ TEST_F(OpbaseTest, ut_hcclAllReduce_capture_rdma)
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(207000));
 
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table = rank_table_910_2server_4rank;
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::AllocAlgResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::StreamIsCapture)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     char file_name_t[] = "./st_opbase_test.json";
@@ -694,7 +694,7 @@ TEST_F(OpbaseTest, ut_hcclReducescatter)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table =
     {
@@ -828,12 +828,12 @@ TEST_F(OpbaseTest, ut_hcclReducescatter_capture)
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table =
     {
@@ -965,7 +965,7 @@ TEST_F(OpbaseTest, ut_hcclScatter_Ring_1rank)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table = rank_table_910_1server_1rank;
 
@@ -1131,7 +1131,7 @@ TEST_P(OpbaseTest, ut_HcclReduce_inptr_EQ_outPtr)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     bool fftsSwitch = GetParam();
     if (fftsSwitch) {
@@ -1237,7 +1237,7 @@ TEST_F(OpbaseTest, ut_HcclAllGatherOutPlace310P_ranksize_1)
     .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     s8* sendBuf;
     s8* recvBuf;
@@ -1328,16 +1328,16 @@ TEST_F(OpbaseTest, ut_HcclAllGatherOutPlace_mix_ranksize_1_capture)
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCallbackTask::CallbackRegStream)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     s32 portNum = -1;
     MOCKER(hrtGetHccsPortNum)
     .stubs()
-    .with(any(), outBound(portNum))
+    .with(mockcpp::any(), outBound(portNum))
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HCCL_SUCCESS;
@@ -1380,7 +1380,7 @@ TEST_F(OpbaseTest, ut_HcclAllGatherOutPlace_mix_ranksize_1_capture)
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     HcclCommunicator impl;
@@ -1434,7 +1434,7 @@ TEST_F(OpbaseTest, ut_hcclAllGather)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table =
     {
@@ -1565,14 +1565,14 @@ TEST_F(OpbaseTest, ut_hcclAllGather_capture)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     aclmdlRICaptureStatus captureStatus = aclmdlRICaptureStatus::ACL_MODEL_RI_CAPTURE_STATUS_ACTIVE;
     int mockModel = 0;
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(207000));
 
     nlohmann::json rank_table =
@@ -1704,7 +1704,7 @@ TEST_F(OpbaseTest, ut_hcclAllGather_capture_rdma)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     aclmdlRICaptureStatus captureStatus = aclmdlRICaptureStatus::ACL_MODEL_RI_CAPTURE_STATUS_ACTIVE;
@@ -1712,12 +1712,12 @@ TEST_F(OpbaseTest, ut_hcclAllGather_capture_rdma)
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(207000));
 
     MOCKER_CPP(&HcclCommunicator::StreamIsCapture)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -1732,7 +1732,7 @@ TEST_F(OpbaseTest, ut_hcclAllGather_capture_rdma)
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table = rank_table_910_2server_4rank;
@@ -1810,7 +1810,7 @@ TEST_F(OpbaseTest, ut_hcclAllGatherV)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -1821,17 +1821,17 @@ TEST_F(OpbaseTest, ut_hcclAllGatherV)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::AllocAlgResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table =
@@ -1982,7 +1982,7 @@ TEST_F(OpbaseTest, ut_hcomAllGatherV)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -1997,7 +1997,7 @@ TEST_F(OpbaseTest, ut_hcomAllGatherV)
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
@@ -2095,7 +2095,7 @@ TEST_F(OpbaseTest, ut_HcclReduceScatterV)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -2106,17 +2106,17 @@ TEST_F(OpbaseTest, ut_HcclReduceScatterV)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::AllocAlgResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table =
@@ -2270,7 +2270,7 @@ TEST_F(OpbaseTest, ut_hcomReduceScatterV)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -2285,7 +2285,7 @@ TEST_F(OpbaseTest, ut_hcomReduceScatterV)
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table = rank_table_910_1server_2rank;
@@ -2377,7 +2377,7 @@ TEST_F(OpbaseTest, ut_hcclAllGatherVFor310P3)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_310P3;
@@ -2388,17 +2388,17 @@ TEST_F(OpbaseTest, ut_hcclAllGatherVFor310P3)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::AllocAlgResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table =
@@ -2549,7 +2549,7 @@ TEST_F(OpbaseTest, ut_HcclReduceScatterVFor310P3)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_310P3;
@@ -2560,17 +2560,17 @@ TEST_F(OpbaseTest, ut_HcclReduceScatterVFor310P3)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::AllocAlgResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table =
@@ -3479,7 +3479,7 @@ TEST_F(OpbaseTest, ut_hcclsend_hcclrecv)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table = rank_table_1server_8rank;
 
@@ -3529,14 +3529,14 @@ TEST_F(OpbaseTest, ut_hcclsend_hcclrecv)
     }
     MOCKER_CPP(&hcclComm::SendOutPlace)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
     ret = HcclSendInner(sendbuf, count, HCCL_DATA_TYPE_INT8, 1, comm, stream);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
     MOCKER_CPP(&hcclComm::ReceiveOutPlace)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(0));
     ret = HcclRecvInner(recvbuf, count, HCCL_DATA_TYPE_INT8, 0, comm, stream);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -3581,7 +3581,7 @@ TEST_F(OpbaseTest, ut_HcclGroupCommInitClusterInfo)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table = rank_table_1server_8rank;
 
@@ -3691,7 +3691,7 @@ TEST_F(OpbaseTest, ut_gather_alltoallv)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table = rank_table_910_1server_1rank;
 
@@ -3810,7 +3810,7 @@ TEST_P(OpbaseTest, ut_HcclAlltoAll)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     bool fftsSwitch = GetParam();
     if (fftsSwitch) {
@@ -3995,7 +3995,7 @@ TEST_F(OpbaseTest, ut_HcclCommGetAsyncError)
 
     MOCKER_CPP(&hcclComm::CommCheckErrorCqe)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult result = HCCL_SUCCESS;
@@ -4082,7 +4082,7 @@ TEST_F(OpbaseTest, ut_HcclAiCpuResource91093)
     .will(returnValue(HCCL_SUCCESS));
 	MOCKER(hrtRaGetSingleSocketVnicIpInfo)
 	.stubs()
-	.with(any())
+	.with(mockcpp::any())
 	.will(invoke(stub_hrtRaGetSingleSocketVnicIpInfo));
     MOCKER_CPP(&HcclCommunicator::HcclGetCmdTimeout)
     .stubs()
@@ -4357,7 +4357,7 @@ TEST_F(OpbaseTest, ut_GetHcclOpInfoCtx_cover_bottom_false)
     HcclResult ret = HCCL_SUCCESS;
     MOCKER(hrtGetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
     const char *group = "group";
     std::shared_ptr<hccl::hcclComm> comm;
@@ -4377,7 +4377,7 @@ TEST_F(OpbaseTest, ut_GetHcclOpInfoCtx_cover_bottom_true)
     HcclResult ret = HCCL_SUCCESS;
     MOCKER(hrtGetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     const char *group = "group";
     std::shared_ptr<hccl::hcclComm> comm;
@@ -4424,7 +4424,7 @@ TEST_F(OpbaseTest, ut_BatchSendRecv_self)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     nlohmann::json rank_table = rank_table_910_1server_1rank;
 
@@ -4644,7 +4644,7 @@ TEST_F(OpbaseTest, ut_BatchSendRecv_2rank_send_91093_aicpu_bigsize)
     .will(returnValue(true));
     MOCKER(&hrtAicpuKernelLaunchExWithArgs)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&CollBatchSendRecvExecutor::GetSendTargetLink)
@@ -5061,7 +5061,7 @@ TEST_F(OpbaseTest, ut_HcclAiCpuUnfold310P)
 
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HcclGetRootInfo(&id);
@@ -5177,7 +5177,7 @@ TEST_F(OpbaseTest, ut_HcclAiCpuUnfold910B)
 
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HcclGetRootInfo(&id);
@@ -5521,7 +5521,7 @@ TEST_F(OpbaseTest, ut_CheckDataTypeAllBranch)
 {
     MOCKER(Is310P3Common)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     HcclCommunicator impl;
@@ -5540,11 +5540,11 @@ TEST_F(OpbaseTest, ut_310P3CommonFrontLogPrint)
 {
     MOCKER(Is310P3Common)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
     MOCKER_CPP(&HcclCommunicator::IsAtomicInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     HcclCommunicator impl;
@@ -5695,11 +5695,11 @@ TEST_F(OpbaseTest, ut_topoInfoExchangeServer_timeout)
     .will(returnValue(5));
     MOCKER_CPP(&HcclSocket::Accept)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TIMEOUT));
     MOCKER_CPP(&TopoInfoExchangeServer::DisplayConnectedRank)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclIpAddress hostIP("127.0.0.1");
@@ -5728,11 +5728,11 @@ TEST_F(OpbaseTest, ut_topoInfoExchangeServer_ErrTCP)
     .will(returnValue(5));
     MOCKER_CPP(&HcclSocket::Accept)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TCP_CONNECT));
     MOCKER_CPP(&TopoInfoExchangeServer::DisplayConnectedRank)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
@@ -5797,12 +5797,12 @@ TEST_F(OpbaseTest, ut_hcclAllGatherV_capture)
     void *pmockModel = &mockModel;
     MOCKER(aclmdlRICaptureGetInfo)
     .stubs()
-    .with(any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
+    .with(mockcpp::any(), outBoundP(&captureStatus, sizeof(captureStatus)), outBoundP(&pmockModel, sizeof(pmockModel)))
     .will(returnValue(0));
 
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910B;
@@ -5813,17 +5813,17 @@ TEST_F(OpbaseTest, ut_hcclAllGatherV_capture)
 
     MOCKER_CPP(&HcclCommunicator::InitRaResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::AllocAlgResource)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     nlohmann::json rank_table =
@@ -5981,7 +5981,7 @@ TEST_F(OpbaseTest, ut_topoInfoExchangeServer_PreemptPortManager_releaseSocket)
 
     const std::string identifier = "releaseSocket";
     TopoInfoExchangeServer topoExServer(hostIP, hostPort, whitelist, netDevCtx, listenSocket, identifier);
-    MOCKER_CPP(&PreemptPortManager::Release).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&PreemptPortManager::Release).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     bool portSwitch = 1;
     MOCKER(GetExternalInputHostPortSwitch).stubs().will(returnValue(portSwitch));
 
@@ -6033,7 +6033,7 @@ TEST_F(OpbaseTest, ut_hcomAllGatherV_91093)
 {
     MOCKER(GetExternalInputHcclEnableEntryLog)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     DevType deviceType = DevType::DEV_TYPE_910_93;
@@ -6048,7 +6048,7 @@ TEST_F(OpbaseTest, ut_hcomAllGatherV_91093)
 
     MOCKER_CPP(&HcclCommunicator::ExecOp)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
 
@@ -6142,7 +6142,7 @@ TEST_F(OpbaseTest, ut_hcclGetRootInfo_hierarchical_rank_0)
 
      MOCKER_CPP(&TopoInfoExchangeAgent::Connect)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     MOCKER(GetExternalInputHcclLinkTimeOut)
@@ -6182,7 +6182,7 @@ TEST_F(OpbaseTest, ut_hcclGetRootInfo_hierarchical_rank_1)
 
     MOCKER_CPP(&TopoInfoExchangeBase::RecvClusterJson)
     .stubs()
-    .with(any(), outBound(GroupLeaderJson))
+    .with(mockcpp::any(), outBound(GroupLeaderJson))
     .will(returnValue(0));
 
     MOCKER(GetExternalInputHcclLinkTimeOut)
@@ -6218,12 +6218,12 @@ TEST_F(OpbaseTest, ut_hcclGetRootInfo_hierarchical_root)
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     std::map<std::string, std::shared_ptr<HcclSocket>> connectSockets;
@@ -6268,18 +6268,18 @@ TEST_F(OpbaseTest, ut_HcclCommInitRootInfo_SetupGroupMember)
 
     MOCKER_CPP(&HcclSocket::Send, HcclResult(HcclSocket::*)(const void *, u64))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocket::Recv, HcclResult(HcclSocket::*)(void *, u32))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     // 用例本身走超时分支 由于超时时间过长影响线上运行时长且超时时间无法修改只能选择打桩临时
     MOCKER_CPP(&TopoInfoExchangeAgent::GetConnection, HcclResult(TopoInfoExchangeAgent::*)(HcclIpAddress &, u32, std::shared_ptr<HcclSocket> &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TIMEOUT));
 
     ret = topoDetectAgent.SetupGroupMember(nRanks, myRank, rootHandle);
@@ -6295,12 +6295,12 @@ TEST_F(OpbaseTest, ut_HcclCommInitRootInfo_SetupTopoGroupLeader_error0)
 
     MOCKER_CPP(&TopoInfoExchangeServer::SetupGroupLeader)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     MOCKER(hrtResetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     std::vector<HcclIpAddress> whitelist;
@@ -6321,7 +6321,7 @@ TEST_F(OpbaseTest, ut_HcclCommInitRootInfo_SetupTopoGroupLeader_error1)
 
     MOCKER(hrtSetDevice)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
 
     std::vector<HcclIpAddress> whitelist;
@@ -6544,11 +6544,11 @@ TEST_F(OpbaseTest, ut_GroupLeaderAccept_When_Accept_E_Connect_Then_ReturnE_Conne
     HcclResult ret = HCCL_SUCCESS;
     MOCKER_CPP(&HcclSocket::Accept)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_TCP_CONNECT));
     MOCKER_CPP(&TopoInfoExchangeServer::DisplayConnectedRank)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     HcclIpAddress hostIP("127.0.0.1");

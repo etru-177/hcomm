@@ -291,7 +291,7 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_Write_SmallSize_Expect_SingleSlice)
     u64 dbValue = 0;
 
     // 屏蔽对硬件 SQ 的真实读写
-    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::UpdateSqPI).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::CommitWqe).stubs().will(returnValue(HCCL_SUCCESS));
     EXPECT_NO_THROW(connLite.Write(loc, rmt, dbAddr, dbValue));
@@ -313,7 +313,7 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_Write_LargeSize_Expect_MultiSlice)
     u64 dbValue = 0;
 
     // 屏蔽对硬件 SQ 的真实读写
-    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::UpdateSqPI).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::CommitWqe).stubs().will(returnValue(HCCL_SUCCESS));
     EXPECT_NO_THROW(connLite.Write(loc, rmt, dbAddr, dbValue));
@@ -343,7 +343,7 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_WriteWithNotify_Expect_Success)
     u64 dbValue = 0;
 
     // 屏蔽对硬件 SQ 的真实读写
-    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&RdmaBaseOps::WaitSqFree).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::UpdateSqPI).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&RdmaBaseOps::CommitWqe).stubs().will(returnValue(HCCL_SUCCESS));
     EXPECT_NO_THROW(connLite.WriteWithNotify(loc, rmt, locNotify, notify, dbAddr, dbValue));

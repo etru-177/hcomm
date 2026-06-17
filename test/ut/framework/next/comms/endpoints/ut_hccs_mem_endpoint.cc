@@ -107,12 +107,12 @@ protected:
 
     virtual void SetUp()
     {
-        MOCKER(hrtEnableP2P).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(hrtDisableP2P).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER(hrtGetDevice).stubs().with(any()).will(invoke(StubHrtGetDevice));
-        MOCKER(hrtGetDeviceRefresh).stubs().with(any()).will(invoke(StubHrtGetDeviceRefresh));
-        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(0U)).will(invoke(StubHrtGetDevicePhyIdByIndex));
-        MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(any(), outBound(0U)).will(invoke(StubHrtGetDeviceIndexByPhyId));
+        MOCKER(hrtEnableP2P).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(hrtDisableP2P).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+        MOCKER(hrtGetDevice).stubs().with(mockcpp::any()).will(invoke(StubHrtGetDevice));
+        MOCKER(hrtGetDeviceRefresh).stubs().with(mockcpp::any()).will(invoke(StubHrtGetDeviceRefresh));
+        MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(mockcpp::any(), outBound(0U)).will(invoke(StubHrtGetDevicePhyIdByIndex));
+        MOCKER(hrtGetDeviceIndexByPhyId).stubs().with(mockcpp::any(), outBound(0U)).will(invoke(StubHrtGetDeviceIndexByPhyId));
         MOCKER(HcclNetOpenDev).stubs().will(invoke(StubHcclNetOpenDev));
         MOCKER(HcclNetCloseDev).stubs().will(invoke(StubHcclNetCloseDev));
         MOCKER(&hccl::HcclSocket::Accept).stubs().will(invoke(StubHcclSocketAcceptForEp));

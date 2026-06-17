@@ -46,8 +46,8 @@ protected:
     virtual void SetUp()
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(static_cast<u32>(0)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(0)));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
 
         std::cout << "A Test case in InsExecutorTest SetUp" << std::endl;
@@ -159,9 +159,9 @@ public:
 
 TEST_F(InsExecutorTest, test_ins_executor)
 {
-    MOCKER_CPP(&SqeMgr::Begin).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&SqeMgr::Add).stubs().with(any(), any()).will(returnValue(HcclResult::HCCL_SUCCESS));
-    MOCKER_CPP(&SqeMgr::Commit).stubs().with(any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&SqeMgr::Begin).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&SqeMgr::Add).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER_CPP(&SqeMgr::Commit).stubs().with(mockcpp::any()).will(returnValue(HcclResult::HCCL_SUCCESS));
     LinkData link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
 
     MockDevIdProvider mockResMgrFetcher;
@@ -176,7 +176,7 @@ TEST_F(InsExecutorTest, test_ins_executor)
     RtsqA5     rtsq(fakedevPhyId, fakeStreamId, fakeSqId);
     auto streamPtr = std::make_unique<StreamLite>(uniqueId);
     streamPtr->rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
     mockResMgrFetcher.GetStreamLiteMgr()->streams.emplace_back(std::move(streamPtr));
 
     BinaryStream notifyStream1;
@@ -216,6 +216,6 @@ TEST_F(InsExecutorTest, test_ins_executor)
     slaves.push_back(slave);
     insQueue.slaves = slaves;
 
-    MOCKER_CPP(&InsExecutor::ExecuteSingleQue).stubs().with(any());
+    MOCKER_CPP(&InsExecutor::ExecuteSingleQue).stubs().with(mockcpp::any());
     EXPECT_NO_THROW(insExecutor.Execute(insQueue));
 }

@@ -38,7 +38,7 @@ protected:
         implAlg_ = new HcclAlg(mockBufferManager, mockDispatcher, mockDispatcher);
         MOCKER_CPP_VIRTUAL(communicator_, &HcclCommunicator::GetAlgType)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     }
 
@@ -61,12 +61,12 @@ TEST_F(HcclGetStreamNumforAivModeTest, UT_HcclGetStreamNumforAivMode_When_Defaul
 
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&hcclComm::GetWorkspaceSubStreamNum)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HcomGetWorkspaceSubStreamNum(nullptr, streamNum, dataSize, dataType, aivCoreLimit, reduceOp, count, optype);
@@ -84,11 +84,11 @@ TEST_F(HcclGetStreamNumforAivModeTest, UT_HcclGetStreamNumforAivMode_When_Custom
 
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&hcclComm::GetWorkspaceSubStreamNum)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HcomGetWorkspaceSubStreamNum("custom_group", streamNum, dataSize, dataType, aivCoreLimit, reduceOp, count, optype);
@@ -106,11 +106,11 @@ TEST_F(HcclGetStreamNumforAivModeTest, UT_HcclGetStreamNumforAivMode_When_Bounda
 
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&hcclComm::GetWorkspaceSubStreamNum)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HcomGetWorkspaceSubStreamNum("boundary_group", streamNum, dataSize, dataType, aivCoreLimit, reduceOp, count, optype);
@@ -128,11 +128,11 @@ TEST_F(HcclGetStreamNumforAivModeTest, UT_HcclGetStreamNumforAivMode_When_NullGr
 
     MOCKER_CPP(&hcclComm::HcclSelectAlg)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&hcclComm::GetWorkspaceSubStreamNum)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = HcomGetWorkspaceSubStreamNum(nullptr, streamNum, dataSize, dataType, aivCoreLimit, reduceOp, count, optype);
@@ -151,11 +151,11 @@ TEST_F(HcclGetStreamNumforAivModeTest, UT_GetWorkspaceSubStreamNum_When_Reliabil
 
     MOCKER(GetAlgType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclGetCommHandle)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_E_INTERNAL));
 
     HcclResult ret = communicator_.GetWorkspaceSubStreamNum(count, dataType, reduceOp, algName, streamNum, dataSize, ifAiv, opType);

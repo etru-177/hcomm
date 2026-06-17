@@ -77,7 +77,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         MOCKER(GetExternalInputHcclLinkTimeOut)
             .stubs()
@@ -281,7 +281,7 @@ void* inter_all_reduce_outplace_task_1(void* parg)
     sal_memset(hcom_info.params.id.internal, HCCL_ROOT_INFO_BYTES, 0, sizeof(hcom_info.params.id.internal));
     sal_memcpy(hcom_info.params.id.internal, sizeof(HcclRootInfo), &para_info->rootInfo, sizeof(HcclRootInfo));
 
-    MOCKER_CPP(&CollAlgOperator::Is2U2PInfer).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&CollAlgOperator::Is2U2PInfer).stubs().with(mockcpp::any()).will(returnValue(true));
     hcom_info.pComm.reset(new(std::nothrow) hccl::hcclComm(HCCL_ALLREDUCE_DATA_SLICE, HCCL_ALLREDUCE_DATA_SLICE, HCCL_WORLD_GROUP));
     rtModel_t model = (void *)1;
 
@@ -509,33 +509,33 @@ void all_public_stubs(bool needStubOp)
     u32 interfaceVersion = 1;
     MOCKER(hrtRaGetInterfaceVersion)
     .stubs()
-    .with(any(), any(), outBoundP(&interfaceVersion))
+    .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion))
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hrtTraceCreateWithAttr)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER(hccl::RegisterKernel)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclCommunicator::InitProfiler)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     MOCKER_CPP(&HcclSocketManager::ServerInit)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     if (needStubOp) {
         MOCKER_CPP(&HcclCommunicator::ExecOp)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     }
 }
@@ -2904,7 +2904,7 @@ void* inter_reduce_scatter_atomic_single_operator_task(void* parg)
 TEST_F(HcclCommTest910B, ut_reducescatter_4p_atomic_single_operator)
 {
     all_public_stubs(false);
-    MOCKER(IsSuperPodMode).stubs().with(any()).will(returnValue(false));
+    MOCKER(IsSuperPodMode).stubs().with(mockcpp::any()).will(returnValue(false));
     setenv("HCCL_OP_EXPANSION_MODE", "AI_CPU", 1);
     RankConsistentcyChecker::GetInstance().ClearCheckInfo();
     nlohmann::json rank_table = rank_table_910_1server_4rank;
@@ -3068,7 +3068,7 @@ TEST_F(HcclCommTest910B, ut_reducescatter_4p_atomic_single_operator)
 TEST_F(HcclCommTest910B, ut_reducescatter_4p_atomic_single_operator_prod)
 {
     all_public_stubs(false);
-    MOCKER(IsSuperPodMode).stubs().with(any()).will(returnValue(false));
+    MOCKER(IsSuperPodMode).stubs().with(mockcpp::any()).will(returnValue(false));
     setenv("HCCL_OP_EXPANSION_MODE", "AI_CPU", 1);
     RankConsistentcyChecker::GetInstance().ClearCheckInfo();
     nlohmann::json rank_table = rank_table_910_1server_4rank;

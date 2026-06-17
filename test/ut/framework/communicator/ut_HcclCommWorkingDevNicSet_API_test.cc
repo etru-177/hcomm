@@ -18,7 +18,7 @@ public:
         // MOCK掉对communicator层的依赖，保证分层测试
         MOCKER_CPP(&HcclCommunicator::SwitchNic, HcclResult (HcclCommunicator::*)(uint32_t, uint32_t*, bool*))
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     }
     void TearDown() override {

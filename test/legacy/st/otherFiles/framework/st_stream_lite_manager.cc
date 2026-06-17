@@ -44,8 +44,8 @@ protected:
     {
         MOCKER(HrtGetDeviceType).stubs().will(returnValue((DevType)DevType::DEV_TYPE_910A2));
         MOCKER(GetUbToken).stubs().will(returnValue(1));
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(any()).will(returnValue(0));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().with(mockcpp::any()).will(returnValue(0));
         MOCKER_CPP(&RtsqBase::ConfigSqStatusByType).stubs();
 
         DevUbConnection  ubConnection((void *)0x100, link.GetLocalAddr(), link.GetRemoteAddr(), OpMode::OPBASE);
@@ -151,7 +151,7 @@ TEST_F(StreamLiteManagerTest, update_reset)
     StreamLite stream(uniqueId);
     RtsqA5     rtsq(fakedevPhyId1, fakeStreamId1, fakeSqId1);
     stream.rtsq = std::make_unique<RtsqA5>(rtsq);
-    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(any(), any(), any(), any());
+    MOCKER_CPP_VIRTUAL(rtsq, &RtsqA5::SdmaCopy).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any());
 
     BinaryStream binaryStream;
     binaryStream << num1;

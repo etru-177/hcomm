@@ -101,7 +101,7 @@ void* intra_send_receive_task(void* parg)
     s32 portNum = 7;
     MOCKER(hrtGetHccsPortNum)
         .stubs()
-        .with(any(), outBound(portNum))
+        .with(mockcpp::any(), outBound(portNum))
         .will(returnValue(HCCL_SUCCESS));
     HcclResult ret = HCCL_SUCCESS;
     p2p_para_t* para_info = (p2p_para_t*)parg;
@@ -403,7 +403,7 @@ TEST_F(ST_Send_Receive_Test, ut_send_receive_8ranks_1server_float_1)
     .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&HcclCommunicator::RegisterToHeartBeat, HcclResult(HcclCommunicator::*)(u32, string &))
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     char file_name_t[] = "./st_send_receive_2ranks_1server_float.json";
     std::ofstream outfile(file_name_t, std::ios::out | std::ios::trunc | std::ios::binary);

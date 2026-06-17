@@ -64,7 +64,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -425,7 +425,7 @@ TEST_F(HcclCommAicpuTest_UT, hcclImpl_BuildOpResParam_ok)
     params.identifier ="tag";
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
 
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -485,7 +485,7 @@ TEST_F(HcclCommAicpuTest_UT, hcclImpl_BuildOpResParam_ok)
     MOCKER_CPP(&TransportBase::GetChipId).stubs().will(invoke(GetChipId));
 
     // delete executor;
-    MOCKER_CPP(&HcclCommunicator::BuildOpRemoteLinkRoceResParam).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::BuildOpRemoteLinkRoceResParam).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = implBase->BuildOpRemoteResParam(resourceResponse, newTag, HcclCMDType::HCCL_CMD_GATHER);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     AlgResourceResponse resourceResponseRefresh;
@@ -534,7 +534,7 @@ TEST_F(HcclCommAicpuTest_UT, hcclImpl_BuildOpRemoteLinkP2pResParam_ok)
     params.identifier ="tag";
     std::unique_ptr<HcclCommunicator> implBase(new (std::nothrow) HcclCommunicator());
 
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     ret = implBase->Init(params, rankTable);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 

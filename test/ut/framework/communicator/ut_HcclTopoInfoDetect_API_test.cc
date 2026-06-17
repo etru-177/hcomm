@@ -20,7 +20,7 @@ public:
         HcclNetDevCtx devCtx= &devContext;
         MOCKER(HcclNetOpenDev)
             .stubs()
-            .with(outBoundP(&devCtx), any(), any(), any(), any())
+            .with(outBoundP(&devCtx), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
 
         MOCKER(HcclNetInit)
@@ -29,22 +29,22 @@ public:
 
         MOCKER_CPP(&TopoInfoDetect::GetRootHostIP)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     
         MOCKER_CPP(&HcclSocket::Listen, HcclResult(HcclSocket::*)(u32 port))
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
 
         MOCKER_CPP(&TopoInfoDetect::GenerateRootInfo)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     
         MOCKER_CPP(&TopoInfoDetect::SetupTopoExchangeServer)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(returnValue(HCCL_SUCCESS));
     
         MOCKER_CPP(&TopoInfoDetect::Teardown)

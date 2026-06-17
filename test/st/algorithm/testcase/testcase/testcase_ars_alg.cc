@@ -106,7 +106,7 @@ TEST_F(arsAlgTest, allgather_910_93_opbase_CollAllGatherARSFor91093Executor_NB_1
         
     MOCKER_CPP(&TopoMatcher::GetARSFlag)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     CheckerOpParam checkerOpParam;
@@ -136,7 +136,7 @@ TEST_F(arsAlgTest, allgather_910_93_opbase_CollAllGatherARSFor91093Executor_NHR_
 
     MOCKER_CPP(&TopoMatcher::GetARSFlag)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     CheckerOpParam checkerOpParam;
@@ -192,7 +192,7 @@ TEST_F(arsAlgTest, reduce_scatter_A3_2Server_ReduceScatterARSFor91093Executor_NB
 
     MOCKER_CPP(&TopoMatcher::GetARSFlag)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     CheckerOpParam checkerOpParam;
@@ -223,7 +223,7 @@ TEST_F(arsAlgTest, reduce_scatter_A3_2Server_ReduceScatterARSFor91093Executor_NH
 
     MOCKER_CPP(&TopoMatcher::GetARSFlag)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));  
 
     CheckerOpParam checkerOpParam;
@@ -536,7 +536,7 @@ TEST_F(arsAlgTest, allreduce_A3_2Server_AllReduceARSFor91093Executor_NB_16MB)
 
     MOCKER_CPP(&TopoMatcher::GetARSFlag)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));
 
     CheckerOpParam checkerOpParam;
@@ -567,7 +567,7 @@ TEST_F(arsAlgTest,allreduce_A3_2Server_AllReduceARSFor91093Executor_NHR_16MB)
 
     MOCKER_CPP(&TopoMatcher::GetARSFlag)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(true));  
 
     CheckerOpParam checkerOpParam;

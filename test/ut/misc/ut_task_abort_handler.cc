@@ -66,7 +66,7 @@ TEST_F(TaskAbortHandlerTest, ut_task_abort_handle_init_test)
     TaskAbortHandler taskAbortHandler;
     MOCKER(hrtTaskAbortHandleCallback)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     auto ret = taskAbortHandler.Init(communicator);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -79,7 +79,7 @@ TEST_F(TaskAbortHandlerTest, ut_task_abort_handle_deinit_test)
     TaskAbortHandler taskAbortHandler;
     MOCKER(hrtTaskAbortHandleCallback)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     auto ret = taskAbortHandler.DeInit(communicator);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -100,7 +100,7 @@ TEST_F(TaskAbortHandlerTest, ut_ProcessTaskAbortHandleCallback_stage0_success)
     
     MOCKER_CPP(&HcclCommunicator::Suspend, HcclResult(HcclCommunicator:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     auto ret = ProcessTaskAbortHandleCallback(deviceLogicId,stage,time,args);
     EXPECT_EQ(ret, 0);
@@ -109,7 +109,7 @@ TEST_F(TaskAbortHandlerTest, ut_ProcessTaskAbortHandleCallback_stage0_success)
     time = 0U;
     MOCKER_CPP(&HcclCommunicator::Suspend, HcclResult(HcclCommunicator:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
     ret = ProcessTaskAbortHandleCallback(deviceLogicId,stage,time,args);
     EXPECT_EQ(ret, 0);
@@ -132,7 +132,7 @@ TEST_F(TaskAbortHandlerTest, ut_ProcessTaskAbortHandleCallback_stage0_false)
  
     MOCKER_CPP(&HcclCommunicator::Suspend, HcclResult(HcclCommunicator:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
     auto ret = ProcessTaskAbortHandleCallback(deviceLogicId,stage,time,args);
     EXPECT_EQ(ret, 1);
@@ -142,7 +142,7 @@ TEST_F(TaskAbortHandlerTest, ut_ProcessTaskAbortHandleCallback_stage0_false)
     time = 0U;
     MOCKER_CPP(&HcclCommunicator::Suspend, HcclResult(HcclCommunicator:: *)())
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_E_INTERNAL));
     ret = ProcessTaskAbortHandleCallback(deviceLogicId,stage,time,args);
     EXPECT_EQ(ret, 1);

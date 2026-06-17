@@ -45,7 +45,7 @@ TEST_F(HcommAdapterHccpTest, ut_HccpGetUboeFlagEnable_VersionEnough_Expect_Succe
     u32 mock_version = GET_UBOE_FLAG_ENABLE_VERSION;
     MOCKER(RaGetInterfaceVersion)
         .stubs()
-        .with(any(), any(), outBoundP(&mock_version, sizeof(s32)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&mock_version, sizeof(s32)))
         .will(returnValue(0));
 
     HcclResult ret = HccpGetUboeFlagEnable(devPhyId);
@@ -59,7 +59,7 @@ TEST_F(HcommAdapterHccpTest, ut_HccpGetUboeFlagEnable_When_VersionNotEnough_Expe
     u32 mock_version = GET_UBOE_FLAG_ENABLE_VERSION - 1;
     MOCKER(RaGetInterfaceVersion)
         .stubs()
-        .with(any(), any(), outBoundP(&mock_version, sizeof(s32)))
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&mock_version, sizeof(s32)))
         .will(returnValue(0));
     
     HcclResult ret = HccpGetUboeFlagEnable(devPhyId);

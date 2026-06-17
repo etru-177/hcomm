@@ -61,12 +61,12 @@ protected:
     virtual void SetUp() {
         std::cout << "A Test case in RankInfoDetectClientTest SetUP" << std::endl;
         socketHandle = new int(0);
-        MOCKER(HrtRaSocketInit).stubs().with(any(), any()).will(returnValue(socketHandle));
-        MOCKER(HrtRaSocketDeInit).stubs().with(any());
-        MOCKER_CPP(&HccpPeerManager::Init).stubs().with(any());
-        MOCKER_CPP(&HccpPeerManager::DeInit).stubs().with(any());
+        MOCKER(HrtRaSocketInit).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(socketHandle));
+        MOCKER(HrtRaSocketDeInit).stubs().with(mockcpp::any());
+        MOCKER_CPP(&HccpPeerManager::Init).stubs().with(mockcpp::any());
+        MOCKER_CPP(&HccpPeerManager::DeInit).stubs().with(mockcpp::any());
         MOCKER(HrtGetDevice).stubs().will(returnValue(0));
-        MOCKER_CPP(&HostSocketHandleManager::Destroy).stubs().with(any(), any());
+        MOCKER_CPP(&HostSocketHandleManager::Destroy).stubs().with(mockcpp::any(), mockcpp::any());
         IpAddress serverIp = IpAddress("10.0.0.10");
         u32 hostPort = 60001;
         IpAddress hostIp_ = IpAddress("192.168.1.8");
@@ -138,7 +138,7 @@ TEST_F(RankInfoDetectClientTest, Ut_SendAgentIdAndRankSize_When_Normal_Expect_Su
 {
     MOCKER(HrtRaSocketBlockSend)
         .stubs()
-        .with(any(), any())
+        .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(true));
 
     EXPECT_NO_THROW(rankInfoDetectClient_->SendAgentIdAndRankSize());
@@ -167,7 +167,7 @@ TEST_F(RankInfoDetectClientTest, Ut_ConstructRankTable_When_Normal_Expect_Succes
     MOCKER(realpath) 
         .stubs()  
         .with(
-            any(), 
+            mockcpp::any(), 
             outBoundP(
                 const_cast<char*>(testJsonPath.c_str()),  
                 testJsonPath.size() + 1                   
@@ -263,8 +263,8 @@ TEST_F(RankInfoDetectClientTest, Ut_RecvRankTable_When_Normal_Expect_Success)
 
     MOCKER(aclrtMallocHostWithCfg).stubs().will(returnValue(1));
     std::vector<char> hostAlloc(MAX_BUFFER_LEN);
-    MOCKER(HrtMallocHost).stubs().with(any()).will(returnValue(static_cast<void *>(hostAlloc.data())));
-    MOCKER(HrtFreeHost).stubs().with(any()).will(ignoreReturnValue());
+    MOCKER(HrtMallocHost).stubs().with(mockcpp::any()).will(returnValue(static_cast<void *>(hostAlloc.data())));
+    MOCKER(HrtFreeHost).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     void *msg = rankInfoMsg.data();
     u64 msgLen = rankInfoMsg.size();
     u64 revMsgLenOut = msgLen;

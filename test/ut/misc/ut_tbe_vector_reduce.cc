@@ -95,23 +95,23 @@ TEST_F(TbeVectorReduceTest, EletwistV3_test_need_multi_core1)
     tbeTest.deviceType_ = LegacyDevType::DEV_TYPE_910;
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::LoadOpBinary)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(LaunchKernelWithConfig)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(BinaryLoadFromData)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetDeviceType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     tbeTest.Init();
     int test = 100;
@@ -125,23 +125,23 @@ TEST_F(TbeVectorReduceTest, EletwistV3_test_need_multi_core2)
     tbeTest.deviceType_ = LegacyDevType::DEV_TYPE_910;
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::LoadOpBinary)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(LaunchKernelWithConfig)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(BinaryLoadFromData)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetDeviceType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     tbeTest.Init();
     int test = 100;
@@ -156,23 +156,23 @@ TEST_F(TbeVectorReduceTest, EletwistV3_test)
     tbeTest.deviceType_ = LegacyDevType::DEV_TYPE_910;
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::LoadOpBinary)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(LaunchKernelWithConfig)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(BinaryLoadFromData)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetDeviceType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     tbeTest.Init();
     int test = 100;
@@ -194,23 +194,23 @@ TEST_F(TbeVectorReduceTest, EletwistV3_test_need_multi_core1_v81)
     tbeTest.deviceType_ = LegacyDevType::DEV_TYPE_910B;
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::LoadOpBinary)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(LaunchKernelWithConfig)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(BinaryLoadFromData)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetDeviceType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(rtGetSocVersion)
         .stubs()
@@ -227,23 +227,23 @@ TEST_F(TbeVectorReduceTest, EletwistV3_test_need_multi_core2_v81)
     tbeTest.deviceType_ = LegacyDevType::DEV_TYPE_910B;
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::LoadOpBinary)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(LaunchKernelWithConfig)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(BinaryLoadFromData)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetDeviceType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(rtGetSocVersion)
         .stubs()
@@ -261,23 +261,23 @@ TEST_F(TbeVectorReduceTest, EletwistV3_test_v81)
     tbeTest.deviceType_ = LegacyDevType::DEV_TYPE_910B;
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::LoadOpBinary)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER_CPP(&TbeReduce::TbeVectorReduce::GetTilingDataDevMem)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(LaunchKernelWithConfig)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(BinaryLoadFromData)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(GetDeviceType)
         .stubs()
-        .with(any())
+        .with(mockcpp::any())
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(rtGetSocVersion)
         .stubs()

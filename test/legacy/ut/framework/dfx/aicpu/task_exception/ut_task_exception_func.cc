@@ -36,8 +36,8 @@ protected:
 
     virtual void SetUp()
     {
-        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
-        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
+        MOCKER_CPP(&RtsqBase::QuerySqBaseAddr).stubs().with(mockcpp::any()).will(returnValue(reinterpret_cast<u64>(&mockSq)));
+        MOCKER_CPP(&RtsqBase::QuerySqDepth).stubs().with(mockcpp::any()).will(returnValue(static_cast<u32>(AC_SQE_MAX_CNT)));
         MOCKER_CPP(&RtsqBase::QuerySqStatusByType).stubs().will(returnValue(static_cast<u32>(0)));
         std::cout << "A Test case in TaskExceptionFuncTest SetUp" << std::endl;
     }
@@ -156,7 +156,7 @@ TEST_F(TaskExceptionFuncTest, ShouldContinueOnWaitTimeout)
 
     TaskExceptionFunc &instance = TaskExceptionFunc::GetInstance();
     instance.Register(&streamLite);
-    MOCKER(halCqReportRecv).stubs().with(any(), any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_WAIT_TIMEOUT)));
+    MOCKER(halCqReportRecv).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_WAIT_TIMEOUT)));
     instance.Call();
 }
 
@@ -167,7 +167,7 @@ TEST_F(TaskExceptionFuncTest, ShouldContinueOnNonNoneError)
 
     TaskExceptionFunc &instance = TaskExceptionFunc::GetInstance();
     instance.Register(&streamLite);
-    MOCKER(halCqReportRecv).stubs().with(any(), any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_NO_DEVICE)));
+    MOCKER(halCqReportRecv).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<error_t>((int)DRV_ERROR_NO_DEVICE)));
     instance.Call();
 }
 

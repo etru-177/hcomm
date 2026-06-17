@@ -44,13 +44,13 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         g_stubDevType = DevType::DEV_TYPE_910B;
         MockGetSendRecvCnt();
         MOCKER(halGetDeviceInfo)
             .stubs()
-            .with(any())
+            .with(mockcpp::any())
             .will(invoke(StubhalGetDeviceInfo));
         MOCKER(QuerySqStatusByType)
             .stubs()
@@ -285,7 +285,7 @@ TEST_F(MC2Reducescatter_UT, reducescatter_doublering)
     halChipInfo info = {"Ascend", "910_9381", "0"};
     MOCKER(halGetChipInfo)
     .stubs()
-    .with(any(), outBoundP(&info, sizeof(halChipInfo)))
+    .with(mockcpp::any(), outBoundP(&info, sizeof(halChipInfo)))
     .will(returnValue(DRV_ERROR_NONE));
 
     KFCResInitTask initTask;
@@ -329,7 +329,7 @@ TEST_F(MC2Reducescatter_UT, reducescatter_switch)
     halChipInfo info = {"Ascend", "910_9381", "0"};
     MOCKER(halGetChipInfo)
     .stubs()
-    .with(any(), outBoundP(&info, sizeof(halChipInfo)))
+    .with(mockcpp::any(), outBoundP(&info, sizeof(halChipInfo)))
     .will(returnValue(DRV_ERROR_NONE));
 
     KFCResInitTask initTask;

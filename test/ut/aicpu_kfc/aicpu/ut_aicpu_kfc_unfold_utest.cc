@@ -80,7 +80,7 @@ protected:
         s32 portNum = 7;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         set_board_id(0x0000);
         s32 ndev = 8;
@@ -88,8 +88,8 @@ protected:
             set_chip_type_stub(i, static_cast<s32>(DevType::DEV_TYPE_910B));
         }
         g_stubDevType = DevType::DEV_TYPE_910B;
-        MOCKER(halGetDeviceInfo).stubs().with(any()).will(invoke(StubhalGetDeviceInfo));
-        MOCKER(QuerySqStatusByType).stubs().with(any()).will(invoke(QuerySqStatusByTypeStub1));
+        MOCKER(halGetDeviceInfo).stubs().with(mockcpp::any()).will(invoke(StubhalGetDeviceInfo));
+        MOCKER(QuerySqStatusByType).stubs().with(mockcpp::any()).will(invoke(QuerySqStatusByTypeStub1));
         std::cout << "AicpuUnfold_UT Test SetUP" << std::endl;
         MOCKER(AicpuHcclProcess::CallMC2MaintenanceThread).stubs().will(invoke(CallMC2MaintenanceThreadStub));
     }
@@ -1105,7 +1105,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_Mc2api_Test_NS)
     hcclCommAicpu2->SetDumpDebug(false);
     AicpuHcclProcess::AicpuReleaseCommbyGroup(hcomId2);
 
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub9));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub9));
     EXPECT_EQ(AicpuKfcProcess::AicpuRunRpcServerForMC2(&task), 301);
     hcclCommAicpu1->SetNsStopLaunchStatus(false);
     hcclCommAicpu2->SetNsStopLaunchStatus(false);
@@ -1796,7 +1796,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     HcclOpExecFSM state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     KfcError errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_PARA));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_E_PARA);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExec);
@@ -1804,7 +1804,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub1));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub1));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExit);
@@ -1812,7 +1812,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub2));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub2));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPED);
     EXPECT_EQ(errorCode, KfcError::kSdma);
@@ -1820,7 +1820,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub3));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub3));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING);
     EXPECT_EQ(errorCode, KfcError::kSdma);
@@ -1828,7 +1828,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub4));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub4));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING);
     EXPECT_EQ(errorCode, KfcError::kSdma);
@@ -1836,7 +1836,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub5));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub5));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING);
     EXPECT_EQ(errorCode, KfcError::kSdma);
@@ -1844,7 +1844,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppingProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPING;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub8));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub8));
     EXPECT_EQ(MC2OpExecFsmStoppingProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExec);
@@ -1862,7 +1862,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppedProcess)
 
     HcclOpExecFSM state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPED;
     KfcError errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_PARA));
     EXPECT_EQ(MC2OpExecFsmStoppedProcess(*hcclCommAicpu, state, errorCode), HCCL_E_PARA);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExec);
@@ -1870,7 +1870,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppedProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPED;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub1));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub1));
     EXPECT_EQ(MC2OpExecFsmStoppedProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExit);
@@ -1878,7 +1878,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmStoppedProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPED;
     errorCode = KfcError::kSdma;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub2));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub2));
     EXPECT_EQ(MC2OpExecFsmStoppedProcess(*hcclCommAicpu, state, errorCode), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY);
     EXPECT_EQ(errorCode, KfcError::kNone);
@@ -1897,7 +1897,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmWaitRetryProcess)
 
     HcclOpExecFSM state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY;
     KfcError errorCode = KfcError::kNone;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(returnValue(HCCL_E_PARA));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_PARA));
     EXPECT_EQ(MC2OpExecFsmWaitRetryProcess(*hcclCommAicpu, state, errorCode, linkChanged), HCCL_E_PARA);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExec);
@@ -1905,7 +1905,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmWaitRetryProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY;
     errorCode = KfcError::kNone;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub1));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub1));
     EXPECT_EQ(MC2OpExecFsmWaitRetryProcess(*hcclCommAicpu, state, errorCode, linkChanged), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_ERROR);
     EXPECT_EQ(errorCode, KfcError::kExit);
@@ -1913,9 +1913,9 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmWaitRetryProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY;
     errorCode = KfcError::kNone;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub4));
-    MOCKER_CPP(&HcclCommAicpu::CleanStream).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommAicpu::ClearStreamCqeException).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub4));
+    MOCKER_CPP(&HcclCommAicpu::CleanStream).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommAicpu::ClearStreamCqeException).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(MC2OpExecFsmWaitRetryProcess(*hcclCommAicpu, state, errorCode, linkChanged), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_RETRY);
     EXPECT_EQ(errorCode, KfcError::kNone);
@@ -1923,7 +1923,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmWaitRetryProcess)
 
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY;
     errorCode = KfcError::kNone;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub10));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub10));
     EXPECT_EQ(MC2OpExecFsmWaitRetryProcess(*hcclCommAicpu, state, errorCode, linkChanged), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_CHANGE_LINK);
     EXPECT_EQ(errorCode, KfcError::kNone);
@@ -1932,7 +1932,7 @@ TEST_F(AicpuUnfold_UT, MC2OpExecFsmWaitRetryProcess)
     state = HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY;
     errorCode = KfcError::kNone;
     linkChanged = true;
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub10));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub10));
     EXPECT_EQ(MC2OpExecFsmWaitRetryProcess(*hcclCommAicpu, state, errorCode, linkChanged), HCCL_SUCCESS);
     EXPECT_EQ(state, HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY);
     EXPECT_EQ(errorCode, KfcError::kNone);
@@ -1947,24 +1947,24 @@ TEST_F(AicpuUnfold_UT, CheckRestartError)
     hcclCommAicpu->dumpDebug_ = false;
     hcclCommAicpu->dispatcher_ = nullptr;
 
-    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(mockcpp::any()).will(returnValue(false));
     EXPECT_EQ(HCCL_SUCCESS, CheckRestartError(hcclCommAicpu));
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(any()).will(returnValue(true)); // mock hccs exception sdm
+    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(mockcpp::any()).will(returnValue(true)); // mock hccs exception sdm
     EXPECT_EQ(HCCL_E_SUSPENDING, CheckRestartError(hcclCommAicpu));
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub3));
+    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub3));
     EXPECT_EQ(HCCL_SUCCESS, CheckRestartError(hcclCommAicpu));
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(any()).will(returnValue(false));
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub5));
+    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(mockcpp::any()).will(returnValue(false));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub5));
     EXPECT_EQ(HCCL_E_SUSPENDING, CheckRestartError(hcclCommAicpu));
     GlobalMockObject::verify();
 
@@ -1977,7 +1977,7 @@ TEST_F(AicpuUnfold_UT, Mc2RetryProcess)
     hcclCommAicpu->dumpDebug_ = false;
     hcclCommAicpu->dispatcher_ = nullptr;
 
-    MOCKER_CPP(&HcclCommAicpu::UpdateOpExecStatus, HcclResult (HcclCommAicpu::*)(HcclOpExecFSM &fsmState, KfcStatus state, KfcError &errorCode, uint32_t retryCnt)).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommAicpu::UpdateOpExecStatus, HcclResult (HcclCommAicpu::*)(HcclOpExecFSM &fsmState, KfcStatus state, KfcError &errorCode, uint32_t retryCnt)).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
 
     RestartParam restartParam;
 
@@ -1988,19 +1988,19 @@ TEST_F(AicpuUnfold_UT, Mc2RetryProcess)
     EXPECT_EQ(restartParam.errorCode[0], KfcError::kSdma);
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub2));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub2));
     EXPECT_EQ(AicpuKfcRetryProcess::RetryProcess(*hcclCommAicpu, restartParam, 0), HCCL_SUCCESS);
     EXPECT_EQ(restartParam.fsmState[0], HcclOpExecFSM::HCCL_OP_EXEC_FSM_STOPPED);
     EXPECT_EQ(restartParam.errorCode[0], KfcError::kSdma);
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub2));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub2));
     EXPECT_EQ(AicpuKfcRetryProcess::RetryProcess(*hcclCommAicpu, restartParam, 0), HCCL_SUCCESS);
     EXPECT_EQ(restartParam.fsmState[0], HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY);
     EXPECT_EQ(restartParam.errorCode[0], KfcError::kNone);
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub10));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub10));
     EXPECT_EQ(AicpuKfcRetryProcess::RetryProcess(*hcclCommAicpu, restartParam, 0), HCCL_SUCCESS);
     EXPECT_EQ(restartParam.fsmState[0], HcclOpExecFSM::HCCL_OP_EXEC_FSM_CHANGE_LINK);
     EXPECT_EQ(restartParam.errorCode[0], KfcError::kNone);
@@ -2010,9 +2010,9 @@ TEST_F(AicpuUnfold_UT, Mc2RetryProcess)
     EXPECT_EQ(restartParam.fsmState[0], HcclOpExecFSM::HCCL_OP_EXEC_FSM_WAIT_RETRY);
     EXPECT_EQ(restartParam.errorCode[0], KfcError::kNone);
 
-    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(any()).will(invoke(GetOpExecCtrlCmdStub4));
-    MOCKER_CPP(&HcclCommAicpu::CleanStream).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommAicpu::ClearStreamCqeException).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuHdc::GetOpExecCtrlCmd).stubs().with(mockcpp::any()).will(invoke(GetOpExecCtrlCmdStub4));
+    MOCKER_CPP(&HcclCommAicpu::CleanStream).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&HcclCommAicpu::ClearStreamCqeException).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(AicpuKfcRetryProcess::RetryProcess(*hcclCommAicpu, restartParam, 0), HCCL_SUCCESS);
     EXPECT_EQ(restartParam.fsmState[0], HcclOpExecFSM::HCCL_OP_EXEC_FSM_RETRY);
     EXPECT_EQ(restartParam.errorCode[0], KfcError::kNone);
@@ -2041,22 +2041,22 @@ TEST_F(AicpuUnfold_UT, RestartProcessConsulation)
     RestartParam restartParam;
 
     bool flag;
-    MOCKER_CPP(&AicpuKfcRpcServerV2::Reset).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuKfcRpcServerV2::WriteRestartFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(any()).will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&AicpuKfcRpcServerV2::Reset).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuKfcRpcServerV2::WriteRestartFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
     EXPECT_EQ(RestartProcessConsulation(restartParam, flag, finalizeMask, {0}), HCCL_E_INTERNAL);
     GlobalMockObject::verify();
  
-    MOCKER_CPP(&AicpuKfcRpcServerV2::Reset).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuKfcRpcServerV2::WriteRestartFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(any()).will(invoke(Mc2RetryProcessStub));
-    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuKfcRpcServerV2::Reset).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuKfcRpcServerV2::WriteRestartFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(mockcpp::any()).will(invoke(Mc2RetryProcessStub));
+    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     EXPECT_EQ(RestartProcessConsulation(restartParam, flag, finalizeMask, {0}), HCCL_SUCCESS);
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&AicpuKfcRpcServerV2::Reset).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&AicpuKfcRpcServerV2::WriteRestartFlag).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuKfcRpcServerV2::Reset).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&AicpuKfcRpcServerV2::WriteRestartFlag).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
+    MOCKER(AicpuKfcRetryProcess::RetryProcess).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
     restartParam.consultationResult[0] = true;
     restartParam.consultationAllEnd++;
     EXPECT_EQ(RestartProcessConsulation(restartParam, flag, finalizeMask, {0}), HCCL_SUCCESS);
@@ -2070,7 +2070,7 @@ TEST_F(AicpuUnfold_UT, HcclOpExecFsmLaunchProcess_MC2Suspending)
     hccl::HcclCommAicpu *hcclCommAicpu = new hccl::HcclCommAicpu;
     hcclCommAicpu->dumpDebug_ = false;
     hcclCommAicpu->dispatcher_ = nullptr;
-    MOCKER_CPP(&HcclCommAicpu::OrchestrateHcclOp).stubs().with(any()).will(returnValue(HCCL_E_SUSPENDING));
+    MOCKER_CPP(&HcclCommAicpu::OrchestrateHcclOp).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_SUSPENDING));
     std::string algName;
     OpParam param;
     AlgResourceResponse algResource;
@@ -2202,13 +2202,13 @@ TEST_F(AicpuUnfold_UT, RpcServerPreCheck_restart_error)
  
     MOCKER(CheckNsCommand).stubs().will(returnValue(false));
     MOCKER(CheckRestartError).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(any()).will(returnValue(true));
-    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(any()).will(returnValue(true));
+    MOCKER_CPP(&HcclCommAicpu::GetOpRetryEnable).stubs().with(mockcpp::any()).will(returnValue(true));
+    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(mockcpp::any()).will(returnValue(true));
  
     EXPECT_EQ(HCCL_E_SUSPENDING, RpcServerPreCheck(&rpc, comm, finalizeFlag));
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(any()).will(returnValue(false));
+    MOCKER_CPP(&HcclCommAicpu::IsTaskExceptionForHccs).stubs().with(mockcpp::any()).will(returnValue(false));
     EXPECT_EQ(HCCL_E_INTERNAL, RpcServerPreCheck(&rpc, comm, finalizeFlag));
     GlobalMockObject::verify();
 
@@ -2442,8 +2442,8 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_DecoulpledCtx)
     ctx5.hcclContext = 5;
     ctx5.apiCtx.workSpace = (u64)g_msgAreaBak;
     uint64_t args[6] = {inputDesc, (uint64_t)&ctx1, (uint64_t)&ctx2, (uint64_t)&ctx3, (uint64_t)&ctx4, (uint64_t)&ctx5};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
-    MOCKER(HcclGetTaskStatus).stubs().with(any()).will(invoke(HcclGetTaskStatusStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetTaskStatus).stubs().with(mockcpp::any()).will(invoke(HcclGetTaskStatusStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), 0);
 }
 
@@ -2548,8 +2548,8 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_SeqTest)
     ctx4.hcclContext = 4;
     ctx4.apiCtx.workSpace = (u64)g_msgAreaBak;
     uint64_t args[5] = {inputDesc, (uint64_t)&ctx1, (uint64_t)&ctx2, (uint64_t)&ctx3, (uint64_t)&ctx4};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
-    MOCKER(HcclGetTaskStatus).stubs().with(any()).will(invoke(HcclGetTaskStatusStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetTaskStatus).stubs().with(mockcpp::any()).will(invoke(HcclGetTaskStatusStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), 0);
 }
 
@@ -2589,7 +2589,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_RetryFail)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_INTERNAL);
 }
 
@@ -2623,7 +2623,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_GroupSyncInvalidPara)
     ctx2.apiCtx.workSpace = (u64)g_msgAreaBak;
     ctx2.apiCtx.rankNum = 2;
     uint64_t args[3] = {inputDesc, (uint64_t)&ctx1, (uint64_t)&ctx2};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_PARA);
 
     syncMsg->commDepGroupID = 100;
@@ -2667,8 +2667,8 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_InvalidRankNumForAlltoallv)
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     ctx1.apiCtx.rankNum = 2000;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
-    MOCKER(HcclGetTaskStatus).stubs().with(any()).will(invoke(HcclGetTaskStatusStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetTaskStatus).stubs().with(mockcpp::any()).will(invoke(HcclGetTaskStatusStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_PARA);
 }
 
@@ -2707,7 +2707,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_InvalidCmdType)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_PARA);
 }
 
@@ -2746,7 +2746,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_InvalidCctiling)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_PARA);
 }
 
@@ -2785,7 +2785,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_PrepareMsgTimeout)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_TIMEOUT);
 }
 
@@ -2824,7 +2824,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_FinalizeMsgTimeout)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_TIMEOUT);
 }
 
@@ -2863,7 +2863,7 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_FinalizeTimeout)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
     MOCKER(HcclCheckFinishByStream).stubs().will(returnValue(HCCL_E_SUSPENDING));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_TIMEOUT);
 }
@@ -2903,8 +2903,8 @@ TEST_F(AicpuUnfold_UT, AicpuRunRpcServerForMC2_FinalizeStatusError)
     ctx1.hcclContext = 1;
     ctx1.apiCtx.workSpace = (u64)g_msgArea;
     uint64_t args[2] = {inputDesc, (uint64_t)&ctx1};
-    MOCKER(HcclGetCommHandleByCtx).stubs().with(any()).will(invoke(HcclGetCommHandleByCtxStub));
-    MOCKER(HcclGetTaskStatus).stubs().with(any()).will(invoke(HcclGetTaskStatusInvalidStub));
+    MOCKER(HcclGetCommHandleByCtx).stubs().with(mockcpp::any()).will(invoke(HcclGetCommHandleByCtxStub));
+    MOCKER(HcclGetTaskStatus).stubs().with(mockcpp::any()).will(invoke(HcclGetTaskStatusInvalidStub));
     EXPECT_EQ(RunAicpuKfcSrvLaunch((void **)args), HCCL_E_INTERNAL);
 }
 

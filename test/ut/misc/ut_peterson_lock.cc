@@ -51,10 +51,10 @@ public:
     {
         std::cout << "PetersonLockTest SetUp" << std::endl;
         GlobalMockObject::verify();
-        MOCKER(hrtMemSyncCopy).stubs().with(any()).will(invoke(stub_hrtMemSyncCopy));
-        MOCKER(hrtMemSet).stubs().with(any()).will(invoke(stub_hrtMemSet));
-        MOCKER(hrtMalloc).stubs().with(any()).will(invoke(stub_hrtMalloc));
-        MOCKER(hrtFree).stubs().with(any()).will(invoke(stub_hrtFree));
+        MOCKER(hrtMemSyncCopy).stubs().with(mockcpp::any()).will(invoke(stub_hrtMemSyncCopy));
+        MOCKER(hrtMemSet).stubs().with(mockcpp::any()).will(invoke(stub_hrtMemSet));
+        MOCKER(hrtMalloc).stubs().with(mockcpp::any()).will(invoke(stub_hrtMalloc));
+        MOCKER(hrtFree).stubs().with(mockcpp::any()).will(invoke(stub_hrtFree));
     }
 
     static void TearDownTestCase()

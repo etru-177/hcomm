@@ -35,7 +35,7 @@ protected:
         s32 portNum = -1;
         MOCKER(hrtGetHccsPortNum)
             .stubs()
-            .with(any(), outBound(portNum))
+            .with(mockcpp::any(), outBound(portNum))
             .will(returnValue(HCCL_SUCCESS));
         std::cout << "A Test SetUP" << std::endl;
     }
@@ -69,7 +69,7 @@ TEST_F(P2PMgmtTest, ut_BatchEnable_DisableP2P_1)
     P2PMgmt::Instance().deviceType_ = DevType::DEV_TYPE_910B;
     MOCKER(hrtGetDeviceType)
     .stubs()
-    .with(any())
+    .with(mockcpp::any())
     .will(returnValue(HCCL_SUCCESS));
 
     std::vector<uint32_t> remoteDevices = {0,1,2,3,4,5,6,7};
