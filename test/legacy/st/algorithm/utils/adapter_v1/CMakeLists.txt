@@ -94,7 +94,7 @@ set(include_list
     ${HCCL_CODE_ROOT}/hccl/platform/inc/adapter
     ${HCCL_CODE_ROOT}/hccl/platform/inc/adapter/host
     ${HCCL_CODE_ROOT}/hccl/platform/common
-
+    
     # framework目录下的头文件
     ${HCCL_OPEN_CODE_FRAMEWORK}/inc
     ${HCCL_OPEN_CODE_FRAMEWORK}/inc/host
@@ -103,6 +103,8 @@ set(include_list
     ${HCCL_OPEN_CODE_FRAMEWORK}/common/src/config
     ${HCCL_OPEN_CODE_FRAMEWORK}/common/src/topo
     ${HCCL_OPEN_CODE_FRAMEWORK}/communicator/impl
+
+    ${HCOMM_DIR}/src/legacy/ascend910/common/launch_aicpu
 
     # libc_sec目录下的头文件
     ${TOP_DIR}/abl/slog/inc/toolchain

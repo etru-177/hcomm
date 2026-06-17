@@ -18,7 +18,7 @@
 #include "adapter_error_manager_pub.h"
 
 #include "task_struct_v2.h"
-#include "task_scheduler_error.h"
+#include "hcomm_task_scheduler_error.h"
 #include "orion_adapter_hal.h"
 #include "internal_exception.h"
 

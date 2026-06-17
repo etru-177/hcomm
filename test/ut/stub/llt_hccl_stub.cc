@@ -5539,6 +5539,7 @@ HcclResult LoadBinaryFromFile(const char *binPath, aclrtBinaryLoadOptionType opt
     return HCCL_SUCCESS;
 }
 
+
 HcclResult GetCustomKernelFilePath(std::string &binaryPath)
 {	 
     binaryPath = "./";	 

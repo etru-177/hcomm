@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include <mockcpp/mockcpp.hpp>
 
-#include "../../../framework/communicator/hccl_api_base_test.h"
+#include "hccl_api_base_test.h"
 #include "../../stub/llt_hccl_stub_rank_graph.h"
 
 using namespace hccl;

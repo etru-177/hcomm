@@ -16,6 +16,8 @@ target_include_directories(legacy_alg_function_ut_testcase PRIVATE
     ${UTILS_DIR}/checker/task_collector
     ${UTILS_DIR}/adapter_v2
     ${UTILS_DIR}/checker/mem_conflict_check
+    ${HCOMM_DIR}/src/legacy/ascend910/common
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
 )
  
 target_compile_definitions(legacy_alg_function_ut_testcase PRIVATE

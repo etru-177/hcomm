@@ -15,7 +15,7 @@
 #include <vector>
 #include <unordered_map>
 #include <hccl/hccl_types.h>
-#include "../pub_inc/buffer_key.h"
+#include "buffer_key.h"
 #include "orion_adapter_hccp.h"
 
 namespace Hccl {

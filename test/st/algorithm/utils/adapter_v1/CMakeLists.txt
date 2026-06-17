@@ -89,6 +89,7 @@ target_include_directories(hccl_alg_adaption PRIVATE
 
     ${ASCEND_CANN_INCLUDE_LIST}
     ${CMAKE_SOURCE_DIR}/test/legacy/depends/toolchain/
+    ${HCOMM_DIR}/test/stub/depends/pkg_inc/base
 )
 
 target_compile_definitions(hccl_alg_adaption PRIVATE

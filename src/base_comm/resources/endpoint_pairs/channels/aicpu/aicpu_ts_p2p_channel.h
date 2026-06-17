@@ -15,8 +15,8 @@
 
 #include "../../../../../../legacy/ascend950/unified_platform/resource/socket/socket.h"
 #include "../../../../../../legacy/ascend950/framework/resource_manager/socket/socket_manager.h"
-#include "../../../../../../legacy/ascend950/unified_platform/pub_inc/buffer_key.h"
-#include "../../../../../../legacy/ascend950/unified_platform/resource/buffer/local_ipc_rma_buffer.h"
+#include "buffer_key.h"
+#include "../../../../../../src/legacy/ascend950/unified_platform/resource/buffer/local_ipc_rma_buffer.h"
 #include "rma_connection.h"
 #include "p2p_transport.h"
 #include "p2p_connection.h"

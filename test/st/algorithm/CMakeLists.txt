@@ -64,6 +64,7 @@ set(HCOMM_PUBLIC_INCLUDE_LIST
     ${HCOMM_CODE_ROOT}/pub_inc/hccl
     ${HCOMM_CODE_ROOT}/pkg_inc
     ${HCOMM_CODE_ROOT}/pkg_inc/hccl
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
 )
 
 set(HCOMM_PLATFORM_INCLUDE_LIST
@@ -253,6 +254,8 @@ set(HCOMM_LEGACY_INCLUDE_LIST
     ${HCOMM_CODE_LEGACY}/framework/dfx/common
     ${HCOMM_CODE_LEGACY}/framework/dfx
     ${HCOMM_CODE_LEGACY}/framework/resource_manager/stream
+
+    ${HCCL_CODE_ROOT}/src/common
     
 )
 

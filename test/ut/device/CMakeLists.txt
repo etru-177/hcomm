@@ -36,7 +36,7 @@ set(hccl_utest_device_src_list
     ${HCCL_CODE_ROOT}/src/base_comm/resources/comm_engine_res/threads/device/aicpu_thread_process.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend910/framework/device/framework/aicpu_one_side_service.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend910/framework/device/hccl_aicpu_interface.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend910/platform/common/launch_aicpu.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend910/common/launch_aicpu/launch_aicpu.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend910/platform/common/adapter/adapter_rts.cc
 )
 
@@ -84,7 +84,7 @@ add_dependencies(hccl_utest_device hccl_llt)
 
 set(hccl_utest_launch_aicpu_fw_src_list
     main.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend910/framework/common/src/launch_aicpu.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend910/common/launch_aicpu/launch_aicpu.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend910/platform/common/adapter/adapter_rts.cc
     ut_launch_aicpu.cc
 )

@@ -168,6 +168,15 @@ if(BUILD_OPEN_PROJECT)
         OPEN_BUILD_PROJECT
     )
 
+    target_include_directories(hccd PRIVATE
+        # 三方件头文件
+        ${JSON_INCLUDE_DIR}
+        ${CANN_3RD_LIB_PATH}/hcomm_utils/${PRODUCT_SIDE}/include/legacy
+        ${HCOMM_DIR}/src/legacy/ascend910/common
+        ${HCOMM_DIR}/src/legacy/ascend910/pub_inc/new/
+        ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
+    )
+
     target_link_libraries(hccd
         $<BUILD_INTERFACE:ascend_hal_headers>
         $<BUILD_INTERFACE:atrace_headers>
@@ -199,6 +208,9 @@ else()
         ${TOP_DIR}/open_source/json/include
         ${TOP_DIR}/asc/asc-devkit/include/adv_api/hccl/internal
         ${TOP_DIR}/asc/asc-devkit/include/adv_api/hccl/internal/hcomm
+        ${HCOMM_DIR}/src/legacy/ascend910/common
+        ${HCOMM_DIR}/src/legacy/ascend910/pub_inc/new/
+        ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
     )
 
     target_link_libraries(hccd

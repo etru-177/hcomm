@@ -18,7 +18,7 @@
 #include <atomic>
 #include "hccl_socket.h"
 #include "hccl_network_pub.h"
-#include "hashtable/universal_concurrent_map.h"
+#include "universal_concurrent_map.h"
 #include "hccl_op_retry_pub.h"
 
 namespace hccl {

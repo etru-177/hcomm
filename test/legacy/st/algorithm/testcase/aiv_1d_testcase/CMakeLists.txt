@@ -12,6 +12,8 @@ add_executable(orion_alg_aiv_1d_testcase ${test_case_list})
 #头文件搜索路径
 target_include_directories(orion_alg_aiv_1d_testcase PRIVATE
     ${include_list}
+    ${HCOMM_DIR}/src/legacy/ascend910/common
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
 )
  
 target_compile_definitions(orion_alg_aiv_1d_testcase PRIVATE

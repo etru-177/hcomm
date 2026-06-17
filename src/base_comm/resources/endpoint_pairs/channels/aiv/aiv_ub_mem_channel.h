@@ -13,8 +13,8 @@
 #include "../channel.h"
 
 // Orion
-#include "../../../../../../legacy/ascend950/unified_platform/resource/socket/socket.h"
-#include "../../../../../../legacy/ascend950/unified_platform/pub_inc/buffer_key.h"
+#include "../../../../../../src/legacy/ascend950/unified_platform/resource/socket/socket.h"
+#include "buffer_key.h"
 #include "aiv_ub_mem_transport.h"
 
 namespace hcomm {

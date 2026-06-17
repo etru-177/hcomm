@@ -72,7 +72,7 @@ target_include_directories(rs_ut_abnormal PRIVATE
     ${SRC_DIR}/test/ut/platform/hccp/rdma_service_abnormal/stub
     ${SRC_DIR}/test/ut/platform/hccp/stub/
     ${SRC_DIR}/test/ut/platform/hccp/stub/roce_user
-    ${SRC_DIR}/test/ut/depends/include
+    ${SRC_DIR}/test/stub/depends/include
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_service/
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_service/tlv
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_service/ctx/product

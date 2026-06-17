@@ -22,7 +22,7 @@
 #include "hccn_rping.h"
 #include "orion_adapter_hccp.h"
 #include "dispatcher_task_types.h"
-#include "hashtable/universal_concurrent_map.h"
+#include "universal_concurrent_map.h"
  
 namespace hccl
 {

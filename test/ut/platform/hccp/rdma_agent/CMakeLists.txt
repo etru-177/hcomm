@@ -80,7 +80,7 @@ target_include_directories(rdma_agent_utest PRIVATE
     ${SRC_DIR}/test/ut/platform/hccp/rdma_agent/stub
     ${SRC_DIR}/test/ut/platform/hccp/ut_include
     ${SRC_DIR}/test/ut/platform/hccp/stub/
-    ${SRC_DIR}/test/ut/depends/include
+    ${SRC_DIR}/test/stub/depends/include
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/tlv

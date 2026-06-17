@@ -28,11 +28,11 @@ set_property(TARGET hccp_utest PROPERTY C_STANDARD 11)
 target_include_directories(hccp_utest PRIVATE
     stub
     ${SRC_DIR}/test/ut/platform/hccp/ut_include
-    ${SRC_DIR}/test/ut/depends/include
-    ${SRC_DIR}/test/ut/depends/pkg_inc/aicpu/tsd
-    ${SRC_DIR}/test/ut/depends/pkg_inc/aicpu/
+    ${SRC_DIR}/test/stub/depends/include
+    ${SRC_DIR}/test/stub/depends/pkg_inc/aicpu/tsd
+    ${SRC_DIR}/test/stub/depends/pkg_inc/aicpu/
     ${SRC_DIR}/test/ut/hccp/rdma_service_normal/rdma_service_normal/include
-    ${SRC_DIR}/test/ut/depends/include
+    ${SRC_DIR}/test/stub/depends/include
     ${SRC_DIR}/src/base_comm/resources/hccp/hccp_service
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/async

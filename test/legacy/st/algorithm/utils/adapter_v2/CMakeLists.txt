@@ -23,7 +23,8 @@ set (include_list
     ${legacy_platform_include_list}
 
     ${HCOMM_ROOT_PATH}/src/legacy/ascend910/pub_inc
-    
+    ${HCOMM_DIR}/src/legacy/ascend910/pub_inc/new
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager    
     ${HCOMM_PLATFORM_INCLUDE_LIST}
 
     ${ASCEND_CANN_INCLUDE_LIST}
@@ -128,6 +129,9 @@ add_library(hccl_alg_adaption_v2 SHARED
 #头文件搜索路径
 target_include_directories(hccl_alg_adaption_v2 PRIVATE
     ${include_list}
+    ${HCOMM_DIR}/src/legacy/ascend910/common
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
+    ${HCOMM_DIR}/test/stub/depends/pkg_inc/base
 )
 
 target_compile_definitions(hccl_alg_adaption_v2 PRIVATE

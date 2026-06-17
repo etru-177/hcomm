@@ -19,7 +19,7 @@
 #include "workflow_pub.h"
 #include "private_types.h"
 #include "adapter_hccp.h"
-#include "hashtable/universal_concurrent_map.h"
+#include "universal_concurrent_map.h"
 
 inline void CopyAiWQInfo(struct HcclAiRMAWQ& dest, const struct AiDataPlaneWq& source, DBMode dbMode, u32 sl)
 {

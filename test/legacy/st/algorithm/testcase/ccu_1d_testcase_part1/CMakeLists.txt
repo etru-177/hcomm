@@ -13,6 +13,8 @@ add_executable(legacy_alg_ccu_1d_testcase_part1 ${test_case_list})
 #头文件搜索路径
 target_include_directories(legacy_alg_ccu_1d_testcase_part1 PRIVATE
     ${include_list}
+    ${HCOMM_DIR}/src/legacy/ascend910/common
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
 )
 
 target_compile_definitions(legacy_alg_ccu_1d_testcase_part1 PRIVATE

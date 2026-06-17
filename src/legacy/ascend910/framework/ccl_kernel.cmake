@@ -52,6 +52,9 @@ target_include_directories(ccl_kernel PRIVATE
     # src/common 头文件 (legacy/ascend910)
     ${HCOMM_DIR}/src/legacy/ascend910/common/stream
     ${HCOMM_DIR}/src/legacy/ascend910/common/debug/profiling/inc
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
+    ${HCOMM_DIR}/src/legacy/ascend910/common/launch_aicpu
+    ${HCOMM_DIR}/src/legacy/ascend910/common
 
     # src/legacy 头文件 (ascend950)
     ${HCOMM_DIR}/src/legacy/ascend950/unified_platform/resource/socket
@@ -89,6 +92,7 @@ target_include_directories(ccl_kernel PRIVATE
     ${HCOMM_DIR}/src/legacy/ascend910/platform/inc/adapter
     ${HCOMM_DIR}/src/legacy/ascend910/platform/common
     ${HCOMM_DIR}/src/legacy/ascend910/platform/common/buffer_manager
+    ${HCOMM_DIR}/src/legacy/ascend910/platform/common
     ${HCOMM_DIR}/src/legacy/ascend910/platform/common/unique
     ${HCOMM_DIR}/src/legacy/ascend910/platform/common/unfold_cache
     ${HCOMM_DIR}/src/legacy/ascend910/platform/resource/transport

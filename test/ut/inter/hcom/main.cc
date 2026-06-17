@@ -13,7 +13,7 @@
 #include <fstream>
 #include "gtest/gtest.h"
 #include "comm.h"
-#include "../../../../stub/llt_hccl_stub_pub.h"
+#include "llt_hccl_stub_pub.h"
 #include "env_config.h"
 
 GTEST_API_ int main(int argc, char **argv) {

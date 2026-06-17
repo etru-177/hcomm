@@ -12,18 +12,16 @@ set(src_list
     adapter_hal.cc
     adapter_tdt.cc
     adapter_hccp.cc
-    adapter_error_manager_pub.cc
     adapter_verbs.cc
     adapter_trace.cc
 )
 
 if(TARGET hccl_plf)
     target_sources(hccl_plf   PRIVATE
-        adapter_error_manager.cc
-        adapter_error_manager_pub_extend.cc
         ${src_list}
     )
 endif()
+
 if(TARGET hccd)
     target_sources(hccd   PRIVATE
         adapter_hal.cc

@@ -73,6 +73,9 @@ target_include_directories(hccl_v2 PRIVATE
     ${HCOMM_DIR}/pkg_inc
     # pub_inc 头文件 (legacy/ascend910)
     ${HCOMM_DIR}/src/legacy/ascend910/pub_inc
+    ${HCOMM_DIR}/src/legacy/ascend910/pub_inc/new
+    ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
+    ${HCOMM_DIR}/src/legacy/ascend910/common
     # src/algorithm 头文件 (legacy/ascend910)
     ${HCOMM_DIR}/src/legacy/ascend910/algorithm/pub_inc
     ${HCOMM_DIR}/src/legacy/ascend910/algorithm/impl/resource_manager

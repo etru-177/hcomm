@@ -14,9 +14,9 @@
 #include "socket_mgr.h"
 
 // Orion
-#include "../../../../../../legacy/ascend950/unified_platform/resource/socket/socket.h"
-#include "../../../../../../legacy/ascend950/framework/resource_manager/socket/socket_manager.h"
-#include "../../../../../../legacy/ascend950/unified_platform/pub_inc/buffer_key.h"
+#include "../../../../../../src/legacy/ascend950/unified_platform/resource/socket/socket.h"
+#include "../../../../../../src/legacy/ascend950/framework/resource_manager/socket/socket_manager.h"
+#include "buffer_key.h"
 #include "rma_connection.h"
 #include "ub_mem_transport.h"
 #include "dev_ub_connection.h"

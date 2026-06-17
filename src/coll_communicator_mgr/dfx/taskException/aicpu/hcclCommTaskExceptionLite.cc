@@ -10,7 +10,7 @@
 #include "hcclCommTaskExceptionLite.h"
 #include "stream_lite.h"
 #include "global_mirror_tasks.h"
-#include "task_scheduler_error.h"
+#include "hcomm_task_scheduler_error.h"
 #include "task_struct_v2.h"
 #include "dlhal_function_v2.h"
 #include "read_write_lock.h"

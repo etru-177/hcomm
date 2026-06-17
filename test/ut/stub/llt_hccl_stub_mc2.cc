@@ -13,7 +13,7 @@
 #include "common/aicpu_kfc_def.h"
 #include "llt_hccl_stub_mc2.h"
 #include <thread>
-#include "task_struct.h"
+#include "hcomm_task_struct.h"
 #include "type_def.h"
 
 using mc2Funcs = void(*)(void*);

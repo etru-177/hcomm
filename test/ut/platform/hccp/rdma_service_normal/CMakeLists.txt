@@ -75,7 +75,7 @@ add_executable(rs_ut_normal ${rs_ut_normal_list})
 
 set_property(TARGET rs_ut_normal PROPERTY C_STANDARD 11)
 target_include_directories(rs_ut_normal PRIVATE
-    ${SRC_DIR}/test/ut/depends/include
+    ${SRC_DIR}/test/stub/depends/include
     ${SRC_DIR}/test/ut/platform/hccp/stub/roce_user
     ${SRC_DIR}/test/ut/platform/hccp/stub/
     ${SRC_DIR}/test/ut/platform/hccp/ut_include
