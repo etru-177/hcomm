@@ -28,7 +28,7 @@ void __attribute__((weak)) __attribute__((visibility("default"))) GetSqeId(const
 
 namespace Hccl {
 
-constexpr u32 RTSQ_FULL_TIMEOUT_DEFAULT = 1820;
+constexpr u32 RTSQ_FULL_TIMEOUT_DEFAULT = 1836 + 20;
 constexpr u32 RTSQ_SQE_SIZE = 64;
 constexpr u32 PER_LAUNCH_SQE_CNT = 128;
 

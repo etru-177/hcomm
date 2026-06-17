@@ -31,21 +31,22 @@ int32_t：接口成功返回0，其他失败。
 
 1. **默认超时时间**
    - 默认超时时间通过[HcommSetNotifyWaitTimeOut](../communication_operations/HcommSetNotifyWaitTimeOut.md)接口设置
-   - 如果未设置，默认超时时间为1800秒（30分钟）
+   - 如果未设置，AICPU_TS模式下，Device侧默认超时时间为1836秒，Host侧默认超时时间为1836+50秒
 
 2. **超时生效条件**
    - 已设置的超时时间将应用于本接口的等待操作
    - 设置为0表示永久等待，不超时
    - 设置大于0表示具体的超时时间（单位：秒）
 
-3. **非AICPU模式特殊处理**
-   - 在非AICPU模式下，如果未手动设置默认超时时间
-   - 系统会自动在默认值基础上增加50秒的偏移量作为安全缓冲
+3. **非AICPU_TS模式特殊处理**
+   - 在非AICPU_TS模式下，如果未手动设置默认超时时间，系统会自动在默认值基础上增加50秒的偏移量作为安全缓冲
 
 ## 约束说明
 
-- 该接口需要配合[HcommThreadNotifyRecordOnThread](./HcommThreadNotifyRecordOnThread.md)使用
-- 在Ascend 950PR/Ascend 950DT上，仅支持AICPU_TS模式下、在Device侧调用该接口
+- 该接口需要配合[HcommThreadNotifyRecordOnThread](./HcommThreadNotifyRecordOnThread.md)使用。
+- 在Ascend 950PR/Ascend 950DT上，支持AICPU_TS模式在Device侧调用，也支持在Host CPU侧调用。
+- AICPU_TS模式下，在Host侧和Device侧调用该接口前，如需设置超时时间，需要各自调用[HcommSetNotifyWaitTimeOut](../communication_operations/HcommSetNotifyWaitTimeOut.md)设置，不调用设置接口则默认超时时间为1836秒（Host侧默认为1836+50秒）。
+- 针对Ascend 950PR/Ascend 950DT的AICPU_TS模式，`notifyIdx`必须小于本端Thread的Notify数量，且Thread创建时的`notifyNumPerThread`需大于0。
 
 ## 调用示例
 
@@ -60,7 +61,7 @@ aclrtCreateStream(&streams[1]);
 HcclResult result = HclThreadAcquireWithStream(comm, engine, streams[0], 2, &threads[0]);
 result = HclThreadAcquireWithStream(comm, engine, streams[1], 2, &threads[1]);
 
-// 1. 设置默认超时时间（可选，未设置则使用默认值1800秒）
+// 1. 设置默认超时时间（可选，未设置则使用默认值1836秒）
 uint32_t defaultTimeout = 600;  // 10分钟
 HcommSetNotifyWaitTimeOut(defaultTimeout);
 
@@ -84,8 +85,8 @@ HclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[1]);
 // 其余资源申请
 // 拷贝参数并Launch Kernel
 
-// 1. 设置默认超时时间（可选，未设置则使用默认值1800秒）
-uint32_t defaultTimeout = 1800000;  // 30分钟
+// 1. 设置默认超时时间（可选，未设置则使用默认值1836秒）
+uint32_t defaultTimeout = 1800;  // 30分钟
 HcommSetNotifyWaitTimeOut(defaultTimeout);
 
 // Device侧算法编排

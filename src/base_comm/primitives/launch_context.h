@@ -18,9 +18,9 @@
 #include <algorithm>
 #include "hccl_api_data.h"
 #include "log.h"
+#include "rtsq_base.h"
 
-constexpr uint32_t NOTIFY_WAIT_TIMEOUT_DEFAULT = 1800;
-constexpr uint32_t RTSQ_FULL_TIMEOUT_DEFAULT = 1820;
+constexpr uint32_t NOTIFY_WAIT_TIMEOUT_DEFAULT = 1836;
 
 class LaunchContext {
 public:
@@ -71,7 +71,7 @@ private:
     } notifyWaitTimeoutConfig_;
 
     struct SqFullTimeoutConfig {
-        uint32_t sqFullTimeout = RTSQ_FULL_TIMEOUT_DEFAULT;
+        uint32_t sqFullTimeout = Hccl::RTSQ_FULL_TIMEOUT_DEFAULT;
         bool isSet = false;
     } sqFullTimeoutConfig_;
 

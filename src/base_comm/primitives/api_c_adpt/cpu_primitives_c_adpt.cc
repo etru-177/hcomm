@@ -48,7 +48,14 @@ bool IsSupportReduce(HcommDataType dataType, HcommReduceOp op)
 
 int32_t HcommSetNotifyWaitTimeOut(uint32_t timeOut)
 {
+    HCCL_INFO("[%s] START. timeOut[%u].", __func__, timeOut);
     return g_threadLaunchCtx.SetNotifyWaitTimeOut(timeOut);
+}
+
+int32_t HcommThreadResAcquireTimeOut(uint32_t timeOut)
+{
+    HCCL_ERROR("[%s] timeOut[%u], not support in cpu.", __func__, timeOut);
+    return HCCL_E_NOT_SUPPORT;
 }
 
 int32_t HcommLocalCopyOnThread(ThreadHandle thread, void *dst, const void *src, uint64_t len)
@@ -893,6 +900,13 @@ extern HcclResult HcclReportAivKernel(HcclComm comm, uint64_t beginTime)
     CHK_RET(hcclCommDfx->AddTaskInfoCallback(streamId, taskId, taskParam, INVALID_U64));
     HCCL_INFO("[HcclReportAivKernel] HcclReportAivKernel sucess");
     return HCCL_SUCCESS;
+}
+
+int32_t HcommChannelNotifyWaitOnThreadWithDefaultTimeout(ThreadHandle thread, ChannelHandle channel, uint32_t localNotifyIdx)
+{
+    HCCL_ERROR("[%s] thread[0x%llx], channel[0x%llx], localNotifyIdx[%u] not support in cpu.",
+                __func__, thread, channel, localNotifyIdx);
+    return HCCL_E_NOT_SUPPORT;
 }
 
 int32_t HcommThreadNotifyWaitOnThreadWithDefaultTimeout(ThreadHandle thread, uint32_t notifyIdx)
