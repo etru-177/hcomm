@@ -121,7 +121,8 @@ HcclResult CollAlltoAllExecutor::CalcResRequest(const OpParam& param, AlgResourc
     // CalcScratchMemSize走OP_BASE分支正确计算scratch
     // CalcCommInfo走OP_BASE分支设outputMemType为CCL_OUTPUT而非SCRATCH
     // 避免transport因scratch未分配而拿到nullptr
-    const bool needForceOpBase = param.aicpuUnfoldMode && !param.isZeroCopy;
+    // AIV executor有独立的资源计算逻辑，不需要force OP_BASE
+    const bool needForceOpBase = param.aicpuUnfoldMode && !param.isZeroCopy && !desc_.isAivMode;
     HCCL_INFO("[CollAlltoAllExecutor][CalcResRequest] aicpuUnfoldMode[%d] isZeroCopy[%d] "
         "needForceOpBase[%d] workflowMode[%d] tag[%s]",
         param.aicpuUnfoldMode, param.isZeroCopy, needForceOpBase,
