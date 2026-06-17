@@ -173,6 +173,7 @@ protected:
         hccl::BufferKey<uintptr_t, u64> tempKey(refBufferInfo.first, refBufferInfo.second);
         // Del returns false when ref remains nonzero; local unregister still succeeds after erasing this handle.
         EXCEPTION_CATCH((void)mgr->Del(tempKey), return HCCL_E_NOT_FOUND);
+
         // 无论tree中是否删除（ref是否归零），当前handle都要从allBuffers移除
         auto it = std::find_if(allBuffers.begin(), allBuffers.end(),
             [buffer](const std::shared_ptr<RmaBuffer>& ptr) { return ptr.get() == buffer; });

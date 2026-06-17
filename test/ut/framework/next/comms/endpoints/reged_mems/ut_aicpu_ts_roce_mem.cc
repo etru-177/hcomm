@@ -25,7 +25,11 @@ using namespace hcomm;
 
 class AicpuTsRoceRegedMemMgrTest : public testing::Test {
 protected:
-    void TearDown() override { GlobalMockObject::verify(); }
+    void TearDown() override
+    {
+        GlobalMockObject::verify();
+        GlobalMockObject::reset();
+    }
 };
 
 TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_RegisterMemory_When_NetDevNull_Returns_E_PTR)
@@ -160,6 +164,12 @@ TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_RegisterMemory_WithNetDev_MockLocalRdmaIni
 
     void *h2 = nullptr;
     EXPECT_EQ(mgr.RegisterMemory(mem, "t", &h2), HCCL_SUCCESS);
+    EXPECT_NE(h2, h1);
+    auto *aliasBuffer = static_cast<hccl::LocalRdmaRmaBuffer *>(h2);
+    EXPECT_TRUE(aliasBuffer->IsAlias());
+
+    EXPECT_EQ(mgr.UnregisterMemory(h2), HCCL_SUCCESS);
+    EXPECT_EQ(mgr.UnregisterMemory(h1), HCCL_SUCCESS);
 }
 
 TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_RegisterMemory_When_LocalRdmaInitFails_Returns_Error)

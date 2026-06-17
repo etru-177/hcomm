@@ -23,7 +23,7 @@ LocalIpcRmaBuffer::LocalIpcRmaBuffer(const HcclNetDevCtx netDevCtx, void* addr, 
     : RmaBuffer(netDevCtx, addr, size, memType, RmaType::IPC_RMA, true)
 {
     pimpl_ = std::make_unique<LocalIpcRmaBufferImpl>(netDevCtx, addr, size, memType, *parent.pimpl_);
-    this->devAddr = this->addr;
+    this->devAddr = pimpl_->GetDevAddr();
     HCCL_INFO("[LocalIpcRmaBuffer] alias constructor");
 }
 

@@ -93,18 +93,18 @@ public:
                 return std::make_pair(true, prevIt->second.buffer);
             }
             if (it != intervalTree_.end()) {
-                HCCL_ERROR("Key[%s] not found. The near key is [%s] or [%s].",
+                HCCL_WARNING("Key[%s] not found. The near key is [%s] or [%s].",
                     key.ToString().c_str(), it->first.ToString().c_str(), prevIt->first.ToString().c_str());
             } else {
-                HCCL_ERROR("Key[%s] not found. The near key is [%s]",
+                HCCL_WARNING("Key[%s] not found. The near key is [%s]",
                     key.ToString().c_str(), prevIt->first.ToString().c_str());
             }
         } else {
             if (it != intervalTree_.end()) {
-                HCCL_ERROR("Key[%s] not found. The near key is [%s]",
+                HCCL_WARNING("Key[%s] not found. The near key is [%s]",
                     key.ToString().c_str(), it->first.ToString().c_str());
             } else {
-                HCCL_ERROR("Key[%s] not found. There is no key in table.",
+                HCCL_WARNING("Key[%s] not found. There is no key in table.",
                     key.ToString().c_str());            
             }
         }

@@ -86,24 +86,6 @@ void AicpuTsRoceRegedMemMgr::TrackRegisteredBuffer(const std::shared_ptr<hccl::L
     hcclBufRecords_.push_back(rec);
 }
 
-HcclResult AicpuTsRoceRegedMemMgr::GetOrCreateLocalRdmaRmaBuffer(hccl::NetDevContext *netDevCtx, HcommMem mem,
-    hccl::BufferKey<uintptr_t, u64> tempKey, std::shared_ptr<hccl::LocalRdmaRmaBuffer> &localRdmaRmaBuffer)
-{
-    hccl::RmaMemType memType = static_cast<hccl::RmaMemType>(mem.type);
-    auto findPair = localRdmaRmaBufferMgr_->Find(tempKey);
-    if (findPair.first) {
-        localRdmaRmaBuffer = findPair.second;
-        HCCL_INFO("[AicpuTsRoceRegedMemMgr][RegisterMemory] Find hit, reuse buffer mgr entry key {%p, %llu}",
-            mem.addr, mem.size);
-        return HCCL_SUCCESS;
-    }
-    HCCL_INFO("[AicpuTsRoceRegedMemMgr][RegisterMemory] Find miss, construct LocalRdmaRmaBuffer key {%p, %llu} type[%u]",
-        mem.addr, mem.size, static_cast<unsigned int>(mem.type));
-    EXCEPTION_CATCH((localRdmaRmaBuffer = std::make_shared<hccl::LocalRdmaRmaBuffer>(netDevCtx, mem.addr,
-        static_cast<u64>(mem.size), memType)), return HCCL_E_PTR);
-    return HCCL_SUCCESS;
-}
-
 HcclResult AicpuTsRoceRegedMemMgr::RegisterMemory(HcommMem mem, const char *memTag, void **memHandle)
 {
     (void)memTag;
@@ -123,7 +105,6 @@ HcclResult AicpuTsRoceRegedMemMgr::RegisterMemory(HcommMem mem, const char *memT
     auto findPair = localRdmaRmaBufferMgr_->Find(tempKey);
 
     std::shared_ptr<hccl::LocalRdmaRmaBuffer> localRdmaRmaBuffer;
-
     if (findPair.first) {
         auto parentBuffer = findPair.second;
         EXCEPTION_CATCH((localRdmaRmaBuffer = std::make_shared<hccl::LocalRdmaRmaBuffer>(

@@ -23,7 +23,7 @@ LocalRdmaRmaBuffer::LocalRdmaRmaBuffer(const HcclNetDevCtx netDevCtx, void* addr
     : RmaBuffer(netDevCtx, addr, size, memType, RmaType::RDMA_RMA, true)
 {
     pimpl_ = std::make_unique<LocalRdmaRmaBufferImpl>(netDevCtx, addr, size, memType, parent.GetImpl());
-    this->devAddr = this->addr;
+    this->devAddr = pimpl_->GetDevAddr();
     HCCL_INFO("[LocalRdmaRmaBuffer] alias constructor, lkey[%u]", GetKey());
 }
 

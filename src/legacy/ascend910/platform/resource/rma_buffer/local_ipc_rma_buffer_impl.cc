@@ -17,6 +17,16 @@
 #include "mem_mapping_manager.h"
 
 namespace hccl {
+namespace {
+void *GetAliasDevAddr(void *addr, const LocalIpcRmaBufferImpl &parent)
+{
+    const uintptr_t childAddr = reinterpret_cast<uintptr_t>(addr);
+    const uintptr_t parentAddr = reinterpret_cast<uintptr_t>(parent.GetAddr());
+    const uintptr_t parentDevAddr = reinterpret_cast<uintptr_t>(parent.GetDevAddr());
+    return reinterpret_cast<void *>(parentDevAddr + (childAddr - parentAddr));
+}
+}
+
 LocalIpcRmaBufferImpl::LocalIpcRmaBufferImpl(
     const HcclNetDevCtx netDevCtx, void* addr, u64 size, const RmaMemType memType)
     : RmaBuffer(netDevCtx, addr, size, memType, RmaType::IPC_RMA)
@@ -29,6 +39,7 @@ LocalIpcRmaBufferImpl::LocalIpcRmaBufferImpl(const HcclNetDevCtx netDevCtx, void
       deviceLogicId(parent.deviceLogicId), memName(parent.memName),
       memOffset(parent.memOffset), initialized_(true)
 {
+    devAddr = GetAliasDevAddr(addr, parent);
     HCCL_INFO("[LocalIpcRmaBufferImpl] alias constructor, ipcName[%s]", memName.ipcName);
 }
 
