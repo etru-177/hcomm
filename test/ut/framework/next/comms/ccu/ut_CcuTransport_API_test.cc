@@ -222,7 +222,7 @@ TEST_F(CcuTransportTest, ut_CcuTransport_BufferInfoUnpack_When_Normal_Expect_Ret
 
     HcclResult ret = ccuTransport->BufferInfoUnpack(binaryStream);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    EXPECT_EQ(ccuTransport->rmtbufferVec_.size(), rmtBufferNum);
+    EXPECT_EQ(ccuTransport->rmtBufferVec_.size(), rmtBufferNum);
 }
 
 TEST_F(CcuTransportTest, ut_BuildCcuConnection_When_CtpAndRtp_Expect_QosPropagated)

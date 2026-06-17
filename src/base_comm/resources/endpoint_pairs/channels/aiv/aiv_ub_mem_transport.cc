@@ -151,7 +151,7 @@ HcclResult AivUbMemTransport::SendDataSize()
     HCCL_INFO("[%s] start", __func__);
 
     Hccl::BinaryStream binaryStream;
-    BufferPack(binaryStream, localRmaBufferVec_);
+    CHK_RET(BufferPack(binaryStream, localRmaBufferVec_));
 
     binaryStream.Dump(sendData_);
     u32 sendSize = sendData_.size();
@@ -296,7 +296,7 @@ HcclResult AivUbMemTransport::UpdateMemInfo(HcommMemHandle *memHandles, uint32_t
     HCCL_INFO("[AivUbMemTransport][UpdateMemInfo] bufferNum[%zu]", locMemTemp_.size());
     sendData_.clear();
     Hccl::BinaryStream sendStream;
-    BufferPack(sendStream, locMemTemp_);
+    CHK_RET(BufferPack(sendStream, locMemTemp_));
     sendStream.Dump(sendData_);
     u32 sendSize = sendData_.size();
     EXCEPTION_HANDLE_BEGIN
