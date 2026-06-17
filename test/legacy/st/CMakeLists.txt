@@ -8,12 +8,6 @@
 # See LICENSE in the root of the software repository for the full text of the License.
 # -----------------------------------------------------------------------------------------------------------
 
-IF (DEFINED ENV{HCCL_LOCAL_BUILD})
-    cmake_minimum_required(VERSION 3.20.5)
-    project(hccl_v2_stest)
-    set(TOP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..)
-ENDIF ()
-
 set(HCCL_V2_CODE_ROOT ${TOP_DIR}/ace/comop/hccl/orion)
 set(HCCL_NEXT_CODE_ROOT ${TOP_DIR}/ace/comop/hccl/whole/hccl_next)
 set(HCCL_LLT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -84,39 +78,12 @@ target_compile_options(hccl_v2_stest PRIVATE
 add_subdirectory(fwk)
 add_subdirectory(test_case)
 
-IF(NOT DEFINED ENV{HCCL_LOCAL_BUILD})
-# 这两个文件夹内的代码没有适配ide，不支持在ide内运行
 add_subdirectory(service/collective/alg)
 add_subdirectory(otherFiles)
-ENDIF ()
 
-IF (DEFINED ENV{HCCL_LOCAL_BUILD})
-    target_include_directories(hccl_v2_stest PUBLIC
-        ${TOP_DIR}/ace/comop/inc/
-        ${TOP_DIR}/ace/comop/inc/hccl/
-        ${TOP_DIR}/ace/comop/inc/external/
-        ${TOP_DIR}/ace/comop/inc/external/hccl
-        ${TOP_DIR}/inc/external/
-    )
-
-    target_link_libraries(hccl_v2_stest PRIVATE
-            $<BUILD_INTERFACE:intf_pub>
-            $<BUILD_INTERFACE:hccl_headers>
-            hccl_st_fwk
-            hccl_headers
-            -lpthread
-    )
-else ()
-    target_link_libraries(hccl_v2_stest PRIVATE
-            $<BUILD_INTERFACE:intf_llt_pub>
-            $<BUILD_INTERFACE:hccl_headers>
-            -lrt
-            hccl_st_fwk
-            hccl_headers
-    )
-
-    run_llt_test(
-            TARGET hccl_v2_stest
-            TASK_NUM 1
-    )
-endif ()
+target_link_libraries(hccl_v2_stest PRIVATE
+        $<BUILD_INTERFACE:intf_llt_pub>
+        $<BUILD_INTERFACE:hccl_headers>
+        -lrt
+        hccl_st_fwk
+)
