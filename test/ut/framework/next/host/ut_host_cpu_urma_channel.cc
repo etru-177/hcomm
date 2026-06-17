@@ -97,7 +97,7 @@ TEST_F(HostCpuUrmaChannelTest, Ut_When_StartListen_Fail_Expect_Error)
     EXPECT_NE(impl->Init(), HCCL_SUCCESS);
 }
 
-TEST_F(HostCpuUrmaChannelTest, Ut_When_GetRemoteMem_Expect_Success)
+TEST_F(HostCpuUrmaChannelTest, Ut_When_GetRemoteMems_Expect_Success)
 {
     MOCKER(HcommEndpointStartListen).stubs().will(returnValue(static_cast<HcommResult>(HCCL_SUCCESS)));
     MOCKER(&Hccl::RdmaHandleManager::GetByAddr).stubs().will(returnValue(rdmaHandle_));
@@ -106,12 +106,12 @@ TEST_F(HostCpuUrmaChannelTest, Ut_When_GetRemoteMem_Expect_Success)
     auto impl = std::make_unique<HostCpuUrmaChannel>(endpointHandle, channelDesc);
     ASSERT_EQ(impl->Init(), HCCL_SUCCESS);
 
-    HcclMem* remoteMem = nullptr;
+    CommMem* remoteMem = nullptr;
     uint32_t memNum = 0;
-    char* memTags = nullptr;
-    // GetRemoteMem depends on memTransport_, which is initialized in Init()
+    char** memInfos = nullptr;
+    // GetRemoteMems depends on memTransport_, which is initialized in Init()
     // This test verifies the function can be called
-    EXPECT_NO_THROW(impl->GetRemoteMem(&remoteMem, &memNum, &memTags));
+    EXPECT_NO_THROW(impl->GetRemoteMems(&memNum, &remoteMem, &memInfos));
 }
 
 TEST_F(HostCpuUrmaChannelTest, Ut_When_Clean_Expect_NotSupport)

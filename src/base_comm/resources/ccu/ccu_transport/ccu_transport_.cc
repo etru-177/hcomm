@@ -319,8 +319,7 @@ HcclResult CcuTransport::RecvDataProcess()
     CHK_RET(HandshakeMsgUnpack(binaryStream));
     CHK_RET(ConnInfoUnpackProc(binaryStream));
     CHK_RET(TransResUnpackProc(binaryStream));
-    rmtBufferInfos_.clear();
-    remoteUserMemTag_.clear();
+    rmtBufferVec_.clear();
     CHK_RET(BufferInfoUnpack(binaryStream));
     return HcclResult::HCCL_SUCCESS;
 }
@@ -455,8 +454,13 @@ HcclResult CcuTransport::BufferInfoUnpack(Hccl::BinaryStream &binaryStream)
     for (u32 pos = 0; pos < rmtBufferNum; ++pos) {
         CclBufferInfo rmtBufferInfo{};
         rmtBufferInfo.Unpack(binaryStream);
-        rmtBufferInfos_.push_back(rmtBufferInfo);
-        remoteUserMemTag_.push_back(rmtBufferInfo.memTag);
+        std::string memInfo(rmtBufferInfo.memInfo.data(), strnlen(rmtBufferInfo.memInfo.data(), HCCL_RES_TAG_MAX_LEN));
+        if (memInfo == "HcclBuffer") {
+            rmtHcclBufferInfo_ = rmtBufferInfo;
+        }
+        rmtBufferVec_.push_back(std::make_unique<Hccl::RemoteUbRmaBuffer>(reinterpret_cast<uintptr_t>(rmtBufferInfo.addr),
+            rmtBufferInfo.size, rmtBufferInfo.tokenId, rmtBufferInfo.tokenValue,
+            Hccl::CommMemTypeToHcclMemType(rmtBufferInfo.type), memInfo));
     }
     return HcclResult::HCCL_SUCCESS;
 }
@@ -605,7 +609,7 @@ HcclResult CcuTransport::GetLocBuffer(CclBufferInfo &bufferInfo, const uint32_t 
 HcclResult CcuTransport::GetRmtBuffer(CclBufferInfo &bufferInfo, const uint32_t &bufNum) const
 {
     (void)bufNum;
-    bufferInfo = rmtBufferInfos_[0];
+    bufferInfo = rmtHcclBufferInfo_;
     return HCCL_SUCCESS;
 }
 
@@ -648,21 +652,13 @@ void CcuTransport::Clean()
     ccuConnection_->Clean();
 }
 
-HcclResult CcuTransport::GetUserRemoteMem(CommMem **remoteMem, char ***memTags, uint32_t *memNum)
+HcclResult CcuTransport::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 {
     std::lock_guard<std::mutex> lock(remoteMemsMutex_);
-    uint32_t userMemCount = rmtBufferInfos_.size() - 1; // 默认 cclBuffer 数量为1，后续出现1的含义也是 cclBufferNum
-    auto cacheBuilder = [](Hccl::RemoteMemCtx<CclBufferInfo> &remoteMemCtx, uint32_t index) {
-        auto &rmtBuffer = remoteMemCtx.rmtBufferVec[index + 1];
-        remoteMemCtx.remoteUserMems[index].type = rmtBuffer.type;
-        remoteMemCtx.remoteUserMems[index].addr = reinterpret_cast<void *>(rmtBuffer.addr);
-        remoteMemCtx.remoteUserMems[index].size = rmtBuffer.size;
-    };
-    Hccl::RemoteMemCtx<CclBufferInfo> remoteMemCtx{
-        userMemCount, cacheValid_, rmtBufferInfos_, remoteUserMemTag_, remoteUserMems_, tagCopies_, tagPointers_,
-        cacheBuilder, remoteMem, memTags, memNum};
-    CHK_RET(Hccl::GetRemoteUserMem(remoteMemCtx));
-    return HcclResult::HCCL_SUCCESS;
+    Hccl::RemoteMemCtx<std::unique_ptr<Hccl::RemoteUbRmaBuffer>> remoteMemCtx{cacheValid_, rmtBufferVec_,
+        remoteUserMems_, memInfoCopies_, memInfoPointers_, remoteMem, memInfos, memNum};
+    CHK_RET(Hccl::GetRemoteUserMems(remoteMemCtx));
+    return HCCL_SUCCESS;
 }
 
 HcclResult CcuTransport::CheckSocketStatus()
@@ -727,7 +723,7 @@ HcclResult CcuTransport::UpdateMemInfo(std::vector<CcuTransport::CclBufferInfo> 
     Hccl::BinaryStream recvStream(recvData_);
     CHK_RET(BufferInfoUnpack(recvStream));
     locBufferInfos_.insert(locBufferInfos_.end(), bufferVecTemp.begin(), bufferVecTemp.end());
-    // 流程中已有新增内存数量判断，故执行到此位置一定存在新增内存，需要将标识置位false，使得再次调用GetUserRemoteMem时重新构造缓存
+    // 流程中已有新增内存数量判断，故执行到此位置一定存在新增内存，需要将标识置位false，使得再次调用GetRemoteMems时重新构造缓存
     cacheValid_ = false;
     return HcclResult::HCCL_SUCCESS;
 }

@@ -97,7 +97,7 @@ TEST_F(CcuUrmaChannelTest, Ut_BuildBufferInfos_When_LocalUbHandle_Expect_BufferI
     EXPECT_EQ(bufferInfos[0].tokenId, localRmaBuffer->GetTokenId());
     EXPECT_EQ(bufferInfos[0].tokenValue, localRmaBuffer->GetTokenValue());
     EXPECT_EQ(bufferInfos[0].type, COMM_MEM_TYPE_HOST);
-    EXPECT_EQ(std::string(bufferInfos[0].memTag.data()), rawBuffer->GetMemTag());
+    EXPECT_EQ(std::string(bufferInfos[0].memInfo.data()), rawBuffer->GetMemInfo());
 }
 
 TEST_F(CcuUrmaChannelTest, Ut_GetStatus_DfxInfo_TEST) {

@@ -132,28 +132,28 @@ TEST_F(TestChannelProcess, Ut_TestSaveChannels_When_ChannelNumZero_Return_HCCL_E
     EXPECT_EQ(ret, HCCL_E_PARA);
 }
 
-// ChannelGetUserRemoteMem 空指针测试
-TEST_F(TestChannelProcess, Ut_TestChannelGetUserRemoteMem_When_RemoteMemNullptr_Return_HCCL_E_PTR)
+// ChannelGetRemoteMems 空指针测试
+TEST_F(TestChannelProcess, Ut_TestChannelGetRemoteMems_When_RemoteMemNullptr_Return_HCCL_E_PTR)
 {
-    char** memTag = nullptr;
+    char** memInfos = nullptr;
     uint32_t memNum = 0;
-    HcclResult ret = hcomm::ChannelProcess::ChannelGetUserRemoteMem(0, nullptr, &memTag, &memNum);
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetRemoteMems(0, &memNum, nullptr, &memInfos);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
-TEST_F(TestChannelProcess, Ut_TestChannelGetUserRemoteMem_When_MemTagNullptr_Return_HCCL_E_PTR)
+TEST_F(TestChannelProcess, Ut_TestChannelGetRemoteMems_When_MemInfosNullptr_Return_HCCL_E_PTR)
 {
     CommMem* remoteMem = nullptr;
     uint32_t memNum = 0;
-    HcclResult ret = hcomm::ChannelProcess::ChannelGetUserRemoteMem(0, &remoteMem, nullptr, &memNum);
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetRemoteMems(0, &memNum, &remoteMem, nullptr);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
-TEST_F(TestChannelProcess, Ut_TestChannelGetUserRemoteMem_When_MemNumNullptr_Return_HCCL_E_PTR)
+TEST_F(TestChannelProcess, Ut_TestChannelGetRemoteMems_When_MemNumNullptr_Return_HCCL_E_PTR)
 {
     CommMem* remoteMem = nullptr;
-    char** memTag = nullptr;
-    HcclResult ret = hcomm::ChannelProcess::ChannelGetUserRemoteMem(0, &remoteMem, &memTag, nullptr);
+    char** memInfos = nullptr;
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetRemoteMems(0, nullptr, &remoteMem, &memInfos);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
@@ -202,7 +202,7 @@ TEST_F(TestChannelProcess, Ut_LaunchChannelKernel_When_ChannelKindIsUBOE_CallsCh
         HcclResult GetNotifyNum(uint32_t *notifyNum) const override {
             return HCCL_SUCCESS;
         }
-        HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags) override {
+        HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override {
             return HCCL_SUCCESS;
         }
         hcomm::ChannelStatus GetStatus() override {

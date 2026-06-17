@@ -64,7 +64,6 @@ protected:
         MOCKER_CPP(&Hccl::SocketManager::GetConnectedSocket).stubs().with(any()).will(returnValue((Hccl::Socket*)0xab));
         MOCKER_CPP(&hccl::CommMems::GetTagMemoryHandles).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
         MOCKER_CPP(&hcomm::EndpointMgr::RegisterMemory).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
-        MOCKER_CPP(&hccl::CommMems::SetMemHandles).stubs().with(any()).will(returnValue(HCCL_SUCCESS));
         MOCKER(HcommCcuInsCreate).stubs().with(any()).will(returnValue(CcuResult::CCU_SUCCESS));
         MOCKER_CPP(&hccl::MyRank::TryInitCcuInstance).stubs().will(returnValue(HCCL_SUCCESS));
     }
@@ -517,9 +516,29 @@ TEST_F(MyRankTest, St_BatchCreateChannels_Multi_Times_When_fallback_Expect_Retur
     EXPECT_EQ(endpointPair2->channelHandles_[COMM_ENGINE_CCU].size(), 1);
 }
 
-TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_Normal_Expect_SUCCESS)
+TEST_F(MyRankTest, Ut_When_ChannelGetHcclBuffer_NoBuffer_Expect_HCCL_E_INTERNAL)
 {
-    MOCKER(hcomm::ChannelProcess::ChannelGetUserRemoteMem)
+    MOCKER(hcomm::ChannelProcess::ChannelGetRemoteMems)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    aclrtBinHandle binHandle;
+    CommConfig config;
+    ManagerCallbacks callbacks;
+    void* rankGraphPtr = (void*)0x114514;
+    std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
+    MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
+
+    ChannelHandle channel = 0x12345;
+    void *buffer = nullptr;
+    uint64_t size = 0;
+    HcclResult ret = myRank.ChannelGetHcclBuffer(channel, &buffer, &size);
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMems_Normal_Expect_SUCCESS)
+{
+    MOCKER(hcomm::ChannelProcess::ChannelGetRemoteMems)
         .stubs()
         .will(returnValue(HCCL_SUCCESS));
 
@@ -532,13 +551,13 @@ TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_Normal_Expect_SUCCESS)
 
     ChannelHandle channel = 0x12345;
     CommMem* remoteMem = nullptr;
-    char** memTag = nullptr;
+    char** memInfo = nullptr;
     uint32_t memNum = 0;
-    HcclResult ret = myRank.ChannelGetRemoteMem(channel, &remoteMem, &memTag, &memNum);
+    HcclResult ret = myRank.ChannelGetRemoteMems(channel, &memNum, &remoteMem, &memInfo);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
 
-TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_RemoteMemNull_Expect_E_PTR)
+TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMems_RemoteMemNull_Expect_E_PTR)
 {
     aclrtBinHandle binHandle;
     CommConfig config;
@@ -548,13 +567,13 @@ TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_RemoteMemNull_Expect_E_PTR)
     MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
 
     ChannelHandle channel = 0x12345;
-    char** memTag = nullptr;
+    char** memInfo = nullptr;
     uint32_t memNum = 0;
-    HcclResult ret = myRank.ChannelGetRemoteMem(channel, nullptr, &memTag, &memNum);
+    HcclResult ret = myRank.ChannelGetRemoteMems(channel, &memNum, nullptr, &memInfo);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
-TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_MemTagNull_Expect_E_PTR)
+TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMems_MemInfoNull_Expect_E_PTR)
 {
     aclrtBinHandle binHandle;
     CommConfig config;
@@ -566,11 +585,11 @@ TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_MemTagNull_Expect_E_PTR)
     ChannelHandle channel = 0x12345;
     CommMem* remoteMem = nullptr;
     uint32_t memNum = 0;
-    HcclResult ret = myRank.ChannelGetRemoteMem(channel, &remoteMem, nullptr, &memNum);
+    HcclResult ret = myRank.ChannelGetRemoteMems(channel, &memNum, &remoteMem, nullptr);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
-TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_MemNumNull_Expect_E_PTR)
+TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMems_MemNumNull_Expect_E_PTR)
 {
     aclrtBinHandle binHandle;
     CommConfig config;
@@ -581,38 +600,9 @@ TEST_F(MyRankTest, Ut_When_ChannelGetRemoteMem_MemNumNull_Expect_E_PTR)
 
     ChannelHandle channel = 0x12345;
     CommMem* remoteMem = nullptr;
-    char** memTag = nullptr;
-    HcclResult ret = myRank.ChannelGetRemoteMem(channel, &remoteMem, &memTag, nullptr);
+    char** memInfo = nullptr;
+    HcclResult ret = myRank.ChannelGetRemoteMems(channel, nullptr, &remoteMem, &memInfo);
     EXPECT_EQ(ret, HCCL_E_PTR);
-}
-
-TEST_F(MyRankTest, ut_SetMemHandles_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
-{
-    aclrtBinHandle binHandle;
-    CommConfig config;
-    ManagerCallbacks callbacks;
-    void* rankGraphPtr = (void*)0x114514;
-    std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
-    MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    myRank.commMems_ = std::make_unique<CommMems>((uint64_t)0x100);
-
-    CommMemInfo memInfo = CommMemInfo{};
-    std::vector<CommMemInfo*> mems{};
-    mems.push_back(&memInfo);
-    void **memHandles = reinterpret_cast<void**>(mems.data());
-    std::vector<MemHandle> memHandleVec{};
-    memHandleVec.emplace_back((void*)0x100);
-    memHandleVec.emplace_back((void*)0x101);
-
-    std::vector<MemHandle> commMemHandleVec{};
-    HcclResult ret = myRank.commMems_->SetMemHandles(memHandles, memHandleVec, commMemHandleVec);
-    EXPECT_EQ(ret, HCCL_SUCCESS);
-    CommMemInfo** handles = reinterpret_cast<CommMemInfo**>(memHandles);
-    EXPECT_EQ(handles[0]->bufferHandle, (void*)0x101);
-    auto memInfo0 = static_cast<CommMemInfo*>(commMemHandleVec[0]);
-    auto memInfo1 = static_cast<CommMemInfo*>(commMemHandleVec[1]);
-    EXPECT_EQ(memInfo0->bufferHandle, (void*)0x100);
-    EXPECT_EQ(memInfo1->bufferHandle, (void*)0x101);
 }
 
 TEST_F(MyRankTest, Ut_ChannelDescHccl2Hcomm_When_UbcCtp_Sets_CommDomainQos_FromCommConfig)

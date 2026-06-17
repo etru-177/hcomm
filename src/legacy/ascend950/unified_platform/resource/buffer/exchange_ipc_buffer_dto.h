@@ -24,25 +24,25 @@ public:
     {
     }
 
-    ExchangeIpcBufferDto(u64 addr, u64 size, u64 offset, u32 pid, const char *memTag) : addr(addr), size(size), offset(offset), pid(pid), memTag(memTag)
+    ExchangeIpcBufferDto(u64 addr, u64 size, u64 offset, u32 pid, const char *memInfo) : addr(addr), size(size), offset(offset), pid(pid), memInfo(memInfo)
     {
     }
 
     void Serialize(Hccl::BinaryStream &stream) override
     {
-        stream << addr << size << offset << pid << name << memTag;
+        stream << addr << size << offset << pid << name << memInfo;
     }
 
     void Deserialize(Hccl::BinaryStream &stream) override
     {
-        stream >> addr >> size >> offset >> pid >> name >> memTag;
+        stream >> addr >> size >> offset >> pid >> name >> memInfo;
     }
 
     std::string Describe() const override
     {
         std::string strName(name, name + RTS_IPC_MEM_NAME_LEN);
-        return StringFormat("ExchangeIpcBufferDto[addr=0x%llx, size=0x%llx, offset=0x%llx, pid=%u, name=%s, memTag=%s]", addr, size,
-                            offset, pid, strName.c_str(), memTag.c_str());
+        return StringFormat("ExchangeIpcBufferDto[addr=0x%llx, size=0x%llx, offset=0x%llx, pid=%u, name=%s, memInfo=%s]", addr, size,
+                            offset, pid, strName.c_str(), memInfo.c_str());
     }
 
     u64    addr{0};
@@ -50,7 +50,7 @@ public:
     u64    offset{0};
     u32    pid{0};
     char_t name[RTS_IPC_MEM_NAME_LEN]{0};
-    std::string memTag{""};
+    std::string memInfo{""};
 };
 
 } // namespace Hccl

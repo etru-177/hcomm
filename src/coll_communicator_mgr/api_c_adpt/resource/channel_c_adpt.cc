@@ -137,7 +137,7 @@ HcclResult HcclChannelGetRemoteMems(HcclComm comm, ChannelHandle channel, uint32
             CHK_PTR_NULL(collComm);
             auto myRank = collComm->GetMyRank();
             CHK_PTR_NULL(myRank);
-            CHK_RET(myRank->ChannelGetRemoteMem(channel, remoteMems, memTags, memNum));
+            CHK_RET(myRank->ChannelGetRemoteMems(channel, memNum, remoteMems, memTags));
             return HCCL_SUCCESS;
         }());
 #endif

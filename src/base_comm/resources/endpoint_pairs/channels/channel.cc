@@ -118,11 +118,6 @@ ChannelStatus Channel::TransportStatusToChannelStatus(Hccl::TransportStatus ts)
     }
 }
 
-HcclResult Channel::GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum)
-{
-    return HCCL_SUCCESS;
-}
-
 HcclResult Channel::UpdateMemInfo(HcommMemHandle *memHandles, uint32_t memHandleNum)
 {
     HCCL_WARNING("[UpdateMemInfo] not support.");

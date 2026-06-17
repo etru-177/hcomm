@@ -39,8 +39,7 @@ public:
 
     HcclResult Init() override;
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;
-    HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char** memTags) override;
-    HcclResult GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum) override;
+    HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     ChannelStatus GetStatus() override;
     HcclResult GetStatus(ChannelStatus &status);
     HcclResult ProcessStatus();
@@ -149,17 +148,15 @@ private:
     std::vector<uint32_t> remoteDpuNotifyIds_;
     std::vector<std::unique_ptr<Hccl::RemoteRdmaRmaBuffer>> rmtRmaBuffers_{};
     std::vector<ExchangeRdmaConnDto> rmtConnDtos_;
-    std::vector<std::unique_ptr<HcclMem>> remoteMems{};
     std::vector<int> wqeNums_;
     bool fenceFlag_{false};
     std::mutex      remoteMemsMutex_; // 远端内存列表互斥锁
-    std::unique_ptr<HcclMem[]> remoteMemsPtr_;
 
-    // GetUserRemoteMem 缓存
-    bool userRemoteMemCacheValid_{false};
+    // GetRemoteMems 缓存
+    bool cacheValid_{false};
     std::vector<CommMem> userRemoteMems_;
-    std::vector<std::string> tagCopies_;
-    std::vector<char*> tagPointers_;
+    std::vector<std::string> memInfoCopies_;
+    std::vector<char*> memInfoPointers_;
 
     uint64_t maxMsgSize_{0};
     uint32_t lbMax_{0};             // 多QP负载均衡

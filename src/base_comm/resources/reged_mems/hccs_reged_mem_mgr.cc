@@ -430,15 +430,15 @@ HcclResult HccsRegedMemMgr::GetAllMemHandles(void **memHandles, uint32_t *memHan
     return HCCL_SUCCESS;
 }
 
-HcclResult HccsRegedMemMgr::GetRemoteIpcRmaBuffer(std::vector<HcclMem> &remoteIpcRmaBufferVec)
+HcclResult HccsRegedMemMgr::GetRemoteIpcRmaBuffer(std::vector<CommMem> &remoteIpcRmaBufferVec)
 {
-    HcclMem mem;
+    CommMem mem;
     for (auto it = remoteIpcRmaBufferMgr_.Begin(); it != remoteIpcRmaBufferMgr_.End();) {
         const std::shared_ptr<hccl::RemoteIpcRmaBuffer> &remoteIpcRmaBuffer = it->second.buffer;
         mem.addr = remoteIpcRmaBuffer->GetAddr();
         mem.size = remoteIpcRmaBuffer->GetSize();
-        mem.type = remoteIpcRmaBuffer->GetMemType() == RmaMemType::DEVICE ? HcclMemType::HCCL_MEM_TYPE_DEVICE :
-            HcclMemType::HCCL_MEM_TYPE_HOST;
+        mem.type = remoteIpcRmaBuffer->GetMemType() == RmaMemType::DEVICE ? CommMemType::COMM_MEM_TYPE_DEVICE :
+            CommMemType::COMM_MEM_TYPE_HOST;
         remoteIpcRmaBufferVec.emplace_back(mem);
         HCCL_INFO("[HccsRegedMemMgr][GetRemoteIpcRmaBuffer]remote addr:%p, size[%lu], type[%u]",
             mem.addr, mem.size, static_cast<u32>(mem.type));

@@ -47,9 +47,9 @@ public:
         return memType;
     }
 
-    inline const std::string GetMemTag() const
+    inline const std::string GetMemInfo() const
     {
-        return memTag;
+        return memInfo;
     }
 
     u64 GetMemHandle() const
@@ -64,7 +64,7 @@ protected:
     u64         size{0};
     RmaType     rmaType;
     HcclMemType memType;
-    std::string memTag;
+    std::string memInfo;
     u64         memHandle{0};
 };
 
@@ -132,6 +132,9 @@ class RemoteUbRmaBuffer : public RemoteRmaBuffer {
 public:
     explicit RemoteUbRmaBuffer(RdmaHandle rdmaHandle);
 
+    RemoteUbRmaBuffer(uintptr_t addr, u64 size, u32 tokenId, u32 tokenValue, HcclMemType memType,
+        const std::string &memInfo);
+
     RemoteUbRmaBuffer(RdmaHandle rdmaHandle1, const Serializable &rmtDto);
 
     ~RemoteUbRmaBuffer() override;
@@ -160,8 +163,8 @@ public:
 private:
     RdmaHandle rdmaHandle{nullptr};
     u8         key[HRT_UB_MEM_KEY_MAX_LEN]{0};
-    u32        tokenValue{0};
     u32        tokenId{0};
+    u32        tokenValue{0};
     u32        keySize{0};
     u64        segVa{0};
 };

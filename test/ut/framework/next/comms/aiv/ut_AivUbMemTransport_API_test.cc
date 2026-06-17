@@ -125,42 +125,48 @@ protected:
         return std::make_shared<Hccl::LocalIpcRmaBuffer>(buf);
     }
 
-    std::array<char, HCCL_RES_TAG_MAX_LEN> BuildMemTagArray(const std::string &tag)
-    {
-        std::array<char, HCCL_RES_TAG_MAX_LEN> memTag{};
-        memcpy_s(memTag.data(), memTag.size(), tag.c_str(), tag.size());
-        return memTag;
-    }
-
     Hccl::Socket *fakeSocket_;
 };
 
-TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_GetUserRemoteMem_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
+TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_GetRemoteMems_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
 {
     HcommChannelDesc desc{};
     auto aivTransport = CreateAivTransport(desc);
-    aivTransport->rmtBufferVec_.push_back(std::make_unique<Hccl::RemoteIpcRmaBuffer>());
     auto rmtBuffer1 = std::make_unique<Hccl::RemoteIpcRmaBuffer>();
     rmtBuffer1->addr = (uintptr_t)0x101;
     rmtBuffer1->size = (u64)0x101;
     rmtBuffer1->memType = HcclMemType::HCCL_MEM_TYPE_HOST;
+    rmtBuffer1->memInfo = "buffer1";
     aivTransport->rmtBufferVec_.push_back(std::move(rmtBuffer1));
-
-    aivTransport->remoteUserMemTag_.push_back(BuildMemTagArray("cclBuffer"));
-    aivTransport->remoteUserMemTag_.push_back(BuildMemTagArray("buffer1"));
+    aivTransport->rmtRmaBufferVec_.push_back(aivTransport->rmtBufferVec_.back().get());
 
     CommMem *remoteMems;
-    char **memTags;
+    char **memInfos;
     u32 memNum;
-    HcclResult ret = aivTransport->GetUserRemoteMem(&remoteMems, &memTags, &memNum);
+    HcclResult ret = aivTransport->GetRemoteMems(&memNum, &remoteMems, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    EXPECT_EQ(std::string(memTags[0]), "buffer1");
-    EXPECT_EQ(remoteMems[0].type, HcclMemType::HCCL_MEM_TYPE_HOST);
+    EXPECT_EQ(memNum, 1U);
+    EXPECT_EQ(std::string(memInfos[0]), "buffer1");
+    EXPECT_EQ(remoteMems[0].type, CommMemType::COMM_MEM_TYPE_HOST);
     EXPECT_EQ(remoteMems[0].addr, (void *)0x101);
     EXPECT_EQ(remoteMems[0].size, (uint64_t)0x101);
 }
 
-TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_GetUserRemoteMem_When_bufferNumIs0_Expect_ReturnIsHCCL_E_PARA)
+TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_GetRemoteMems_When_bufferNumIs0_Expect_ReturnIsHCCL_SUCCESS)
+{
+    HcommChannelDesc desc{};
+    auto aivTransport = CreateAivTransport(desc);
+    CommMem *remoteMems = nullptr;
+    char **memInfos = nullptr;
+    u32 memNum = 1;
+    HcclResult ret = aivTransport->GetRemoteMems(&memNum, &remoteMems, &memInfos);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(memNum, 0U);
+    EXPECT_EQ(remoteMems, nullptr);
+    EXPECT_EQ(memInfos, nullptr);
+}
+
+TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_Init_When_bufferNumIs0_Expect_ReturnIsHCCL_E_PARA)
 {
     HcommChannelDesc desc{};
     desc.memHandleNum = 0;
@@ -175,10 +181,7 @@ TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_UpdateMemInfo_When_Normal_Exp
     auto aivTransport = CreateAivTransport(desc);
     auto initMockBuffer = CreateLocalIpcRmaBuffer(0x100, 0x100, HCCL_MEM_TYPE_DEVICE, "initBuffer");
     aivTransport->localRmaBufferVec_.push_back(initMockBuffer.get());
-    aivTransport->localUserMemTag_.push_back(BuildMemTagArray("initBuffer"));
-
     size_t initialVecSize = aivTransport->localRmaBufferVec_.size();
-    size_t initialTagSize = aivTransport->localUserMemTag_.size();
 
     // Normal case: GetAsyncStatus returns OK
     Hccl::SocketStatus okStatus = Hccl::SocketStatus::OK;
@@ -199,11 +202,6 @@ TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_UpdateMemInfo_When_Normal_Exp
     EXPECT_EQ(aivTransport->localRmaBufferVec_.size(), initialVecSize + 2);
     EXPECT_EQ(aivTransport->localRmaBufferVec_[initialVecSize], mockBuffer1.get());
     EXPECT_EQ(aivTransport->localRmaBufferVec_[initialVecSize + 1], mockBuffer2.get());
-    EXPECT_EQ(aivTransport->localUserMemTag_.size(), initialTagSize + 2);
-    EXPECT_EQ(std::string(aivTransport->localUserMemTag_[initialTagSize].data()),
-        mockBuffer1->GetBuf()->GetMemTag());
-    EXPECT_EQ(std::string(aivTransport->localUserMemTag_[initialTagSize + 1].data()),
-        mockBuffer2->GetBuf()->GetMemTag());
 }
 
 TEST_F(AivUbMemTransportTest, ut_AivUbMemTransport_UpdateMemInfo_When_SocketTimeout_Expect_ReturnIsHCCL_E_TIMEOUT)

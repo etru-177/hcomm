@@ -29,24 +29,13 @@
 #include "../../../../../legacy/ascend910/platform/resource/notify/notify_pool_impl.h"
 #include "../../../../../base_comm/resources/hccp/inc/network/hccp_common.h"
 #include "dlprof_function.h"
+#include "user_remote_mem_getter.h"
 
 namespace hcomm {
 constexpr u32 FENCE_TIMEOUT_MS = 30 * 1000; // 定义最大等待30秒
 constexpr u32 MEM_BLOCK_SIZE = 128;
 constexpr uint16_t DEFAULT_LISTENING_PORT = 60001;
 constexpr u32 SEND_RQE_COUNT = 16;
-
-static inline CommMemType HcclMemTypeToCommMemType(HcclMemType type)
-{
-    switch (type) {
-        case HCCL_MEM_TYPE_DEVICE:
-            return COMM_MEM_TYPE_DEVICE;
-        case HCCL_MEM_TYPE_HOST:
-            return COMM_MEM_TYPE_HOST;
-        default:
-            return COMM_MEM_TYPE_INVALID;
-    }
-}
 
 HostCpuRoceChannel::HostCpuRoceChannel(EndpointHandle endpointHandle, HcommChannelDesc channelDesc)
     : endpointHandle_(endpointHandle), channelDesc_(channelDesc) {}
@@ -117,9 +106,9 @@ HcclResult HostCpuRoceChannel::ParseInputParam()
         HCCL_INFO("[HostCpuRoceChannel][%s] Got memHandleNum[%u].", __func__, memHandleNum);
         for (uint32_t i = 0; i < memHandleNum; ++i) {
             std::shared_ptr<Hccl::LocalRdmaRmaBuffer> &localRdmaBuffer = memHandles[i];
-            HCCL_INFO("[HostCpuRoceChannel][%s] Got memHandle No.%u: addr[0x%llx], size[0x%llx], memType[%d], memTag[%s].",
+            HCCL_INFO("[HostCpuRoceChannel][%s] Got memHandle No.%u: addr[0x%llx], size[0x%llx], memType[%d], memInfo[%s].",
                 __func__, i, static_cast<unsigned long long>(localRdmaBuffer->GetAddr()), static_cast<unsigned long long>(localRdmaBuffer->GetSize()),
-                static_cast<int>(localRdmaBuffer->GetBuf()->GetMemType()), localRdmaBuffer->GetBuf()->GetMemTag().c_str());
+                static_cast<int>(localRdmaBuffer->GetBuf()->GetMemType()), localRdmaBuffer->GetBuf()->GetMemInfo().c_str());
             localRmaBuffers_.emplace_back(localRdmaBuffer.get());
         }
     } else {
@@ -586,95 +575,12 @@ HcclResult HostCpuRoceChannel::ModifyQp() {
     return HCCL_SUCCESS;
 }
 
-HcclResult HostCpuRoceChannel::GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char** memTags)
+HcclResult HostCpuRoceChannel::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 {
-    CHK_PRT_RET(remoteMem == nullptr, HCCL_ERROR("[GetRemoteMem] remoteMem is nullptr"), HCCL_E_PTR);
-    CHK_PRT_RET(memNum == nullptr, HCCL_ERROR("[GetRemoteMem] memNum is nullptr"), HCCL_E_PTR);
-    CHK_PRT_RET(memTags == nullptr, HCCL_ERROR("[GetRemoteMem] memTags is nullptr"), HCCL_E_PTR);
- 
-    *remoteMem = nullptr;
-    *memNum = 0;
- 
     std::lock_guard<std::mutex> lock(remoteMemsMutex_);
- 
-    uint32_t totalCount = rmtRmaBuffers_.size();
-    if (totalCount == 0) {
-        HCCL_INFO("[GetRemoteMem] No remote memory regions available");
-        return HCCL_SUCCESS;
-    }
-    // 释放之前的内存
-    remoteMemsPtr_.reset();  
-    remoteMemsPtr_ = std::make_unique<HcclMem[]>(totalCount);
-    CHK_PTR_NULL(remoteMemsPtr_);
-
-    for (uint32_t i = 0; i < totalCount; i++) {
-        auto& rmtRmaBuffer = rmtRmaBuffers_[i];
-        remoteMemsPtr_[i].type = rmtRmaBuffer->GetMemType();
-        remoteMemsPtr_[i].addr = reinterpret_cast<void *>(rmtRmaBuffer->GetAddr());
-        remoteMemsPtr_[i].size = rmtRmaBuffer->GetSize();
-        memTags[i] = const_cast<char*>(rmtRmaBuffer->GetMemTag().c_str());
-        HCCL_INFO("[%s] addr[%p] size[%zu] rmtRmaBuffer[%p]", 
-            __func__, reinterpret_cast<void *>(rmtRmaBuffer->GetAddr()), rmtRmaBuffer->GetSize(), rmtRmaBuffer.get());
-    }
-
-    *memNum = totalCount;
-    *remoteMem = remoteMemsPtr_.get();
-    return HCCL_SUCCESS;
-}
-
-HcclResult HostCpuRoceChannel::GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum)
-{
-    CHK_PRT_RET(remoteMem == nullptr, HCCL_ERROR("[GetUserRemoteMem] remoteMem is nullptr"), HCCL_E_PTR);
-    CHK_PRT_RET(memTag == nullptr, HCCL_ERROR("[GetUserRemoteMem] memTag is nullptr"), HCCL_E_PTR);
-    CHK_PRT_RET(memNum == nullptr, HCCL_ERROR("[GetUserRemoteMem] memNum is nullptr"), HCCL_E_PTR);
-
-    *remoteMem = nullptr;
-    *memTag = nullptr;
-    *memNum = 0;
-
-    std::lock_guard<std::mutex> lock(remoteMemsMutex_);
-
-    if (rmtRmaBuffers_.size() <= 1) {
-        HCCL_INFO("[GetUserRemoteMem] No user remote memory found, rmtRmaBuffers_ size=%zu",
-            rmtRmaBuffers_.size());
-        return HCCL_SUCCESS;
-    }
-
-    uint32_t userMemCount = static_cast<uint32_t>(rmtRmaBuffers_.size() - 1);
-
-    if (!userRemoteMemCacheValid_) {
-        userRemoteMems_.resize(userMemCount);
-        tagCopies_.clear();
-        tagCopies_.reserve(userMemCount);
-        tagPointers_.clear();
-        tagPointers_.reserve(userMemCount);
-
-        for (uint32_t i = 0; i < userMemCount; ++i) {
-            auto &rmtBuffer = rmtRmaBuffers_[i + 1]; // skip cclBuffer at index 0
-            if (rmtBuffer == nullptr) {
-                userRemoteMems_[i].type = COMM_MEM_TYPE_INVALID;
-                userRemoteMems_[i].addr = nullptr;
-                userRemoteMems_[i].size = 0;
-                tagCopies_.emplace_back();
-                tagPointers_.push_back(const_cast<char *>(tagCopies_.back().c_str()));
-                continue;
-            }
-
-            userRemoteMems_[i].type = HcclMemTypeToCommMemType(rmtBuffer->GetMemType());
-            userRemoteMems_[i].addr = reinterpret_cast<void *>(rmtBuffer->GetAddr());
-            userRemoteMems_[i].size = rmtBuffer->GetSize();
-
-            tagCopies_.emplace_back(rmtBuffer->GetMemTag());
-            tagPointers_.push_back(const_cast<char *>(tagCopies_.back().c_str()));
-        }
-
-        userRemoteMemCacheValid_ = true;
-    }
-
-    *remoteMem = userRemoteMems_.data();
-    *memTag = tagPointers_.data();
-    *memNum = userMemCount;
-
+    Hccl::RemoteMemCtx<std::unique_ptr<Hccl::RemoteRdmaRmaBuffer>> remoteMemCtx{cacheValid_, rmtRmaBuffers_,
+        userRemoteMems_, memInfoCopies_, memInfoPointers_, remoteMem, memInfos, memNum};
+    CHK_RET(GetRemoteUserMems(remoteMemCtx));
     return HCCL_SUCCESS;
 }
 

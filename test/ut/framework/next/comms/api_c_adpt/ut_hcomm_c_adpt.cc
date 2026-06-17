@@ -129,30 +129,17 @@ TEST_F(HcommCAdptTest, ut_HcommChannelDestroy_When_Normal_Expect_Success)
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
 
-TEST_F(HcommCAdptTest, ut_HcommChannelGetRemoteMem_When_Normal_Expect_Success)
+TEST_F(HcommCAdptTest, ut_HcommChannelGetRemoteMems_When_Normal_Expect_Success)
 {
     ChannelHandle channelHandle = 0x12345;
     CommMem* remoteMem = nullptr;
     uint32_t memNum = 0;
-    char* memTagsStorage[2] = {nullptr, nullptr};
-    char** memTags = memTagsStorage;
-    MOCKER(ChannelProcess::ChannelGetRemoteMem)
+    char* memInfosStorage[2] = {nullptr, nullptr};
+    char** memInfos = memInfosStorage;
+    MOCKER(ChannelProcess::ChannelGetRemoteMems)
         .stubs()
         .will(returnValue(HCCL_SUCCESS));
-    HcommResult ret = HcommChannelGetRemoteMem(channelHandle, &remoteMem, &memNum, memTags);
-    EXPECT_EQ(ret, HCCL_SUCCESS);
-}
-
-TEST_F(HcommCAdptTest, ut_HcommChannelGetRemoteMems_When_Normal_Expect_Success)
-{
-    ChannelHandle channelHandle = 0x12345;
-    CommMem* remoteMems = nullptr;
-    char** memTags = nullptr;
-    uint32_t memNum = 0;
-    MOCKER(ChannelProcess::ChannelGetUserRemoteMem)
-        .stubs()
-        .will(returnValue(HCCL_SUCCESS));
-    HcommResult ret = HcommChannelGetRemoteMems(channelHandle, &memNum, &remoteMems, &memTags);
+    HcommResult ret = HcommChannelGetRemoteMems(channelHandle, &memNum, &remoteMem, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
 

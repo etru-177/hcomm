@@ -27,31 +27,31 @@ public:
     {
     }
 
-    ExchangeUbBufferDto(u64 addr, u64 size, HcclMemType memType, const char *memTag, u32 tokenValue, u32 tokenId, u32 keySize)
-        : addr(addr), size(size), memType(memType), memTag(memTag), tokenValue(tokenValue), tokenId(tokenId), keySize(keySize)
+    ExchangeUbBufferDto(u64 addr, u64 size, HcclMemType memType, const char *memInfo, u32 tokenValue, u32 tokenId, u32 keySize)
+        : addr(addr), size(size), memType(memType), memInfo(memInfo), tokenValue(tokenValue), tokenId(tokenId), keySize(keySize)
     {
     }
 
     void Serialize(Hccl::BinaryStream &stream) override
     {
-        stream << addr << size << memType << memTag << tokenValue << tokenId << keySize << key << segVa;
+        stream << addr << size << memType << memInfo << tokenValue << tokenId << keySize << key << segVa;
     }
 
     void Deserialize(Hccl::BinaryStream &stream) override
     {
-        stream >> addr >> size >> memType >> memTag >> tokenValue >> tokenId >> keySize >> key >> segVa;
+        stream >> addr >> size >> memType >> memInfo >> tokenValue >> tokenId >> keySize >> key >> segVa;
     }
 
     std::string Describe() const override
     {
         return StringFormat(
-            "ExchangeUbBufferDto[addr=0x%llx, size=0x%llx keySize=%u memTag %s]", addr, size, keySize, memTag.c_str());
+            "ExchangeUbBufferDto[addr=0x%llx, size=0x%llx keySize=%u memInfo %s]", addr, size, keySize, memInfo.c_str());
     }
 
     u64 addr{0};
     u64 size{0};
     HcclMemType memType;
-    std::string memTag;
+    std::string memInfo;
     u8  key[HRT_UB_MEM_KEY_MAX_LEN]{0};
     u32 tokenValue{0};
     u32 tokenId{0};

@@ -89,14 +89,11 @@ extern HcommResult HcommEndpointStopListen(EndpointHandle endpointHandle, uint32
 
 extern HcommResult HcommChannelGetNotifyNum(ChannelHandle channelHandle, uint32_t *notifyNum);
 
-extern HcommResult HcommChannelGetRemoteMems(ChannelHandle channel, uint32_t *memNum, CommMem **remoteMems, char ***memTags);
-
 extern HcommResult HcommMemGrant(EndpointHandle endpointHandle, const HcommMemGrantInfo *remoteGrantInfo);
 
 HcommResult HcommChannelGet(ChannelHandle channelHandle, void **channel);
 
-HcommResult HcommChannelGetRemoteMem(ChannelHandle channelHandle, CommMem **remoteMem, uint32_t *memNum,
-    char **memTags);
+HcommResult HcommChannelGetRemoteMems(ChannelHandle channelHandle, uint32_t *memNum, CommMem **remoteMem, char ***memInfos);
 
 HcommResult HcommChannelKernelLaunch(ChannelHandle *channelHandles, ChannelHandle *hostChannelHandles, uint32_t listNum,
     const std::string &commTag, aclrtBinHandle binHandle);

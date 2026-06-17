@@ -112,21 +112,3 @@ TEST_F(AivUbMemTransportTest, Ut_GetStatus_When_SocketReady_Fail_Expect_Status_I
 
     EXPECT_EQ(aivTransport.GetStatus(), Hccl::TransportStatus::INVALID);
 }
-TEST_F(AivUbMemTransportTest, Ut_FillTagVec_When_LocalIpcHandle_Expect_BufferAndTagCopied)
-{
-    Hccl::Socket *fakeSocket = reinterpret_cast<Hccl::Socket *>(0x1);
-    HcommChannelDesc desc{};
-    AivUbMemTransport aivTransport(fakeSocket, desc);
-
-    auto rawBuffer = std::make_shared<Hccl::Buffer>(0x45670, 0x300, HCCL_MEM_TYPE_DEVICE, "aiv_user");
-    auto localIpcRmaBuffer = std::make_shared<Hccl::LocalIpcRmaBuffer>(rawBuffer);
-    HcommMemHandle memHandles[1] = { reinterpret_cast<HcommMemHandle>(localIpcRmaBuffer.get()) };
-
-    std::vector<Hccl::LocalIpcRmaBuffer *> bufferVec;
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> tagVec;
-    ASSERT_EQ(aivTransport.FillTagVec(memHandles, 1, bufferVec, tagVec), HCCL_SUCCESS);
-    ASSERT_EQ(bufferVec.size(), 1U);
-    ASSERT_EQ(tagVec.size(), 1U);
-    EXPECT_EQ(bufferVec[0], localIpcRmaBuffer.get());
-    EXPECT_EQ(std::string(tagVec[0].data()), rawBuffer->GetMemTag());
-}

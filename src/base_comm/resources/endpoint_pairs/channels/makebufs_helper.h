@@ -27,14 +27,14 @@ inline HcclResult MakebufsFromLocalRmaBuffer(HcommMemHandle *memHandles, uint32_
         CHK_PTR_NULL(localRmaBuffer);
         auto buf = localRmaBuffer->GetBuf();
         CHK_PTR_NULL(buf);
-        HCCL_INFO("[%s][%s] addr[0x%llx], size[0x%llx], memType[%d], memTag[%s]",
+        HCCL_INFO("[%s][%s] addr[0x%llx], size[0x%llx], memType[%d], memInfo[%s]",
             channelName, __func__,
             static_cast<unsigned long long>(localRmaBuffer->GetAddr()),
             static_cast<unsigned long long>(localRmaBuffer->GetSize()),
-            static_cast<int>(buf->GetMemType()), buf->GetMemTag().c_str());
+            static_cast<int>(buf->GetMemType()), buf->GetMemInfo().c_str());
         bufs.emplace_back(std::make_shared<Hccl::Buffer>(
             localRmaBuffer->GetAddr(), localRmaBuffer->GetSize(),
-            buf->GetMemType(), buf->GetMemTag().c_str()));
+            buf->GetMemType(), buf->GetMemInfo().c_str()));
     }
     return HCCL_SUCCESS;
 }

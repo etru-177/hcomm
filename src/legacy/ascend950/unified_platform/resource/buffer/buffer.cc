@@ -27,21 +27,21 @@ Buffer::Buffer(uintptr_t addr, std::size_t size, HcclMemType memType) : addr_(ad
 {
 }
 
-Buffer::Buffer(uintptr_t addr, std::size_t size, HcclMemType memType, const char *memTag) : addr_(addr), size_(size), memType_(memType)
+Buffer::Buffer(uintptr_t addr, std::size_t size, HcclMemType memType, const char *memInfo) : addr_(addr), size_(size), memType_(memType)
 {
-    if (memTag != nullptr) {
-        snprintf_s(mem_Tag_, sizeof(mem_Tag_), strlen(memTag), "%s", memTag);
+    if (memInfo != nullptr) {
+        snprintf_s(memInfo_, sizeof(memInfo_), strlen(memInfo), "%s", memInfo);
     } else {
-        mem_Tag_[0] = '\0'; // 初始化为空字符串
+        memInfo_[0] = '\0'; // 初始化为空字符串
     }
 }
 
-Buffer::Buffer(uintptr_t addr, std::size_t size, const char *memTag) : addr_(addr), size_(size)
+Buffer::Buffer(uintptr_t addr, std::size_t size, const char *memInfo) : addr_(addr), size_(size)
 {
-    if (memTag != nullptr) {
-        snprintf_s(mem_Tag_, sizeof(mem_Tag_), strlen(memTag), "%s", memTag);
+    if (memInfo != nullptr) {
+        snprintf_s(memInfo_, sizeof(memInfo_), strlen(memInfo), "%s", memInfo);
     } else {
-        mem_Tag_[0] = '\0'; // 初始化为空字符串
+        memInfo_[0] = '\0'; // 初始化为空字符串
     }
 }
 uintptr_t Buffer::GetAddr() const
@@ -59,14 +59,14 @@ HcclMemType Buffer::GetMemType() const
     return memType_;
 }
 
-const std::string Buffer::GetMemTag() const
+const std::string Buffer::GetMemInfo() const
 {
-    return mem_Tag_;
+    return memInfo_;
 }
 
 std::string Buffer::Describe() const
 {
-    return StringFormat("Buffer[addr=0x%llx, size=0x%llx]", addr_, size_);
+    return StringFormat("Buffer[addr=0x%llx, size=0x%llx, memInfo=%s]", addr_, size_, memInfo_);
 }
 
 bool Buffer::Contains(Buffer *buf) const

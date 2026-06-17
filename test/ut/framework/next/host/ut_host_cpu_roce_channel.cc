@@ -525,7 +525,7 @@ TEST_F(HostCpuRoceChannelTest, Ut_When_ModifyQp_Failed_Expect_FAILED)
     EXPECT_EQ(status, ChannelStatus::FAILED);
 }
 
-TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMem_When_NullParam_Expect_HCCL_E_PTR)
+TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMems_When_NullParam_Expect_HCCL_E_PARA)
 {
     DevType devType = DevType::DEV_TYPE_950;
     MOCKER(hrtGetDeviceType).stubs().with(outBound(devType)).will(returnValue(HCCL_SUCCESS));
@@ -536,18 +536,18 @@ TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMem_When_NullParam_Expect_HCCL_E_PTR)
     auto impl_ = std::make_unique<hcomm::HostCpuRoceChannel>(endpointHandle, channelDesc);
     // Init
     EXPECT_EQ(impl_->Init(), HCCL_SUCCESS);
-    // GetRemoteMem
-    HcclMem *remoteMem;
+    // GetRemoteMems
+    CommMem *remoteMem;
     uint32_t memNum{11119999};
-    char *memTagsArray[10];
-    HcclResult ret = impl_->GetRemoteMem(&remoteMem, &memNum, memTagsArray);
+    char **memInfosArray = nullptr;
+    HcclResult ret = impl_->GetRemoteMems(&memNum, &remoteMem, &memInfosArray);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     EXPECT_EQ(memNum, 0);
-    ret = impl_->GetRemoteMem(&remoteMem, (uint32_t *)nullptr, memTagsArray);
-    EXPECT_EQ(ret, HCCL_E_PTR);
+    ret = impl_->GetRemoteMems((uint32_t *)nullptr, &remoteMem, &memInfosArray);
+    EXPECT_EQ(ret, HCCL_E_PARA);
 }
 
-TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMem_When_RemoteMemExists_Expect_Success)
+TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMems_When_RemoteMemExists_Expect_Success)
 {
     DevType devType = DevType::DEV_TYPE_950;
     MOCKER(hrtGetDeviceType).stubs().with(outBound(devType)).will(returnValue(HCCL_SUCCESS));
@@ -565,13 +565,14 @@ TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMem_When_RemoteMemExists_Expect_Succe
     Hccl::ExchangeRdmaBufferDto rmtBufDto2(0x3000000, 2048, 1000,"tag2");
     auto rmtBuf2 = std::make_unique<Hccl::RemoteRdmaRmaBuffer>(rdmaHandle, rmtBufDto2);
     impl_->rmtRmaBuffers_.emplace_back(std::move(rmtBuf2));
-    // GetRemoteMem
-    uint32_t memNum = 0;  // 接收内存块数量
-    std::vector<HcclMem *> remoteMemList(5);
-    std::vector<char *> memTags(5);
-    HcclResult ret = impl_->GetRemoteMem(remoteMemList.data(), &memNum, memTags.data());
+    // GetRemoteMems
+    uint32_t memNum = 0;
+    CommMem *remoteMem = nullptr;
+    char **memInfos = nullptr;
+    HcclResult ret = impl_->GetRemoteMems(&memNum, &remoteMem, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     EXPECT_EQ(memNum, 2);
+    ASSERT_NE(remoteMem, nullptr);
 }
 
 TEST_F(HostCpuRoceChannelTest, Ut_When_Rdma_Conn_Failed_Expect_ERROR)
@@ -2039,33 +2040,33 @@ TEST_F(HostCpuRoceChannelTest, Ut_ReportWcStatusError_When_VariousStatuses_Expec
     GlobalMockObject::verify();
 }
 
-TEST_F(HostCpuRoceChannelTest, Ut_GetUserRemoteMem_When_OnlyCclBuffer_Expect_Success)
+TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMems_When_OnlyCclBuffer_Expect_Success)
 {
     SetupSuccessfulConnectionMocks();
     auto impl_ = CreateInitAndConnect();
 
-    // Only cclBuffer at index 0, no user buffers
+    // Only cclBuffer at index 0
     RdmaHandle rdmaHandle = reinterpret_cast<RdmaHandle>(0x1000000);
     Hccl::ExchangeRdmaBufferDto cclBufDto(0x2000000, 4096, 100, "cclBuffer");
     impl_->rmtRmaBuffers_.emplace_back(
         std::make_unique<Hccl::RemoteRdmaRmaBuffer>(rdmaHandle, cclBufDto));
 
     CommMem *remoteMem = nullptr;
-    char **memTag = nullptr;
+    char **memInfos = nullptr;
     uint32_t memNum = 0;
 
-    HcclResult ret = impl_->GetUserRemoteMem(&remoteMem, &memTag, &memNum);
+    HcclResult ret = impl_->GetRemoteMems(&memNum, &remoteMem, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    EXPECT_EQ(memNum, 0);
+    EXPECT_EQ(memNum, 1);
 }
 
-TEST_F(HostCpuRoceChannelTest, Ut_GetUserRemoteMem_When_UserBuffersExist_Expect_Success)
+TEST_F(HostCpuRoceChannelTest, Ut_GetRemoteMems_When_UserBuffersExist_Expect_Success)
 {
     SetupSuccessfulConnectionMocks();
     auto impl_ = CreateInitAndConnect();
 
     RdmaHandle rdmaHandle = reinterpret_cast<RdmaHandle>(0x1000000);
-    // cclBuffer at index 0 (will be skipped)
+    // cclBuffer at index 0
     Hccl::ExchangeRdmaBufferDto cclBufDto(0x2000000, 4096, 100, "cclTag");
     impl_->rmtRmaBuffers_.emplace_back(
         std::make_unique<Hccl::RemoteRdmaRmaBuffer>(rdmaHandle, cclBufDto));
@@ -2081,13 +2082,13 @@ TEST_F(HostCpuRoceChannelTest, Ut_GetUserRemoteMem_When_UserBuffersExist_Expect_
     impl_->rmtRmaBuffers_.emplace_back(std::move(userBuf2));
 
     CommMem *remoteMem = nullptr;
-    char **memTag = nullptr;
+    char **memInfos = nullptr;
     uint32_t memNum = 0;
 
-    HcclResult ret = impl_->GetUserRemoteMem(&remoteMem, &memTag, &memNum);
+    HcclResult ret = impl_->GetRemoteMems(&memNum, &remoteMem, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    EXPECT_EQ(memNum, 2);
+    EXPECT_EQ(memNum, 3);
 
     ASSERT_NE(remoteMem, nullptr);
-    ASSERT_NE(memTag, nullptr);
+    ASSERT_NE(memInfos, nullptr);
 }

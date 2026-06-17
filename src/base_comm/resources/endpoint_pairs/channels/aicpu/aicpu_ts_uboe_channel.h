@@ -34,9 +34,8 @@ public:
 
     HcclResult Init() override;
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;
-    HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags) override;
+    HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     ChannelStatus GetStatus() override;
-    HcclResult GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum) override;
 
     HcclResult H2DResPack(std::vector<char>& buffer);
 
@@ -73,8 +72,6 @@ private:
     std::vector<char> GetUniqueIdV2();
     HcclResult PackOpData(std::vector<char> &data);
 
-    HcclResult FillTagVec(std::vector<Hccl::LocalRmaBuffer *> &bufferVec,
-        std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &localUserMemTag);
     bool IsSocketReady();
     bool IsResReady();
     bool IsConnsReady();
@@ -94,8 +91,7 @@ private:
 
     void EidPack();
     void NotifyVecPack(Hccl::BinaryStream &binaryStream);
-    void BufferVecPack(Hccl::BinaryStream &binaryStream, std::vector<Hccl::LocalRmaBuffer *> &bufferVec,
-        std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &tagVec);
+    void BufferVecPack(Hccl::BinaryStream &binaryStream, std::vector<Hccl::LocalRmaBuffer *> &bufferVec);
     void ConnVecPack(Hccl::BinaryStream &binaryStream);
     void RmtEidUnpackProc(Hccl::IpAddress& rmtAddr);
     void RmtBufferVecUnpackProc(u32 locNum, Hccl::BinaryStream &binaryStream,
@@ -140,9 +136,6 @@ private:
     u32 bufferNum_{0};
     u32 connNum_{0};
     u32 recvDataSize_{0};
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> localUserMemTag_{};
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> remoteUserMemTag_{};
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> rmtMemTagTemp_{};
 
     RemoteBufferVec rmtNotifyVec_;     // 远端 notify
     RemoteBufferVec rmtBufferVec_;     // 远端 buffer
@@ -159,11 +152,10 @@ private:
     Hccl::IpAddress     rmtAddr_;
 
     std::mutex remoteMemsMutex_; // 远端内存列表互斥锁
-    std::unique_ptr<HcclMem[]> remoteMemsPtr_; // 远端内存缓存区
-    bool cacheValid_ = false; // GetUserRemoteMem 的缓存标识
+    bool cacheValid_ = false; // 当前缓存是否有效
     std::vector<CommMem>         remoteUserMems_;     // 内存基本信息缓存
-    std::vector<std::string>     tagCopies_;          // 储存 Tag 字符串副本
-    std::vector<char*>           tagPointers_;        // Tag 缓存
+    std::vector<std::string>     memInfoCopies_;          // 储存 Tag 字符串副本
+    std::vector<char*>           memInfoPointers_;        // Tag 缓存
     const Hccl::SocketConfig*    socketConfig_{nullptr};
     uint32_t    devicePhyId_{};
 };

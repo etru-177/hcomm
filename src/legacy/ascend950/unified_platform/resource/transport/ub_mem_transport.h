@@ -26,9 +26,6 @@ public:
                    RdmaHandle rdmaHandle1, LocCntNotifyRes &locCntNotifyRes1,
                    std::function<void(u32 streamId, u32 taskId, const TaskParam &taskParam)> callback);
 
-    HcclResult FillTagVec(std::vector<LocalRmaBuffer *> &bufferVec,
-        std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &tagVec);
-
     std::string Describe() const override;
     HcclResult Describe(std::string &dfxMsg);
 
@@ -74,8 +71,7 @@ public:
         return static_cast<u32>(baseStatus);
     }
 
-    HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags);
-    HcclResult GetUserRemoteMem(CommMem **remoteMem, char ***memTags, uint32_t *memNum);
+    HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos);
     HcclResult CheckSocketStatus(std::string socketOpreator);
     HcclResult UpdateMemInfo(std::vector<LocalRmaBuffer *> &bufferVecTemp);
 
@@ -105,8 +101,6 @@ private:
     u32          cntNotifyDescSize{0};
     vector<char> rmtCntNotifyDesc;
 
-    std::unique_ptr<HcclMem[]> remoteMemsPtr_;
-
     using RemoteBufferVec = std::vector<std::unique_ptr<RemoteUbRmaBuffer>>;
     using LocalBufferVec = std::vector<LocalUbRmaBuffer *>;
 
@@ -117,14 +111,10 @@ private:
     RemoteBufferVec rmtBufferVec;     // 远端 buffer
     RemoteBufferVec rmtCntNotifyVec;  // 远端 cnt Notify
     LocalBufferVec  locBufferVec;     // 本端 buffer
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> localUserMemTag_{};
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> locMemTagTemp_{};
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> remoteUserMemTag_{};
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> rmtMemTagTemp_{};
-    bool                         cacheValid_ = false; // GetUserRemoteMem 的缓存标识
+    bool                         cacheValid_ = false; // 当前缓存是否有效
     std::vector<CommMem>         remoteUserMems_;     // 内存基本信息缓存
-    std::vector<std::string>     tagCopies_;          // 储存 Tag 字符串副本
-    std::vector<char*>           tagPointers_;        // Tag 缓存
+    std::vector<std::string>     memInfoCopies_;          // 储存 Tag 字符串副本
+    std::vector<char*>           memInfoPointers_;        // Tag 缓存
 
     void SendDataSize();
     void RecvDataSize();
@@ -134,8 +124,7 @@ private:
     void SendFinish();
     void RecvFinish();
 
-    void BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec,
-        std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &tagVec);
+    void BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec);
     void CntNotifyVecPack(BinaryStream &binaryStream);
 
     void CntNotifyDescPack(BinaryStream &binaryStream);

@@ -48,8 +48,7 @@ public:
     static HcclResult ChannelKernelLaunchForComm(ChannelHandle *channelHandles, ChannelHandle *hostChannelHandles,
         HcommChannelDesc* hcommDesc, uint32_t listNum, const std::string &commTag, aclrtBinHandle binHandle);
     static HcclResult ChannelGetNotifyNum(ChannelHandle channelHandle, uint32_t *notifyNum);
-    static HcclResult ChannelGetRemoteMem(ChannelHandle channelHandle, CommMem **remoteMem, uint32_t *memNum, char **memTags);
-    static HcclResult ChannelGetUserRemoteMem(ChannelHandle channelHandle, CommMem **remoteMem, char ***memTag, uint32_t *memNum);
+    static HcclResult ChannelGetRemoteMems(ChannelHandle channelHandle, uint32_t *memNum, CommMem **remoteMem, char ***memInfos);
     static HcclResult ChannelKernelDestroy(ChannelHandle *channelHandles, uint32_t listNum, aclrtBinHandle binHandle);
     static HcclResult ChannelDestroy(const ChannelHandle *channels, uint32_t channelNum, aclrtBinHandle binHandle = nullptr);
     static HcclResult ChannelGet(const ChannelHandle channelHandle, void **channel);

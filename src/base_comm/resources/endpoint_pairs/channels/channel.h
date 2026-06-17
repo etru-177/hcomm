@@ -95,9 +95,8 @@ public:
     // ------------------ 控制面接口 ------------------
     virtual HcclResult Init() = 0;
     virtual HcclResult GetNotifyNum(uint32_t *notifyNum) const = 0;
-    virtual HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags) = 0;
+    virtual HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) = 0;
     virtual ChannelStatus GetStatus() = 0;
-    virtual HcclResult GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum);
     virtual HcclResult UpdateMemInfo(HcommMemHandle *memHandles, uint32_t memHandleNum);
 
     virtual HcclResult Clean()        = 0;

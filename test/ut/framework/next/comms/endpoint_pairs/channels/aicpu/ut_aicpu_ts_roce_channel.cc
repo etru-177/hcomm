@@ -197,15 +197,6 @@ TEST_F(AicpuTsRoceChannelTest, Ut_GetNotifyNum_WhenNullOut_Returns_PTR) {
     EXPECT_EQ(ch.GetNotifyNum(nullptr), HCCL_E_PTR);
 }
 
-TEST_F(AicpuTsRoceChannelTest, Ut_GetUserRemoteMem_Returns_NOT_SUPPORT) {
-    HcommChannelDesc desc{};
-    AicpuTsRoceChannel ch(reinterpret_cast<EndpointHandle>(0x1), desc);
-    CommMem *remoteMem = nullptr;
-    char **memTag = nullptr;
-    uint32_t memNum = 0;
-    EXPECT_EQ(ch.GetUserRemoteMem(&remoteMem, &memTag, &memNum), HCCL_E_NOT_SUPPORT);
-}
-
 TEST_F(AicpuTsRoceChannelTest, Ut_Serialize_WithoutInit_Returns_INTERNAL) {
     HcommChannelDesc desc{};
     AicpuTsRoceChannel ch(reinterpret_cast<EndpointHandle>(0x1), desc);
@@ -220,11 +211,11 @@ TEST_F(AicpuTsRoceChannelTest, Ut_Init_When_EndpointHandleNull_Returns_E_PTR) {
     EXPECT_EQ(ch.Init(), HCCL_E_PTR);
 }
 
-TEST_F(AicpuTsRoceChannelTest, Ut_GetRemoteMem_Returns_E_NOT_SUPPORT) {
+TEST_F(AicpuTsRoceChannelTest, Ut_GetRemoteMems_Returns_E_NOT_SUPPORT) {
     HcommChannelDesc desc{};
     AicpuTsRoceChannel ch(reinterpret_cast<EndpointHandle>(0x1), desc);
     uint32_t n = 0;
-    EXPECT_EQ(ch.GetRemoteMem(nullptr, &n, nullptr), HCCL_E_NOT_SUPPORT);
+    EXPECT_EQ(ch.GetRemoteMems(&n, nullptr, nullptr), HCCL_E_NOT_SUPPORT);
 }
 
 TEST_F(AicpuTsRoceChannelTest, Ut_BuildSocketTagName_When_ValidIpv4_Returns_SUCCESS) {

@@ -686,7 +686,7 @@ TEST_F(UbMemTransportTest, UbMemTransport_ConnVecUnpackProc)
     EXPECT_NO_THROW(transport.ConnVecUnpackProc(binaryStream));
 }
 
-TEST_F(UbMemTransportTest, ut_UbMemTransport_GetUserRemoteMem_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
+TEST_F(UbMemTransportTest, ut_UbMemTransport_GetRemoteMems_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
 {
     BaseMemTransport::CommonLocRes    locRes;
     BaseMemTransport::Attribution     attr;
@@ -697,13 +697,13 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_GetUserRemoteMem_When_Normal_Expect
     Socket fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
 
     std::shared_ptr<DevBuffer> buffer0 = DevBuffer::Create(0x100, 0x100);
-    strcpy(buffer0->mem_Tag_, "cclBuffer");
+    strcpy(buffer0->memInfo_, "cclBuffer");
     LocalUbRmaBuffer     ubLocalRmaBuffer0(buffer0, rdmaHandle);
     LocalRmaBuffer      *validLocalRmaBuffer0 = &ubLocalRmaBuffer0;
     locRes.bufferVec.push_back(validLocalRmaBuffer0);
 
     std::shared_ptr<DevBuffer> buffer1 = DevBuffer::Create(0x101, 0x101);
-    strcpy(buffer1->mem_Tag_, "buffer1");
+    strcpy(buffer1->memInfo_, "buffer1");
     buffer1->memType_ = HcclMemType::HCCL_MEM_TYPE_HOST;
     LocalUbRmaBuffer     ubLocalRmaBuffer1(buffer1, rdmaHandle);
     LocalRmaBuffer      *validLocalRmaBuffer1 = &ubLocalRmaBuffer1;
@@ -712,24 +712,23 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_GetUserRemoteMem_When_Normal_Expect
     UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BinaryStream binaryStream;
-    EXPECT_NO_THROW(transport.BufferVecPack(binaryStream, transport.commonLocRes.bufferVec,
-        transport.localUserMemTag_));
+    EXPECT_NO_THROW(transport.BufferVecPack(binaryStream, transport.commonLocRes.bufferVec));
     EXPECT_NO_THROW(transport.RmtBufferVecUnpackProc(2, binaryStream, transport.rmtBufferVec,
         UbMemTransport::UbRmtBufType::BUFFER));
     
     CommMem *remoteMems;
-    char **memTags;
+    char **memInfos;
     u32 memNum;
-    HcclResult ret = transport.GetUserRemoteMem(&remoteMems, &memTags, &memNum);
+    HcclResult ret = transport.GetRemoteMems(&memNum, &remoteMems, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    std::string memTag = memTags[0];
-    EXPECT_EQ(memTag, "buffer1");
-    EXPECT_EQ(remoteMems[0].type, HcclMemType::HCCL_MEM_TYPE_HOST);
-    EXPECT_EQ(remoteMems[0].addr, (void *)0x101);
-    EXPECT_EQ(remoteMems[0].size, (uint64_t)0x101);
+    std::string memInfo = memInfos[1];
+    EXPECT_EQ(memInfo, "buffer1");
+    EXPECT_EQ(remoteMems[1].type, CommMemType::COMM_MEM_TYPE_HOST);
+    EXPECT_EQ(remoteMems[1].addr, (void *)0x101);
+    EXPECT_EQ(remoteMems[1].size, (uint64_t)0x101);
 }
 
-TEST_F(UbMemTransportTest, ut_UbMemTransport_GetUserRemoteMem_When_bufferNumIs0_Expect_ReturnIsHCCL_E_PARA)
+TEST_F(UbMemTransportTest, ut_UbMemTransport_GetRemoteMems_When_bufferNumIs0_Expect_ReturnIsHCCL_SUCCESS)
 {
     BaseMemTransport::CommonLocRes    locRes;
     BaseMemTransport::Attribution     attr;
@@ -742,42 +741,10 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_GetUserRemoteMem_When_bufferNumIs0_
     UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     CommMem *remoteMems;
-    char **memTags;
+    char **memInfos;
     u32 memNum;
-    HcclResult ret = transport.GetUserRemoteMem(&remoteMems, &memTags, &memNum);
-    EXPECT_EQ(ret, HCCL_E_PARA);
-}
-
-TEST_F(UbMemTransportTest, ut_UbMemTransport_GetUserRemoteMem_When_userMemCountIs0_Expect_ReturnIsHCCL_SUCCESS)
-{
-    BaseMemTransport::CommonLocRes    locRes;
-    BaseMemTransport::Attribution     attr;
-    BaseMemTransport::LocCntNotifyRes locCntRes;
-    LinkData                          link(BasePortType(PortDeploymentType::DEV_NET), 0, 1, 0, 1);
-    void                             *rdmaHandle = (void *)0x100;
-    IpAddress                         ipAddress("1.0.0.0");
-    Socket fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
-
-    LocalUbRmaBuffer     ubLocalRmaBuffer(devBuf, rdmaHandle);
-    LocalRmaBuffer      *validLocalRmaBuffer = &ubLocalRmaBuffer;
-    locRes.bufferVec.push_back(validLocalRmaBuffer);
-
-    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
-
-    BinaryStream binaryStream;
-    EXPECT_NO_THROW(transport.BufferVecPack(binaryStream, transport.commonLocRes.bufferVec,
-        transport.localUserMemTag_));
-    EXPECT_NO_THROW(transport.RmtBufferVecUnpackProc(1, binaryStream, transport.rmtBufferVec,
-        UbMemTransport::UbRmtBufType::BUFFER));
-
-    CommMem *remoteMems;
-    char **memTags;
-    u32 memNum;
-    HcclResult ret = transport.GetUserRemoteMem(&remoteMems, &memTags, &memNum);
+    HcclResult ret = transport.GetRemoteMems(&memNum, &remoteMems, &memInfos);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    EXPECT_EQ(remoteMems, nullptr);
-    EXPECT_EQ(memTags, nullptr);
-    EXPECT_EQ(memNum, 0);
 }
 
 TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
@@ -797,13 +764,12 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_Normal_Expect_Re
     UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     BinaryStream stream0;
-    EXPECT_NO_THROW(transport.BufferVecPack(stream0, transport.commonLocRes.bufferVec,
-        transport.localUserMemTag_));
+    EXPECT_NO_THROW(transport.BufferVecPack(stream0, transport.commonLocRes.bufferVec));
     EXPECT_NO_THROW(transport.RmtBufferVecUnpackProc(1 , stream0, transport.rmtBufferVec,
         UbMemTransport::UbRmtBufType::BUFFER));
     
     std::shared_ptr<DevBuffer> buffer1 = DevBuffer::Create(0x101, 0x101);
-    strcpy(buffer1->mem_Tag_, "buffer1");
+    strcpy(buffer1->memInfo_, "buffer1");
     buffer1->memType_ = HcclMemType::HCCL_MEM_TYPE_HOST;
     LocalUbRmaBuffer     ubLocalRmaBuffer1(buffer1, rdmaHandle);
     LocalRmaBuffer      *validLocalRmaBuffer1 = &ubLocalRmaBuffer1;
@@ -812,7 +778,7 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_Normal_Expect_Re
 
     BinaryStream stream1;
     transport.sendData.clear();
-    EXPECT_NO_THROW(transport.BufferVecPack(stream1, bufferVecTemp, transport.localUserMemTag_));
+    EXPECT_NO_THROW(transport.BufferVecPack(stream1, bufferVecTemp));
     stream1.Dump(transport.sendData);
     transport.recvData = transport.sendData;
 
@@ -828,12 +794,12 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_Normal_Expect_Re
     EXPECT_EQ(locBuffer1->GetAddr(), (uintptr_t)0x101);
     EXPECT_EQ(locBuffer1->GetSize(), (size_t)0x101);
     EXPECT_EQ(locBuffer1->GetBuf()->GetMemType(), HcclMemType::HCCL_MEM_TYPE_HOST);
-    EXPECT_EQ(locBuffer1->GetBuf()->GetMemTag(), "buffer1");
+    EXPECT_EQ(locBuffer1->GetBuf()->GetMemInfo(), "buffer1");
     auto rmtBuffer1 = transport.rmtBufferVec[1].get();
     EXPECT_EQ(rmtBuffer1->GetAddr(), (uintptr_t)0x101);
     EXPECT_EQ(rmtBuffer1->GetSize(), (u64)0x101);
     EXPECT_EQ(rmtBuffer1->GetMemType(), HcclMemType::HCCL_MEM_TYPE_HOST);
-    EXPECT_EQ(rmtBuffer1->GetMemTag(), "buffer1");
+    EXPECT_EQ(rmtBuffer1->GetMemInfo(), "buffer1");
 }
 
 TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_SocketTimeout_Expect_ReturnIsHCCL_E_INTERNAL)
@@ -849,7 +815,7 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_SocketTimeout_Ex
     UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
     std::shared_ptr<DevBuffer> buffer1 = DevBuffer::Create(0x101, 0x101);
-    strcpy(buffer1->mem_Tag_, "buffer1");
+    strcpy(buffer1->memInfo_, "buffer1");
     buffer1->memType_ = HcclMemType::HCCL_MEM_TYPE_HOST;
     LocalUbRmaBuffer     ubLocalRmaBuffer1(buffer1, rdmaHandle);
     LocalRmaBuffer      *validLocalRmaBuffer1 = &ubLocalRmaBuffer1;

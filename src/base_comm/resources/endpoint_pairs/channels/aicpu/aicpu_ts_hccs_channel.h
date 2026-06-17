@@ -37,7 +37,7 @@ public:
 
     HcclResult Init() override;
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;
-    HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags) override;
+    HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     ChannelStatus GetStatus() override;
 
     std::shared_ptr<hccl::Transport> GetTransport() {return transport_;}
@@ -97,7 +97,7 @@ private:
     std::shared_ptr<hccl::Transport>                            transport_{nullptr};
 
     // for get mem temp
-    std::vector<HcclMem>                                        remoteIpcRmaBufferVec_;
+    std::vector<CommMem>                                        remoteIpcRmaBufferVec_;
     std::vector<HcclMemEx>                                      localIpcRmaBufferVecEx_;
     std::vector<HcclMemEx>                                      remoteIpcRmaBufferVecEx_;
 };

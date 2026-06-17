@@ -47,7 +47,7 @@ public:
     HcclResult MemoryDisableP2P(const EndpointDesc &localEndpointDesc, const EndpointDesc &remoteEndpointDesc);
     HcclResult MemoryOpenRemoteIpc();
     HcclResult MemoryCloseRemoteIpc();
-    HcclResult GetRemoteIpcRmaBuffer(std::vector<HcclMem> &remoteIpcRmaBufferVec);
+    HcclResult GetRemoteIpcRmaBuffer(std::vector<CommMem> &remoteIpcRmaBufferVec);
     HcclResult GetRemoteIpcRmaBufferEx(std::vector<HcclMemEx> &remoteIpcRmaBufferVec);
     HcclResult GetLocalIpcRmaBufferEx(std::vector<HcclMemEx> &localIpcRmaBufferVec);
 

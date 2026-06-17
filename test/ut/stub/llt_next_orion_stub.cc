@@ -924,6 +924,15 @@ RemoteUbRmaBuffer::RemoteUbRmaBuffer(RdmaHandle rdmaHandle) : RemoteRmaBuffer(Rm
 {
 }
 
+RemoteUbRmaBuffer::RemoteUbRmaBuffer(uintptr_t addr, u64 size, u32 tokenId, u32 tokenValue, HcclMemType memType,
+ 	    const std::string &memInfo) : RemoteRmaBuffer(RmaType::UB)
+{
+    this->addr = addr;
+    this->size = size;
+    this->memType = memType;
+    this->memInfo = memInfo;
+}
+
 RemoteUbRmaBuffer::RemoteUbRmaBuffer(RdmaHandle rdmaHandle1, const Serializable &rmtDto)
     : RemoteRmaBuffer(RmaType::UB),
       rdmaHandle(rdmaHandle1)
@@ -1048,12 +1057,6 @@ UbMemTransport::UbMemTransport(CommonLocRes &commonLocRes, Attribution &attr, co
 {
 }
 
-HcclResult UbMemTransport::FillTagVec(
-    std::vector<LocalRmaBuffer *> &bufferVec, std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &localUserMemTag)
-{
-    return HCCL_SUCCESS;
-}
-
 std::string UbMemTransport::Describe() const
 {
     return "msg";
@@ -1159,8 +1162,7 @@ bool UbMemTransport::RecvDataProcess()
     return ConnVecUnpackProc(binaryStream);
 }
 
-void UbMemTransport::BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec,
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &localUserMemTag)
+void UbMemTransport::BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec)
 {
 }
 
@@ -1252,12 +1254,7 @@ void UbMemTransport::SaveDfxTaskInfo(const TaskParam &taskParam)
 {
 }
 
-HcclResult UbMemTransport::GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags)
-{
-    return HCCL_SUCCESS;
-}
-
-HcclResult UbMemTransport::GetUserRemoteMem(CommMem **remoteMem, char ***memTags, uint32_t *memNum)
+HcclResult UbMemTransport::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 {
     return HCCL_SUCCESS;
 }
@@ -1468,7 +1465,7 @@ std::unique_ptr<Serializable> LocalIpcRmaBuffer::GetExchangeDto()
         static_cast<u64>(buf->GetSize()),
         ipcOffset,
         static_cast<u32>(0),
-        buf->GetMemTag().c_str());
+        buf->GetMemInfo().c_str());
     (void)memcpy_s(dto->name, RTS_IPC_MEM_NAME_LEN, name, RTS_IPC_MEM_NAME_LEN);
     return std::unique_ptr<Serializable>(dto.release());
 }
@@ -2566,12 +2563,7 @@ P2PTransport::P2PTransport(
 {
 }
 
-HcclResult P2PTransport::GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags)
-{
-    return HCCL_SUCCESS;
-}
-
-HcclResult P2PTransport::GetUserRemoteMem(CommMem **remoteMem, char ***memTags, uint32_t *memNum)
+HcclResult P2PTransport::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 {
     return HCCL_SUCCESS;
 }

@@ -112,7 +112,7 @@ std::unique_ptr<Serializable> LocalUbRmaBuffer::GetExchangeDto()
     std::unique_ptr<ExchangeUbBufferDto> dto = make_unique<ExchangeUbBufferDto>(buf->GetAddr(),
         buf->GetSize(),
         buf->GetMemType(),
-        buf->GetMemTag().c_str(),
+        buf->GetMemInfo().c_str(),
         tokenValue,
         tokenId,
         reqReg.keySize);

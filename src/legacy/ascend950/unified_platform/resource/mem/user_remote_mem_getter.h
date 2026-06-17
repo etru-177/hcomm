@@ -15,7 +15,7 @@
 #include <array>
 #include <string>
 #include <functional>
-#include "hccl/hccl_res.h"
+#include "hccl_mem_defs.h"
 #include "hccl/hccl_types.h"
 #include "log.h"
 
@@ -25,63 +25,89 @@ namespace Hccl {
 
 template <typename T>
 struct RemoteMemCtx{
-    uint32_t                        userMemCount = 0;
     bool                            &cacheValid;
     std::vector<T>                  &rmtBufferVec;
-    std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &remoteUserMemTag;
     std::vector<CommMem>            &remoteUserMems;
     std::vector<std::string>        &tagCopies;
     std::vector<char*>              &tagPointers;
-    std::function<void(RemoteMemCtx<T> &remoteMemCtx, uint32_t index)> cacheBuilder;
     CommMem                         **remoteMem;
-    char                            ***memTags;
+    char                            ***memInfos;
     uint32_t                        *memNum;
 
-    RemoteMemCtx(uint32_t userMemCount, bool &cacheValid, std::vector<T> &rmtBufferVec,
-        std::vector<std::array<char, HCCL_RES_TAG_MAX_LEN>> &remoteUserMemTag,
-        std::vector<CommMem> &remoteUserMems, std::vector<std::string> &tagCopies,
-        std::vector<char*> &tagPointers,
-        std::function<void(RemoteMemCtx<T> &remoteMemCtx, uint32_t index)> cacheBuilder,
-        CommMem **remoteMem, char ***memTags, uint32_t *memNum) :
-        userMemCount(userMemCount), cacheValid(cacheValid), rmtBufferVec(rmtBufferVec),
-        remoteUserMemTag(remoteUserMemTag), remoteUserMems(remoteUserMems),
-        tagCopies(tagCopies), tagPointers(tagPointers), cacheBuilder(cacheBuilder),
-        remoteMem(remoteMem), memTags(memTags), memNum(memNum)
+    RemoteMemCtx(bool &cacheValid, std::vector<T> &rmtBufferVec,
+        std::vector<CommMem> &remoteUserMems, std::vector<std::string> &tagCopies, std::vector<char*> &tagPointers,
+        CommMem **remoteMem, char ***memInfos, uint32_t *memNum) :
+        cacheValid(cacheValid), rmtBufferVec(rmtBufferVec), remoteUserMems(remoteUserMems),
+        tagCopies(tagCopies), tagPointers(tagPointers), remoteMem(remoteMem), memInfos(memInfos), memNum(memNum)
     {};
 };
 
-template<typename T>
-HcclResult GetRemoteUserMem(RemoteMemCtx<T> &remoteMemCtx)
+inline HcclMemType CommMemTypeToHcclMemType(CommMemType type)
 {
-    CHK_PRT_RET(!remoteMemCtx.remoteMem, HCCL_ERROR("[GetUserRemoteMem] remoteMem is nullptr"), HCCL_E_PARA);
-    CHK_PRT_RET(!remoteMemCtx.memTags, HCCL_ERROR("[GetUserRemoteMem] memTags is nullptr"), HCCL_E_PARA);
-    CHK_PRT_RET(!remoteMemCtx.memNum, HCCL_ERROR("[GetUserRemoteMem] memNum is nullptr"), HCCL_E_PARA);
+    switch (type) {
+        case COMM_MEM_TYPE_DEVICE:
+            return HCCL_MEM_TYPE_DEVICE;
+        case COMM_MEM_TYPE_HOST:
+            return HCCL_MEM_TYPE_HOST;
+        default:
+            return HCCL_MEM_TYPE_NUM;
+    }
+}
+
+inline CommMemType HcclMemTypeToCommMemType(HcclMemType type)
+{
+    switch (type) {
+        case HCCL_MEM_TYPE_DEVICE:
+            return COMM_MEM_TYPE_DEVICE;
+        case HCCL_MEM_TYPE_HOST:
+            return COMM_MEM_TYPE_HOST;
+        default:
+            return COMM_MEM_TYPE_INVALID;
+    }
+}
+
+template<typename T>
+HcclResult GetRemoteUserMems(RemoteMemCtx<T> &remoteMemCtx)
+{
+    CHK_PRT_RET(!remoteMemCtx.remoteMem, HCCL_ERROR("[GetRemoteUserMems] remoteMem is nullptr"), HCCL_E_PARA);
+    CHK_PRT_RET(!remoteMemCtx.memInfos, HCCL_ERROR("[GetRemoteUserMems] memInfos is nullptr"), HCCL_E_PARA);
+    CHK_PRT_RET(!remoteMemCtx.memNum, HCCL_ERROR("[GetRemoteUserMems] memNum is nullptr"), HCCL_E_PARA);
     *(remoteMemCtx.remoteMem) = nullptr;
-    *(remoteMemCtx.memTags) = nullptr;
+    *(remoteMemCtx.memInfos) = nullptr;
     *(remoteMemCtx.memNum) = 0;
-    if (remoteMemCtx.userMemCount == 0) {
-        HCCL_INFO("[GetUserRemoteMem] No user remote memory found");
+    uint32_t userMemCount = remoteMemCtx.rmtBufferVec.size();
+    if (userMemCount == 0) {
+        HCCL_WARNING("[%s] bufferNum is 0.", __func__);
         return HCCL_SUCCESS;
     }
     // 检查是否有缓存
     if (!remoteMemCtx.cacheValid) {
-        remoteMemCtx.remoteUserMems.resize(remoteMemCtx.userMemCount);
+        remoteMemCtx.remoteUserMems.clear();
         remoteMemCtx.tagCopies.clear();
-        remoteMemCtx.tagCopies.reserve(remoteMemCtx.userMemCount);
+        remoteMemCtx.tagCopies.reserve(userMemCount);
         remoteMemCtx.tagPointers.clear();
-        remoteMemCtx.tagPointers.reserve(remoteMemCtx.userMemCount);
-        for (uint32_t i = 0; i < remoteMemCtx.userMemCount; ++i) {
-            remoteMemCtx.cacheBuilder(remoteMemCtx, i);
-            const char* src = remoteMemCtx.remoteUserMemTag[i + 1].data();
-            std::string tagCopy(src, strnlen(src, HCCL_RES_TAG_MAX_LEN));
+        remoteMemCtx.tagPointers.reserve(userMemCount);
+        for (uint32_t i = 0; i < userMemCount; ++i) {
+            auto &rmtBuffer = remoteMemCtx.rmtBufferVec[i];
+            if (rmtBuffer == nullptr) {
+                return HCCL_E_PTR;
+            }
+            CommMem mem{};
+            mem.type = HcclMemTypeToCommMemType(rmtBuffer->GetMemType());
+            mem.addr = reinterpret_cast<void *>(rmtBuffer->GetAddr());
+            mem.size = rmtBuffer->GetSize();
+            remoteMemCtx.remoteUserMems.push_back(mem);
+            std::string tagCopy = rmtBuffer->GetMemInfo();
             remoteMemCtx.tagCopies.push_back(std::move(tagCopy));
             remoteMemCtx.tagPointers.push_back(const_cast<char*>(remoteMemCtx.tagCopies.back().c_str()));
+            HCCL_INFO("[%s] Found buffer[addr:%p, size:%llu, memInfo:%s]", __func__, mem.addr, mem.size,
+                remoteMemCtx.tagCopies.back().c_str());
         }
         remoteMemCtx.cacheValid = true;
     }
     *(remoteMemCtx.remoteMem) = remoteMemCtx.remoteUserMems.data();
-    *(remoteMemCtx.memTags) = remoteMemCtx.tagPointers.data();
-    *(remoteMemCtx.memNum) = remoteMemCtx.userMemCount;
+    *(remoteMemCtx.memInfos) = remoteMemCtx.tagPointers.data();
+    *(remoteMemCtx.memNum) = userMemCount;
     return HCCL_SUCCESS;
 }
 } // namespace Hccl

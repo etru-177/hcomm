@@ -343,12 +343,12 @@ HcclResult AivUrmaChannel::ParseInputParam()
         bufs_.clear();
         for (uint32_t i = 0; i < memHandleNum; ++i) {
             std::shared_ptr<Hccl::LocalUbRmaBuffer> &localUbRmaBuffer = memHandles[i];
-            HCCL_INFO("[AivUrmaChannel][%s] Got memHandle No.%u: addr[0x%llx], size[0x%llx], memTag[%s].",
+            HCCL_INFO("[AivUrmaChannel][%s] Got memHandle No.%u: addr[0x%llx], size[0x%llx], memInfo[%s].",
                 __func__, i, localUbRmaBuffer->GetAddr(), localUbRmaBuffer->GetSize(),
-                localUbRmaBuffer->GetBuf()->GetMemTag().c_str());
+                localUbRmaBuffer->GetBuf()->GetMemInfo().c_str());
             bufs_.emplace_back(std::move(std::make_shared<Hccl::Buffer>(
                 localUbRmaBuffer->GetAddr(), localUbRmaBuffer->GetSize(),
-                localUbRmaBuffer->GetBuf()->GetMemTag().c_str())));
+                localUbRmaBuffer->GetBuf()->GetMemInfo().c_str())));
         }
     } else {
         HCCL_INFO("[AivUrmaChannel][%s] exchangeAllMems == false. Get memHandles from channelDesc.", __func__);
@@ -517,14 +517,9 @@ HcclResult AivUrmaChannel::GetNotifyNum(uint32_t *notifyNum) const
     return HCCL_SUCCESS;
 }
 
-HcclResult AivUrmaChannel::GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags)
+HcclResult AivUrmaChannel::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 {
-    return transport_->GetRemoteMem(remoteMem, memNum, memTags);
-}
-
-HcclResult AivUrmaChannel::GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum)
-{
-    return transport_->GetUserRemoteMem(remoteMem, memTag, memNum);
+    return transport_->GetRemoteMems(memNum, remoteMem, memInfos);
 }
 
 HcclResult AivUrmaChannel::Clean()

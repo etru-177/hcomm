@@ -33,9 +33,8 @@ public:
     ChannelStatus GetStatus() override;
 
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;
-    HcclResult GetRemoteMem(HcclMem **remoteMem, uint32_t *memNum, char **memTags) override;
+    HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     HcclResult UpdateMemInfo(HcommMemHandle *memHandles, uint32_t memHandleNum) override;
-    HcclResult GetUserRemoteMem(CommMem **remoteMem, char ***memTag, uint32_t *memNum) override;
 
     virtual HcclResult Clean() override;
     virtual HcclResult Resume() override;
@@ -68,9 +67,6 @@ private:
     std::unique_ptr<CcuTransport> impl_{nullptr};
     EndpointHandle locEndpointHandle_{nullptr};
     HcommChannelDesc channelDesc_{};
-    // 当前CCU不支持自定义内存交换，仅包含 hccl buffer
-    std::unique_ptr<HcclMem> hcclBufferInfoPtr_{};
-    std::string memTag_{"HcclBuffer"};
 };
 
 }  // namespace hcomm

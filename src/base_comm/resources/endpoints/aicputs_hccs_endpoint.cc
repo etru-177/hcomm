@@ -167,7 +167,7 @@ HcclResult AicpuTsHccsEndpoint::MemoryCloseRemoteIpc()
     return HCCL_SUCCESS;
 }
 
-HcclResult AicpuTsHccsEndpoint::GetRemoteIpcRmaBuffer(std::vector<HcclMem> &remoteIpcRmaBufferVec)
+HcclResult AicpuTsHccsEndpoint::GetRemoteIpcRmaBuffer(std::vector<CommMem> &remoteIpcRmaBufferVec)
 {
     std::shared_ptr<RegedMemMgr> mgr = GetRegedMemMgr();
     CHK_PTR_NULL(mgr);
