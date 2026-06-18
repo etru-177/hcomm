@@ -91,7 +91,8 @@ __attribute__((visibility("default"))) uint32_t RunAicpuRpcSrvLaunchV2(void *arg
     HcclComSuspendingFlag kfcFlag = HcclComSuspendingFlag ::isResume;
     CHK_RET(hcclCommAicpu->GetSuspendingFlag(kfcFlag));
     if (kfcFlag == HcclComSuspendingFlag::isSuspending) {
-        HCCL_WARNING("[NsRecovery] the op should not be launched in hcclCommAicpu on the suspending status");
+        HCCL_RUN_WARNING("[NsRecovery] the op should not be launched in hcclCommAicpu on the suspending status");
+        HCCL_RUN_WARNING("[NsRecovery] Possible reason: flag not refresh, not enough time between resume and launch");
         AicpuHcclProcess::AicpuReleaseCommbyGroup(group);
         return 0;
     }
