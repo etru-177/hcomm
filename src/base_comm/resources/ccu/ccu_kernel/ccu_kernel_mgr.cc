@@ -507,6 +507,7 @@ CcuResult CcuKernelMgr::Translate(const std::vector<CcuKernelHandle> &kernelHand
         return CcuResult::CCU_SUCCESS;
     }
 
+    std::unique_lock<std::mutex> lock(translateMutex_);
     std::vector<CcuKernel *> kernels{};
     for (const auto kernelHandle : kernelHandles) {
         const auto &iter = kernelMap_.find(kernelHandle);
