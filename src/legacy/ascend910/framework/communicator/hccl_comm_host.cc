@@ -452,7 +452,7 @@ namespace hccl
             HCCL_INFO("[BinaryUnLoad]aclrtBinaryUnLoad binHandle");
             aclError ret = aclrtBinaryUnLoad(binHandle_);
             if (ret != 0) {
-                HCCL_RUN_WARNING("[BinaryUnLoad]aclrtBinaryUnLoad binHandle faild");
+                HCCL_RUN_WARNING("[BinaryUnLoad]aclrtBinaryUnLoad binHandle failed");
             }
             binHandle_ = nullptr;
         }

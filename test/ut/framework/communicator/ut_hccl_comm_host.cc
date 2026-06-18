@@ -174,3 +174,44 @@ TEST_F(HcclCommHostTest, Ut_InitCollCommInner_When_Success_Expect_Success)
     HcclResult ret = hcclCommPtr->InitCollCommInner(userRank);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
+
+TEST_F(HcclCommHostTest, Ut_BinaryUnLoad_When_BinHandleNotNullAndUnloadFailed_Expect_WarningLog)
+{
+    std::shared_ptr<hccl::hcclComm> hcclCommPtr = std::make_shared<hccl::hcclComm>(1, 1, "test_comm");
+
+    hcclCommPtr->binHandle_ = reinterpret_cast<aclrtBinHandle>(0x1234);
+
+    MOCKER(aclrtBinaryUnLoad)
+        .stubs()
+        .will(returnValue(1));
+
+    hcclCommPtr->BinaryUnLoad();
+
+    EXPECT_EQ(hcclCommPtr->binHandle_, nullptr);
+}
+
+TEST_F(HcclCommHostTest, Ut_BinaryUnLoad_When_BinHandleNull_Expect_Noop)
+{
+    std::shared_ptr<hccl::hcclComm> hcclCommPtr = std::make_shared<hccl::hcclComm>(1, 1, "test_comm");
+
+    hcclCommPtr->binHandle_ = nullptr;
+
+    hcclCommPtr->BinaryUnLoad();
+
+    EXPECT_EQ(hcclCommPtr->binHandle_, nullptr);
+}
+
+TEST_F(HcclCommHostTest, Ut_BinaryUnLoad_When_BinHandleNotNullAndUnloadSuccess_Expect_BinHandleSetNull)
+{
+    std::shared_ptr<hccl::hcclComm> hcclCommPtr = std::make_shared<hccl::hcclComm>(1, 1, "test_comm");
+
+    hcclCommPtr->binHandle_ = reinterpret_cast<aclrtBinHandle>(0x1234);
+
+    MOCKER(aclrtBinaryUnLoad)
+        .stubs()
+        .will(returnValue(0));
+
+    hcclCommPtr->BinaryUnLoad();
+
+    EXPECT_EQ(hcclCommPtr->binHandle_, nullptr);
+}

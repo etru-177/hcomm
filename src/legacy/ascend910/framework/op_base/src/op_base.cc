@@ -738,7 +738,7 @@ HcclResult HcclCommInitClusterInfoWrapper(struct hcclAsyncJob* job_){
         constexpr HcclCommConfig *config = nullptr; // 未配置为默认加速模式
         HcclResult ret = HcclCommInitCollComm(rank, &commV2, config, comm);
         if (ret != HCCL_SUCCESS) {
-            HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm faild.Destroy comv2");
+            HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm failed.Destroy comv2");
             CHK_RET(HcclCommDestroyV2(commV2));
             commV2 = nullptr;
             *comm = nullptr;
@@ -808,7 +808,7 @@ HcclResult HcclCommInitClusterInfo(const char *clusterInfo, uint32_t rank, HcclC
             constexpr HcclCommConfig *config = nullptr; // 未配置为默认加速模式
             HcclResult ret = HcclCommInitCollComm(rank, &commV2, config, comm);
             if (ret != HCCL_SUCCESS) {
-                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm faild.Destroy comv2");
+                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm failed.Destroy comv2");
                 CHK_RET(HcclCommDestroyV2(commV2));
                 commV2 = nullptr;
                 *comm = nullptr;
@@ -1052,7 +1052,7 @@ HcclResult HcclCommInitClusterInfoConfig(const char *clusterInfo, uint32_t rank,
             CHK_RET(HcclCommInitClusterInfoConfigV2(clusterInfo, rank, config, &commV2));
             HcclResult ret = HcclCommInitCollComm(rank, &commV2, config, comm);
             if (ret != HCCL_SUCCESS) {
-                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm faild.Destroy comv2");
+                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm failed.Destroy comv2");
                 CHK_RET(HcclCommDestroyV2(commV2));
                 commV2 = nullptr;
                 *comm = nullptr;
@@ -1841,7 +1841,7 @@ HcclResult HcclCommInitRootInfoInner(uint32_t nRanks, const HcclRootInfo *rootIn
             constexpr HcclCommConfig *config = nullptr; // 未配置为默认加速模式
             HcclResult ret = HcclCommInitCollComm(rank, &commV2, config, comm);
             if (ret != HCCL_SUCCESS) {
-                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm faild.Destroy comv2");
+                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm failed.Destroy comv2");
                 CHK_RET(HcclCommDestroyV2(commV2));
                 commV2 = nullptr;
                 *comm = nullptr;
@@ -1965,7 +1965,7 @@ HcclResult HcclCommInitRootInfoConfigInner(uint32_t nRanks, const HcclRootInfo *
             CHK_RET(HcclCommInitRootInfoConfigV2(nRanks, rootInfo, rank, config, &commV2));
             HcclResult ret = HcclCommInitCollComm(rank, &commV2, const_cast<HcclCommConfig *>(config), comm);
             if (ret != HCCL_SUCCESS) {
-                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm faild.Destroy comv2");
+                HCCL_ERROR("[HcclCommInitCollComm]HcclCommInitCollComm failed.Destroy comv2");
                 CHK_RET(HcclCommDestroyV2(commV2));
                 commV2 = nullptr;
                 *comm = nullptr;

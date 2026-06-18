@@ -50,15 +50,15 @@ HcclResult ResgisterSnapshotCallback()
 {
     rtError_t ret = aclrtSnapShotCallbackRegister(ACL_RT_SNAPSHOT_LOCK_PRE, PreProcessCallback, nullptr);
     CHK_PRT_RET(ret != ACL_SUCCESS,
-        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] regiter preprocess callback fail, ret[%d]",
+        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] register preprocess callback fail, ret[%d]",
         HCCL_ERROR_CODE(HCCL_E_RUNTIME), ret), HCCL_E_RUNTIME);
     ret = aclrtSnapShotCallbackRegister(ACL_RT_SNAPSHOT_UNLOCK_POST, PostProcessCallback, nullptr);
     CHK_PRT_RET(ret != ACL_SUCCESS,
-        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] regiter postprocess callback fail, ret[%d]",
+        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] register postprocess callback fail, ret[%d]",
         HCCL_ERROR_CODE(HCCL_E_RUNTIME), ret), HCCL_E_RUNTIME);
     ret = aclrtSnapShotCallbackRegister(ACL_RT_SNAPSHOT_RESTORE_POST, RecoveryCallback, nullptr);
     CHK_PRT_RET(ret != ACL_SUCCESS,
-        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] regiter recovery callback fail, ret[%d]",
+        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] register recovery callback fail, ret[%d]",
         HCCL_ERROR_CODE(HCCL_E_RUNTIME), ret), HCCL_E_RUNTIME);
     return HCCL_SUCCESS;
 }
@@ -67,15 +67,15 @@ HcclResult UnResgisterSnapshotCallback()
 {
     rtError_t ret = aclrtSnapShotCallbackUnregister(ACL_RT_SNAPSHOT_LOCK_PRE, PreProcessCallback);
     CHK_PRT_RET(ret != ACL_SUCCESS,
-        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] unregiter preprocess callback fail, ret[%d]",
+        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] unregister preprocess callback fail, ret[%d]",
         HCCL_ERROR_CODE(HCCL_E_RUNTIME), ret), HCCL_E_RUNTIME);
     ret = aclrtSnapShotCallbackUnregister(ACL_RT_SNAPSHOT_UNLOCK_POST, PostProcessCallback);
     CHK_PRT_RET(ret != ACL_SUCCESS,
-        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] unregiter postprocess callback fail, ret[%d]",
+        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] unregister postprocess callback fail, ret[%d]",
         HCCL_ERROR_CODE(HCCL_E_RUNTIME), ret), HCCL_E_RUNTIME);
     ret = aclrtSnapShotCallbackUnregister(ACL_RT_SNAPSHOT_RESTORE_POST, RecoveryCallback);
     CHK_PRT_RET(ret != ACL_SUCCESS,
-        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] unregiter recovery callback fail, ret[%d]",
+        HCCL_ERROR("[SnapshotControl]errNo[0x%016llx] unregister recovery callback fail, ret[%d]",
         HCCL_ERROR_CODE(HCCL_E_RUNTIME), ret), HCCL_E_RUNTIME);
     return HCCL_SUCCESS;
 }
