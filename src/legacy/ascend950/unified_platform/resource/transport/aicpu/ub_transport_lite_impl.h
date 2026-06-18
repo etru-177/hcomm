@@ -71,7 +71,6 @@ public:
     
     void BatchTransfer(const std::vector<RmaBufferLite> &loc, const std::vector<Buffer> &rmt,
                         const std::vector<TransferOp> &transferOp, const StreamLite &stream) override;
-
     // 子类独有方法，支持所有操作类型，用于aicpu场景批量下发任务
     void BatchTransferAll(const std::vector<RmaBufferLite> &loc, const std::vector<Buffer> &rmt,
                         const std::vector<TransferOp> &transferOp, const std::vector<uint32_t> &notifyIdxs, const StreamLite &stream);
@@ -169,6 +168,39 @@ private:
 
     void ExecProfiling(const std::vector<RmaBufferLite> &loc, const std::vector<Buffer> &rmt, 
                  const std::vector<BaseTransportLiteImpl::TransferOp> &transferOp, const StreamLite &stream, u32 taskId);
+
+    inline void AddTaskCallback(const StreamLite &stream, u32 taskId, const TaskParam &taskParam)
+    {
+        if (callback_ != nullptr) {
+            callback_(stream.GetSqId(), taskId, taskParam);
+        }
+
+        if (newCallback_ != nullptr) {
+            newCallback_(stream.GetSqId(), taskId, taskParam, reinterpret_cast<u64>(this));
+        }
+    }
+
+    inline void FillTaskParamDmaPub(TaskParam &taskParam, void *dst, u64 size, DmaOp dmaOp)
+    {
+        taskParam.taskPara.DMA.dst      = dst;
+        taskParam.taskPara.DMA.size     = size;
+        taskParam.taskPara.DMA.notifyID = INVALID_VALUE_NOTIFYID;
+        taskParam.taskPara.DMA.notifyValue = 0xffffffff;
+        taskParam.taskPara.DMA.linkType = DfxLinkType::UB;
+        taskParam.taskPara.DMA.dmaOp    = dmaOp;
+        taskParam.taskPara.DMA.locEid = GetLocEid();
+        taskParam.taskPara.DMA.rmtEid = GetRmtEid();
+    }
+
+    void ExecProfilingAll(const std::vector<RmaBufferLite> &loc, const std::vector<Buffer> &rmt, 
+                const std::vector<BaseTransportLiteImpl::TransferOp> &transferOp, const StreamLite &stream, u32 taskId,
+                const std::vector<uint32_t> &notifyIdxs);
+    void WriteWithNotifyProfilingProcess(void *src, void *dst, u64 size, const StreamLite &stream,
+                                        u32 taskId, u64 notifyId);
+    void WriteReduceWithNotifyProfilingProcess(void *src, void *dst, u64 size,
+                                            const ReduceIn &reduceIn, const StreamLite &stream, u32 taskId, u64 notifyId);
+    void NotifyRecordProfilingProcess(void *dst, u64 size,
+                                    const StreamLite &stream, u32 taskId, u64 notifyId);
 };
 
 } // namespace Hccl
