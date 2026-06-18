@@ -28,15 +28,15 @@ using namespace hccl;
 HcclResult HcclCommMemReg(HcclComm comm, const char *memTag, const CommMem *mem, HcclMemHandle *memHandle)
  
 {
-    CHK_PRT_RET(comm == nullptr,  HCCL_ERROR("[HcclCommMemReg]comm is null"), HCCL_E_PARA);
-    CHK_PRT_RET(memTag == nullptr, HCCL_ERROR("[HcclCommMemReg]memTag is null"), HCCL_E_PARA);
+    CHK_PRT_RET(comm == nullptr,  HCCL_ERROR("[HcclCommMemReg]comm is null"), HCCL_E_PTR);
+    CHK_PRT_RET(memTag == nullptr, HCCL_ERROR("[HcclCommMemReg]memTag is null"), HCCL_E_PTR);
     CHK_PRT_RET(strlen(memTag) == 0 || strlen(memTag) > HCCL_RES_TAG_MAX_LEN,
         HCCL_ERROR("[HcclCommMemReg]memTag length is %u", strlen(memTag)), HCCL_E_PARA);
-    CHK_PRT_RET(mem == nullptr,   HCCL_ERROR("[HcclCommMemReg]mem is null"), HCCL_E_PARA);
-    CHK_PRT_RET(memHandle == nullptr, HCCL_ERROR("[HcclCommMemReg]memHandle is null"), HCCL_E_PARA);
+    CHK_PRT_RET(mem == nullptr,   HCCL_ERROR("[HcclCommMemReg]mem is null"), HCCL_E_PTR);
+    CHK_PRT_RET(memHandle == nullptr, HCCL_ERROR("[HcclCommMemReg]memHandle is null"), HCCL_E_PTR);
     CHK_PRT_RET((mem->type != COMM_MEM_TYPE_DEVICE) && (mem->type != COMM_MEM_TYPE_HOST),
         HCCL_ERROR("[HcclCommMemReg]memoryType[%d] must be device or host", mem->type), HCCL_E_PARA);
-    CHK_PRT_RET(mem->addr == nullptr, HCCL_ERROR("[HcclCommMemReg]addr is null"), HCCL_E_PARA);
+    CHK_PRT_RET(mem->addr == nullptr, HCCL_ERROR("[HcclCommMemReg]addr is null"), HCCL_E_PTR);
     CHK_PRT_RET(mem->size == 0, HCCL_ERROR("[HcclCommMemReg]size[%lld] invalid",
         static_cast<long long>(mem->size)), HCCL_E_PARA);
 

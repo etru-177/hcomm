@@ -80,6 +80,7 @@ set(src_to_test_list
     comms/adpt/ut_hcomm_adapter_hccp_test.cc
     comms/endpoints/dfx/ut_endpoint_monitor.cc
     coll_comms/rank/ut_exchange_info_mgr.cc
+    coll_comms/rank/comm_mems/test_hcclCommMemReg_api.cc
 )
 
 add_executable(hccl_utest_test_next_resource ${src_to_test_list})
