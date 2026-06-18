@@ -84,7 +84,7 @@ HcclResult HcclRemoteReadReduce(StreamHandle streamHandle, HcclMemTransport memT
     CHK_RET(GetPubDispatcher(&dispatcherPtr));
 
     Stream *stream = reinterpret_cast<Stream*>(streamHandle);
-    return dispatcherPtr->InlineReduceAsync(rmtBuf->addr, rmtBuf->len / reduceInfo.dataType,
+    return dispatcherPtr->InlineReduceAsync(rmtBuf->addr, rmtBuf->len / SIZE_TABLE[reduceInfo.dataType],
         reduceInfo.dataType, reduceInfo.reduceOp,
         *stream, locBuf->addr, INVALID_VALUE_RANKID, LinkType::LINK_ONCHIP);
 }

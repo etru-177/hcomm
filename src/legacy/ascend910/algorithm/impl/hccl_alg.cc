@@ -108,6 +108,8 @@ std::unique_ptr<CollAlgOperator> HcclAlg::GetAlgOperator(const HcclCMDType &opTy
     }
     std::unique_ptr<CollAlgOperator> operation = CollAlgOpRegistry::Instance().GetAlgOp(
         opType, algConfigurator_.get(), cclBufferManager_, dispatcher_, topoMatcher_);
+    CHK_PRT_RET(operation == nullptr,
+        HCCL_ERROR("[HcclAlg][GetAlgOperator] GetAlgOp return nullptr, opType[%d]", opType), nullptr);
     if (opType == HcclCMDType::HCCL_CMD_ALLTOALL || opType == HcclCMDType::HCCL_CMD_ALLTOALLV ||
         opType == HcclCMDType::HCCL_CMD_ALLTOALLVC) {
         AlltoAllOperator* alltoAllOperator = dynamic_cast<AlltoAllOperator *>(operation.get());

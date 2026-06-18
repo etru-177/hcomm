@@ -64,6 +64,8 @@ Transport::Transport(TransportType type, TransportPara& para,
     } else {
         pimpl_ = new (std::nothrow) TransportBase(dispatcher, notifyPool, machinePara, para.timeout);
     }
+    CHK_PRT_CONT(pimpl_ == nullptr, HCCL_ERROR("[Transport][Transport] create pimpl_ failed, type[%d].",
+        static_cast<int>(type)));
     HCCL_DEBUG("Transport::Transport, type = %d", static_cast<int>(type));
 }
 

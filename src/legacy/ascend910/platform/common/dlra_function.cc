@@ -23,7 +23,9 @@ DlRaFunction* DlRaFunction::hcclDlRaFunction = nullptr;
 DlRaFunction::Init::Init()
 {
     if (initCount.fetch_add(1) == 0) {
-        DlRaFunction::hcclDlRaFunction = new DlRaFunction;
+        DlRaFunction::hcclDlRaFunction = new (std::nothrow) DlRaFunction;
+        CHK_PRT_CONT(DlRaFunction::hcclDlRaFunction == nullptr,
+            HCCL_ERROR("[DlRaFunction][Init] hcclDlRaFunction new failed"));
     }
 }
 

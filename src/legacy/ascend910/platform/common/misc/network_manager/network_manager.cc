@@ -32,7 +32,9 @@ NetworkManager::InitTool::InitTool()
 {
     if (initCount.load() == 0) {
         for (u32 i = 0; i < MAX_DEV_NUM; i++) {
-            NetworkManager::nmInstance[i] = new NetworkManager;
+            NetworkManager::nmInstance[i] = new (std::nothrow) NetworkManager;
+            CHK_PRT_CONT(NetworkManager::nmInstance[i] == nullptr,
+                HCCL_ERROR("[NetworkManager][InitTool] nmInstance[%u] new failed", i));
         }
     }
     ++initCount;

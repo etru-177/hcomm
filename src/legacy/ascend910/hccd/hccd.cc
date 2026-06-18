@@ -353,6 +353,7 @@ int HcclImrecv(void* buffer, int count, HcclDataType dataType, HcclMessage* msg,
 
     HcclMessageInfo* hcclMsg = static_cast<HcclMessageInfo *>(*msg);
     hccl::HccdComm* hccdComm = static_cast<hccl::HccdComm *>(hcclMsg->commHandle);
+    CHK_PTR_NULL(hccdComm);
     uint32_t peerRank = hcclMsg->envelope.envelope.epParam.src.rank;
     uint32_t tag = hcclMsg->envelope.envelope.epParam.src.tag;
     /* 接口交互信息日志 */

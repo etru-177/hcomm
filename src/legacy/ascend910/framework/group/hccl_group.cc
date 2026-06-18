@@ -86,6 +86,7 @@ HcclResult taskAppend(HcclComm comm, hcclOpInfo& info) {
 HcclResult commInitTaskAppend(std::shared_ptr<struct hcclAsyncJob> job, HcclResult (*func)(struct hcclAsyncJob *), HcclComm* comm)
 {
     HCCL_INFO("[hcclAsyncJobEnqueue] add item to queue");
+    CHK_PRT_RET(!job, HCCL_ERROR("[commInitTaskAppend] job is nullptr"), HCCL_E_INTERNAL);
     /*hcclAsyncLaunch只是将job放入队列，并不等待执行完成。groupLaunch->asyncJobLaunch中给每个job起一个线程去执行*/
     job->func = func;
     job->comm = comm;
