@@ -12,6 +12,7 @@
 add_library(ccl_dpu SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/framework/communicator/hostdpu/dpu_kernel_entrance.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/framework/communicator/hostdpu/task_service.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/framework/dfx/profiling/dlprof_function.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/common/log.cc
 )
 
@@ -75,6 +76,7 @@ target_include_directories(ccl_dpu PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/unified_platform/pub_inc
     ${CMAKE_CURRENT_SOURCE_DIR}/unified_platform/external_system
     ${CMAKE_CURRENT_SOURCE_DIR}/framework/dfx
+    ${CMAKE_CURRENT_SOURCE_DIR}/framework/dfx/profiling
 )
 
 # 指定 ccl_dpu 构建完成后安装到指定的目标位置
