@@ -335,15 +335,15 @@ HcclResult TaskProfiling::Save(u32 captureStreamID, u32 streamID, u32 taskID, co
 
     std::unique_lock<std::mutex> streamLock(streamMutex_[deviceLogicId_]);
 
-    if (streamRecordInfoMap_[deviceLogicId_].find(streamID) == streamRecordInfoMap_[deviceLogicId_].end()) {
+    if (streamRecordInfoMap_[deviceLogicId_].find(captureStreamID) == streamRecordInfoMap_[deviceLogicId_].end()) {
         // 找不到对应的tag则认为该stream不参与profiling, 返回SUCCESS
-        HCCL_DEBUG("streamID[%u] not found in profiler", streamID);
+        HCCL_DEBUG("streamID[%u] not found in profiler", captureStreamID);
         hcclReportData.tag = "unknown";
         hcclReportData.profInfo.planeID = 0;
         hcclReportData.groupName = "unknown";
         hcclReportData.profInfo.workFlowMode = 0;
     } else {
-        StreamRecordInfo &streamInfo = streamRecordInfoMap_[deviceLogicId_][streamID];
+        StreamRecordInfo &streamInfo = streamRecordInfoMap_[deviceLogicId_][captureStreamID];
         hcclReportData.tag = streamInfo.tag;
         hcclReportData.profInfo.planeID = streamInfo.planeId;
         hcclReportData.groupName = tagGroupMap_[deviceLogicId_][hcclReportData.tag];
