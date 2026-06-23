@@ -100,10 +100,10 @@ SelectorStatus Mc2Selector::SelectDefaultCcuSchedAlgo(const CollAlgOperator &op,
     TopoInfo topoInfo;
     CalcTopoShape(topoInfo);
     std::map<OpType, string> algMap;
-    if (topoInfo.level0Shape == Level0Shape::MESH_1D) {
+    if (topoInfo.level0Shape == Level0Shape::MESH_1D || topoInfo.level0Shape == Level0Shape::MESH_1D_CLOS) {
         algMap = MC2_CCU_SCHED_1D_DEFAULT_ALG_MAP;
     } else {
-        HCCL_ERROR("[Algo][Mc2Selector][SelectDefaultCcuSchedAlgo] only support 1D mesh algo.");
+        HCCL_ERROR("[Algo][Mc2Selector][SelectDefaultCcuSchedAlgo] only support 1D mesh and 1D mesh clos algo.");
         return SelectorStatus::NOT_MATCH;
     }
     auto it = algMap.find(op.opType);
