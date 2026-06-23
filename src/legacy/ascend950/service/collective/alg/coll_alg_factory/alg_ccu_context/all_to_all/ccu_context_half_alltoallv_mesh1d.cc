@@ -127,24 +127,32 @@ void CcuContextHalfAllToAllVMesh1D::LoadArgsFromMem()
 
     // 连续加载rankSize * 2个sendSize
     dataLength = 8;  // 每个Xn占8个byte
-    tempAddr = sendSizeAddr_;
-    for (uint32_t i = 0; i < rankSize_; i++) {
-        LoadVariable(tempAddr, sendSizeA_[i]);
-        tempAddr += dataLength;
+
+    u32 argsCount = sendSizeA_.size() + sendSizeB_.size() + sendOffsetA_.size() + sendOffsetB_.size();
+    std::vector<CcuRep::Variable> tempArgs(argsCount);
+    HCCL_INFO("CcuContextHalfAllToAllVMesh1D LoadArgsFromMem, argsCount:[%u]", argsCount);
+
+    for (uint32_t i = 0; i < tempArgs.size(); ++i) {
+        tempArgs[i] = CreateContinuousVariable();
     }
-    for (uint32_t i = 0; i < rankSize_; i++) {
-        LoadVariable(tempAddr, sendSizeB_[i]);
-        tempAddr += dataLength;
+    LoadVariable(sendSizeAddr_, tempArgs[0], argsCount);
+
+    u32 argIdx = 0;
+    for (uint32_t i = 0; i < sendSizeA_.size(); i++) {
+        sendSizeA_[i] = tempArgs[argIdx];
+        argIdx++;
     }
-    // 连续加载rankSize * 2个sendOffset
-    tempAddr = sendOffsetAddr_;
-    for (uint32_t i = 0; i < rankSize_; i++) {
-        LoadVariable(tempAddr, sendOffsetA_[i]);
-        tempAddr += dataLength;
+    for (uint32_t i = 0; i < sendSizeB_.size(); i++) {
+        sendSizeB_[i] = tempArgs[argIdx];
+        argIdx++;
     }
-    for (uint32_t i = 0; i < rankSize_; i++) {
-        LoadVariable(tempAddr, sendOffsetB_[i]);
-        tempAddr += dataLength;
+    for (uint32_t i = 0; i < sendOffsetA_.size(); i++) {
+        sendOffsetA_[i] = tempArgs[argIdx];
+        argIdx++;
+    }
+    for (uint32_t i = 0; i < sendOffsetB_.size(); i++) {
+        sendOffsetB_[i] = tempArgs[argIdx];
+        argIdx++;
     }
     return;
 }
