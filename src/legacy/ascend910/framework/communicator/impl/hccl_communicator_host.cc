@@ -5121,8 +5121,8 @@ namespace hccl
 
     HcclResult HcclCommunicator::CaptureSlaveStreams(rtStream_t mainStream, vector<Stream> &slaveStreams)
     {
-        if ((deviceType_ != DevType::DEV_TYPE_910_93) && (deviceType_ != DevType::DEV_TYPE_310P3)) {
-            HCCL_INFO("[HcclCommunicator][%s]Only 310P3 or A3 device in host expand mode need to capture slave streams.", __func__);
+        if ((deviceType_ != DevType::DEV_TYPE_910_93) && (deviceType_ != DevType::DEV_TYPE_310P3) && (deviceType_ != DevType::DEV_TYPE_910B || GetExternalInputHcclEnableFfts())) {
+            HCCL_INFO("[HcclCommunicator][%s]Only 310P3 or A2 or A3 device in host expand mode need to capture slave streams.", __func__);
             return HCCL_SUCCESS;
         }
         aclmdlRI rtModel = nullptr;
