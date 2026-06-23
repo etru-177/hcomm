@@ -15,6 +15,8 @@ set(src_to_test_list
     ut_hcclCommTaskExceptionLite.cc
     ut_cluster_monitor.cc
     ut_ccuTaskexception_test.cc
+    ut_ccuTaskException_InitChannelMap_test.cc
+    ut_GenerateTaskErrMsg_GetTaskParam_test.cc
     ut_hcclCommDfx.cc
 )
 

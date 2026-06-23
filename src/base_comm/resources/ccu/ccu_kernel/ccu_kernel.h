@@ -102,6 +102,8 @@ public:
 
     const std::vector<CcuProfilingInfo> &GetAllCcuProfilingInfo() { return allCcuProfilingInfos_; };
 
+    const std::unordered_set<ChannelHandle> &GetChannels() { return channels_; }
+
 public:
 
     //Alloc 相关接口

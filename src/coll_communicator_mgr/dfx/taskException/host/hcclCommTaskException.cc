@@ -593,26 +593,55 @@ void TaskExceptionHost::ReportErrorMsg(const Hccl::TaskInfo &exceptionTaskInfo, 
     }
 }
 
-void GetTaskParam(Hccl::TaskParam &taskParam, const Hccl::ErrorMessageReport &errorMessage) {
-    if (errorMessage.taskType == Hccl::TaskParamType::TASK_NOTIFY_WAIT) {
-        taskParam.taskPara.Notify.notifyID = errorMessage.notifyId;
-        taskParam.taskPara.Notify.value = errorMessage.notifyValue;
-    } else if (errorMessage.taskType == Hccl::TaskParamType::TASK_UB_REDUCE_INLINE ||
-        errorMessage.taskType == Hccl::TaskParamType::TASK_WRITE_REDUCE_WITH_NOTIFY) {
-        taskParam.taskPara.Reduce.notifyID = errorMessage.notifyId;
-        taskParam.taskPara.Reduce.notifyValue = errorMessage.notifyValue;
-        taskParam.taskPara.Reduce.src = reinterpret_cast<void *>(errorMessage.taskSrcAddr);
- 	    taskParam.taskPara.Reduce.dst = reinterpret_cast<void *>(errorMessage.taskDstAddr);
- 	    taskParam.taskPara.Reduce.linkType = errorMessage.linkType;
- 	    taskParam.taskPara.Reduce.size = errorMessage.size;
-    } else if (errorMessage.taskType == Hccl::TaskParamType::TASK_UB_INLINE_WRITE ||
-        errorMessage.taskType == Hccl::TaskParamType::TASK_WRITE_WITH_NOTIFY) {
-        taskParam.taskPara.DMA.notifyID = errorMessage.notifyId;
-        taskParam.taskPara.DMA.notifyValue = errorMessage.notifyValue;
-        taskParam.taskPara.DMA.src = reinterpret_cast<void *>(errorMessage.taskSrcAddr);
- 	    taskParam.taskPara.DMA.dst = reinterpret_cast<void *>(errorMessage.taskDstAddr);
- 	    taskParam.taskPara.DMA.linkType = errorMessage.linkType;
- 	    taskParam.taskPara.DMA.size = errorMessage.size;
+void GetTaskParam(Hccl::TaskParam &taskParam, const Hccl::ErrorMessageReport &errMsgInfo) {
+    switch (errMsgInfo.taskType) {
+        case Hccl::TaskParamType::TASK_NOTIFY_WAIT:
+        case Hccl::TaskParamType::TASK_NOTIFY_RECORD:
+            taskParam.taskPara.Notify.notifyID = errMsgInfo.notifyId;
+            taskParam.taskPara.Notify.value = errMsgInfo.notifyValue;
+            break;
+        case Hccl::TaskParamType::TASK_UB_REDUCE_INLINE:
+        case Hccl::TaskParamType::TASK_WRITE_REDUCE_WITH_NOTIFY:
+            taskParam.taskPara.Reduce.notifyID = errMsgInfo.notifyId;
+            taskParam.taskPara.Reduce.notifyValue = errMsgInfo.notifyValue;
+            taskParam.taskPara.Reduce.locEid = errMsgInfo.locEid;
+            taskParam.taskPara.Reduce.rmtEid = errMsgInfo.rmtEid;
+            taskParam.taskPara.Reduce.linkType = errMsgInfo.linkType;
+            taskParam.taskPara.Reduce.size = errMsgInfo.size;
+            taskParam.taskPara.Reduce.src = reinterpret_cast<void *>(errMsgInfo.taskSrcAddr);
+ 	        taskParam.taskPara.Reduce.dst = reinterpret_cast<void *>(errMsgInfo.taskDstAddr);
+            break;
+        case Hccl::TaskParamType::TASK_REDUCE_INLINE:
+            taskParam.taskPara.Reduce.reduceOp = static_cast<HcclReduceOp>(errMsgInfo.reduceType);
+            break;
+        case Hccl::TaskParamType::TASK_UB_INLINE_WRITE:
+        case Hccl::TaskParamType::TASK_WRITE_WITH_NOTIFY:
+            taskParam.taskPara.DMA.notifyID = errMsgInfo.notifyId;
+            taskParam.taskPara.DMA.notifyValue = errMsgInfo.notifyValue;
+            taskParam.taskPara.DMA.locEid = errMsgInfo.locEid;
+            taskParam.taskPara.DMA.rmtEid = errMsgInfo.rmtEid;
+            taskParam.taskPara.DMA.linkType = errMsgInfo.linkType;
+            taskParam.taskPara.DMA.size = errMsgInfo.size;
+            taskParam.taskPara.DMA.src = reinterpret_cast<void *>(errMsgInfo.taskSrcAddr);
+ 	        taskParam.taskPara.DMA.dst = reinterpret_cast<void *>(errMsgInfo.taskDstAddr);
+            break;
+        case Hccl::TaskParamType::TASK_UB:
+            taskParam.taskPara.DMA.locEid = errMsgInfo.locEid;
+            taskParam.taskPara.DMA.rmtEid = errMsgInfo.rmtEid;
+            taskParam.taskPara.DMA.linkType = errMsgInfo.linkType;
+            taskParam.taskPara.DMA.size = errMsgInfo.size;
+            taskParam.taskPara.DMA.src = reinterpret_cast<void *>(errMsgInfo.taskSrcAddr);
+ 	        taskParam.taskPara.DMA.dst = reinterpret_cast<void *>(errMsgInfo.taskDstAddr);
+            break;
+        case Hccl::TaskParamType::TASK_SDMA:
+            taskParam.taskPara.DMA.linkType = errMsgInfo.linkType;
+            taskParam.taskPara.DMA.size = errMsgInfo.size;
+            taskParam.taskPara.DMA.src = reinterpret_cast<void *>(errMsgInfo.taskSrcAddr);
+  	        taskParam.taskPara.DMA.dst = reinterpret_cast<void *>(errMsgInfo.taskDstAddr);
+            break;
+        default:
+            HCCL_ERROR("[TaskException][HOST]%s taskType[%d] is not support", __func__, taskParam.taskType);
+            return;
     }
 }
 

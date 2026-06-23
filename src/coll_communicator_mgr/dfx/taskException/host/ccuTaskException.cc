@@ -234,16 +234,15 @@ HcclResult CcuTaskException::InitChannelMap(s32 deviceId, u64 ccuKernelHandle)
     CHK_PRT_RET(kernel == nullptr, HCCL_ERROR("[%s]GetKernel nullptr, deviceId[%u], ccuKernelHandle[0x%llx]",
         __func__, deviceId, ccuKernelHandle), HCCL_E_PARA);
 
-    const std::vector<CcuProfilingInfo> ccuProfilingInfos = kernel->GetAllCcuProfilingInfo();
-    for (const CcuProfilingInfo& profInfo : ccuProfilingInfos) {
-        for (u32 idx = 0; idx < CCU_MAX_CHANNEL_NUM; ++idx) {
-            if (profInfo.channelId[idx] == hcomm::INVALID_VALUE_CHANNELID) {
-                break;
-            }
-            g_channelIdToHandle[profInfo.channelId[idx]] = profInfo.channelHandle[idx];
-            HCCL_INFO("[%s]deviceId[%d], ccuKernelHandle[0x%llx], idx[%u], channelId[%u], channelHandle[0x%llx]",
-                __func__, deviceId, ccuKernelHandle, idx, profInfo.channelId[idx], profInfo.channelHandle[idx]);
-        }
+    const auto& ccuChannels = kernel->GetChannels();
+    for (const auto& it : ccuChannels) {
+        void *channelPtr = nullptr;
+        CHK_RET(static_cast<HcclResult>(HcommChannelGet(it, &channelPtr)));
+        auto *channelImpl = dynamic_cast<CcuUrmaChannel *>(static_cast<Channel *>(channelPtr));
+        CHK_PTR_NULL(channelImpl);
+        g_channelIdToHandle[channelImpl->GetChannelId()] = it;
+        HCCL_RUN_INFO("[%s]deviceId[%d], ccuKernelHandle[0x%llx], channelId[%u], channelHandle[0x%llx]",
+            __func__, deviceId, ccuKernelHandle, channelImpl->GetChannelId(), it);
     }
     return HCCL_SUCCESS;
 }
