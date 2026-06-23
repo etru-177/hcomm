@@ -291,3 +291,33 @@ TEST_F(ProfilingHandlerLiteTest, SetProLevelOn_test)
     EXPECT_EQ(true, handler.enableHcclL0_);
     EXPECT_EQ(true, handler.enableHcclL1_);
 }
+
+TEST_F(ProfilingHandlerLiteTest, Ut_ReportHcclOpInfo_When_CommNullptr_Expect_NoThrow)
+{
+    ProfilingHandlerLite &handler = Hccl::ProfilingHandlerLite::GetInstance();
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    dfxOpInfo->tag_ = "testTag";
+    dfxOpInfo->commIndex_ = 0;
+    dfxOpInfo->beginTime_ = 0;
+    dfxOpInfo->endTime_ = 1;
+    dfxOpInfo->comm_ = nullptr;
+    dfxOpInfo->isIndop_ = false;
+    ableNum = 0;
+    handler.enableHcclL0_ = true;
+    EXPECT_NO_THROW(handler.ReportHcclOpInfo(*dfxOpInfo));
+}
+
+TEST_F(ProfilingHandlerLiteTest, Ut_ReportHcclTaskDetails_When_DfxOpInfoNullptr_Expect_NoCrash)
+{
+    ProfilingHandlerLite &handler = Hccl::ProfilingHandlerLite::GetInstance();
+    std::vector<TaskInfo> taskInfoVec;
+    TaskParam taskParam{};
+    TaskInfo taskInfo(0, 0, 0, taskParam, nullptr);
+    taskInfoVec.push_back(taskInfo);
+    handler.enableHcclL1_ = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetails(taskInfoVec));
+}

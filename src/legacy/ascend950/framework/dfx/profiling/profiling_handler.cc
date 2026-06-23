@@ -149,10 +149,15 @@ void ProfilingHandler::ReportHcclTaskApi(TaskParamType taskType, uint64_t beginT
 
 void ProfilingHandler::ReportHcclTaskDetails(const TaskInfo &taskInfo, bool cachedReq)
 {
-    CHECK_NULLPTR(taskInfo.dfxOpInfo_, "[ProfilingHandler::ReportHcclTaskDetails] taskInfo.dfxOpInfo_ is nullptr!");
-    CHECK_NULLPTR(taskInfo.dfxOpInfo_->comm_, 
-                  "[ProfilingHandler::ReportHcclTaskDetails] taskInfo.dfxOpInfo_->comm_ is nullptr!");
     if (enableHcclL1_ == false && !cachedReq) {
+        return;
+    }
+    if (taskInfo.dfxOpInfo_ == nullptr) {
+        HCCL_WARNING("[%s] dfxOpInfo_ is nullptr, skip ReportHcclTaskDetails!", __func__);
+        return;
+    }
+    if (taskInfo.dfxOpInfo_->comm_ == nullptr) {
+        HCCL_WARNING("[%s] comm_ is nullptr, skip ReportHcclTaskDetails!", __func__);
         return;
     }
     if (cachedReq) {
@@ -213,7 +218,7 @@ void ProfilingHandler::CallAdditionInfo(HCCLReportData &hcclReportData, void *da
 void ProfilingHandler::GetProfCommonInfo(const TaskInfo &taskInfo, HCCLReportData &hcclReportData) const
 {
     if (taskInfo.dfxOpInfo_ == nullptr) {
-        HCCL_ERROR("[ProfilingHandler]taskInfo.dfxOpInfo_ is nullptr");
+        HCCL_WARNING("[ProfilingHandler][%s]taskInfo.dfxOpInfo_ is nullptr, skip GetProfCommonInfo.", __func__);
         return;
     }
     hcclReportData.ts = taskInfo.taskParam_.endTime;
@@ -224,7 +229,7 @@ void ProfilingHandler::GetProfCommonInfo(const TaskInfo &taskInfo, HCCLReportDat
     const auto &opTag = taskInfo.dfxOpInfo_->op_.opTag;
     uint64_t groupName = GetProfHashId(opTag.c_str(), opTag.length());
     if (taskInfo.dfxOpInfo_->comm_ == nullptr) {
-        HCCL_ERROR("[ProfilingHandler]taskInfo.dfxOpInfo_->comm_ is nullptr");
+        HCCL_WARNING("[ProfilingHandler][%s]taskInfo.dfxOpInfo_->comm_ is nullptr, skip GetProfCommonInfo.", __func__);
         return;
     }
     if (taskInfo.dfxOpInfo_->isIndop_ == true) {
@@ -233,7 +238,7 @@ void ProfilingHandler::GetProfCommonInfo(const TaskInfo &taskInfo, HCCLReportDat
     } else {
         CommunicatorImpl *commImp = static_cast<CommunicatorImpl *>(taskInfo.dfxOpInfo_->comm_);
         if (commImp == nullptr) {
-            HCCL_ERROR("[ProfilingHandler]commImp is  nullptr");
+            HCCL_WARNING("[ProfilingHandler][%s]commImp is nullptr, skip GetProfCommonInfo.", __func__);
             return;
         }
         hcclReportData.profInfo.groupName = groupName;
@@ -282,7 +287,7 @@ void ProfilingHandler::GetProfTaskSpecificInfo(const TaskInfo &taskInfo, HCCLRep
 void ProfilingHandler::GetDpuProfInfo(const TaskInfo &taskInfo, HCCLReportData &hcclReportData) const
 {
     if (taskInfo.dfxOpInfo_ == nullptr) {
-        HCCL_ERROR("[ProfilingHandler::GetDpuProfInfo] taskInfo.dfxOpInfo_ is nullptr!");
+        HCCL_WARNING("[ProfilingHandler::GetDpuProfInfo] taskInfo.dfxOpInfo_ is nullptr, skip GetDpuProfInfo!");
         return;
     }
     const auto &taskType = taskInfo.taskParam_.taskType;
@@ -394,7 +399,7 @@ void ProfilingHandler::ReportCcuInfo(const TaskInfo &taskInfo) const
         return;
     }
     if (taskInfo.dfxOpInfo_ == nullptr) {
-        HCCL_ERROR("[ProfilingHandler]ReportCcuInfo dfxOpInfo_ is nullptr.");
+        HCCL_WARNING("[ProfilingHandler]ReportCcuInfo dfxOpInfo_ is nullptr, skip ReportCcuInfo.");
         return;
     }
     auto ccuDetailInfo = taskInfo.taskParam_.ccuDetailInfo;

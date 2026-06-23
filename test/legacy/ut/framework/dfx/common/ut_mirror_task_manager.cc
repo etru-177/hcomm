@@ -225,3 +225,26 @@ TEST_F(MirrorTaskManagerTest, MirrorTaskManager_RegFullyCallBack_1)
     // 注册回调
     mirrorTaskManager.RegFullyCallBack(testCallBack);
 }
+
+TEST_F(MirrorTaskManagerTest, Ut_GetCurrDfxOpInfo_When_DefaultConstructed_Expect_ReturnNullptr)
+{
+    GlobalMirrorTasks &globalMirrorTasks = GlobalMirrorTasks::Instance();
+    MirrorTaskManager mirrorTaskManager(0, &globalMirrorTasks, 0);
+    EXPECT_EQ(mirrorTaskManager.GetCurrDfxOpInfo(), nullptr);
+}
+
+TEST_F(MirrorTaskManagerTest, Ut_GetQueueType_When_CurrDfxOpInfoNullptr_Expect_ReturnCircularQueue)
+{
+    GlobalMirrorTasks &globalMirrorTasks = GlobalMirrorTasks::Instance();
+    for (auto &taskMap : globalMirrorTasks.taskMaps_) {
+        taskMap.clear();
+    }
+    MirrorTaskManager mirrorTaskManager(0, &globalMirrorTasks, 0);
+    TaskParam taskParam = {.taskType = TaskParamType::TASK_NOTIFY_RECORD,
+        .beginTime = 0,
+        .endTime = 0,
+        .taskPara = {.Notify = {.notifyID = 123, .value = 456}}};
+    std::shared_ptr<TaskInfo> taskInfo = std::make_shared<TaskInfo>(0, 0, 0, taskParam, nullptr);
+    EXPECT_NO_THROW(mirrorTaskManager.AddTaskInfo(taskInfo));
+    EXPECT_EQ(mirrorTaskManager.GetQueueType(), QueueType::Circular_Queue);
+}

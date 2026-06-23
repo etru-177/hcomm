@@ -13,7 +13,6 @@ namespace Hccl {
 
 MirrorTaskManagerLite::MirrorTaskManagerLite()
 {
-    currDfxOpInfo_ = std::make_shared<Hccl::DfxOpInfo>();
 }
 
 void MirrorTaskManagerLite::RegFullyCallBack(std::function<void(const std::string&, u32)> callBack)

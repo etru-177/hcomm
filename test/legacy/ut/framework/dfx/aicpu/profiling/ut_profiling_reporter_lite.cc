@@ -77,3 +77,9 @@ TEST_F(ProfilingReporterLiteTest, Call_profilingReporterLite_api_test)
     profilingReporter.UpdateProfStat();
     delete comm;
 }
+
+TEST_F(ProfilingReporterLiteTest, Ut_MirrorTaskManagerLite_GetCurrDfxOpInfo_When_DefaultConstructed_Expect_ReturnNullptr)
+{
+    MirrorTaskManagerLite mirrorTaskManagerLite;
+    EXPECT_EQ(mirrorTaskManagerLite.GetCurrDfxOpInfo(), nullptr);
+}

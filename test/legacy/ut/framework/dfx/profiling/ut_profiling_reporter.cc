@@ -105,3 +105,40 @@ TEST_F(ProfilingReporterTest, Call_profilingReporter_api_test)
     handler.enableHcclL1_ = true;
     profilingReporter.UpdateProfStat();
 }
+
+TEST_F(ProfilingReporterTest, Ut_ReportOp_When_OpInfoNullptr_Expect_ReturnNormally)
+{
+    GlobalMirrorTasks &globalMirrorTasks = GlobalMirrorTasks::Instance();
+    MirrorTaskManager mirrorTaskManager(0, &globalMirrorTasks, 0);
+    for (auto &taskMap : globalMirrorTasks.taskMaps_) {
+        taskMap.clear();
+    }
+    ProfilingReporter profilingReporter(&mirrorTaskManager, &ProfilingHandler::GetInstance());
+    profilingReporter.Init();
+    EXPECT_NO_THROW(profilingReporter.ReportOp(0, true, true));
+}
+
+TEST_F(ProfilingReporterTest, Ut_ReportOp_When_CommImpNullptr_Expect_ReturnNormally)
+{
+    GlobalMirrorTasks &globalMirrorTasks = GlobalMirrorTasks::Instance();
+    MirrorTaskManager mirrorTaskManager(0, &globalMirrorTasks, 0);
+    for (auto &taskMap : globalMirrorTasks.taskMaps_) {
+        taskMap.clear();
+    }
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    dfxOpInfo->comm_ = nullptr;
+    mirrorTaskManager.SetCurrDfxOpInfo(dfxOpInfo);
+    TaskParam taskParam = {.taskType = TaskParamType::TASK_NOTIFY_RECORD,
+        .beginTime = 0,
+        .endTime = 0,
+        .taskPara = {.Notify = {.notifyID = 123, .value = 456}}};
+    std::shared_ptr<TaskInfo> taskInfo = std::make_shared<TaskInfo>(0, 0, 0, taskParam, dfxOpInfo);
+    mirrorTaskManager.AddTaskInfo(taskInfo);
+    ProfilingReporter profilingReporter(&mirrorTaskManager, &ProfilingHandler::GetInstance());
+    profilingReporter.Init();
+    EXPECT_NO_THROW(profilingReporter.ReportOp(0, true, true));
+}

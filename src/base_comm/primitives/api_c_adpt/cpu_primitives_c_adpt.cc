@@ -829,6 +829,12 @@ HcclResult HcclProfilingReportOp(HcclComm comm, uint64_t beginTime)
     CHK_PTR_NULL(hcclCommDfx);
     HCCL_INFO("[%s] Report All Tasks Info, comm[%p], hcclCommDfx[%p] GetMirrorTaskManager[%p].",
         __func__, comm, hcclCommDfx, hcclCommDfx->GetMirrorTaskManager());
+    auto* mirrorTaskMgr = hcclCommDfx->GetMirrorTaskManager();
+    CHK_PTR_NULL(mirrorTaskMgr);
+    if (mirrorTaskMgr->GetCurrDfxOpInfo() == nullptr) {
+        HCCL_INFO("[%s] commId[%s] currDfxOpInfo is null, skip report.", __func__, collComm->GetCommId().c_str());
+        return HCCL_SUCCESS;
+    }
     //单算子模式暂时默认true
     bool isBaseOpMode = false;
     CHK_RET(hcclCommDfx->IsOpBase(isBaseOpMode));
@@ -853,6 +859,13 @@ HcclResult HcclReportAicpuKernel(HcclComm comm, uint64_t beginTime, char* kernel
     CHK_PTR_NULL(collComm);
     HcclCommDfx* hcclCommDfx = collComm->GetHcclCommDfx();
     CHK_PTR_NULL(hcclCommDfx);
+
+    auto* mirrorTaskMgr = hcclCommDfx->GetMirrorTaskManager();
+    CHK_PTR_NULL(mirrorTaskMgr);
+    if (mirrorTaskMgr->GetCurrDfxOpInfo() == nullptr) {
+        HCCL_INFO("[%s] commId[%s] currDfxOpInfo is null, skip report.", __func__, collComm->GetCommId().c_str());
+        return HCCL_SUCCESS;
+    }
 
     std::string kernelNameStr(kernelName);
     uint32_t threadId = SalGetTid();

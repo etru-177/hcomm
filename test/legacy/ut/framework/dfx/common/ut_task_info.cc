@@ -233,3 +233,43 @@ TEST_F(TaskInfoTest, test_GetIndopDataInfo)
     taskInfo.dfxOpInfo_ = nullptr;
     EXPECT_EQ(taskInfo.GetIndopDataInfo(), "");
 }
+
+TEST_F(TaskInfoTest, Ut_Describe_When_DfxOpInfoNullptr_Expect_ReturnNullptrDesc)
+{
+    TaskParam taskParam{};
+    TaskInfo taskInfo{0, 0, 0, taskParam, nullptr};
+    std::string desc = taskInfo.Describe();
+    EXPECT_NE(desc.find("dfxOpInfo:[nullptr]"), std::string::npos);
+    EXPECT_NE(desc.find("streamId(sqId):[0]"), std::string::npos);
+    EXPECT_NE(desc.find("taskId(sqeId):[0]"), std::string::npos);
+}
+
+TEST_F(TaskInfoTest, Ut_Describe_When_DfxOpInfoValid_Expect_ReturnFullDesc)
+{
+    TaskInfo taskInfo = InitTaskInfo();
+    taskInfo.streamId_ = 1;
+    taskInfo.taskId_ = 2;
+    taskInfo.dfxOpInfo_->tag_ = "test_tag";
+    std::string desc = taskInfo.Describe();
+    EXPECT_NE(desc.find("dfxOpInfo:[DfxOpInfo:"), std::string::npos);
+    EXPECT_NE(desc.find("streamId(sqId):[1]"), std::string::npos);
+    EXPECT_NE(desc.find("taskId(sqeId):[2]"), std::string::npos);
+}
+
+TEST_F(TaskInfoTest, Ut_GetOpInfo_When_DfxOpInfoNullptr_Expect_ReturnEmpty)
+{
+    TaskParam taskParam{};
+    TaskInfo taskInfo{0, 0, 0, taskParam, nullptr};
+    EXPECT_EQ(taskInfo.GetOpInfo(), "");
+}
+
+TEST_F(TaskInfoTest, Ut_GetOpInfo_When_DfxOpInfoValid_Expect_ReturnOpInfo)
+{
+    TaskInfo taskInfo = InitTaskInfo();
+    taskInfo.dfxOpInfo_->commIndex_ = 5;
+    taskInfo.dfxOpInfo_->op_.opType = OpType::ALLREDUCE;
+    taskInfo.dfxOpInfo_->op_.dataCount = 100;
+    std::string result = taskInfo.GetOpInfo();
+    EXPECT_NE(result.find("commIndex[5]"), std::string::npos);
+    EXPECT_NE(result.find("count[100]"), std::string::npos);
+}

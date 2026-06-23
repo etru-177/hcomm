@@ -625,3 +625,47 @@ TEST_F(ProfilingHandlerTest, Ut_ReportCcuInfo_When_ReportAllType)
     fakeTaskInfo.taskParam_.ccuDetailInfo = ccuDetailInfo;
     handler.ReportCcuInfo(fakeTaskInfo);
 }
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetails_When_DfxOpInfoNullptr_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = true;
+    TaskParam taskParam{};
+    TaskInfo taskInfo(0, 0, 0, taskParam, nullptr);
+    bool cachedReq = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetails(taskInfo, cachedReq));
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetails_When_CommNullptr_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = true;
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    dfxOpInfo->comm_ = nullptr;
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    TaskParam taskParam{};
+    TaskInfo taskInfo(0, 0, 0, taskParam, dfxOpInfo);
+    bool cachedReq = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetails(taskInfo, cachedReq));
+}
+
+TEST_F(ProfilingHandlerTest, Ut_GetHCCLReportData_When_DfxOpInfoNullptr_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    TaskParam taskParam{};
+    TaskInfo taskInfo(0, 0, 0, taskParam, nullptr);
+    HCCLReportData hcclReportData;
+    EXPECT_NO_THROW(handler.GetHCCLReportData(taskInfo, hcclReportData));
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportCcuInfo_When_DfxOpInfoNullptr_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = true;
+    TaskParam taskParam{};
+    TaskInfo taskInfo(0, 0, 0, taskParam, nullptr);
+    EXPECT_NO_THROW(handler.ReportCcuInfo(taskInfo));
+}

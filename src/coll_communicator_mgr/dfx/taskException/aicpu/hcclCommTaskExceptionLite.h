@@ -50,8 +50,10 @@ private:
     // 打印流上的task信息的方法函数
     HcclResult PrintTaskExceptionBySqeId(CollCommAicpu *aicpuComm, u32 sqId, u32 sqeId);
     HcclResult PrintTaskContextInfo(CollCommAicpu *aicpuComm, u32 sqId, u32 taskId);
+    HcclResult CollectTaskContext(CollCommAicpu *aicpuComm, u32 sqId, u32 taskId,
+        std::vector<std::shared_ptr<Hccl::TaskInfo>> &taskContext);
     void PrintEid(const Hccl::TaskInfo& taskInfo);
-    std::string GetGroupInfo(const Hccl::TaskInfo& taskInfo);
+    std::string GetGroupInfo(CollCommAicpu *aicpuComm);
     u32 GetSqeId(uint16_t taskId, uint16_t streamId);
 
 private:

@@ -14,7 +14,6 @@ namespace Hccl {
 MirrorTaskManager::MirrorTaskManager(u32 devId, GlobalMirrorTasks *globalMirrorTasks, bool devUsed)
     : devId_(devId), globalMirrorTasks_(globalMirrorTasks), devUsed_(devUsed)
 {
-    currDfxOpInfo_ = std::make_shared<Hccl::DfxOpInfo>();
 }
 
 void MirrorTaskManager::RegFullyCallBack(std::function<void(const std::string&, u32)> callBack)
@@ -32,8 +31,8 @@ void MirrorTaskManager::RegFullyCallBack(std::function<void()> callBack)
 QueueType MirrorTaskManager::GetQueueType() const
 {
     if (currDfxOpInfo_ == nullptr) {
-        THROW<InternalException>(
-            StringFormat("MirrorTaskManager::GetQueueType currDfxOpInfo_ is nullptr!"));
+        HCCL_WARNING("[MirrorTaskManager][%s]currDfxOpInfo_ is nullptr, return default Circular_Queue!", __func__);
+        return QueueType::Circular_Queue;
     }
     QueueType queueType = QueueType::Vector_Queue;
 

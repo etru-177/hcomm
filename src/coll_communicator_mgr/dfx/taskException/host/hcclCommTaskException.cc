@@ -228,6 +228,10 @@ void TaskExceptionHost::Process(rtExceptionInfo_t* exceptionInfo)
         HCCL_ERROR("[%s]fail, dfxOpInfo is nullptr", __func__);
         return;
     }
+    if (curTask->dfxOpInfo_->comm_ == nullptr) {
+        HCCL_ERROR("[%s]fail, comm is nullptr", __func__);
+        return;
+    }
 
     bool isIndop_ = curTask->dfxOpInfo_->isIndop_;
     HCCL_INFO("[%s]isIndop_[%d], taskType[%s]", __func__, isIndop_, curTask->taskParam_.taskType.Describe().c_str());

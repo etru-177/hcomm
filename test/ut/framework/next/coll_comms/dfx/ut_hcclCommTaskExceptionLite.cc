@@ -315,3 +315,9 @@ TEST_F(hcclCommTaskExceptionLiteTest, Ut_PrintCommTaskException)
 
     EXPECT_EQ(hcomm::HcclCommTaskExceptionLite::GetInstance().PrintCommTaskException(&aicpuComm), HCCL_SUCCESS);
 }
+
+TEST_F(hcclCommTaskExceptionLiteTest, Ut_GetGroupInfo_When_AicpuCommNullptr_Expect_ReturnEmpty)
+{
+    std::string result = HcclCommTaskExceptionLite::GetInstance().GetGroupInfo(nullptr);
+    EXPECT_EQ(result, "");
+}
