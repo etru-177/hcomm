@@ -142,6 +142,9 @@ namespace hccl
             HCCL_ERROR("new ZeroCopyAclGraph failed!");
         }
         commConfig_ = CommConfig();
+        if (commConfig_.GetConfigUdi() != "Unspecified") {
+            udi_ = commConfig_.GetConfigUdi();
+        }
         dpuManager_.reset(new (std::nothrow) DpuManager());
         if (dpuManager_ == nullptr) {
             HCCL_ERROR("new DpuManager failed!");
@@ -173,6 +176,9 @@ namespace hccl
             HCCL_ERROR("new ZeroCopyAclGraph failed!");
         }
         commConfig_ = commConfig;
+        if (commConfig_.GetConfigUdi() != "Unspecified") {
+            udi_ = commConfig_.GetConfigUdi();
+        }
         dpuManager_.reset(new (std::nothrow) DpuManager());
         if (dpuManager_ == nullptr) {
             HCCL_ERROR("new DpuManager failed!");
@@ -822,10 +828,6 @@ namespace hccl
         commPortConfig_ = params.commPortConfig;
         cclBuffName_ = params.cclBuffName;
         isShareComm_ = !cclBuffName_.empty();
-        commName_ = identifier_;
-        if (!commConfig_.GetConfigUdi().empty()) {    // 如果配置了udi，更新commName_
-            commName_ = commConfig_.GetConfigGroupName();
-        }
 
         HCCL_DEBUG(
             " userRank_: %u realUserRank_: %u userRankSize_: %u deviceLogicId_: %u deviceType_: %u commWorkMode_: %u.",
@@ -6209,6 +6211,8 @@ namespace hccl
 
         CHK_SAFETY_FUNC_RET(
             memcpy_s(opResPara_.hcomId, sizeof(opResPara_.hcomId), identifier_.c_str(), identifier_.length() + 1));
+        CHK_SAFETY_FUNC_RET(
+            memcpy_s(opResPara_.udi, sizeof(opResPara_.udi), udi_.c_str(), udi_.length() + 1));
 
         opResPara_.config.deterministic = GetDeterministicConfig();
         opResPara_.config.highPerfEnable = 0;
@@ -6327,7 +6331,8 @@ namespace hccl
 
     HcclResult HcclCommunicator::GetReportHcclMC2Info(const Stream &kfcStream, const std::vector<Stream> &aicpuStreams)
     {
-        hcclMc2Info_.groupName = hrtMsprofGetHashId(identifier_.c_str(), identifier_.length());
+        std::string identifierWithUdi = udi_ + identifier_; // 若用户自定义了udi，groupname拼接udi
+        hcclMc2Info_.groupName = hrtMsprofGetHashId(identifierWithUdi.c_str(), identifierWithUdi.length());
         hcclMc2Info_.rankSize = userRankSize_;
         hcclMc2Info_.rankId = userRank_;
         hcclMc2Info_.usrRankId = realUserRank_;
@@ -6335,7 +6340,7 @@ namespace hccl
         hcclMc2Info_.reserve = 0;
         const uint32_t ONCE_REPORT_STREAM_NUM_MAX = 8;
         for (uint32_t streamIndex = 0, reportId = 0; streamIndex < aicpuStreams.size(); streamIndex++) {
-            HCCL_INFO("streamIndex:%u, reportId:%u, streamId:%d", streamIndex, reportId, aicpuStreams[streamIndex].id());
+            HCCL_INFO("streamIndex:%u, reportId:%u, streamId:%d, ", streamIndex, reportId, aicpuStreams[streamIndex].id());
             hcclMc2Info_.commStreamIds[reportId++] = aicpuStreams[streamIndex].id();
             if (reportId == ONCE_REPORT_STREAM_NUM_MAX) {
                 hcclMc2Info_.commStreamSize = reportId;

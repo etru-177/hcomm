@@ -705,6 +705,7 @@ private:
     bool isSetHDCModeInfo_{ false };
     std::map<std::string, HostMem> tagWorkSpaceMem_;
     std::string identifier_;
+    std::string udi_;
     u32 ranktableCrc_;
     s32 devicePid_;
     bool multiModuleDiffDeviceNumMode_;
@@ -728,7 +729,6 @@ private:
     std::map<OpParam, HcclCacheInfo> hcclCacheMap_; //存储aiv cache信息
     std::string cclBuffName_;
     bool isShareComm_ = false; // 是否共享cclbuffer
-    std::string commName_; // 通信域名称
 private:
 
     bool IsAtomicInit();
