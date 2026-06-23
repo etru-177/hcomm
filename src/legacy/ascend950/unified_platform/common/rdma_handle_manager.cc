@@ -269,6 +269,14 @@ constexpr u32 RDMA_HANDLE_INDEX = 2;
 
 void RdmaHandleManager::DestroyAll()
 {
+    if(destroyed.load()) {
+        return;
+    }
+    destroyed.store(true);
+
+    std::lock_guard<std::mutex> lock(managerMutex);
+    HCCL_INFO("[RdmaHandleManager::%s] destroy all", __func__);
+
     for (auto &handleIter : jfcHandleMap) {
         for (auto &modeIter : handleIter.second) {
             DECTOR_TRY_CATCH("jfc handle destroy", HrtRaUbDestroyJfc(handleIter.first, modeIter.second));
@@ -366,6 +374,92 @@ HcclResult RdmaHandleManager::GetEidByIpv4Addr(const IpAddress& addr, IpAddress&
     }
     eidAddr = it->second;
     return HCCL_SUCCESS;
+}
+
+void RdmaHandleManager::CollectHandlesToCleanup(u32 devPhyId, std::vector<HandleInfo> &handlesToCleanup)
+{
+    for(u32 j = 0; j < rdmaHandleMap[devPhyId].size(); ++j) {
+        for (auto &handleIter : rdmaHandleMap[devPhyId][j]) {
+            if (handleIter.second != nullptr) {
+                handlesToCleanup.push_back({handleIter.second, j});
+            }
+        }
+        rdmaHandleMap[devPhyId][j].clear();
+    }
+}
+
+void RdmaHandleManager::CleanupJfcHandles(RdmaHandle handle)
+{
+    auto jfcIt = jfcHandleMap.find(handle);
+    if (jfcIt != jfcHandleMap.end()) {
+        for (auto &modeIter : jfcIt->second) {
+            DECTOR_TRY_CATCH("jfc handle destroy", HrtRaUbDestroyJfc(handle, modeIter.second));
+        }
+        jfcHandleMap.erase(jfcIt);
+    }
+}
+
+void RdmaHandleManager::CleanupRdmaHandleEntry(RdmaHandle handle)
+{
+    auto modeIt = netWorkModeMap.find(handle);
+    if (modeIt != netWorkModeMap.end()) {
+        DECTOR_TRY_CATCH("rdma handle deinit", HrtRaRdmaDeInit(handle, modeIt->second));
+        netWorkModeMap.erase(modeIt);
+    }
+}
+
+void RdmaHandleManager::CleanupUbHandleEntry(RdmaHandle handle)
+{
+    auto tokenIt = tokenInfoMap.find(handle);
+    if (tokenIt != tokenInfoMap.end()) {
+        if (tokenIt->second != nullptr) {
+            DECTOR_TRY_CATCH("token id handle destroy", tokenIt->second->Destroy());
+        }
+        DECTOR_TRY_CATCH("ub handle destroy", HrtRaUbCtxDestroy(handle));
+        tokenInfoMap.erase(tokenIt);
+    } else {
+        DECTOR_TRY_CATCH("ub handle destroy", HrtRaUbCtxDestroy(handle));
+    }
+}
+
+void RdmaHandleManager::CleanupAuxiliaryMaps(RdmaHandle handle)
+{
+    DieAndFuncIdMap.erase(handle);
+    RtpEnableMap.erase(handle);
+}
+
+void RdmaHandleManager::CleanupSingleHandle(const HandleInfo &info)
+{
+    RdmaHandle handle = info.handle;
+    CleanupJfcHandles(handle);
+    if(info.protoIndex == RDMA_HANDLE_INDEX) {
+        CleanupRdmaHandleEntry(handle);
+    }
+    if (info.protoIndex == UB_HANDLE_INDEX) {
+        CleanupUbHandleEntry(handle);
+    }
+    CleanupAuxiliaryMaps(handle);
+}
+
+void RdmaHandleManager::DeInit(u32 devPhyId)
+{
+    if(destroyed.load()) {
+        return;
+    }
+    HCCL_INFO("[RdmaHandleManager][%s] DeInit[%u]", __func__, devPhyId);
+    std::lock_guard<std::mutex> lock(managerMutex);
+
+    if (devPhyId >= rdmaHandleMap.size()) {
+        HCCL_INFO("[RdmaHandleManager][%s] devPhyId[%u] is out of range", __func__, devPhyId);
+        return;
+    }
+
+    std::vector<HandleInfo> handlesToCleanup;
+    CollectHandlesToCleanup(devPhyId, handlesToCleanup);
+
+    for(auto &info : handlesToCleanup) {
+        CleanupSingleHandle(info);
+    }
 }
 
 } // namespace Hccl

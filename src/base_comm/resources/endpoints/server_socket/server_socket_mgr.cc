@@ -101,4 +101,26 @@ HcclResult ServerSocketMgr::ListenStart_(const CommAddr &commAddr, const Hccl::N
     return HcclResult::HCCL_SUCCESS;
 }
 
+void ServerSocketMgr::DeInit(u32 devPhyId)
+{
+    HCCL_INFO("[ServerSocketMgr][%s] DeInit[%u]", __func__, devPhyId);
+    auto &inst = GetInstance(devPhyId);
+    std::lock_guard<std::mutex> lock(inst.innerMutex_);
+    for (auto &it : inst.deviceServerSocketMap_) {
+        if (it.second != nullptr) {
+            it.second->Destroy();
+            it.second.reset();
+        }
+    }
+    inst.deviceServerSocketMap_.clear();
+
+    for (auto &it : inst.hostServerSocketMap_) {
+        if (it.second != nullptr) {
+            it.second->Destroy();
+            it.second.reset();
+        }
+    }
+    inst.hostServerSocketMap_.clear();
+}
+
 }; // namespace hcomm

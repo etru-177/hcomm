@@ -14,6 +14,7 @@
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+#include <atomic>
 
 #include "port.h"
 #include "virtual_topo.h"
@@ -35,6 +36,8 @@ public:
 
     SocketHandle Get(u32 devicePhyId, const PortData &localPort);
 
+    void DeInit(u32 devPhyId);
+
     ~SocketHandleManager();
 
 private:
@@ -50,6 +53,7 @@ private:
     SocketHandleManager &operator=(const SocketHandleManager &socketHandleManager) = delete;
 
     std::mutex socketHandleLock;
+    std::atomic<bool> destroyed{false};
 };
 
 } // namespace Hccl

@@ -84,6 +84,11 @@ SocketHandle SocketHandleManager::Get(u32 devicePhyId, const PortData &localPort
 
 void SocketHandleManager::DestroyAll()
 {
+    if (destroyed.load()) {
+        return;
+    }
+    destroyed.store(true);
+
     std::lock_guard<std::mutex> lock(socketHandleLock);
     for (u32 i = 0; i < hccpSocketHandleMap.size(); ++i) {
         for (u32 j = 0; j < hccpSocketHandleMap[i].size(); ++j) {
@@ -96,6 +101,27 @@ void SocketHandleManager::DestroyAll()
         }
     }
     hccpSocketHandleMap.clear();
+}
+
+void SocketHandleManager::DeInit(u32 devPhyId)
+{
+    if (destroyed.load()) {
+        return;
+    }
+    HCCL_INFO("[SocketHandleManager][%s] DeInit[%u]", __func__, devPhyId);
+    std::lock_guard<std::mutex> lock(socketHandleLock);
+    if (devPhyId >= hccpSocketHandleMap.size()) {
+        return;
+    }
+    for (u32 j = 0; j < hccpSocketHandleMap[devPhyId].size(); ++j) {
+        for (auto &iterHandle : hccpSocketHandleMap[devPhyId][j]) {
+            if (iterHandle.second != nullptr) {
+                DECTOR_TRY_CATCH("RaSocketDeinit", HrtRaSocketDeInit(iterHandle.second));
+                iterHandle.second = nullptr;
+            }
+        }
+        hccpSocketHandleMap[devPhyId][j].clear();
+    }
 }
 
 } // namespace Hccl

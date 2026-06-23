@@ -151,54 +151,6 @@ void HrtMemcpy(void *dst, uint64_t destMax, const void *src, uint64_t count, rtM
     (void)memcpy_s(dst, destMax, src, count);
 }
 
-RdmaHandleManager::RdmaHandleManager()
-{
-}
-
-RdmaHandleManager::~RdmaHandleManager()
-{
-}
-
-RdmaHandle RdmaHandleManager::GetByIp(u32 devPhyId, const IpAddress &localIp)
-{
-    return (void *)0x12345678;
-}
-
-RdmaHandleManager &RdmaHandleManager::GetInstance()
-{
-    static RdmaHandleManager rdmaHandleManager;
-    return rdmaHandleManager;
-}
- 
-JfcHandle RdmaHandleManager::GetJfcHandle(RdmaHandle rdmaHandle, CqCreateInfo& cqInfo, HrtUbJfcMode jfcMode)
-{
-    return 0x12345678;
-}
-
-std::pair<TokenIdHandle, uint32_t> RdmaHandleManager::GetTokenIdInfo(
-    RdmaHandle rdmaHandle, const BufferKey<uintptr_t, u64> &bufKey)
-{
-    return {0x12345678, 12345678};
-}
-
-bool RdmaHandleManager::GetRtpEnable(RdmaHandle rdmaHandle)
-{
-    return true;
-}
-
-HcclResult RdmaHandleManager::GetEidByIpv4Addr(const IpAddress &addr, IpAddress &eidAddr)
-{
-    Hccl::IpAddress ip("0000:0000:0000:0000:0000:0000:c0a8:0367", AF_INET6);
-    eidAddr = ip;
-    return HCCL_SUCCESS;
-}
-
-void RdmaHandleManager::UboeIpv4ToEid(const IpAddress &ipV4Address, IpAddress &eidAddress, u32 devPhyId)
-{
-    Hccl::IpAddress ip("0000:0000:0000:0000:0000:0000:c0a8:0367", AF_INET6);
-    eidAddress = ip;
-}
-
 SocketStatus Socket::GetAsyncStatus()
 {
     return SocketStatus::OK;
@@ -373,26 +325,6 @@ void SaluSleep(uint32_t usec)
     return;
 }
 
-SocketHandleManager::SocketHandleManager()
-{
-}
-
-SocketHandleManager::~SocketHandleManager()
-{
-}
-
-SocketHandleManager &SocketHandleManager::GetInstance()
-{
-    static SocketHandleManager mgr;
-    return mgr;
-}
-
-SocketHandle SocketHandleManager::Create(DevId devicePhyId, const PortData &localPort)
-{
-    int a = 0x12345678;
-    return (void *)&a;
-}
-
 std::shared_ptr<TopoInfo> RankGraphBuilder::GetTopoInfo()
 {
     return nullptr;
@@ -526,12 +458,6 @@ RtsqBase *StreamLite::GetRtsq() const
 u32 GetKernelExecTimeoutFromEnvConfig()
 {
     return 0;
-}
-
-RdmaHandle RdmaHandleManager::GetByAddr(
-    unsigned int, Hccl::LinkProtoType const &, Hccl::IpAddress &, Hccl::PortDeploymentType)
-{
-    return (void *)0x12345678;
 }
 
 std::vector<ModuleData> AicpuResPackageHelper::ParsePackedData(std::vector<char, std::allocator<char>> &) const
@@ -998,10 +924,6 @@ string RemoteUbRmaBuffer::Describe() const
     return "hello";
 }
 
-SocketHandle SocketHandleManager::Get(unsigned int, Hccl::PortData const &)
-{
-    return (void *)0x12345678;
-}
 UbLocalNotify::UbLocalNotify(RdmaHandle rdmaHandle, bool devUsed)
     : BaseLocalNotify(RmaType::UB, devUsed),
       rdmaHandle(rdmaHandle)
@@ -1415,20 +1337,6 @@ HcclResult HrtRaCreateQpWithCq(
 HcclResult HrtRaDestroyQpWithCq(const QpInfo &info, bool isHdcMode)
 {
     return HCCL_SUCCESS;
-}
-
-HccpHdcManager &HccpHdcManager::GetInstance()
-{
-    static HccpHdcManager hccpHdcManager;
-    return hccpHdcManager;
-}
-
-void HccpHdcManager::Init(u32 deviceLogicId)
-{
-}
-
-HccpHdcManager::~HccpHdcManager()
-{
 }
 
 LocalUbRmaBuffer::LocalUbRmaBuffer(std::shared_ptr<Buffer> buf, void *netDevice, bool flag)
@@ -2720,11 +2628,6 @@ HcclResult HcclGetRankGraphV2(HcclComm *comm, void **rankGraph)
 
 namespace Hccl {
 
-std::pair<uint32_t, uint32_t> RdmaHandleManager::GetDieAndFuncId(RdmaHandle rdmaHandle)
-{
-    return {0, 0};
-}
-
 HcclResult TpManager::GetTpInfo(const RaUbGetTpInfoParam &param, TpInfo &tpInfo, bool isSync)
 {
     tpInfo.tpHandle = 1;
@@ -2779,7 +2682,73 @@ HrtRaUbSendWrRespParam HrtRaUbPostSend(JettyHandle jettyHandle, HrtRaUbSendWrReq
     return HrtRaUbSendWrRespParam{};
 }
 }
+
 int32_t HcommChannelRegisterDfx(ChannelHandle channel, std::function<HcclResult(unsigned int, unsigned int, const Hccl::TaskParam&, unsigned long long)> callback)
 {
     return 0;
 }
+
+namespace Hccl {
+    using namespace std;
+
+    RdmaHandle HrtRaUbCtxInit(const HrtRaUbCtxInitParamDef &in) 
+    {
+        return reinterpret_cast<RdmaHandle>(0x1);
+    }
+
+    u64 HrtRaUbCreateJfc(RdmaHandle handle, CqCreateInfo &cqInfo, HrtUbJfcMode jfcMode)
+    {
+        return 0x2;
+    }
+
+    u64 HrtRaUbCreateJfcUserCtl(RdmaHandle handle, CqCreateInfo &cqInfo)
+    {
+        return 0x3;
+    }
+
+    SocketHandle HrtRaSocketInit(HrtNetworkMode netMode, RaInterface &in)
+    {
+        return reinterpret_cast<SocketHandle>(0x04);
+    }
+
+    vector<HrtDevEidInfo> HrtRaGetDevEidInfoList(const HRaInfo &raInfo)
+    {
+        return {};
+    }
+
+    HcclResult HrtRaGetEidByIp(RdmaHandle handle, const vector<IpAddress> &ipV4Address, vector<IpAddress> &eidAddrList)
+    {
+        return HCCL_SUCCESS;
+    }
+
+    HcclResult HrtGetUboeFlagEnable(u32 devPhyId)
+    {
+        return HCCL_E_NOT_FOUND;
+    }
+
+    bool HraGetRtpEnable(RdmaHandle handle)
+    {
+        return false;
+    }
+
+    pair<uint32_t, uint32_t> HraGetDieAndFuncId(RdmaHandle handle)
+    {
+        return make_pair(static_cast<uint32_t>(0), static_cast<uint32_t>(0));
+    }
+
+    pair<u64, uint32_t> RaUbAllocTokenIdHandle(RdmaHandle handle)
+    {
+        return make_pair(static_cast<u64>(0), static_cast<uint32_t>(0));
+    }
+
+    void HrtRaInit(HRaInitConfig &cfg)
+    {
+  
+    }
+
+    HcclResult HrtOpenTsdProcess(u32 deviceLogicId)
+    {
+        return HCCL_SUCCESS;
+    }
+
+} // namespace Hccl

@@ -347,6 +347,11 @@ aclError aclrtSetDeviceTaskAbortCallback(const char_t *moduleName, aclrtDeviceTa
     return RT_ERROR_NONE;
 }
 
+aclError aclrtRegDeviceStateCallback(const char *regName, aclrtDeviceStateCallback callback, void *args)
+{
+    return ACL_SUCCESS;
+}
+
 aclError aclrtGetLogicDevIdByPhyDevId(const int32_t phyDevId, int32_t *const logicDevId)
 {
     return RT_ERROR_NONE;

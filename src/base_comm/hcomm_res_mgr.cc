@@ -35,6 +35,9 @@
 #include "ccu_instance_mgr.h"
 #include "../endpoint_pairs/sockets/socket_process.h"
 #include "dpu_notify/dpu_notify_manager.h"
+#include "server_socket_mgr.h"
+#include "server_socket_manager.h"
+#include "adapter_rts_common.h"
 
 namespace hcomm {
 
@@ -95,6 +98,42 @@ HcommResMgr::~HcommResMgr()
 {
     // 临时方案：最小化修改不做处理
     // 未来需在析构函数中主动调用各种单例销毁流程，保证销毁时序
+}
+
+static void OnDeviceResetPre(int32_t deviceId, aclrtDeviceState state, void *args)
+{
+    try {
+        if (state != ACL_RT_DEVICE_STATE_RESET_PRE) {
+            return;
+        }
+        HCCL_INFO("[OnDeviceResetPre] deviceId[%d] state[%d] ", deviceId, static_cast<int>(state));
+        u32 devPhyId = 0;
+        HcclResult ret = hrtGetDevicePhyIdByIndex(static_cast<u32>(deviceId), devPhyId);
+        if (ret != HCCL_SUCCESS) {
+            HCCL_WARNING("[OnDeviceResetPre] hrtGetDevicePhyIdByIndex failed, deviceId[%d] ret[%d]", deviceId, ret);
+            return;
+        }
+        SocketMgr::DeInit(devPhyId);
+        ServerSocketMgr::DeInit(devPhyId);
+        ServerSocketManager::GetInstance().DeInit(devPhyId);
+        Hccl::RdmaHandleManager::GetInstance().DeInit(devPhyId);
+        Hccl::SocketHandleManager::GetInstance().DeInit(devPhyId);
+        Hccl::HccpHdcManager::GetInstance().DeInit(deviceId);
+    } catch (const std::exception &e) {
+        HCCL_WARNING("[OnDeviceResetPre][%s] exception caught:%s", __func__, e.what());
+    } catch (...) {
+        HCCL_WARNING("[OnDeviceResetPre][%s] unknown exception caught", __func__);
+    }
+}
+
+__attribute__((constructor)) void RegisterDeviceResetCallback()
+{
+    aclError ret = aclrtRegDeviceStateCallback("hcomm_res_mgr", OnDeviceResetPre, nullptr);
+    if (ret != ACL_SUCCESS) {
+        HCCL_WARNING("[RegisterDeviceResetCallback] aclrtRegDeviceStateCallback failed, ret[%d]", ret);
+        return;
+    }
+    HCCL_INFO("[RegisterDeviceResetCallback] aclrtRegDeviceStateCallback success");
 }
 
 } // namespace hcomm

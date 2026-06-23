@@ -257,3 +257,35 @@ int RaGetDevBaseAttr(void *ctxHandle, struct DevBaseAttr *attr)
 {
     return 0;
 }
+
+namespace Hccl {
+
+void HrtRaDeInit(HRaInitConfig &cfg)
+{
+}
+
+void HrtRaRdmaDeInit(RdmaHandle rdmaHandle, HrtNetworkMode netMode)
+{
+}
+
+void HrtRaUbCtxDestroy(RdmaHandle handle)
+{
+}
+
+void HrtRaUbDestroyJfc(RdmaHandle handle, JfcHandle jfcHandle)
+{
+}
+
+void HrtRaSocketDeInit(SocketHandle socketHandle)
+{
+}
+
+void HrtResetDevice(s32 deviceLogicId)
+{
+}
+
+void RaUbFreeTokenIdHandle(RdmaHandle handle, TokenIdHandle tokenIdHandle)
+{
+}
+
+} // namespace Hccl

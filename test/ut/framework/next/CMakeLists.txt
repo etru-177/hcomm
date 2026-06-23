@@ -47,6 +47,7 @@ set(src_to_test_list
     host/ut_cpu_urma_endpoint.cc
     host/ut_host_cpu_urma_channel.cc
     host/ut_host_ub_connection.cc
+    host/ut_device_reset_callback.cc
     comms/endpoint_pairs/channels/aicpu/ut_aicpu_ts_roce_channel_v2.cc
     comms/endpoint_pairs/channels/aicpu/ut_dev_rdma_connection.cc
     comms/endpoint_pairs/channels/aicpu/device/ut_dev_aicpu_ts_roce_channel_v2.cc

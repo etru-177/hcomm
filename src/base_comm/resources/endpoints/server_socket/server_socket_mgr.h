@@ -23,6 +23,7 @@ namespace hcomm {
 class ServerSocketMgr {
 public:
     static HcclResult ListenStart(const uint32_t devPhyId, const CommAddr &commAddr, const Hccl::NicType nicType);
+    static void DeInit(u32 devPhyId);
 
 private:
     static ServerSocketMgr &GetInstance(const uint32_t devicePhyId);

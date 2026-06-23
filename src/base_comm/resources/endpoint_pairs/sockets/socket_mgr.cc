@@ -353,4 +353,21 @@ HcclResult SocketMgr::DestroySocket(Hccl::Socket* socket)
     return HCCL_SUCCESS;
 }
 
+void SocketMgr::DeInit(u32 devPhyId)
+{
+    HCCL_INFO("[SocketMgr][%s] DeInit devPhyId[%u]", __func__, devPhyId);
+    auto &inst = GetInstance(static_cast<s32>(devPhyId));
+    std::lock_guard<std::mutex> lock(inst.mutex_);
+    for (auto &it : inst.socketMap_) {
+        if (it.second != nullptr) {
+            it.second->Destroy();
+            it.second.reset();
+        }
+    }
+    inst.socketMap_.clear();
+    inst.socketInUseMap_.clear();
+    inst.handle2WhiteListMap_.clear();
+    inst.isLoaded_ = false;
+}
+
 } // namespace hcomm

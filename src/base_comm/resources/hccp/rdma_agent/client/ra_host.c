@@ -739,8 +739,8 @@ HCCP_ATTRI_VISI_DEF int RaSocketBatchClose(struct SocketCloseInfoT conn[], unsig
         socketHandle = (struct RaSocketHandle *)conn[i].socketHandle;
         if (socketHandle == NULL || socketHandle->socketOps == NULL ||
             socketHandle->socketOps->raSocketBatchClose == NULL) {
-            hccp_err("[batch_close][ra_socket]socket_handle or func is NULL");
-            return ConverReturnCode(SOCKET_OP, -EINVAL);
+            hccp_warn("[batch_close][ra_socket]socket_handle or func is NULL, no need to close");
+            return 0;
         }
         phyId = socketHandle->rdevInfo.phyId;
         CHK_PRT_RETURN(phyId >= RA_MAX_PHY_ID_NUM,

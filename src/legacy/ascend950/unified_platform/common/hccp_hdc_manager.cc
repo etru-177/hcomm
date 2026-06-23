@@ -13,6 +13,7 @@
 #include "orion_adapter_rts.h"
 #include "socket_handle_manager.h"
 #include "rdma_handle_manager.h"
+#include "acl/acl_rt.h"
 
 namespace Hccl {
 
@@ -24,7 +25,7 @@ HccpHdcManager &HccpHdcManager::GetInstance()
 
 void HccpHdcManager::Init(u32 deviceLogicId)
 {
-    std::unique_lock<std::mutex> lock(managerMutex);
+    std::unique_lock<std::recursive_mutex> lock(managerMutex);
     if (instances.count(deviceLogicId) != 0) {
         return;
     }
@@ -39,9 +40,38 @@ void HccpHdcManager::Init(u32 deviceLogicId)
     instances.insert(deviceLogicId);
 }
 
+void HccpHdcManager::DeInit(u32 deviceLogicId)
+{
+    if (destroyed.load()) {
+        return;
+    }
+    HCCL_INFO("[HccpHdcManager::%s] deviceLogicId [%d]", __func__, deviceLogicId);
+
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
+    if (instances.count(deviceLogicId) == 0) {
+        HCCL_WARNING("[HccpHdcManager::%s] deviceLogicId[%d] not ra init", __func__, deviceLogicId);
+        return;
+    }
+    instances.erase(deviceLogicId);
+
+    HRaInitConfig cfg;
+    cfg.phyId = HrtGetDevicePhyIdByIndex(deviceLogicId);
+    cfg.mode = HrtNetworkMode::HDC;
+    DECTOR_TRY_CATCH("HccpHdcManager", HrtRaDeInit(cfg));
+    HCCL_INFO("[HccpHdcManager::%s] devLogicId [%d] ra deinit success.", __func__, deviceLogicId);
+}
+
 void HccpHdcManager::DestroyAll()
 {
-    std::unique_lock<std::mutex> lock(managerMutex);
+    if (destroyed.load()) {
+        return;
+    }
+    destroyed.store(true);
+
+    //析构前先注销reset devcie的回调，防止嵌套调用
+    UnregisterDeviceResetCallback();
+
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
     for (auto deviceLogicId : instances) {
         HCCL_INFO("HccpHdcManager deinit");
 
@@ -52,6 +82,16 @@ void HccpHdcManager::DestroyAll()
         DECTOR_TRY_CATCH("HccpHdcManager", HrtResetDevice(deviceLogicId));
     }
     instances.clear();
+}
+
+void HccpHdcManager::UnregisterDeviceResetCallback()
+{
+    aclError ret = aclrtRegDeviceStateCallback("hcomm_res_mgr", nullptr, nullptr);
+    if (ret != ACL_SUCCESS) {
+        HCCL_WARNING("[HccpHdcManager] aclrtRegDeviceStateCallback unregister failed, ret[%d]", ret);
+        return;
+    }
+    HCCL_INFO("[HccpHdcManager] aclrtRegDeviceStateCallback unregister success");
 }
 
 HccpHdcManager::~HccpHdcManager()

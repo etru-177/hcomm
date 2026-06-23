@@ -98,33 +98,36 @@ set(orion_list
     ${HCCL_CODE_ROOT}/src/base_comm/resources/comm_engine_res/threads/aicpu_ts_thread.cc
     ${HCCL_CODE_ROOT}/src/base_comm/resources/comm_engine_res/threads/thread.cc
     ${HCCL_CODE_ROOT}/src/base_comm/resources/comm_engine_res/threads/cpu_ts_thread.cc
-
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/interface/aicpu_ts_thread_interface.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/common/exception/exception_defination.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/transport/aicpu/ub_transport_lite_impl.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/transport/aicpu/p2p_transport_lite_impl.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/transport/aicpu/roce_transport_lite_impl.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/buffer.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/aicpu/rma_buf_slice_lite.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/notify/aicpu/notify_lite.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/notify/rts_notify.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/notify/ipc_remote_notify.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/aicpu/rma_buffer_lite.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/rma_conn_lite.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/rdma_conn_lite_v2.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/aicpu/rmt_rma_buf_slice_lite.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/ub_conn_lite.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/ub_conn_lite_mgr.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/host_ub_connection.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/stream/stream.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/task/task.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/interface/rank_graph_interface.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/topo/new_topo_builder/rank_graph/rank_graph.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/topo/new_topo_builder/rank_graph/net_instance.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/topo/virtual_topo.cc
-    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/env_config/base_config.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/interface/aicpu_ts_thread_interface.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/common/exception/exception_defination.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/transport/aicpu/ub_transport_lite_impl.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/transport/aicpu/p2p_transport_lite_impl.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/transport/aicpu/roce_transport_lite_impl.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/buffer.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/aicpu/rma_buf_slice_lite.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/notify/aicpu/notify_lite.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/notify/rts_notify.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/notify/ipc_remote_notify.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/aicpu/rma_buffer_lite.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/rma_conn_lite.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/rdma_conn_lite_v2.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/buffer/aicpu/rmt_rma_buf_slice_lite.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/ub_conn_lite.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/aicpu/ub_conn_lite_mgr.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/connection/host_ub_connection.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/stream/stream.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/resource/task/task.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/interface/rank_graph_interface.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/topo/new_topo_builder/rank_graph/rank_graph.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/topo/new_topo_builder/rank_graph/net_instance.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/topo/virtual_topo.cc 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/env_config/base_config.cc 
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/env_config/env_config.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/env_config/env_func.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/rdma_handle_manager.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/tokenInfo_manager.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/resource_manager/socket/socket_handle_manager.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/hccp_hdc_manager.cc
 )
 
 set(hccl_list

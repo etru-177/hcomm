@@ -157,6 +157,11 @@ aclError aclrtResetDevice(int32_t deviceId)
     return ACL_SUCCESS;
 }
 
+aclError aclrtRegDeviceStateCallback(const char *regName, aclrtDeviceStateCallback callback, void *args)
+{
+    return ACL_SUCCESS;
+}
+
 rtError_t rtGetDeviceCount(int32_t *count)
 {
     return RT_ERROR_NONE;
