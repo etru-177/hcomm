@@ -97,9 +97,11 @@ private:
         u64         size;
         u32         tokenId;
         u32         tokenValue;
+        u32         notifyId;
         std::string Describe() const
         {
-            return StringFormat("RmtUbBufLite[addr=0x%llx, size=0x%llx]", addr, size);
+            return StringFormat("RmtUbBufLite[addr=0x%llx, size=0x%llx, tokenId=%u, tokenValue=%u, notifyId=%u]",
+                addr, size, tokenId, tokenValue, notifyId);
         }
     };
 

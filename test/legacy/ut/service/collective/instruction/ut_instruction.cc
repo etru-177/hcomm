@@ -65,7 +65,7 @@ protected:
         dstSlice = new DataSlice(BufferType::SCRATCH, sliceSize, sliceSize);
 
         localRmaSlice = new RmaBufSliceLite(100, 200, 300, 400);
-        remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500);
+        remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500, UINT32_MAX);
 
         insPostTo = new InsLocalPostTo(waitQid, NotifyType::NORMAL, topicId);
         insPostTo->SetPostQid(postQid);

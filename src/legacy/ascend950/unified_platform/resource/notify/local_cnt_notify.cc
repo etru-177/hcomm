@@ -36,7 +36,7 @@ LocalCntNotify::LocalCntNotify(RdmaHandle rdmaHandle, RtsCntNotify* notify) : rd
 std::unique_ptr<Serializable> LocalCntNotify::GetExchangeDto()
 {
     std::unique_ptr<ExchangeUbBufferDto> dto
-        = make_unique<ExchangeUbBufferDto>(addr, size, tokenValue, tokenId, keySize);
+        = make_unique<ExchangeUbBufferDto>(addr, size, tokenValue, tokenId, keySize, notify->GetId());
     (void)memcpy_s(dto->key, HRT_UB_MEM_KEY_MAX_LEN, key, HRT_UB_MEM_KEY_MAX_LEN);
     return std::unique_ptr<Serializable>(dto.release());
 }

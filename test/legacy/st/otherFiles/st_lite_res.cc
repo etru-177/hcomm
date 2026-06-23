@@ -154,7 +154,7 @@ TEST_F(LiteResTest, test_RmaBufSliceLite)
 
 TEST_F(LiteResTest, test_RmtRmaBufSliceLite)
 {
-    RmtRmaBufSliceLite lite(1, 1, 1, 1, 1);
+    RmtRmaBufSliceLite lite(1, 1, 1, 1, 1, UINT32_MAX);
     EXPECT_EQ(1, lite.GetAddr());
     EXPECT_EQ(1, lite.GetSize());
     EXPECT_EQ(1, lite.GetRkey());
@@ -197,7 +197,7 @@ TEST_F(LiteResTest, test_UBConnLite_Read)
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
  
     RmaBufSliceLite loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
     SqeConfigLite cfg;
     ConnLiteOperationOut out;
     u8 data[512]; 
@@ -229,8 +229,8 @@ TEST_F(LiteResTest, test_UBConnLite_ReadReduce)
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -264,7 +264,7 @@ TEST_F(LiteResTest, test_UBConnLite)
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
  
     RmaBufSliceLite loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
     SqeConfigLite cfg;
     ConnLiteOperationOut out;
     u8 data[512]; 
@@ -297,8 +297,8 @@ TEST_F(LiteResTest, test_UBConnLite_WriteReduceWithNotify)
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
 
     RmaBufSliceLite loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64 notifyData(1);
     SqeConfigLite cfg;
     ConnLiteOperationOut out;
@@ -338,8 +338,8 @@ TEST_F(LiteResTest, test_UBConnLite_WriteWithNotify)
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
 
     RmaBufSliceLite loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64 notifyData(1);
     SqeConfigLite cfg;
     ConnLiteOperationOut out;
@@ -373,8 +373,8 @@ TEST_F(LiteResTest, test_UBConnLite_InlineWrite)
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
 
     RmaBufSliceLite loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64 notifyData(1);
     SqeConfigLite cfg;
     ConnLiteOperationOut out;

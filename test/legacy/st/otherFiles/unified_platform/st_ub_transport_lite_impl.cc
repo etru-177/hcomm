@@ -242,7 +242,7 @@ TEST_F(UbTransportLiteImplTest, construct_test)
     transportLite.BatchTransfer(localRmaBufferVec, rmtBufferVec, transferOpVec, stream);
 
     RmaBufSliceLite locRmaBufferLite(100, 200, 300, 400);
-    RmtRmaBufSliceLite rmtRmaBufferLite(100, 200, 300, 400, 500);
+    RmtRmaBufSliceLite rmtRmaBufferLite(100, 200, 300, 400, 500, UINT32_MAX);
     transportLite.BatchOneSidedRead({locRmaBufferLite}, {rmtRmaBufferLite}, stream);
     transportLite.BatchOneSidedWrite({locRmaBufferLite}, {rmtRmaBufferLite}, stream);
 }

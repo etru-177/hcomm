@@ -286,7 +286,7 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_Write_SmallSize_Expect_SingleSlice)
 
     // size < RDMA_DMA_MAX_SIZE，应只有 1 个分片(余数段)
     RmaBufSliceLite loc(0x1000, 4096, 0x11, 0);
-    RmtRmaBufSliceLite rmt(0x2000, 4096, 0x22, 0, 0);
+    RmtRmaBufSliceLite rmt(0x2000, 4096, 0x22, 0, 0, UINT32_MAX);
     u64 dbAddr = 0;
     u64 dbValue = 0;
 
@@ -308,7 +308,7 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_Write_LargeSize_Expect_MultiSlice)
 
     u64 totalSize = 0x80000000ULL + 0x1000ULL;
     RmaBufSliceLite loc(0x100000, totalSize, 0x11, 0);
-    RmtRmaBufSliceLite rmt(0x200000, totalSize, 0x22, 0, 0);
+    RmtRmaBufSliceLite rmt(0x200000, totalSize, 0x22, 0, 0, UINT32_MAX);
     u64 dbAddr = 0;
     u64 dbValue = 0;
 
@@ -333,11 +333,11 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_WriteWithNotify_Expect_Success)
 
     u64 totalSize = 0x80000000ULL;
     RmaBufSliceLite      loc(0x1000, totalSize, 0x11, 0);
-    RmtRmaBufSliceLite   rmt(0x2000, totalSize, 0x22, 0, 0);
+    RmtRmaBufSliceLite   rmt(0x2000, totalSize, 0x22, 0, 0, UINT32_MAX);
 
     // notify 地址段
     RmaBufSliceLite      locNotify(0x3000, 64, 0x33, 0);
-    RmtRmaBufSliceLite   notify(0x4000, 64, 0x44, 0, 0);
+    RmtRmaBufSliceLite   notify(0x4000, 64, 0x44, 0, 0, UINT32_MAX);
 
     u64 dbAddr  = 0;
     u64 dbValue = 0;

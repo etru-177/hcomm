@@ -184,7 +184,7 @@ string TaskInfo::GetNotifyInfo() const
         return "/";
     } else {
         stringstream paraStr;
-        paraStr << std::hex << static_cast<u32>(notifyInfo);
+        paraStr << notifyInfo;
         return paraStr.str();
     }
 }

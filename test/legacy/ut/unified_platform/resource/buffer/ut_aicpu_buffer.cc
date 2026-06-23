@@ -98,7 +98,7 @@ TEST_F(AicpuBufferTest, test_RmaBufSliceLite)
 
 TEST_F(AicpuBufferTest, test_RmtRmaBufSliceLite)
 {
-    RmtRmaBufSliceLite lite(1, 1, 1, 1, 1);
+    RmtRmaBufSliceLite lite(1, 1, 1, 1, 1, UINT32_MAX);
     EXPECT_EQ(1, lite.GetAddr());
     EXPECT_EQ(1, lite.GetSize());
     EXPECT_EQ(1, lite.GetRkey());

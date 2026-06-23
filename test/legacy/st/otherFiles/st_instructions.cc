@@ -56,7 +56,7 @@ protected:
         dstSlice = new DataSlice(BufferType::SCRATCH, sliceSize, sliceSize);
 
         localRmaSlice = new RmaBufSliceLite(100, 200, 300, 400);
-        remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500);
+        remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500, UINT32_MAX);
 
         insAicpuReduce = new InsAicpuReduce(*srcSlice, *dstSlice, dataType, reduceOp);
         insStreamSync = new InsStreamSync();
@@ -427,7 +427,7 @@ TEST(InstructionTest, test_ins_BatchOneSidedRead)
     BasePortType portType(PortDeploymentType::P2P, ConnectProtoType::PCIE);
     LinkData *linkData = new LinkData(portType, localRank, remoteRank, 0, 1);
     RmaBufSliceLite * localRmaSlice = new RmaBufSliceLite(100, 200, 300, 400);
-    RmtRmaBufSliceLite * remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500);
+    RmtRmaBufSliceLite * remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500, UINT32_MAX);
     InsBatchOneSidedRead * insBatchOneSidedRead = new InsBatchOneSidedRead(remoteRank, *linkData, {*localRmaSlice}, {*remoteRmaSlice});
     cout << insBatchOneSidedRead->Describe() << endl;
     EXPECT_EQ(remoteRank, insBatchOneSidedRead->GetRemoteRank());
@@ -447,7 +447,7 @@ TEST(InstructionTest, test_ins_BatchOneSidedWrite)
     BasePortType portType(PortDeploymentType::P2P, ConnectProtoType::PCIE);
     LinkData *linkData = new LinkData(portType, localRank, remoteRank, 0, 1);
     RmaBufSliceLite * localRmaSlice = new RmaBufSliceLite(100, 200, 300, 400);
-    RmtRmaBufSliceLite * remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500);
+    RmtRmaBufSliceLite * remoteRmaSlice = new RmtRmaBufSliceLite(100, 200, 300, 400, 500, UINT32_MAX);
     InsBatchOneSidedWrite *insBatchOneSidedWrite = new InsBatchOneSidedWrite(remoteRank, *linkData, {*localRmaSlice}, {*remoteRmaSlice});
     cout << insBatchOneSidedWrite->Describe() << endl;
     EXPECT_EQ(remoteRank, insBatchOneSidedWrite->GetRemoteRank());

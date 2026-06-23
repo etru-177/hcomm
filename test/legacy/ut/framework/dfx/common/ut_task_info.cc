@@ -130,16 +130,16 @@ TEST_F(TaskInfoTest, test_get_notify_info)
     EXPECT_EQ(taskInfo.GetNotifyInfo(), "/");
 
     taskInfo.taskParam_.taskType = TaskParamType::TASK_RDMA;
-    taskInfo.taskParam_.taskPara.DMA.notifyID = 0xaaaabbbbcccc;
-    EXPECT_EQ(taskInfo.GetNotifyInfo(), "bbbbcccc");
+    taskInfo.taskParam_.taskPara.DMA.notifyID = UINT64_MAX;
+    EXPECT_EQ(taskInfo.GetNotifyInfo(), "/");
 
     taskInfo.taskParam_.taskType = TaskParamType::TASK_NOTIFY_WAIT;
-    taskInfo.taskParam_.taskPara.Notify.notifyID = 0x111122223333;
-    EXPECT_EQ(taskInfo.GetNotifyInfo(), "22223333");
+    taskInfo.taskParam_.taskPara.Notify.notifyID = 222;
+    EXPECT_EQ(taskInfo.GetNotifyInfo(), "222");
 
     taskInfo.taskParam_.taskType = TaskParamType::TASK_NOTIFY_RECORD;
-    taskInfo.taskParam_.taskPara.Notify.notifyID = 0xffffffffffffffff;
-    EXPECT_EQ(taskInfo.GetNotifyInfo(), "/");
+    taskInfo.taskParam_.taskPara.Notify.notifyID = 333;
+    EXPECT_EQ(taskInfo.GetNotifyInfo(), "333");
 }
 
 TEST_F(TaskInfoTest, test_get_base_info)
@@ -167,8 +167,8 @@ TEST_F(TaskInfoTest, test_get_concise_base_info)
 
     taskInfo.taskParam_.taskType = TaskParamType::TASK_NOTIFY_RECORD;
     taskInfo.remoteRank_ = 3;
-    taskInfo.taskParam_.taskPara.Notify.notifyID = 0xaaaabbbbcccc;
-    EXPECT_EQ(taskInfo.GetConciseBaseInfo(), "NR(3,bbbbcccc)");
+    taskInfo.taskParam_.taskPara.Notify.notifyID = 123;
+    EXPECT_EQ(taskInfo.GetConciseBaseInfo(), "NR(3,123)");
 }
 
 TEST_F(TaskInfoTest, test_get_para_ccu)

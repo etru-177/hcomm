@@ -34,7 +34,7 @@ HcclResult OneSidedComponentLite::Orchestrate(const HcclAicpuOpLite &op, InsQueP
         usrInSlice.push_back(RmaBufSliceLite(localBuf->addr, localBuf->size, localBuf->tokenValue, localBuf->tokenId));
 
         HcclAicpuLocBufLite *rmtBuf = static_cast<HcclAicpuLocBufLite *>(op.batchPutGetRemoteAddr) + i;
-        usrOutSlice.push_back(RmtRmaBufSliceLite(rmtBuf->addr, rmtBuf->size, 0, rmtBuf->tokenId, rmtBuf->tokenValue));
+        usrOutSlice.push_back(RmtRmaBufSliceLite(rmtBuf->addr, rmtBuf->size, 0, rmtBuf->tokenId, rmtBuf->tokenValue, UINT32_MAX));
     }
 
     RankId rmtRankId = op.sendRecvRemoteRank;

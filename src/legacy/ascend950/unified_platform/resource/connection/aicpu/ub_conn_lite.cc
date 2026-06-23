@@ -120,7 +120,7 @@ void UbConnLite::ProcessSlices(const RmaBufSliceLite &loc, const RmtRmaBufSliceL
         RmaBufSliceLite locSlice(locAddr, sliceSize, 0, loc.GetTokenId());
         
         RmtRmaBufSliceLite rmtSlice(rmtAddr, sliceSize, 0, rmt.GetTokenId(),
-                                    rmt.GetTokenValue());
+                                    rmt.GetTokenValue(), UINT32_MAX);
         // 当前是最后一片，且没有lastSlice时，启用cqe
         u32 cqeEnable = (sliceIdx == sliceNum - 1 && lastSliceSize == 0) ? 1 : 0;
         processOneSlice(locSlice, rmtSlice, cqeEnable);
@@ -130,7 +130,7 @@ void UbConnLite::ProcessSlices(const RmaBufSliceLite &loc, const RmtRmaBufSliceL
         RmaBufSliceLite lastLocSlice(loc.GetAddr() + sliceNum * sliceSize, lastSliceSize, 0, loc.GetTokenId());
 
         RmtRmaBufSliceLite lastRmtSlice(rmt.GetAddr() + sliceNum * sliceSize, lastSliceSize, 0, rmt.GetTokenId(),
-                                        rmt.GetTokenValue());
+                                        rmt.GetTokenValue(), UINT32_MAX);
         processOneSlice(lastLocSlice, lastRmtSlice, 1);
         sliceNum++;
     }
@@ -169,7 +169,7 @@ void UbConnLite::ProcessSlicesWithNotify(
         RmaBufSliceLite locSlice(loc.GetAddr() + sliceIdx * sliceSize, sliceSize, 0, loc.GetTokenId());
 
         RmtRmaBufSliceLite rmtSlice(rmt.GetAddr() + sliceIdx * sliceSize, sliceSize, 0, rmt.GetTokenId(),
-                                    rmt.GetTokenValue());
+                                    rmt.GetTokenValue(), UINT32_MAX);
         // 固定会有lastSlice，则前面的cqe都不启用
         processOneSlice(locSlice, rmtSlice, 0);
     }
@@ -178,7 +178,7 @@ void UbConnLite::ProcessSlicesWithNotify(
         RmaBufSliceLite lastLocSlice(loc.GetAddr() + sliceNum * sliceSize, lastSliceSize, 0, loc.GetTokenId());
 
         RmtRmaBufSliceLite lastRmtSlice(rmt.GetAddr() + sliceNum * sliceSize, lastSliceSize, 0, rmt.GetTokenId(),
-                                        rmt.GetTokenValue());
+                                        rmt.GetTokenValue(), UINT32_MAX);
         processOneSliceWithNotify(lastLocSlice, lastRmtSlice);
     }
 
@@ -529,7 +529,7 @@ void UbConnLite::BatchProcessOneSlice(const RmaBufSliceLite &loc, const RmtRmaBu
         // 构造本次wqe的log和rmt RmaBufSilce
         RmaBufSliceLite    locTmp(loc.GetAddr() + offset, UB_DMA_MAX_READ_WEITE_SIZE, loc.GetLkey(), loc.GetTokenId());
         RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, UB_DMA_MAX_READ_WEITE_SIZE, rmt.GetRkey(), rmt.GetTokenId(),
-                                  rmt.GetTokenValue());
+                                  rmt.GetTokenValue(), UINT32_MAX);
 
         FillBatchOneWqe(locTmp, rmtTmp, cfg, isLastWqe, opCode, stream);
 
@@ -542,7 +542,7 @@ void UbConnLite::BatchProcessOneSlice(const RmaBufSliceLite &loc, const RmtRmaBu
 
         RmaBufSliceLite    locTmp(loc.GetAddr() + offset, remainingSize, loc.GetLkey(), loc.GetTokenId());
         RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, remainingSize, rmt.GetRkey(), rmt.GetTokenId(),
-                                  rmt.GetTokenValue());
+                                  rmt.GetTokenValue(), UINT32_MAX);
         FillBatchOneWqe(locTmp, rmtTmp, cfg, isLastWqe, opCode, stream);
     }
 }

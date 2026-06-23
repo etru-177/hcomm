@@ -155,7 +155,7 @@ void RdmaConnLiteV2::DoSliceWrite(const RmaBufSliceLite &loc, const RmtRmaBufSli
                                ? remain : RDMA_DMA_MAX_SIZE;
 
         RmaBufSliceLite    locSlice(localAddr, sliceSize, loc.GetLkey(), 0);
-        RmtRmaBufSliceLite rmtSlice(remoteAddr, sliceSize, rmt.GetRkey(), 0, 0);
+        RmtRmaBufSliceLite rmtSlice(remoteAddr, sliceSize, rmt.GetRkey(), 0, 0, UINT32_MAX);
 
         HCCL_INFO("[RdmaConnLiteV2::%s] Slice[%u]: offset=0x%llx, localAddr=0x%llx, "
                   "remoteAddr=0x%llx, size=0x%x",

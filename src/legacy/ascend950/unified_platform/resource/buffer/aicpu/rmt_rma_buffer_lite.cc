@@ -30,7 +30,7 @@ RmtRmaBufferLite::RmtRmaBufferLite(u64 addr, u64 size, u32 tokenId, u32 tokenVal
 
 RmtRmaBufSliceLite RmtRmaBufferLite::GetRmtRmaBufSliceLite(u64 offset, u64 sliceSize) const
 {
-    return RmtRmaBufSliceLite(addr_ + offset, sliceSize, rkey_, tokenId_, tokenValue_);
+    return RmtRmaBufSliceLite(addr_ + offset, sliceSize, rkey_, tokenId_, tokenValue_, UINT32_MAX);
 }
 
 std::string RmtRmaBufferLite::Describe() const
@@ -38,5 +38,4 @@ std::string RmtRmaBufferLite::Describe() const
     return StringFormat("RmtRmaBufferLite[type=%s, addr=0x%llx, size=0x%x, rkey=%u]",
                         type_.Describe().c_str(), addr_, size_, rkey_);
 }
-
 } // namespace Hccl

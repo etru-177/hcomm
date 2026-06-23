@@ -14,7 +14,7 @@
 namespace Hccl {
 class RmtRmaBufSliceLite {
 public:
-    RmtRmaBufSliceLite(u64 addr, u64 size, u32 rkey, u32 tokenId, u32 tokenValue);
+    RmtRmaBufSliceLite(u64 addr, u64 size, u32 rkey, u32 tokenId, u32 tokenValue, u32 notifyId);
 
     inline u64 GetAddr() const
     {
@@ -41,6 +41,11 @@ public:
         return tokenValue_;
     }
 
+    inline u32 GetNotifyId() const
+    {
+        return notifyId_;
+    }
+
     std::string Describe() const;
 
 private:
@@ -49,6 +54,7 @@ private:
     u32 rkey_;
     u32 tokenId_;
     u32 tokenValue_;
+    u32 notifyId_{UINT32_MAX};
 };
 } // namespace Hccl
 #endif

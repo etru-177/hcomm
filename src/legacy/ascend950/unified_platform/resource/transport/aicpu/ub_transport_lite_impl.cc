@@ -176,6 +176,7 @@ void UbTransportLiteImpl::ParseRmtBufferVec(std::vector<char> &data, RmaUbBufTyp
         binaryStream >> ubBufLite.size;
         binaryStream >> ubBufLite.tokenId;
         binaryStream >> ubBufLite.tokenValue;
+        binaryStream >> ubBufLite.notifyId;
         HCCL_INFO("idx=%u, %s %s", idx, rmtType.Describe().c_str(), ubBufLite.Describe().c_str());
         if (rmtType == RmaUbBufType::NOTIFY) {
             rmtNotifyVec.push_back(ubBufLite);
@@ -254,7 +255,7 @@ RmtRmaBufSliceLite UbTransportLiteImpl::GetRmtNotifySliceLite(u32 index)
 {
     RmtUbBufLite &lite = rmtNotifyVec[index];
     // ub conn lite 不关心rkey , rkey 设定为0
-    return RmtRmaBufSliceLite(lite.addr, lite.size, 0, lite.tokenId, lite.tokenValue);
+    return RmtRmaBufSliceLite(lite.addr, lite.size, 0, lite.tokenId, lite.tokenValue, lite.notifyId);
 }
 
 RmtRmaBufSliceLite UbTransportLiteImpl::GetRmtRmaBufSliceLite(const Buffer &rmtBuf)
@@ -265,7 +266,8 @@ RmtRmaBufSliceLite UbTransportLiteImpl::GetRmtRmaBufSliceLite(const Buffer &rmtB
         --it;
         Buffer iterBuf(it->second.addr, it->second.size);
         if (iterBuf.Contains(rmtBuf.GetAddr(), rmtBuf.GetSize())) {
-            return RmtRmaBufSliceLite(rmtBuf.GetAddr(), rmtBuf.GetSize(), 0, it->second.tokenId, it->second.tokenValue);
+            return RmtRmaBufSliceLite(rmtBuf.GetAddr(), rmtBuf.GetSize(), 0, it->second.tokenId, it->second.tokenValue,
+                UINT32_MAX);
         }
     }
     MACRO_THROW(InternalException, StringFormat("%s is not in current transport", rmtBuf.Describe().c_str()));
@@ -273,7 +275,7 @@ RmtRmaBufSliceLite UbTransportLiteImpl::GetRmtRmaBufSliceLite(const Buffer &rmtB
 
 RmtRmaBufSliceLite UbTransportLiteImpl::GetRmtRmaBufSliceLite(const RmaBufferLite &lite) const
 {
-    return RmtRmaBufSliceLite(lite.GetAddr(), lite.GetSize(), 0, lite.GetTokenId() , lite.GetTokenValue());
+    return RmtRmaBufSliceLite(lite.GetAddr(), lite.GetSize(), 0, lite.GetTokenId() , lite.GetTokenValue(), UINT32_MAX);
 }
 
 HcclResult UbTransportLiteImpl::BuildLocRmaBufferLite(const uintptr_t addr, const size_t size, RmaBufferLite &rmaBufferLite)
@@ -366,7 +368,7 @@ void UbTransportLiteImpl::Post(u32 index, const StreamLite &stream)
     taskParam.beginTime                = ProfGetCurCpuTimestamp();
     taskParam.taskPara.DMA.dst         = reinterpret_cast<void*>(rmtBuffSliceLite.GetAddr());
     taskParam.taskPara.DMA.size        = rmtBuffSliceLite.GetSize();
-    taskParam.taskPara.DMA.notifyID    = rmtBuffSliceLite.GetAddr();
+    taskParam.taskPara.DMA.notifyID    = rmtBuffSliceLite.GetNotifyId();
     taskParam.taskPara.DMA.notifyValue = 1;
     taskParam.taskPara.DMA.linkType    = DfxLinkType::UB;
     taskParam.taskPara.DMA.dmaOp       = DmaOp::HCCL_DMA_WRITE;
@@ -915,7 +917,7 @@ void UbTransportLiteImpl::WriteWithNotify(const RmaBufferLite &loc, const Buffer
     taskParam.taskPara.DMA.src      = reinterpret_cast<void *>(locRmaBufSlicelite.GetAddr());
     taskParam.taskPara.DMA.dst      = reinterpret_cast<void *>(rmtRmaBufSlicelite.GetAddr());
     taskParam.taskPara.DMA.size     = locRmaBufSlicelite.GetSize();
-    taskParam.taskPara.DMA.notifyID = rmtNotifySliceLite.GetAddr();
+    taskParam.taskPara.DMA.notifyID = rmtNotifySliceLite.GetNotifyId();
     taskParam.taskPara.DMA.notifyValue = 1;
     taskParam.taskPara.DMA.linkType = DfxLinkType::UB;
     taskParam.taskPara.DMA.dmaOp    = DmaOp::HCCL_DMA_WRITE;
@@ -951,7 +953,7 @@ void UbTransportLiteImpl::WriteReduceWithNotify(const RmaBufferLite &loc, const 
     taskParam.taskPara.Reduce.src      = reinterpret_cast<void *>(locRmaBufSlicelite.GetAddr());
     taskParam.taskPara.Reduce.dst      = reinterpret_cast<void *>(rmtRmaBufSlicelite.GetAddr());
     taskParam.taskPara.Reduce.size     = locRmaBufSlicelite.GetSize();
-    taskParam.taskPara.Reduce.notifyID = rmtNotifySliceLite.GetAddr();
+    taskParam.taskPara.Reduce.notifyID = rmtNotifySliceLite.GetNotifyId();
     taskParam.taskPara.Reduce.notifyValue = 1;
     taskParam.taskPara.Reduce.linkType = DfxLinkType::UB;
     taskParam.taskPara.Reduce.reduceOp = ConvertReduceOpToHcclReduceOp(reduceIn.reduceOp);

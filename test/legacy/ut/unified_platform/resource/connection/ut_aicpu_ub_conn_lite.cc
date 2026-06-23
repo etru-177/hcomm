@@ -97,8 +97,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Read)
     MOCKER_CPP(&RtsqBase::QuerySqHead).stubs().with(mockcpp::any()).will(returnValue(1));
     MOCKER_CPP(&RtsqBase::QuerySqTail).stubs().with(mockcpp::any()).will(returnValue(1));
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(0x000000000000ffff);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -127,8 +127,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Read_Slice)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 257*1024*1024, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(0x000000000000ffff);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -161,8 +161,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_ReadReduce_Slice)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 257*1024*1024, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -196,8 +196,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_ReadReduce)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -231,8 +231,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Write)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(0x000000000000ffff);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -265,8 +265,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_Write_Slice)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 257*1024*1024, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(0x000000000000ffff);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -301,8 +301,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReduceWithNotify)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -354,8 +354,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReduceWithNotify_Slice)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 257*1024*1024, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -400,8 +400,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -437,8 +437,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify_Detour)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -483,8 +483,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify_Throw)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -524,8 +524,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteWithNotify_Slice)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 257*1024*1024, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -560,8 +560,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_InlineWrite)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -596,8 +596,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReducee)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 64, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 64, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -630,8 +630,8 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_WriteReduce_Slice)
     EXPECT_EQ(1, ubConn.GetRmtEid().raw[0]);
 
     RmaBufSliceLite      loc(0x1111, 257*1024*1024, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1);
-    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, 257*1024*1024, 1, 1, 1, UINT32_MAX);
+    RmtRmaBufSliceLite   notify(0x2222, 64, 1, 1, 1, UINT32_MAX);
     u64                  notifyData(1);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
@@ -661,7 +661,7 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead)
 
     u32 dataSize = 400*1024*1024;
     RmaBufSliceLite      loc(0x1111, dataSize, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, dataSize, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, dataSize, 1, 1, 1, UINT32_MAX);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
     std::vector<char> uniqueId{};
@@ -684,7 +684,7 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedWrite)
 
     u32 dataSize = 400*1024*1024;
     RmaBufSliceLite      loc(0x1111, dataSize, 1, 1);
-    RmtRmaBufSliceLite   rmt(0x2222, dataSize, 1, 1, 1);
+    RmtRmaBufSliceLite   rmt(0x2222, dataSize, 1, 1, 1, UINT32_MAX);
     SqeConfigLite        cfg;
     ConnLiteOperationOut out;
     std::vector<char> uniqueId{};
