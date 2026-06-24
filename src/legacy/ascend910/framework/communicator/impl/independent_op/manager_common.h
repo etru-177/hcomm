@@ -25,6 +25,8 @@ struct ManagerCallbacks {
     std::function<void(bool)> setAicpuCommState;
     // Aicpu通信域初始化
     std::function<HcclResult()> kernelLaunchAicpuCommInit;
+    // report kernel
+    std::function<HcclResult(uint64_t, std::string)> reportProfilingKernel;
 };
 
 struct ChannelManagerCallbacks {

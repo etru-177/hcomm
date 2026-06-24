@@ -30,6 +30,7 @@ public:
         callbacks.getAicpuCommState = []() { return true; };
         callbacks.setAicpuCommState = [](bool) {};
         callbacks.kernelLaunchAicpuCommInit = []() { return HCCL_SUCCESS; };
+        callbacks.reportProfilingKernel = [](uint64_t, std::string) { return HCCL_SUCCESS; };
         threadManager = std::make_unique<ThreadMgr>(1, 1, "test", nullptr, callbacks);
     }
     void TearDown() override {

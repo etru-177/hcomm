@@ -371,6 +371,7 @@ public:
     void SetAicpuCommState(bool aicpuCommState);
     bool GetAicpuCommState();
     HcclResult KernelLaunchAicpuCommInit();
+    HcclResult ReportProfilingKernel(uint64_t beginTime, std::string kernelName);
     bool IsCommunicatorV2();
 #ifndef HCCD
     HcclResult InitCollComm(void* commV2, void* rankGraph, uint32_t userRank,

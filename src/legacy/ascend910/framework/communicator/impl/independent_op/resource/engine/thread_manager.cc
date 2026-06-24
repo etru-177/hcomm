@@ -173,10 +173,16 @@ HcclResult ThreadMgr::SupplementThread(CommEngine engine, uint32_t supplementThr
         EXCEPTION_CATCH(hostHandle = std::make_unique<ThreadHandle[]>(newThreads.size()),
             return HCCL_E_PTR);
         HCCL_INFO("ThreadMgr::HcclAllocThreadRes ThreadKernelLaunchForComm start");
+        uint64_t beginTime = Hccl::DlProfFunction::GetInstance().dlMsprofSysCycleTime();
         ret = AicpuLaunchMgr::ThreadKernelLaunchForComm(newThreads, commId_, hostHandle, binHandle_);
         HCCL_INFO("ThreadMgr::HcclAllocThreadRes ThreadKernelLaunchForComm end");
         CHK_PRT_RET(ret != HCCL_SUCCESS,
             HCCL_ERROR("[ThreadMgr][HcclThreadAcquire] AiCpuKernelLaunch failed, return [%d].", ret), ret);
+        if (callbacks_.reportProfilingKernel != nullptr) {
+            ret = callbacks_.reportProfilingKernel(beginTime, "RunAicpuIndOpThreadInit");
+            CHK_PRT_RET(ret != HCCL_SUCCESS,
+                HCCL_ERROR("[ThreadMgr][HcclThreadAcquire] ReportProfilingAiCpuKernelLaunch failed, return [%d].", ret), ret);
+        }
     }
     threads_.reserve(threads_.size() + newThreads.size());
     engineToThreadsMap_[engine].reserve(engineToThreadsMap_[engine].size() + newThreads.size());
@@ -444,9 +450,15 @@ HcclResult ThreadMgr::ThreadExportToCommEngineAicpu(uint32_t threadNum, const Th
         std::unique_ptr<ThreadHandle[]> aicpuHandle;
         EXCEPTION_CATCH(aicpuHandle = std::make_unique<ThreadHandle[]>(hostThreads.size()),
                          return HCCL_E_PTR);
+        uint64_t beginTime = Hccl::DlProfFunction::GetInstance().dlMsprofSysCycleTime();
         HcclResult ret = AicpuLaunchMgr::ThreadKernelLaunchForComm(hostThreads, commId_, aicpuHandle, binHandle_);
         CHK_PRT_RET(ret != HCCL_SUCCESS,
                     HCCL_ERROR("[ThreadMgr][HcclThreadExportToCommEngine] AiCpuKernelLaunch failed, return [%d].", ret), ret);
+        if (callbacks_.reportProfilingKernel != nullptr) {
+            ret = callbacks_.reportProfilingKernel(beginTime, "RunAicpuIndOpThreadInit");
+            CHK_PRT_RET(ret != HCCL_SUCCESS,
+                HCCL_ERROR("[ThreadMgr][HcclThreadExportToCommEngine] ReportProfilingAiCpuKernelLaunch failed, return [%d].", ret), ret);
+        }
         for (size_t i = 0; i < hostThreads.size(); ++i) {
             exportedThreads[index[i]] = aicpuHandle[i];
             CHK_RET(hostThreads[i]->AddThreadHandleToMap(dstCommEngine, aicpuHandle[i]));

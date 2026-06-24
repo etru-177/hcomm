@@ -60,7 +60,6 @@ HcclResult HcclGetNotifyNumInThread(HcclComm comm, ThreadHandle thread,
 HcclResult HcclThreadAcquire(HcclComm comm, CommEngine engine, uint32_t threadNum,
     uint32_t notifyNumPerThread, ThreadHandle *threads)
 {
-    u64 beginTime = Hccl::DlProfFunction::GetInstance().dlMsprofSysCycleTime();
     CHK_PRT_RET(comm == nullptr,  HCCL_ERROR("[%s] comm is null", __func__), HCCL_E_PTR);
     CHK_PRT_RET(threads == nullptr,  HCCL_ERROR("[%s] threads is null", __func__), HCCL_E_PTR);
     CHK_PRT_RET(!IsValidCommEngine(engine), 
@@ -95,11 +94,6 @@ HcclResult HcclThreadAcquire(HcclComm comm, CommEngine engine, uint32_t threadNu
         CHK_PTR_NULL(hcclCommDfx);
         if (engine == CommEngine::COMM_ENGINE_AICPU_TS || engine == CommEngine::COMM_ENGINE_AICPU) {
             hcclCommDfx->ReportMc2CommInfo(mc2CommInfo);
-            HCCL_INFO("[HcclThreadAciqure] ReportThreadAciqureKernel begin");
-            const std::string KernelName = "RunAicpuIndOpThreadInit";
-            // 这个地方获取不到当前是单算子还是图模式，所以全部都不保存
-            CHK_RET(hcclCommDfx->ReportKernel(beginTime, commId, KernelName, SalGetTid(), false));
-            HCCL_INFO("[HcclThreadAciqure] ReportThreadAciqureKernel success");
         } else {
             auto hcclCommDfxCallBack = collComm->GetDfxCallback();
             for (u32 num = 0; num < threadNum; ++num) {
@@ -280,7 +274,6 @@ extern "C" {
 #endif
 HcclResult HcclThreadExportToCommEngine(HcclComm comm, uint32_t threadNum, const ThreadHandle *threads, CommEngine dstCommEngine, ThreadHandle *exportedThreads)
 {
-    u64 beginTime = Hccl::DlProfFunction::GetInstance().dlMsprofSysCycleTime();
     CHK_PTR_NULL(comm);
     CHK_PTR_NULL(threads);
     CHK_PTR_NULL(exportedThreads);
@@ -302,13 +295,6 @@ HcclResult HcclThreadExportToCommEngine(HcclComm comm, uint32_t threadNum, const
         CommEngineResMgr* engineResMgr = collComm->GetCommEngineResMgr();
         CHK_PTR_NULL(engineResMgr);
         ret = engineResMgr->HcclThreadExportToCommEngine(threadNum, threads, dstCommEngine, exportedThreads);
-        if (ret == HCCL_SUCCESS &&
-                (dstCommEngine == CommEngine::COMM_ENGINE_AICPU_TS || dstCommEngine == CommEngine::COMM_ENGINE_AICPU)) {
-            HcclCommDfx* hcclCommDfx = collComm->GetHcclCommDfx();
-            CHK_PTR_NULL(hcclCommDfx);
-            const std::string KernelName = "RunAicpuIndOpThreadInit";
-            CHK_RET(hcclCommDfx->ReportKernel(beginTime, commId, KernelName, SalGetTid(), false));
-        }
     } else {
         auto &engineResMgr = hcclComm->GetIndependentOp().GetCommEngineResMgr();
         ret = engineResMgr.HcclThreadExportToCommEngine(threadNum, threads, dstCommEngine, exportedThreads);

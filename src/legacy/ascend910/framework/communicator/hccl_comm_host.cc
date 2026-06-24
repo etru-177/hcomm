@@ -334,6 +334,9 @@ namespace hccl
         callbacks.kernelLaunchAicpuCommInit = [this]() {
             return this->KernelLaunchAicpuCommInit();
         };
+        callbacks.reportProfilingKernel = [this](uint64_t beginTime, std::string kernelName) {
+            return this->ReportProfilingKernel(beginTime, kernelName);
+        };
 
         // Aicpu通信域初始化参数
         auto ret = snprintf_s(commAicpuParam_.hcomId, HCOMID_MAX_SIZE, HCOMID_MAX_SIZE - 1, "%s", commName.c_str());
@@ -357,14 +360,11 @@ namespace hccl
             return HCCL_SUCCESS;
         }
 
-        CHK_RET(collComm_->GetHDCommunicate(commAicpuParam_.kfcControlTransferH2DParams,
-            commAicpuParam_.kfcStatusTransferD2HParams));
+        CHK_RET(collComm_->GetHDCommunicate(commAicpuParam_.kfcControlTransferH2DParams, commAicpuParam_.kfcStatusTransferD2HParams));
         commAicpuParam_.userRank = collComm_->GetMyRankId();
         commAicpuParam_.userRankSize = collComm_->GetRankSize();
-        commAicpuParam_.commConfig.taskExceptionEnable =
-            Hccl::EnvConfig::GetInstance().GetLogConfig().GetDfsConfig().taskExceptionEnable;
-        commAicpuParam_.commConfig.notifyWaitTimeout =
-            Hccl::EnvConfig::GetInstance().GetRtsConfig().GetExecTimeOut();
+        commAicpuParam_.commConfig.taskExceptionEnable = Hccl::EnvConfig::GetInstance().GetLogConfig().GetDfsConfig().taskExceptionEnable;
+        commAicpuParam_.commConfig.notifyWaitTimeout = Hccl::EnvConfig::GetInstance().GetRtsConfig().GetExecTimeOut();
         const auto opExpansionMode = GetCollCommOpExpansionMode(collComm_.get());
         HCCL_RUN_INFO("[%s]success, commId[%s], deviceLogicId[%u], devicePhyId[%u], devType[%u], "
             "userRank[%u], userRankSize[%u], opExpansionMode[%u], taskExceptionEnable[%d], notifyWaitTimeout[%u].",
@@ -495,6 +495,16 @@ namespace hccl
         HCCL_INFO("[KernelLaunchAicpuCommInit] ReportAicpuCommKernel end");
         // 打印增加初始化对应的参数
         HCCL_RUN_INFO("[%s] KernelLaunchAicpuCommInit Success", __func__);
+        return HCCL_SUCCESS;
+    }
+
+    HcclResult hcclComm::ReportProfilingKernel(uint64_t beginTime, std::string kernelName)
+    {
+        CHK_PTR_NULL(collComm_);
+        HcclCommDfx* hcclComDfx = collComm_->GetHcclCommDfx();
+        CHK_PTR_NULL(hcclComDfx);
+        // 通信域初始化在op注册之前，这个地方一定是false，因为还不知道是不是图模式
+        CHK_RET(hcclComDfx->ReportKernel(beginTime, identifier_, kernelName, SalGetTid(), false));
         return HCCL_SUCCESS;
     }
 
