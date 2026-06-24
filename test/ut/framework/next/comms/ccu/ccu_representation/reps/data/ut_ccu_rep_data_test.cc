@@ -17,6 +17,7 @@
 #include "ccu_rep_bufreduce_v1.h"
 #include "ccu_rep_loccpy_v1.h"
 #include "ccu_rep_remMem_v1.h"
+#include "ccu_api_exception.h"
 
 #include "hcomm_c_adpt.h"
 
@@ -544,6 +545,22 @@ TEST_F(CcuRepBufReduceTest, Translate_Min)
 
     bool result = rep.Translate(instrPtr, instrId, dep);
     EXPECT_TRUE(result);
+}
+
+TEST_F(CcuRepBufReduceTest, Translate_CountLessThanMin)
+{
+    CcuRepContext context;
+    std::vector<CcuBuf> mem = {CcuBuf{&context}};
+    Variable len{&context};
+    CompletedEvent sem{&context};
+
+    CcuRepBufReduce rep(mem, 1, 1, 1, 0, sem, len, 1);
+    CcuInstr instr;
+    CcuInstr* instrPtr = &instr;
+    uint16_t instrId = 0;
+    TransDep dep = {};
+
+    EXPECT_THROW(rep.Translate(instrPtr, instrId, dep), Hccl::CcuApiException);
 }
 
 TEST_F(CcuRepLocCpyTest, Constructor_Basic)
