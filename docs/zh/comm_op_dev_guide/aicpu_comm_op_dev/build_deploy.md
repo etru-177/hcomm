@@ -29,7 +29,7 @@ HCCL代码仓提供了自定义算子编译打包工程，开发者可参考[自
     ├── op_kernel_aicpu/
     │   ├── libp2p_aicpu_kernel.json        # AI CPU Kernel算子描述文件
     │   ├── aicpu_kernel.cc                 # AI CPU Kernel实现逻辑
-    │   └── exec_op.cc                      # AI CPU 算子编排逻辑
+    │   └── exec_op.cc                      # AI CPU算子编排逻辑
     ├── inc/
     │   ├── hccl_custom_p2p.h               # 自定义Send/Receive算子接口头文件
     │   ├── common.h                        # 公共类型头文件

@@ -1,6 +1,6 @@
 # 通信模型
 
-**图 1**  HCCL通信模型  
+**图1**  HCCL通信模型  
 ![](figures/hccl_communication_model.png "HCCL通信模型")
 
 上图描述了HCCL的通信模型，其中均为软件概念，下面分别对相应概念进行解释：
@@ -24,14 +24,14 @@
 
 在网络语义通信模型中，用户使用Channel读写远端通信对象内存或与远端通信对象进行同步，详见[通信操作](../../api_ref/comm_opdev/data_plan_api/cpu-cpu_ts-aicpu_ts/communication_operations/README.md)接口介绍。
 
-**图 2**  网络语义通信模型  
+**图2**  网络语义通信模型  
 ![](figures/semantic_communication.png "网络语义通信模型")
 
 网络语义通信模型的关键对象是Channel，开发者可以在一对Endpoint之间创建多个Channel。下面打开Channel模型，详细介绍内部元素。
 
 下图是RoCE协议下的Channel模型：
 
-**图 3**  RoCE场景的Channel模型  
+**图3**  RoCE场景的Channel模型  
 ![](figures/roce_channel_model.png "RoCE场景的Channel模型")
 
 - Channel是本地与远端对象通信的入口，本端通信对象的Channel与远端通信对象的Channel具有一对一的关联关系。
@@ -47,7 +47,7 @@
 
 下图展示了HCCL的内存语义通信模型：
 
-**图 4**  内存语义通信模型  
+**图4**  内存语义通信模型  
 ![](figures/memory_semantic_model.png "内存语义通信模型")
 
 - Endpoint：表示与其他通信对象进行通信时的网络逻辑口。
@@ -64,7 +64,7 @@ CCU通信模型与网络语义通信模型类似，区别是支持将本地CcuBu
 
 CcuBuffer概念见[资源抽象](./CCU_models_conceptes.md#资源抽象)。
 
-**图 5**  CCU通信模型  
+**图5**  CCU通信模型  
 ![](figures/CCU_communication_model.png "CCU通信模型")
 
 - Channel可以包含多个Notify实例（对应CCU同步寄存器），用于通信对象之间的同步操作：
@@ -73,5 +73,5 @@ CcuBuffer概念见[资源抽象](./CCU_models_conceptes.md#资源抽象)。
 
 - Channel可以包含多个Variable实例（对应CCU通用寄存器），用于与对端同步Variable中的数据。
 
-  **图 6**  Channel模型
+  **图6**  Channel模型
   ![](figures/ccu_channel.png)

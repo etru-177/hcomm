@@ -35,7 +35,7 @@ int32_t：接口成功返回0，其他失败。
 
 dst、src内存需要为device内存。
 
-在 Ascend 950PR/Ascend 950DT 上，仅支持 AICPU_TS 模式下、在 Device 侧调用该接口。
+在Ascend 950PR/Ascend 950DT上，仅支持AICPU_TS模式下、在Device侧调用该接口。
 
 ## 调用示例
 
@@ -64,7 +64,7 @@ uint64_t count = memSize / SIZE_TABLE[HCCL_DATA_TYPE_FP32];
 HcommLocalReduceOnThread(thread, outputMem, inputMem, count, HCCL_DATA_TYPE_FP32, HCCL_REDUCE_SUM);
 ```
 
-在  Ascend 950PR/Ascend 950DT  上，该函数需要编译到 Device 侧使用：
+在Ascend 950PR/Ascend 950DT上，该函数需要编译到Device侧使用：
 
 ```c
 HcclComm comm;
@@ -77,9 +77,9 @@ ThreadHandle thread;
 HcclThreadAcquire(comm, engine, 1, 1, &thread);
 
 // 其余资源申请
-// 拷贝参数并 Launch Kernel
+// 拷贝参数并Launch Kernel
 
-// Device 侧算法编排
+// Device侧算法编排
 uint64_t len = 256;
 void *src = param.userIn;
 void *dst = param.cclBuf;

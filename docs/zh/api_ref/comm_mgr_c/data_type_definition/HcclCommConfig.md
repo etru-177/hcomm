@@ -205,7 +205,7 @@ typedef struct HcclCommConfigDef {
 
   配置方式的参数信息及针对不同产品类型支持的算法类型请参见环境变量[HCCL_ALGO](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_ALGO.md)，配置方式如下：
 
-  - 全局配置算法类型：`hcclAlgo = "level0:NA;level1:<algo>;level2:<algo>"`，  示例：
+  - 全局配置算法类型：`hcclAlgo = "level0:NA;level1:<algo>;level2:<algo>"`，示例：
 
     ```text
     hcclAlgo = "level0:NA;level1:H-D_R"
@@ -253,7 +253,7 @@ typedef struct HcclCommConfigDef {
 
   若HcclCommConfig和环境变量均未配置，则使用下列表格中列出的默认值。
 
-**表 1**  配置优先级说明详表
+**表1**  配置优先级说明详表
 
 | 配置项 | 配置优先级 |
 | --- | --- |

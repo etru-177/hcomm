@@ -73,7 +73,7 @@ config.hcclBufferSize = 50;
 strcpy(config.hcclCommName, "comm_1");
 // 初始化子通信域
 HcclComm hcclComm;
-uint32_t rankIds[4] = {0, 1, 2, 3};  // 子通信域的 Rank 列表
+uint32_t rankIds[4] = {0, 1, 2, 3};  // 子通信域的Rank列表
 // 当前rank在子通信域中的rank id设置为0
 HcclCreateSubCommConfig(&globalHcclComm, 4, rankIds, 1, 0, &config, &hcclComm); 
 ```

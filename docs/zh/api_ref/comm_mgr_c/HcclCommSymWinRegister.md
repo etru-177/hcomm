@@ -74,7 +74,7 @@ HcclResult HcclCommSymWinRegister(HcclComm comm, void *addr, uint64_t size, Hccl
 HcclCommConfig config;
 HcclCommConfigInit(&config);
 // 按需修改通信域配置
-config.hcclSymWinMaxMemSizePerRank = 10; //单位GB, 默认值为16。设置对称堆预留的虚拟内存大小 = rankSize * config.hcclSymWinMaxMemSizePerRank;
+config.hcclSymWinMaxMemSizePerRank = 10; //单位GB,默认值为16。设置对称堆预留的虚拟内存大小 = rankSize * config.hcclSymWinMaxMemSizePerRank;
 
 // 获取通信域参数
 uint32_t rankSize = 4;

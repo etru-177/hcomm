@@ -32,7 +32,7 @@ int32_t：接口成功返回0，其他失败。
 
 该接口需要配合[HcommThreadNotifyWaitOnThread](HcommThreadNotifyWaitOnThread.md)使用。
 
-在 Ascend 950PR/Ascend 950DT 上，仅支持 AICPU_TS 模式下、在 Device 侧调用该接口。
+在Ascend 950PR/Ascend 950DT上，仅支持AICPU_TS模式下、在Device侧调用该接口。
 
 ## 调用示例
 
@@ -54,7 +54,7 @@ uint32_t timeout = 1;
 HcommThreadNotifyWaitOnThread(threads[1], notifyIdx, timeout);
 ```
 
-在  Ascend 950PR/Ascend 950DT  上，该函数需要编译到 Device 侧使用：
+在Ascend 950PR/Ascend 950DT上，该函数需要编译到Device侧使用：
 
 ```c
 HcclComm comm;
@@ -65,9 +65,9 @@ HcclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[0]);
 HcclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[1]);
 
 // 其余资源申请
-// 拷贝参数并 Launch Kernel
+// 拷贝参数并Launch Kernel
 
-// Device 侧算法编排
+// Device侧算法编排
 uint32_t notifyIdx = 0;
 // 发送同步信号
 HcommThreadNotifyRecordOnThread(threads[0], threads[1], notifyIdx);

@@ -23,7 +23,7 @@ HcommResult HcommChannelCreate(EndpointHandle endpointHandle, CommEngine engine,
 | endpointHandle | 输入 | 网络设备端点句柄，标识一个已创建的本地网络设备端点。<br>EndpointHandle类型的定义请参见[EndpointHandle](../../datatype_definition/EndpointHandle.md)，该句柄必须通过[HcommEndpointCreate](HcommEndpointCreate.md)成功创建，且未销毁。 |
 | engine | 输入 | 通信引擎类型，指定通道的执行位置。<br>CommEngine类型的定义请参见[CommEngine](../../datatype_definition/CommEngine.md)。<br>需要注意：必须是有效的引擎类型。 |
 | channelDescs | 输入 | 通道描述符数组，每个元素描述一个待创建通道的属性信息。<br>HcommChannelDesc类型的定义请参见[HcommChannelDesc](../../datatype_definition/HcommChannelDesc.md)。<br>数组元素数量必须等于channelNum，每个元素需正确填充必要字段。 |
-| channelNum | 输入 | 待创建的通道数量。<br>单位：个，取值范围：[1, 1048576]。<br>该参数需要大于 0。 |
+| channelNum | 输入 | 待创建的通道数量。<br>单位：个，取值范围：[1, 1048576]。<br>该参数需要大于0。 |
 | channels | 输出 | 通道句柄数组，用于返回创建成功的通道句柄列表。<br>ChannelHandle类型的定义请参见[ChannelHandle](../../datatype_definition/ChannelHandle.md)。<br>调用者分配的数组，需要至少包含channelNum个元素的空间。 |
 
 ## 返回值
@@ -52,7 +52,7 @@ EndpointHandle endpointHandle = nullptr;
 
  // 准备通道描述符并创建通道
  for (uint32_t i = 0; i < CHANNEL_NUM; i++) {
-     // ... 填充 channelDescs[i]
+     // ... 填充channelDescs[i]
  }
 
  HcommResult ret = HcommChannelCreate(endpointHandle, COMM_ENGINE_CPU,

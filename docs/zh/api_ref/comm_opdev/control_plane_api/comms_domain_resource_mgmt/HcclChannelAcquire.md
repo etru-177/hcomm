@@ -43,12 +43,12 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine, const HcclChanne
 以批量通信通道为例：
 
 ```c
-// 1. 调用 HcclRankGraphGetLinks 获取链路信息
+// 1. 调用HcclRankGraphGetLinks获取链路信息
 CommLink *linkList = nullptr;
 uint32_t listSize;
 CHK_RET(HcclRankGraphGetLinks(comm, netLayer, myRank, rank, &linkList, &listSize));
 
-// 2. 遍历每个 CommLink，填充 HcclChannelDesc
+// 2. 遍历每个CommLink，填充HcclChannelDesc
 uint32_t channelNum = listSize;
 std::vector<HcclChannelDesc> channelDescVec(channelNum);
 for (uint32_t idx = 0; idx < listSize; idx++) {
@@ -58,7 +58,7 @@ for (uint32_t idx = 0; idx < listSize; idx++) {
 
   CommLink link = linkList[idx];
 
-  //  核心映射：从 CommLink 提取 Endpoint 信息
+  //  核心映射：从CommLink提取Endpoint信息
   channelDesc.localEndpoint.protocol = link.srcEndpointDesc.protocol;
   channelDesc.localEndpoint.commAddr = link.srcEndpointDesc.commAddr;
   channelDesc.localEndpoint.loc    = link.srcEndpointDesc.loc;
@@ -71,7 +71,7 @@ for (uint32_t idx = 0; idx < listSize; idx++) {
   channelDescVec[idx] = channelDesc;
 }
 
-// 3. 批量创建 Channel
+// 3. 批量创建Channel
 HcclComm comm;
 CommEngine engine = CommEngine::COMM_ENGINE_CPU_TS;
 std::vector<ChannelHandle> channels(channelNum);

@@ -1,4 +1,4 @@
-# HCCL 架构文档
+# HCCL架构文档
 
 本文档描述HCCL（Huawei Collective Communication Library）的软件架构。
 

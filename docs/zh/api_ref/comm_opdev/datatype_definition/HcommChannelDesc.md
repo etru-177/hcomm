@@ -16,9 +16,9 @@ typedef struct {
     bool exchangeAllMems;             /* 表示是否交换本地网络设备端注册的内存信息 */
     HcommMemHandle *memHandles;       /* 注册到通信域的待交换内存句柄，exchangeAllMems为True时无效 */
     uint32_t memHandleNum;            /* 注册到通信域的待交换内存句柄数量，exchangeAllMems为True时无效 */
-    HcommSocket socket;               /* Socket 句柄 */
+    HcommSocket socket;               /* Socket句柄 */
     HcommSocketRole role;             /* 本端角色(SERVER或CLIENT) */
-    uint16_t port;                    /* Socket 监听指定端口*/
+    uint16_t port;                    /* Socket监听指定端口*/
     union {
         uint8_t raws[128];            /* 通用缓存 */
         struct {

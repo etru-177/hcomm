@@ -34,7 +34,7 @@ HCCL控制面接口支持查询的拓扑信息如下表所示。
     ```c
     u32 rankSize = INVALID_VALUE_RANKSIZE;
     HcclResult ret = HcclGetRankSize(comm, &rankSize);
-    if (userRank >= rankSize) {     // rank_id 超出范围
+    if (userRank >= rankSize) {     // rank_id超出范围
         return HCCL_E_PARA;
     }
     ```
@@ -88,7 +88,7 @@ HcclResult FillSimpleTopoInfo(HcclComm comm, TopoInfo &topoInfo){
     // 校验ret结果
     uint32_t *ranks = nullptr;
     uint32_t rankNum = 0;
-    // 由于是单机4卡，因此netLayer=0，获取netLayer 0 下的ranks即为此次集合通信的rankId的集合
+    // 由于是单机4卡，因此netLayer=0，获取netLayer 0下的ranks即为此次集合通信的rankId的集合
     ret = HcclRankGraphGetRanksByLayer(comm, 0, &ranks, &rankNum);
     // 校验ret结果
     for (size_t index = 0; index < rankNum; index++) {

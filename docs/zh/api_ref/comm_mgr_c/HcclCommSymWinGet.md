@@ -54,7 +54,7 @@ HcclResult HcclCommSymWinGet(HcclComm comm, void *ptr, size_t size, HcclCommSymW
 HcclCommConfig config;
 HcclCommConfigInit(&config);
 // 按需修改通信域配置
-config.hcclSymWinMaxMemSizePerRank = 10; // 单位GB, 默认值为16
+config.hcclSymWinMaxMemSizePerRank = 10; // 单位GB,默认值为16
 
 // 获取通信域参数
 uint32_t rankSize = 4;

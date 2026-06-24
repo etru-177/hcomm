@@ -65,7 +65,7 @@ HcclResult HcclGetRootInfo(HcclRootInfo *rootInfo)
 ```c
 uint32_t rankSize = 8;
 uint32_t deviceId = 0;
-// 生成 root 节点的 rank 标识信息
+// 生成root节点的rank标识信息
 HcclRootInfo rootInfo;
 HcclGetRootInfo(&rootInfo);
 // 初始化通信域

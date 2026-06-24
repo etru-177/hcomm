@@ -34,7 +34,7 @@ HcommResult：接口成功返回0，其他失败。
 ## 调用示例
 
 ```c
-// AI CPU 引擎需要DEVICE类型的端点
+// AI CPU引擎需要DEVICE类型的端点
  EndpointDesc deviceEp = {0};
  deviceEp.protocol = COMM_PROTOCOL_ROCE;
  deviceEp.commAddr.type = COMM_ADDR_TYPE_IP_V4;

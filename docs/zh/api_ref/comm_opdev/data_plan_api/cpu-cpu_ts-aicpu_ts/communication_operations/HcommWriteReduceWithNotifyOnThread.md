@@ -67,8 +67,8 @@ void * remoteBuffer;
 uint64_t remoteBufferSize;
 HcclChannelGetHcclBuffer(comm, channel, &remoteBuffer, &remoteBufferSize);
 
-// 拷贝参数并 Launch Kernel
-// Device 侧算法编排
+// 拷贝参数并Launch Kernel
+// Device侧算法编排
 uint64_t len = std::min(localBufferSize, remoteBufferSize);
 uint64_t sizeOfFP32 = 4;
 uint64_t count = len / sizeOfFP32;

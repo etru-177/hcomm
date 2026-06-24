@@ -12,7 +12,7 @@
 - pip3 >= 20.3.0
 - setuptools >= 45.0.0
 - wheel >= 0.34.0
-- gcc & g++ : 7.3.0 至 13.3.x
+- gcc & g++ : 7.3.0至13.3.x
 - cmake >= 3.16.0
 - pkg-config >= 0.29.1（用于编译rdma-core）
 - ccache（可选，用于提高二次编译速度）
@@ -106,22 +106,22 @@ git clone -b ${tag_version} https://gitcode.com/cann/hcomm.git
 本项目提供一键式编译构建能力，进入代码仓根目录，执行如下命令：
 
 ```shell
-# 编译 host 包
+# 编译host包
 bash build.sh --pkg
-# 编译 host + device 包
+# 编译host + device包
 bash build.sh --pkg --full
 ```
 
-编译时会自动下载[开源第三方软件依赖](#开源第三方软件依赖)中列出的依赖包。如果编译环境无法访问网络，您需要在联网环境中下载上述依赖压缩包，手动上传至编译环境，并通过 `--cann_3rd_lib_path` 参数指定依赖包的存放路径。
+编译时会自动下载[开源第三方软件依赖](#开源第三方软件依赖)中列出的依赖包。如果编译环境无法访问网络，您需要在联网环境中下载上述依赖压缩包，手动上传至编译环境，并通过`--cann_3rd_lib_path`参数指定依赖包的存放路径。
 
 ```shell
 # 指定依赖包存放路径，默认为：./third_party
 bash build.sh --cann_3rd_lib_path={your_3rd_party_path}
 ```
 
-编译完成后，会在`./build_out`目录下生成 `cann-hcomm_<version>_linux-<arch>.run` 软件包。
+编译完成后，会在`./build_out`目录下生成`cann-hcomm_<version>_linux-<arch>.run`软件包。
 
-其中 `<version>`表示软件版本号，`<arch>`表示操作系统架构，取值包括“x86_64”与“aarch64”。
+其中`<version>`表示软件版本号，`<arch>`表示操作系统架构，取值包括“x86_64”与“aarch64”。
 
 ### 安装
 
@@ -147,7 +147,7 @@ bash ./build_out/cann-hcomm_<version>_linux-<arch>.run --uninstall
 
 ## 测试
 
-### LLT 测试
+### LLT测试
 
 安装完编译生成的HCOMM软件包后，可通过如下命令执行LLT用例。
 
@@ -204,10 +204,10 @@ bash build.sh --ut
 
    ![hccltest_result](./figures/hccl_test_result.png)
 
-   - “check_result”为 success，代表通信算子执行结果成功，AllReduce 算子功能正确。
-   - ”aveg_time“：集合通信算子的执行耗时，单位 us。
-   - ”alg_bandwidth“：集合通信算子执行带宽，单位为 GB/s。
-   - ”data_size“：单个 NPU 上参与集合通信的数据量，单位为 Bytes。
+   - “check_result”为success，代表通信算子执行结果成功，AllReduce算子功能正确。
+   - ”aveg_time“：集合通信算子的执行耗时，单位us。
+   - ”alg_bandwidth“：集合通信算子执行带宽，单位为GB/s。
+   - ”data_size“：单个NPU上参与集合通信的数据量，单位为Bytes。
 
 ## 附录
 

@@ -77,7 +77,7 @@ HcommReadOnThread(thread, channel, localBuffer, remoteBuffer, len);
 以Host RoCE H2D场景为例。
 Client端为写发起端，提供Host源内存；Server端为写入目标端，提供Device目的内存。
 
-#### Server 端
+#### Server端
 
 ```c
 // 申请Server端Endpoint资源
@@ -125,7 +125,7 @@ ChannelHandle serverChannel = 0;
 result = HcommChannelCreate(serverEndpointHandle, COMM_ENGINE_CPU, &serverChannelDesc, 1, &serverChannel);
 ```
 
-#### Client 端
+#### Client端
 
 ```c
 // 申请Client端Endpoint资源

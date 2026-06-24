@@ -66,7 +66,7 @@ uint64_t remoteBufferSize;
 HcclChannelGetHcclBuffer(comm, channel, &remoteBuffer, &remoteBufferSize);
 uint64_t len = std::min(localBufferSize, remoteBufferSize);
 
-// 针对Ascend 950PR/Ascend 950DT，需要在 Device 侧调用以下接口
+// 针对Ascend 950PR/Ascend 950DT，需要在Device侧调用以下接口
 
 // 将本端内存的内容写到对端内存上并通知对端
 uint32_t rmtNotifyIdx = 0;

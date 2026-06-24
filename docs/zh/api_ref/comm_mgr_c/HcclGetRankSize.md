@@ -48,7 +48,7 @@ HcclResult HcclGetRankSize(HcclComm comm, uint32_t *rankSize)
 ```c
 // 初始化通信域
 HcclComm comm;
-// 获取通信域内的 Rank 数量
+// 获取通信域内的Rank数量
 uint32_t rankSize;
 HcclGetRankSize(comm, &rankSize);
 ```

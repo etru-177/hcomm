@@ -21,7 +21,7 @@
 ```c
 extern "C" unsigned int <aicpu_kernel_func_name>(void *param)
 {
-    // Kernel 实现
+    // Kernel实现
 }
 ```
 

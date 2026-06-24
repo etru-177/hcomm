@@ -48,7 +48,7 @@ HcclResult HcclGetRankId(HcclComm comm, uint32_t *rank)
 ```c
 // 初始化通信域
 HcclComm comm;
-// 获取当前 Device 的 RankId
+// 获取当前Device的RankId
 uint32_t rank;
 HcclGetRankId(comm, &rank);
 ```

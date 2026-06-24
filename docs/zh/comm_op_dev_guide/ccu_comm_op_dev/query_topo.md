@@ -36,7 +36,7 @@ HCCL控制面接口支持查询的拓扑信息如下表所示。
     ```c
     u32 rankSize = INVALID_VALUE_RANKSIZE;
     HcclResult ret = HcclGetRankSize(comm, &rankSize);
-    if (userRank >= rankSize) {     // rank_id 超出范围
+    if (userRank >= rankSize) {     // rank_id超出范围
         return HCCL_E_PARA;
     }
     ```

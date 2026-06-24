@@ -14,27 +14,27 @@
 
 - 示例1：源rank与目的rank分别在两个超节点。
 
-  netLayer = 0， 无连接。
+  netLayer = 0，无连接。
 
-  netLayer = 1， 无连接。
+  netLayer = 1，无连接。
 
   netLayer = 2， RDMA连接。
 
 - 示例2：源rank与目的rank在同一个超节点，但不在同一个AI Server内。
 
-  netLayer = 0， 无连接。
+  netLayer = 0，无连接。
 
   netLayer = 1， HCCS连接。
 
-  netLayer = 2， 无连接。
+  netLayer = 2，无连接。
 
 - 示例3：源rank与目的rank在同一个AI Server内，不在同一个NPU中。
 
   netLayer = 0， HCCS连接。
 
-  netLayer = 1， 无连接。
+  netLayer = 1，无连接。
 
-  netLayer = 2， 无连接。
+  netLayer = 2，无连接。
 
 ## 函数原型
 

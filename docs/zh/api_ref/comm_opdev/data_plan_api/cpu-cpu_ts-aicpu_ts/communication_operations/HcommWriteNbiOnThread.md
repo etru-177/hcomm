@@ -20,7 +20,7 @@ int32_t HcommWriteNbiOnThread(ThreadHandle thread, ChannelHandle channel, void *
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| thread | 输入 | 通信线程句柄，当前无作用，传入 0 即可。 |
+| thread | 输入 | 通信线程句柄，当前无作用，传入0 即可。 |
 | channel | 输入 | 通信通道句柄，为通过[HcommChannelCreate](../../../control_plane_api/basic_resource_mgmt/HcommChannelCreate.md)或[HcclChannelAcquire](../../../control_plane_api/comms_domain_resource_mgmt/HcclChannelAcquire.md)接口获取到的channels。关于channel的约束参见约束说明。<br>ChannelHandle类型的定义可参见[ChannelHandle](../../../datatype_definition/ChannelHandle.md)。 |
 | dst | 输出 | 目的内存地址。基础通信场景下，写发起端应使用通过[HcommMemImport](../../../control_plane_api/basic_resource_mgmt/HcommMemImport.md)导入的对端内存地址；集合通信场景下，为使用[HcclChannelGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclChannelGetHcclBuffer.md)获取到的对端通信内存地址。 |
 | src | 输入 | 源内存地址。基础通信场景下，为通过[HcommMemReg](../../../control_plane_api/basic_resource_mgmt/HcommMemReg.md)注册的本端内存地址；集合通信场景下，为使用[HcclGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclGetHcclBuffer.md)、[HcclChannelGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclChannelGetHcclBuffer.md)获取到的本端内存地址。 |
@@ -42,7 +42,7 @@ int32_t：接口成功返回0，其他失败。
 ### 集合通信示例
 
 ```c
-// 省略：创建通信域句柄 comm
+// 省略：创建通信域句柄comm
 
 // 申请通信通道资源
 CommEngine engine = CommEngine::COMM_ENGINE_CPU;
@@ -79,7 +79,7 @@ ret = HcommChannelFenceOnThread(0, channel);
 以Host RoCE H2D场景为例。
 Client端为写发起端，提供Host源内存；Server端为写入目标端，提供Device目的内存。
 
-#### Server 端
+#### Server端
 
 ```c
 // 申请Server端Endpoint资源
@@ -127,7 +127,7 @@ ChannelHandle serverChannel = 0;
 result = HcommChannelCreate(serverEndpointHandle, COMM_ENGINE_CPU, &serverChannelDesc, 1, &serverChannel);
 ```
 
-#### Client 端
+#### Client端
 
 ```c
 // 申请Client端Endpoint资源

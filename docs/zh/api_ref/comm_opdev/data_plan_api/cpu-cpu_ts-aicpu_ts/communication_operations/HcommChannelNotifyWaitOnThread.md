@@ -56,7 +56,7 @@ HcclComm comm;
 ChannelHandle channel;
 HcclChannelAcquire(comm, engine, &channelDesc, channelNum, &channel);
 
-// 针对Ascend 950PR/Ascend 950DT，需要在 Device 侧调用以下接口
+// 针对Ascend 950PR/Ascend 950DT，需要在Device侧调用以下接口
 
 // 通知对端
 HcommChannelNotifyRecordOnThread(thread, channel, 0);

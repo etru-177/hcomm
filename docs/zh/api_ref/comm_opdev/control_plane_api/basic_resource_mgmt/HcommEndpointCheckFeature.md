@@ -43,7 +43,7 @@ HcommResult：接口成功返回0，其他失败。
 ```c
 // 填充端点描述信息
 EndpointDesc endpointDesc;
-// 参考 HcommEndpointCreate 进行 EndpointDesc 的填充
+// 参考HcommEndpointCreate进行EndpointDesc的填充
 ...
 
 // 查询是否支持NDA特性

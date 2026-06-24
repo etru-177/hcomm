@@ -9,6 +9,6 @@
 ```c
 typedef enum {
     HCOMM_ENDPOINT_FEATURE_INVALID = -1,       /* 无效特性类型，暂不支持配置 */
-    HCOMM_ENDPOINT_FEATURE_NDA = 0,            /* NPU Direct RDMA Async 特性 */
+    HCOMM_ENDPOINT_FEATURE_NDA = 0,            /* NPU Direct RDMA Async特性 */
 } HcommEndpointFeatureType;
 ```

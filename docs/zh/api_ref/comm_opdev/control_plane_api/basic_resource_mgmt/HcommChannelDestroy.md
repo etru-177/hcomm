@@ -23,7 +23,7 @@ HcommResult HcommChannelDestroy(const ChannelHandle *channels, uint32_t channelN
 | 参数名 | 输入/输出 | 说明 |
 | --- | --- | --- |
 | channels | 输入 | 待销毁的通道句柄数组，每个元素标识一个已创建的通信通道。<br>ChannelHandle类型的定义请参见[ChannelHandle](../../datatype_definition/ChannelHandle.md)。<br>该参数不能为空指针，数组中每个通道句柄必须是通过[HcommChannelCreate](HcommChannelCreate.md)创建的有效句柄（未销毁的句柄）。 |
-| channelNum | 输入 | 待销毁的通道数量。<br>单位为“个”，取值范围：[1, 1048576]。<br>该参数必须大于 0，且等于channels数组中有效句柄的数量。 |
+| channelNum | 输入 | 待销毁的通道数量。<br>单位为“个”，取值范围：[1, 1048576]。<br>该参数必须大于0，且等于channels数组中有效句柄的数量。 |
 
 ## 返回值
 
@@ -49,7 +49,7 @@ EndpointHandle endpointHandle = nullptr;
 
  // 准备通道描述符并创建通道
  for (uint32_t i = 0; i < CHANNEL_NUM; i++) {
-     // ... 填充 channelDescs[i]
+     // ... 填充channelDescs[i]
  }
 
  HcommResult ret = HcommChannelCreate(endpointHandle, COMM_ENGINE_CPU,

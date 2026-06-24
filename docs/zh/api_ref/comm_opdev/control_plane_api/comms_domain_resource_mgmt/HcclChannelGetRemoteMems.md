@@ -41,7 +41,7 @@ uint32_t channelNum = 1;
 std::vector<HcclChannelDesc> channelDesc(channelNum);
 HcclChannelDescInit(channelDesc.data(), channelNum);
 
-// 省略 channelDesc 配置
+// 省略channelDesc配置
 
 HcclComm comm;
 CommEngine engine = CommEngine::COMM_ENGINE_AIV;

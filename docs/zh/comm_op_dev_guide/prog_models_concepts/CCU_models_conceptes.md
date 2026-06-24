@@ -6,7 +6,7 @@
 
 CCU（Collective Communication Unit，集合通信处理器）是昇腾NPU中的专用集合通信协处理器，位于IO Die上。下图展示了CCU在Ascend 950PR/Ascend 950DT中的位置：
 
-<img src="figures/ccu_in_950.png" style="width:75%; height:75%;">
+![](figures/ccu_in_950.png)
 
 ### 基础概念
 
@@ -160,7 +160,7 @@ ccu::Array<ccu::Event> events(5);
 
 对于FP16/BF16的ADD操作，为避免精度损失，CCU会升精度为FP32类型进行规约计算，如下图所示：
 
-<img src="figures/ccubuffer.png" style="width:75%; height:75%;">
+![](figures/ccubuffer.png)
 
 ## 并发模型
 
