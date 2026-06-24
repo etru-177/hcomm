@@ -283,7 +283,8 @@ STATIC int RsInitRscbCfg(struct rs_cb *rscb)
     CHK_PRT_RETURN(ret != 0, hccp_err("rs_get_chip_logic_id failed, ret[%d]", ret), ret);
 
     productType = RsGetProductType(rscb->logicId);
-    CHK_PRT_RETURN(productType == PRODUCT_TYPE_INVALID, hccp_err("rs get product type failed", ret), -EINVAL);
+    CHK_PRT_RETURN(productType == PRODUCT_TYPE_INVALID, hccp_err("RsGetProductType failed, logicId:%u", rscb->logicId),
+        -EINVAL);
 #ifdef CUSTOM_INTERFACE
     if (RsIsUdmaSupported() || RsIsRdmaSupported()) {
         ret = RsGetChipProtocol(rscb->chipId, rscb->hccpMode, &rscb->protocol, rscb->logicId);
@@ -643,8 +644,8 @@ int RsSetupSharemem(struct rs_cb *rsCb, bool backupFlag, unsigned int backupPhyi
 
     // use backup info to setup share mem
     if (backupFlag) {
-        ret = rsGetLocalDevIDByHostDevID(backupPhyid, &logicId);
-        CHK_PRT_RETURN(ret != 0, hccp_err("rsGetLocalDevIDByHostDevID failed, phyId(%u), ret(%d)",
+        ret = DlDrvGetLocalDevIdByHostDevId(backupPhyid, &logicId);
+        CHK_PRT_RETURN(ret != 0, hccp_err("DlDrvGetLocalDevIdByHostDevId failed, phyId(%u), ret(%d)",
             backupPhyid, ret), ret);
         hccp_dbg("setup sharemem with backup, phyId:%u logicId:%u", backupPhyid, logicId);
     }
@@ -1959,7 +1960,8 @@ int rsGetLocalDevIDByHostDevID(unsigned int phyId, unsigned int *chipId)
         *chipId = phyId;
         return 0;
     } else {
-        return DlDrvGetLocalDevIdByHostDevId(phyId, chipId);
+        // to be compatible with mdev scenario: ignore phyId to get current devId(chipId)
+        return DlDrvQueryProcessHostPid(getpid(), chipId, NULL, NULL, NULL);
     }
 }
 

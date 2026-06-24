@@ -20,7 +20,7 @@
 #define MAX_CFG_OP_NUM  (1024 * 64)
 #define TOKEN_RATE      400 /* 400 tokens per 1ms */
 #define HDC_ACCEPT_SLEEP_TIME 100 /* 100us */
-#define HCCP_MAX_CHIP_ID 3U
+#define HCCP_MAX_CHIP_ID 63U
 #define HAVE_OP_RIGHT 1
 #define HAVE_NOT_OP_RIGHT 0
 #define OP_RIGHT_QUERY_ERR (-1)

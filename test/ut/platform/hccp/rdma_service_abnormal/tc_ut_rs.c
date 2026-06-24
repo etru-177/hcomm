@@ -676,7 +676,7 @@ void TcRsSetTsqpDepthAbnormal()
 	ret = RsSetTsqpDepth(phyId, rdevIndex, tempDepth, NULL);
 	EXPECT_INT_EQ(ret, -EINVAL);
 
-	mocker((stub_fn_t)DlDrvGetLocalDevIdByHostDevId, 10, 1);
+	mocker((stub_fn_t)DlDrvQueryProcessHostPid, 10, 1);
 	ret = RsSetTsqpDepth(phyId, rdevIndex, tempDepth, &qpNum);
 	EXPECT_INT_EQ(ret, 1);
 	mocker_clean();
@@ -726,7 +726,7 @@ void TcRsGetTsqpDepthAbnormal()
 	ret = RsGetTsqpDepth(phyId, rdevIndex, &tempDepth, NULL);
 	EXPECT_INT_EQ(ret, -EINVAL);
 
-	mocker((stub_fn_t)DlDrvGetLocalDevIdByHostDevId, 10, 1);
+	mocker((stub_fn_t)DlDrvQueryProcessHostPid, 10, 1);
 	ret = RsGetTsqpDepth(phyId, rdevIndex, &tempDepth, &qpNum);
 	EXPECT_INT_EQ(ret, 1);
 	mocker_clean();

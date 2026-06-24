@@ -23,7 +23,7 @@
 #include "dl_hal_function.h"
 
 extern int LltMain(int argc, char* argv);
-extern int HccpAddToCgroup();
+extern int HccpAddToCgroup(int logicId);
 extern int HccpParamParse(int argc, char *argv[], struct HccpInitParam *param);
 extern int HccpSetLogInfo(struct HccpInitParam *param);
 extern void RsApiDeinit(void);

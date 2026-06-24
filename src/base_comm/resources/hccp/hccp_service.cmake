@@ -33,7 +33,6 @@ target_include_directories(hccp_service.bin PRIVATE
 
 target_compile_definitions(hccp_service.bin PRIVATE
     google=ascend_private
-    $<$<STREQUAL:${PRODUCT_SIDE},device>:CONFIG_CGROUP>
     LOG_CPP
 )
 

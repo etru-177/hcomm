@@ -46,6 +46,9 @@ static void DlHalApiDevInit(void)
     gHalOps.dlDrvDeviceGetPhyIdByIndex = (int (*)(unsigned int devIndex, unsigned int *phyId))
         AscendHalDlsym(gHalApiHandle, "drvDeviceGetPhyIdByIndex");
 
+    gHalOps.dlHalGetPhyDevIdByudevId = (int (*)(unsigned int udevId, unsigned int *phyDevId))
+        AscendHalDlsym(gHalApiHandle, "halGetPhyDevIdByUdevId");
+
     gHalOps.dlDrvDeviceGetBareTgid = (pid_t (*)(void))
         AscendHalDlsym(gHalApiHandle, "drvDeviceGetBareTgid");
 
@@ -330,6 +333,16 @@ int DlDrvDeviceGetPhyIdByIndex(unsigned int devIndex, unsigned int *phyId)
         "dl_drv_device_get_phy_id_by_index");
 
     return gHalOps.dlDrvDeviceGetPhyIdByIndex(devIndex, phyId);
+}
+
+int DlHalGetPhyDevIdByudevId(unsigned int udevId, unsigned int *phyDevId)
+{
+    CHK_PRT_RETURN(gHalApiHandle == NULL, roce_err("gHalApiHandle is NULL"), -EINVAL);
+    CHK_PRT_RETURN(phyDevId == NULL, roce_err("phyDevId is NULL"), -EINVAL);
+    // use udevId as phyDevId for API compatibility issue(abnormal in mdev scenario)
+    *phyDevId = udevId;
+    CHK_PRT_RETURN(gHalOps.dlHalGetPhyDevIdByudevId == NULL, roce_warn("dlHalGetPhyDevIdByudevId is NULL"), 0);
+    return gHalOps.dlHalGetPhyDevIdByudevId(udevId, phyDevId);
 }
 
 drvError_t DlHalQueryDevPid(struct halQueryDevpidInfo info, pid_t *devPid)

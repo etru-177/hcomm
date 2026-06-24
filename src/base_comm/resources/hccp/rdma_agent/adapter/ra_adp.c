@@ -2246,13 +2246,14 @@ STATIC void RaHwHdcDeinit(void)
 
 STATIC int HccpSetAffinity(unsigned int chipId)
 {
-    int ret;
-    int64_t cpuId;
+    unsigned int phyDevid = chipId;
+    int64_t cpuCoreNum;
     int64_t ccpuNum; /* ctrl cpu */
     int64_t dcpuNum; /* data cpu */
     int64_t acpuNum; /* ai cpu */
-    int64_t cpuCoreNum;
     cpu_set_t mask;
+    int64_t cpuId;
+    int ret;
 
     ret = DlHalGetDeviceInfo(chipId, MODULE_TYPE_CCPU, INFO_TYPE_CORE_NUM, &ccpuNum);
     CHK_PRT_RETURN(ret, hccp_err("get ccpu_num failed, ret(%d)", ret), ret);
@@ -2264,15 +2265,18 @@ STATIC int HccpSetAffinity(unsigned int chipId)
     CHK_PRT_RETURN(ret, hccp_err("get acpu_num failed, ret(%d)", ret), ret);
     cpuCoreNum = ccpuNum + dcpuNum + acpuNum;
 
+    ret = DlHalGetPhyDevIdByudevId(chipId, &phyDevid);
+    CHK_PRT_RETURN(ret != 0, hccp_err("DlHalGetPhyDevIdByudevId failed, ret(%d) chipId:%u", ret, chipId), ret);
     CPU_ZERO(&mask);
-    cpuId = cpuCoreNum * chipId + HCCP_RUN_CPU_CORE;
+    cpuId = cpuCoreNum * phyDevid + HCCP_RUN_CPU_CORE;
     /*lint -e574*/
     CPU_SET((size_t)cpuId, &mask);  //lint !e573
     /*lint +e574*/
-    hccp_run_info("chip_id:%u ccpu_num:%lld, dcpuNum:%lld, acpuNum:%lld, cpuId:%lld",
-        chipId, ccpuNum, dcpuNum, acpuNum, cpuId);
+    hccp_run_info("chipId:%u phyDevid:%u ccpuNum:%lld, dcpuNum:%lld, acpuNum:%lld, cpuId:%lld",
+        chipId, phyDevid, ccpuNum, dcpuNum, acpuNum, cpuId);
     ret = sched_setaffinity(getpid(), sizeof(mask), &mask); /* hccp use core0 of each chip to setaffinity */
-    CHK_PRT_RETURN(ret == -1, hccp_err("sched_setaffinity failed: ret %d, errno %d ", ret, errno), -ESYSFUNC);
+    CHK_PRT_RETURN(ret == -1, hccp_err("sched_setaffinity failed: ret %d, errno %d chipId:%u phyDevid:%u",
+        ret, errno, chipId, phyDevid), -ESYSFUNC);
 
     return 0;
 }

@@ -281,6 +281,12 @@ drvError_t drvGetDevIDByLocalDevID(uint32_t localDevId, uint32_t *devId)
 	return 0;
 }
 
+drvError_t halGetPhyDevIdByudevId(uint32_t udevId, uint32_t *phyDevId)
+{
+	*phyDevId = udevId;
+	return 0;
+}
+
 DV_ONLINE DVresult halMemBindSibling(int hostPid, int aicpuPid, unsigned int vfid, unsigned int dev_id,
 	unsigned int flag)
 {
@@ -290,7 +296,18 @@ DV_ONLINE DVresult halMemBindSibling(int hostPid, int aicpuPid, unsigned int vfi
 DLLEXPORT drvError_t drvQueryProcessHostPid(int pid, unsigned int *chip_id, unsigned int *vfid,
     unsigned int *host_pid, unsigned int *cp_type)
 {
-	*host_pid = getpid();
+	if (chip_id != NULL) {
+		*chip_id = 0;
+	}
+	if (vfid != NULL) {
+		*vfid = 0;
+	}
+	if (host_pid != NULL) {
+		*host_pid = getpid();
+	}
+	if (cp_type != NULL) {
+		*cp_type = 0;
+	}
 	return 0;
 }
 
@@ -321,6 +338,7 @@ struct {
     {"drvGetDevIDByLocalDevID", drvGetDevIDByLocalDevID},
     {"drvDeviceGetIndexByPhyId", drvDeviceGetIndexByPhyId},
     {"drvDeviceGetPhyIdByIndex", drvDeviceGetPhyIdByIndex},
+    {"halGetPhyDevIdByudevId", halGetPhyDevIdByudevId},
     {"halHdcGetSessionAttr", halHdcGetSessionAttr},
     {"drvHdcGetCapacity", drvHdcGetCapacity},
     {"drvHdcClientCreate", drvHdcClientCreate},

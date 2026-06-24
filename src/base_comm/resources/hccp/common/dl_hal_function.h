@@ -40,6 +40,7 @@ struct DlHalOps {
     int (*dlDrvGetDevIdByLocalDevId)(unsigned int localDevId, unsigned int *devId);
     int (*dlDrvDeviceGetIndexByPhyId)(uint32_t phyId, uint32_t *devIndex);
     int (*dlDrvDeviceGetPhyIdByIndex)(unsigned int devIndex, unsigned int *phyId);
+    int (*dlHalGetPhyDevIdByudevId)(unsigned int udevId, unsigned int *phyDevId);
     drvError_t (*dlHalQueryDevPid)(struct halQueryDevpidInfo info, pid_t *devPid);
     drvError_t (*dlHalMemBindSibling)(int hostPid, int aicpuPid, unsigned int vfid, unsigned int devId,
         unsigned int flag);
@@ -120,6 +121,7 @@ int DlDrvGetLocalDevIdByHostDevId(unsigned int devId, unsigned int* chipId);
 int DlDrvGetDevIdByLocalDevId(unsigned int localDevId, unsigned int *devId);
 int DlDrvDeviceGetIndexByPhyId(uint32_t phyId, uint32_t *devIndex);
 int DlDrvDeviceGetPhyIdByIndex(unsigned int devIndex, unsigned int *phyId);
+int DlHalGetPhyDevIdByudevId(unsigned int udevId, unsigned int *phyDevId);
 drvError_t DlHalQueryDevPid(struct halQueryDevpidInfo info, pid_t *devPid);
 drvError_t DlHalMemBindSibling(int hostPid, int aicpuPid, unsigned int vfid, unsigned int devId,
     unsigned int flag);

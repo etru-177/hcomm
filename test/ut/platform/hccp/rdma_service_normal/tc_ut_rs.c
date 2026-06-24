@@ -606,7 +606,7 @@ void TcRsSocketConnect()
 	ret = RsSocketBatchConnect(&conn[0], 0);
 
 	/* param error - device id error */
-	conn[0].phyId = 15;
+	conn[0].phyId = 64;
 	conn[0].port = 16666;
 	ret = RsSocketBatchConnect(&conn[0], 1);
 	/* >>>>>>> RsSocketBatchConnect test case end <<<<<<<<<<< */
@@ -967,7 +967,7 @@ void TcRsQpCreate()
 	EXPECT_INT_NE(ret, 0);
 	ret = RsRdevGetPortStatus(rdevInfo.phyId, rdevIndex, NULL);
 	EXPECT_INT_NE(ret, 0);
-	ret = RsRdevGetPortStatus(15, rdevIndex, &status);
+	ret = RsRdevGetPortStatus(64, rdevIndex, &status);
 	EXPECT_INT_NE(ret, 0);
 	ret = RsRdevGetPortStatus(rdevInfo.phyId, 100000, &status);
 	EXPECT_INT_NE(ret, 0);
@@ -1048,7 +1048,7 @@ void TcRsQpCreate()
 
 	/* >>>>>>> RsQpCreate test case begin <<<<<<<<<<< */
 	/* param error - device id */
-	ret = RsQpCreate(15, rdevIndex, qpNorm, &resp2);
+	ret = RsQpCreate(64, rdevIndex, qpNorm, &resp2);
 	EXPECT_INT_NE(ret, 0);
 
 	/* qp number out of boundry */
@@ -1323,7 +1323,7 @@ void TcRsQpCreateWithAttrsV1()
 
 	/* >>>>>>> RsQpCreate test case begin <<<<<<<<<<< */
 	/* param error - device id */
-	ret = RsQpCreateWithAttrs(15, rdevIndex, &qpNorm, &qpRespCreate);
+	ret = RsQpCreateWithAttrs(64, rdevIndex, &qpNorm, &qpRespCreate);
 	qpn2 = qpRespCreate.qpn;
 	EXPECT_INT_NE(ret, 0);
 
@@ -2146,7 +2146,7 @@ void TcRsSocketOps()
 	EXPECT_INT_NE(ret, 0);
 
 	/* param error - fd */
-	listen[0].phyId = 15;
+	listen[0].phyId = 64;
 	listen[0].port = 16666;
 	ret = RsSocketListenStart(&listen[0], 1);
 	listen[0].phyId = 0;
@@ -2294,7 +2294,7 @@ void TcRsSocketOps()
 	EXPECT_INT_NE(ret, 0);
 
 	/* param error - fd */
-	listen[0].phyId = 15;
+	listen[0].phyId = 64;
 	listen[0].port = 16666;
 	ret = RsSocketListenStop(&listen[0], 1);
 	EXPECT_INT_NE(ret, 0);
@@ -4545,7 +4545,7 @@ void TcRsRegisterMr()
 	ret =  RsRegisterMr(phyId, rdevIndex, &mrRegInfo, &mrHandle);
 	EXPECT_INT_EQ(0, ret);
 
-	ret =  RsRegisterMr(1, rdevIndex, &mrRegInfo, &mrHandle);
+	ret =  RsRegisterMr(64, rdevIndex, &mrRegInfo, &mrHandle);
 	EXPECT_INT_NE(0, ret);
 
 	mocker(RsDrvMrReg, 1, NULL);
@@ -5167,7 +5167,7 @@ void TcRsQpCreateWithAttrsV2()
 	struct RsQpRespWithAttrs qpResp = {0};
 	qpNorm.isExp = 1;
 
-	ret = RsQpCreateWithAttrs(15, rdevIndex, &qpNorm, &qpResp);
+	ret = RsQpCreateWithAttrs(64, rdevIndex, &qpNorm, &qpResp);
 	EXPECT_INT_NE(ret, 0);
 	ret = RsQpCreateWithAttrs(phyId, rdevIndex, &qpNorm, NULL);
 	EXPECT_INT_NE(ret, 0);

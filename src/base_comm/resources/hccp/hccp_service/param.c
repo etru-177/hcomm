@@ -31,17 +31,14 @@ STATIC int HccpParamParseId(const char *input, int *id)
 
 STATIC int HccpParseLogicId(const char *input, struct HccpInitParam *param)
 {
-    unsigned int devNum;
     int ret;
 
-    ret = DlDrvGetDevNum(&devNum);
-    CHK_PRT_RETURN(ret, hccp_err("get dev num failed, ret %d", ret), ret);
     ret = HccpParamParseId(input, &param->logicId);
     CHK_PRT_RETURN(ret, hccp_err("hccp_param_parse_id failed"), ret);
 
     ret = DlDrvDeviceGetPhyIdByIndex(param->logicId, &(param->chipId));
-    CHK_PRT_RETURN(ret != 0 || param->chipId >= devNum || param->chipId > HCCP_MAX_CHIP_ID,
-        hccp_err("get chip id failed, ret:%d, chipId:%u, devNum:%u", ret, param->chipId, devNum), -EINVAL);
+    CHK_PRT_RETURN(ret != 0 || param->chipId > HCCP_MAX_CHIP_ID,
+        hccp_err("get chip id failed, ret:%d, chipId:%u > %u", ret, param->chipId, HCCP_MAX_CHIP_ID), -EINVAL);
 
     hccp_info("logic_id from TSD is [%d], chipId[%u]", param->logicId, param->chipId);
     return 0;

@@ -486,15 +486,36 @@ STATIC int RsMrInfoSync(struct RsMrCb *mrCb)
     return 0;
 }
 
-STATIC int RsMrPreReg(unsigned int phyId, struct RsQpCb *qpCb, struct RsMrCb *mrCb,
-    struct RdmaMrRegInfo *mrRegInfo)
+STATIC int RsMrPrepareRoceSign(unsigned int phyId, struct RsRdevCb *devCb, struct roce_process_sign *roceSign)
 {
-    struct roce_process_sign roceSign;
-    int ret;
+    unsigned int tmpPhyId = phyId;
     unsigned int chipId;
-    char *addr = mrRegInfo->addr;
+    int ret;
+
+    // reg mr with backup phyId
+    if (devCb->backupInfo.backupFlag) {
+        tmpPhyId = devCb->backupInfo.rdevInfo.phyId;
+        ret = DlDrvGetLocalDevIdByHostDevId(tmpPhyId, &chipId);
+    } else {
+        ret = rsGetLocalDevIDByHostDevID(tmpPhyId, &chipId);
+    }
+    CHK_PRT_RETURN(ret != 0, hccp_err("get chipId failed, ret %d, phyid[%u] backupFlag[%d]",
+        ret, tmpPhyId, devCb->backupInfo.backupFlag), -EACCES);
+    roceSign->tgid = devCb->rsCb->pRsSign.tgid;
+    roceSign->devid = chipId;
+    roceSign->vfid = 0;
+    ret = strcpy_s(roceSign->sign, PROCESS_RS_SIGN_LENGTH, devCb->rsCb->pRsSign.sign);
+    CHK_PRT_RETURN(ret != 0, hccp_err("Invalid pid sign, ret(%d)", ret), -ESAFEFUNC);
+    return 0;
+}
+
+STATIC int RsMrPreReg(unsigned int phyId, struct RsQpCb *qpCb, struct RsMrCb *mrCb, struct RdmaMrRegInfo *mrRegInfo)
+{
     unsigned long long len = mrRegInfo->len;
+    struct roce_process_sign roceSign = {0};
     int access = mrRegInfo->access;
+    char *addr = mrRegInfo->addr;
+    int ret;
 
     if (qpCb->rdevCb->rsCb->hccpMode == NETWORK_PEER_ONLINE || qpCb->rdevCb->rsCb->hccpMode == NETWORK_ONLINE ||
         qpCb->isExp == RS_NOT_EXP) {
@@ -502,17 +523,8 @@ STATIC int RsMrPreReg(unsigned int phyId, struct RsQpCb *qpCb, struct RsMrCb *mr
         CHK_PRT_RETURN(mrCb->ibMr == NULL, hccp_err("rs_drv_mr_reg addr is NULL len[%lld] failed ",
             len), -EACCES);
     } else {
-        // reg mr with backup phyId
-        if (qpCb->rdevCb->backupInfo.backupFlag) {
-            phyId = qpCb->rdevCb->backupInfo.rdevInfo.phyId;
-        }
-        ret = rsGetLocalDevIDByHostDevID(phyId, &chipId);
-        CHK_PRT_RETURN(ret, hccp_err("rsGetLocalDevIDByHostDevID failed, ret %d, phyid[%u]", ret, phyId), -EACCES);
-        roceSign.tgid = qpCb->rdevCb->rsCb->pRsSign.tgid;
-        roceSign.devid = chipId;
-        roceSign.vfid = 0;
-        ret = strcpy_s(roceSign.sign, PROCESS_RS_SIGN_LENGTH, qpCb->rdevCb->rsCb->pRsSign.sign);
-        CHK_PRT_RETURN(ret, hccp_err("Invalid pid sign, ret(%d)", ret), -ESAFEFUNC);
+        ret = RsMrPrepareRoceSign(phyId, qpCb->rdevCb, &roceSign);
+        CHK_PRT_RETURN(ret != 0, hccp_err("RsMrPrepareRoceSign failed, ret(%d)", ret), ret);
         mrCb->ibMr = RsDrvExpMrReg(qpCb->ibPd, addr, len, access, roceSign);
         CHK_PRT_RETURN(mrCb->ibMr == NULL, hccp_err("rs_drv_exp_mr_reg addr is NULL len[%lld] failed ",
             len), -EACCES);
@@ -738,30 +750,20 @@ mem_reg_err:
 }
 
 STATIC int RsInitTypicalMrCb(unsigned int phyId, struct RdmaMrRegInfo *mrRegInfo, struct RsRdevCb *devCb,
-                                 struct RsMrCb *mrCb)
+    struct RsMrCb *mrCb)
 {
     unsigned long long len = mrRegInfo->len;
+    struct roce_process_sign roceSign = {0};
     char *addr = (char *)mrRegInfo->addr;
     int access = mrRegInfo->access;
-    struct roce_process_sign roceSign;
-    unsigned int chipId;
     int ret;
 
     if (devCb->rsCb->hccpMode == NETWORK_PEER_ONLINE || devCb->rsCb->hccpMode == NETWORK_ONLINE) {
         mrCb->ibMr = RsDrvMrReg(devCb->ibPd, addr, len, access);
         CHK_PRT_RETURN(mrCb->ibMr == NULL, hccp_err("rs_drv_mr_reg addr is NULL len[%lld] failed", len), -EACCES);
     } else {
-        // reg mr with backup phyId
-        if (devCb->backupInfo.backupFlag) {
-            phyId = devCb->backupInfo.rdevInfo.phyId;
-        }
-        ret = rsGetLocalDevIDByHostDevID(phyId, &chipId);
-        CHK_PRT_RETURN(ret, hccp_err("rsGetLocalDevIDByHostDevID failed, ret %d, phyid[%u]", ret, phyId), -EACCES);
-        roceSign.tgid = devCb->rsCb->pRsSign.tgid;
-        roceSign.devid = chipId;
-        roceSign.vfid = 0;
-        ret = strcpy_s(roceSign.sign, PROCESS_RS_SIGN_LENGTH, devCb->rsCb->pRsSign.sign);
-        CHK_PRT_RETURN(ret, hccp_err("Invalid pid sign, ret(%d)", ret), -ESAFEFUNC);
+        ret = RsMrPrepareRoceSign(phyId, devCb, &roceSign);
+        CHK_PRT_RETURN(ret != 0, hccp_err("RsMrPrepareRoceSign failed, ret(%d)", ret), ret);
         mrCb->ibMr = RsDrvExpMrReg(devCb->ibPd, addr, len, access, roceSign);
         CHK_PRT_RETURN(mrCb->ibMr == NULL, hccp_err("rs_drv_exp_mr_reg addr is NULL len[%lld] failed", len), -EACCES);
     }

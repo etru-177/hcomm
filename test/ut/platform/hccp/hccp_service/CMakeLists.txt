@@ -64,7 +64,6 @@ target_compile_options(hccp_utest PRIVATE
 target_compile_definitions(hccp_utest PRIVATE
     HNS_ROCE_LLT
     USE_DISPATCH_EXPECT
-    CONFIG_CGROUP
     CONFIG_HCCP_LLT
 )
 

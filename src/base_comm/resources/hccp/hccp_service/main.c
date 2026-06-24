@@ -24,32 +24,51 @@
 #include "dl_ibverbs_function.h"
 #include "dl_hal_function.h"
 
-#ifdef CONFIG_CGROUP
 typedef void (*SighandlerT)(int);
 
-STATIC int HccpAddToCgroup(void)
+STATIC int HccpExecCmd(const char *cmd)
 {
+    SighandlerT oldHandler = signal(SIGCHLD, SIG_DFL);
     int ret;
-    pid_t hccpPid;
-    SighandlerT oldHandler;
-    char cmd[HCCP_CMD_MAX_LEN] = {0};
 
-    hccpPid = getpid();
-    CHK_PRT_RETURN(hccpPid < 0, hccp_err("getpid error[%d]", hccpPid), -EINVAL);
-
-    ret = snprintf_s(cmd, HCCP_CMD_MAX_LEN, HCCP_CMD_MAX_LEN - 1,
-        "cd /var/  && sudo ./add_to_cgroup_usermemory.sh hccp_service.bin");
-    CHK_PRT_RETURN(ret <= 0, hccp_err("snprintf_s for cmd failed, %d", ret), -EINVAL);
-
-    oldHandler = signal(SIGCHLD, SIG_DFL);
     ret = system(cmd);
     (void)signal(SIGCHLD, oldHandler);
-    CHK_PRT_RETURN(ret == -1 || ret == HCCP_KEY_EXPIRED, hccp_err("add to cgroup failed, ret[%d], errno[%d]",
-        ret, errno), -1);
+    CHK_PRT_RETURN(ret == -1 || ret == HCCP_KEY_EXPIRED, hccp_err("exec failed, ret[%d], errno[%d]", ret, errno), -1);
+    return 0;
+}
+
+STATIC int HccpAddToCgroup(int logicId)
+{
+    const char *addMemoryFile = "/var/add_to_cgroup_usermemory.sh";
+    const char *addCtrlCpuFile = "/var/add_to_cgroup_ctrlcpu.sh";
+    char cmd[HCCP_CMD_MAX_LEN] = {0};
+    enum ProductType productType;
+    int ret;
+
+    // Cache result after first query, skip exception checking for subsequent queries
+    productType = RsGetProductType(logicId);
+    CHK_PRT_RETURN(productType == PRODUCT_TYPE_INVALID, hccp_err("RsGetProductType failed, logicId:%d", logicId),
+        -EINVAL);
+
+    // add user memory cgroup
+    if ((productType == PRODUCT_TYPE_910 || productType == PRODUCT_TYPE_310p) && access(addMemoryFile, F_OK) == 0) {
+        ret = snprintf_s(cmd, HCCP_CMD_MAX_LEN, HCCP_CMD_MAX_LEN - 1, "sudo %s hccp_service.bin", addMemoryFile);
+        CHK_PRT_RETURN(ret <= 0, hccp_err("snprintf_s for cmd failed, ret:%d", ret), -EINVAL);
+        ret = HccpExecCmd(cmd);
+        CHK_PRT_RETURN(ret != 0, hccp_err("HccpExecCmd add usermemory cgroup failed, ret:%d", ret), ret);
+    }
+
+    // add ctrlcpu cgroup explicitly in VF scenario: check file due to compatibility issue
+    if (productType == PRODUCT_TYPE_910_93 && access(addCtrlCpuFile, F_OK) == 0) {
+        ret = snprintf_s(cmd, HCCP_CMD_MAX_LEN, HCCP_CMD_MAX_LEN - 1, "sudo %s %d", addCtrlCpuFile, getpid());
+        CHK_PRT_RETURN(ret <= 0, hccp_err("snprintf_s for cmd failed, ret:%d", ret), -EINVAL);
+        ret = HccpExecCmd(cmd);
+        // ignore return value if add ctrlcpu cgroup unsuccessful, will result in HccpSetAffinity
+        CHK_PRT_RETURN(ret != 0, hccp_run_warn("HccpExecCmd add ctrlcpu cgroup unsuccessful, ret:%d", ret), 0);
+    }
 
     return 0;
 }
-#endif
 
 STATIC int HccpChangeNumOfFile(void)
 {
@@ -96,7 +115,6 @@ int llt_main(int argc, char *argv[])
 #endif
 {
     struct HccpInitParam param = {0};
-    enum ProductType productType;
     struct timeval start, end;
     float timeCost = 0.0;
     int ret;
@@ -104,15 +122,10 @@ int llt_main(int argc, char *argv[])
     hccp_run_info("hccp init start!");
     ret = HccpChangeNumOfFile();
     CHK_PRT_RETURN(ret, hccp_err("hccp change limit of nofile failed, ret = %d", ret), ret);
-    // Cache result after first query, skip exception checking for subsequent queries
-    productType = RsGetProductType(param.logicId);
-    CHK_PRT_RETURN(productType == PRODUCT_TYPE_INVALID, hccp_err("rs get product type failed", ret), -EINVAL);
-#ifdef CONFIG_CGROUP
-    if (productType == PRODUCT_TYPE_910 || productType == PRODUCT_TYPE_310p){
-        ret = HccpAddToCgroup();
-        CHK_PRT_RETURN(ret, hccp_err("HccpAddToCgroup error[%d] productType:[%d]", ret, productType), ret);
-    }
-#endif
+
+    // use default logicId:0 to get product type
+    ret = HccpAddToCgroup(0);
+    CHK_PRT_RETURN(ret != 0, hccp_err("HccpAddToCgroup error[%d] logicId[%d]", ret, 0), ret);
 
     ret = DlHalInit();
     CHK_PRT_RETURN(ret, hccp_err("dl_hal_init error[%d]", ret), ret);
