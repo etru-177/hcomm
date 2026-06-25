@@ -21,7 +21,7 @@ HcommResult HcommThreadAlloc(CommEngine engine, uint32_t threadNum, uint32_t not
 | 参数名 | 输入/输出 | 说明 |
 | --- | --- | --- |
 | engine | 输入 | 通信引擎类型。<br>CommEngine类型的定义可参见[CommEngine](../../datatype_definition/CommEngine.md)。 |
-| threadNum | 输入 | 通信线程数量，每次调用该接口申请的最大线程数量为1000。 |
+| threadNum | 输入 | 通信线程数量，每次调用该接口申请的最大线程数量为200。 |
 | notifyNumPerThread | 输入 | 每个通信线程中的同步资源（Notify）数量，每个通信线程调用该接口每次申请的notify数量最大为64。 |
 | threads | 输出 | 返回的通信线程句柄。需传入threadNum大小的ThreadHandle类型数组。<br>ThreadHandle类型的定义可参见[ThreadHandle](../../datatype_definition/ThreadHandle.md)。 |
 

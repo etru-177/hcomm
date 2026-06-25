@@ -32,7 +32,21 @@ HcclResult HcclThreadAcquire(HcclComm comm, CommEngine engine, uint32_t threadNu
 
 ## 约束说明
 
-返回的通信线程与同步资源由库内管理，调用者严禁释放。
+1. 返回的通信线程与同步资源由库内管理，调用者严禁释放。
+
+2. 当前各产品形态支持的CommEngine范围：
+
+  - Ascend 950PR/Ascend 950DT：
+    - COMM_ENGINE_CPU_TS
+    - COMM_ENGINE_AICPU_TS
+
+  - Atlas A3 训练系列产品/Atlas A3 推理系列产品：
+    - COMM_ENGINE_CPU_TS
+    - COMM_ENGINE_AICPU_TS
+
+  - Atlas A2 训练系列产品/Atlas A2 推理系列产品：
+    - COMM_ENGINE_CPU_TS
+    - COMM_ENGINE_AICPU_TS
 
 ## 调用示例
 
