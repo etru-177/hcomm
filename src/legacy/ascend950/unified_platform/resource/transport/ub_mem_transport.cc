@@ -810,8 +810,7 @@ std::vector<char> UbMemTransport::GetSingleRmtBufferUniqueId(u64 addr, u64 size,
     binaryStream << tokenId;
     binaryStream << tokenValue;
     binaryStream << notifyId;
-    HCCL_INFO("UbMemTransport RmtBuffer[addr=0x%llx, size=0x%llx, tokenId=%u, tokenValue=%u, notifyId=%u]",
-        addr, size, tokenId, tokenValue, notifyId);
+    HCCL_INFO("UbMemTransport RmtBuffer[addr=0x%llx, size=0x%llx, notifyId=%u]", addr, size, notifyId);
     std::vector<char> result;
     binaryStream.Dump(result);
     return result;
