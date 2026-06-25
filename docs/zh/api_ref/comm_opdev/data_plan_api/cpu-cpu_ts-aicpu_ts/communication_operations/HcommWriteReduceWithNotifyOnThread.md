@@ -22,8 +22,8 @@ int32_t HcommWriteReduceWithNotifyOnThread(ThreadHandle thread, ChannelHandle ch
 | --- | --- | --- |
 | thread | 输入 | 通信线程句柄，为通过[HcclThreadAcquire](../../../control_plane_api/comms_domain_resource_mgmt/HcclThreadAcquire.md)接口获取到的threads。<br>ThreadHandle类型的定义可参见[ThreadHandle](../../../datatype_definition/ThreadHandle.md)。 |
 | channel | 输入 | 通信通道句柄，为通过[HcclChannelAcquire](../../../control_plane_api/comms_domain_resource_mgmt/HcclChannelAcquire.md)接口获取到的channels。<br>ChannelHandle类型的定义可参见[ChannelHandle](../../../datatype_definition/ChannelHandle.md)。 |
-| dst | 输出 | 目的内存地址，使用[HcclGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclGetHcclBuffer.md)、[HcclChannelGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclChannelGetHcclBuffer.md)获取到的内存。 |
-| src | 输入 | 源内存地址，使用[HcclGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclGetHcclBuffer.md)、[HcclChannelGetHcclBuffer](../../../control_plane_api/comms_domain_resource_mgmt/HcclChannelGetHcclBuffer.md)获取到的内存。 |
+| dst | 输出 | 目的内存地址，使用指定channel对端的HCCL通信内存。 |
+| src | 输入 | 源内存地址，使用通信域中本端rank的HCCL通信内存。 |
 | count | 输入 | 元素个数。 |
 | dataType | 输入 | 数据类型。<br>HcommDataType类型的定义请参见[HcommDataType](../../../datatype_definition/HcommDataType.md)。<br>针对Ascend 950PR/Ascend 950DT，支持的数据类型：int8、int16、int32、uint8、uint16、uint32、float16、float32、bfp16。 |
 | reduceOp | 输入 | 归约操作类型，支持：sum、max、min。<br>HcommReduceOp类型的定义请参见[HcommReduceOp](../../../datatype_definition/HcommReduceOp.md)。 |

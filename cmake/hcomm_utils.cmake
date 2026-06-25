@@ -14,7 +14,7 @@ unset(hcomm_utils_FOUND CACHE)
 unset(TLS_ADP_LIBRARY CACHE)
 
 if(NOT CANN_3RD_LIB_PATH)
-    set(CANN_3RD_LIB_PATH ${CMAKE_SOURCE_DIR}/third_party)
+    set(CANN_3RD_LIB_PATH ${HCOMM_DIR}/third_party)
 endif()
 
 if(PRODUCT_SIDE STREQUAL "device")

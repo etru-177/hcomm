@@ -11,7 +11,7 @@
 message("Build third party library urma")
 set(URMA_NAME "urma")
 set(URMA_BUILD_PATH "${CMAKE_BINARY_DIR}")
-set(URMA_SEARCH_PATHS "${CMAKE_SOURCE_DIR}/../ubengine/ssapi/")
+set(URMA_SEARCH_PATHS "${HCOMM_DIR}/../ubengine/ssapi/")
 set(URMA_INSTALL_PATHS "${CMAKE_CURRENT_BINARY_DIR}/${URMA_NAME}/build")
 set(URMA_SRC_DIR ${URMA_BUILD_PATH}/urma)
 set(URMA_SRC_DIRS

@@ -11,7 +11,10 @@
 
 ## 功能说明
 
-获取通信域中的HCCL通信内存，首次调用时将在Device侧进行内存初始化分配，后续调用将复用已分配内存，不会重复初始化。
+获取通信域中本端rank的HCCL通信内存，首次调用时将在Device侧进行内存初始化分配，后续调用将复用已分配内存，不会重复初始化。
+
+> [!NOTE]注意
+> 返回的HCCL通信内存由hcomm内部管理，调用者严禁释放。
 
 ## 函数原型
 
@@ -33,13 +36,13 @@ HcclResult HcclGetHcclBuffer(HcclComm comm, void **buffer, uint64_t *size)
 
 ## 约束说明
 
-返回的buffer内存由库内管理，调用者严禁释放。
+无。
 
 ## 调用示例
 
 ```c
 HcclComm comm;
 void *hcclBuffer = nullptr;
-uint64_t hcclBufferSize = 0;
+uint64_t hcclBufferSize = 1 * 1024;   // 1KB
 HcclResult result = HcclGetHcclBuffer(comm, &hcclBuffer, &hcclBufferSize);
 ```

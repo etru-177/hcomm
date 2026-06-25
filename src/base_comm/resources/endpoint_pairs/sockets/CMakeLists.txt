@@ -19,6 +19,5 @@ if(TARGET hcomm)
     )
     target_include_directories(hcomm PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/src/legacy/ascend950/framework/env_config
     )
 endif()
