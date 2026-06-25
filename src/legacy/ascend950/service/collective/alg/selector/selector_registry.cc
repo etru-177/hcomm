@@ -14,17 +14,22 @@
 #include <iostream>
 #include <map>
 #include <mutex>
+#include <new>
 
 namespace Hccl {
 
 SelectorRegistry *SelectorRegistry::Global()
 {
-    static SelectorRegistry *globalSelectorRegistry = new SelectorRegistry;
+    static SelectorRegistry *globalSelectorRegistry = new (std::nothrow) SelectorRegistry;
     return globalSelectorRegistry;
 }
 
 HcclResult SelectorRegistry::Register(u32 priority, BaseSelector *selector)
 {
+    if (selector == nullptr) {
+        HCCL_ERROR("[Algo][Selector] selector is null, register priority %llu failed.", priority);
+        return HcclResult::HCCL_E_MEMORY;
+    }
     const std::lock_guard<std::mutex> lock(mu_);
     if (impls_.count(priority) != 0) {
         HCCL_ERROR("[Algo][Selector] priority %llu already registered.", priority);
@@ -37,6 +42,10 @@ HcclResult SelectorRegistry::Register(u32 priority, BaseSelector *selector)
 
 HcclResult SelectorRegistry::RegisterByOpType(const OpType opType, u32 priority, BaseSelector *selector)
 {
+    if (selector == nullptr) {
+        HCCL_ERROR("[Algo][Selector] selector is null, register opType %d priority %llu failed.", opType, priority);
+        return HcclResult::HCCL_E_MEMORY;
+    }
     const std::lock_guard<std::mutex> lock(mu_);
     if (opTypeImpls_[opType].count(priority) != 0) {
         HCCL_ERROR("[Algo][Selector] opType %d priority %llu already registered.", opType, priority);

@@ -185,7 +185,7 @@ HcclResult InsV2SendExecutor::ExecAiv(const CollAlgOperator &op,
     for (u64 loop = 0; loop < loopTimes; loop++) {
         sliceId_++; // 自动增长sliceId，传入aivTag
         u64 currDataCount = (loop == loopTimes - 1) ? op.dataCount - processedDataCount : maxScratchDataCount;
-        HCCL_INFO("[InsV2SendExecutor][ExecAiv] myRank[%u], loop[%llu] sliceId_[%llu] currDataCount[%llu], processedDataCount[%llu]",
+        HCCL_INFO("[InsV2SendExecutor][ExecAiv] myRank[%d], loop[%llu] sliceId_[%llu] currDataCount[%llu], processedDataCount[%llu]",
             myRank_, loop, sliceId_, currDataCount, processedDataCount);
 
         AivOpArgs aivSendArgs;

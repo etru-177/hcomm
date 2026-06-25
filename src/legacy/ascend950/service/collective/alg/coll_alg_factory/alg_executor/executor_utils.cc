@@ -224,7 +224,7 @@ HcclResult SetPathNumMapByRankGraphMultiLevel(const RankGraph *rankGraph, std::v
                 }
             }
             rank2PathNumMap[levelNumIdx][rankIdx] = pathNum;
-            HCCL_INFO("[%s]levelNumIdx[%u] rankIdx[%u] pathNum[%u]", __func__, levelNumIdx, rankIdx, pathNum);
+            HCCL_INFO("[%s]levelNumIdx[%u] rankIdx[%d] pathNum[%d]", __func__, levelNumIdx, rankIdx, pathNum);
         }
     }
     if(rank2PathNumMap.size() == 0){
@@ -264,7 +264,7 @@ HcclResult SetPathNumMapByRankGraphMultiLevel(const RankGraph *rankGraph, std::v
                 }
             }
             rank2PathNumMap[rankIdx] = pathNum;
-            HCCL_INFO("[%s]rankIdx[%u] pathNum[%u]", __func__, rankIdx, pathNum);
+            HCCL_INFO("[%s]rankIdx[%d] pathNum[%d]", __func__, rankIdx, pathNum);
         }
         if(levelFlag){
             break;
@@ -294,7 +294,7 @@ HcclResult SetPathNumMapByLinkMgrMultiLevel(ConnectedLinkMgr*linkMgr, std::vecto
             if (linkNum != 0){
                 rank2PathNumMap[levelNumIdx][rankIdx] = linkNum;
             }
-            HCCL_INFO("[%s]levelNumIdx[%u] rankIdx[%u] linkNum[%u]", __func__, levelNumIdx, rankIdx, linkNum);
+            HCCL_INFO("[%s]levelNumIdx[%u] rankIdx[%d] linkNum[%d]", __func__, levelNumIdx, rankIdx, linkNum);
         }
     }
     if(rank2PathNumMap.size() == 0){
@@ -318,7 +318,7 @@ HcclResult SetPathNumMapByLinkMgrMultiLevel(ConnectedLinkMgr*linkMgr, std::vecto
         if (linkNum != 0){
             rank2PathNumMap[rankIdx] = linkNum;
         }
-        HCCL_INFO("[%s]rankIdx[%u] linkNum[%u]", __func__, rankIdx, linkNum);
+        HCCL_INFO("[%s]rankIdx[%u] linkNum[%d]", __func__, rankIdx, linkNum);
     }
     if(rank2PathNumMap.size() == 0){
         HCCL_ERROR("No path to all remoteRank");
