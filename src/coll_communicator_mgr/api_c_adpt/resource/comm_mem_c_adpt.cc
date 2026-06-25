@@ -22,6 +22,7 @@
 #include "param_check_pub.h"
 #include "op_base_v2.h"
 #include "hccl_res.h"
+#include "symmetric_memory/symmetric_memory.h"
 
 using namespace hccl;
 
@@ -32,7 +33,12 @@ HcclResult HcclCommMemReg(HcclComm comm, const char *memTag, const CommMem *mem,
     CHK_PRT_RET(memTag == nullptr, HCCL_ERROR("[HcclCommMemReg]memTag is null"), HCCL_E_PTR);
     CHK_PRT_RET(strlen(memTag) == 0 || strlen(memTag) > HCCL_RES_TAG_MAX_LEN,
         HCCL_ERROR("[HcclCommMemReg]memTag length is %u", strlen(memTag)), HCCL_E_PARA);
-    CHK_PRT_RET(mem == nullptr,   HCCL_ERROR("[HcclCommMemReg]mem is null"), HCCL_E_PTR);
+    std::string memTagStr(memTag);
+    CHK_PRT_RET(memTagStr.compare(0, strlen(HCCL_SYMMETRIC_MEMORY_TAG_PREFIX),
+        HCCL_SYMMETRIC_MEMORY_TAG_PREFIX) == 0,
+        HCCL_ERROR("[HcclCommMemReg]memTag[%s] uses reserved symmetric memory prefix[%s]",
+            memTag, HCCL_SYMMETRIC_MEMORY_TAG_PREFIX), HCCL_E_PARA);
+    CHK_PRT_RET(mem == nullptr, HCCL_ERROR("[HcclCommMemReg]mem is null"), HCCL_E_PTR);
     CHK_PRT_RET(memHandle == nullptr, HCCL_ERROR("[HcclCommMemReg]memHandle is null"), HCCL_E_PTR);
     CHK_PRT_RET((mem->type != COMM_MEM_TYPE_DEVICE) && (mem->type != COMM_MEM_TYPE_HOST),
         HCCL_ERROR("[HcclCommMemReg]memoryType[%d] must be device or host", mem->type), HCCL_E_PARA);
@@ -52,7 +58,7 @@ HcclResult HcclCommMemReg(HcclComm comm, const char *memTag, const CommMem *mem,
             CHK_PTR_NULL(myRank);
             CommMems* commMem = myRank->GetCommMems();
             HcclResult ret = HCCL_SUCCESS;
-            ret = commMem->CommRegMem(std::string(memTag), *mem, memHandle);
+            ret = commMem->CommRegMem(memTagStr, *mem, memHandle);
             CHK_PRT_RET(ret != HCCL_SUCCESS,
                 HCCL_ERROR("[HcclCommMemReg]Bind failed. memTag[%s], ret[%d]", memTag, ret), ret);
             HCCL_INFO("[HcclCommMemReg] success: raw handle[%p]", *memHandle);

@@ -41,6 +41,24 @@ HcclResult HcclSymWinGetPeerPointer(HcclCommSymWindow winHandle, size_t offset, 
     CHK_PRT_RET(offset >= symWin->userSize,
         HCCL_ERROR("[%s] Invalid offset: %llu. userSize[%llu]", __func__, offset, symWin->userSize), HCCL_E_PARA);
 
+    if (symWin->mode == SymmetricMemoryMode::URMA) {
+        CHK_PTR_NULL(symWin->remoteMems);
+        CHK_PRT_RET(peerRank >= symWin->remoteMemNum,
+            HCCL_ERROR("[HcclSymWinGetPeerPointer] Invalid peerRank: %d. remoteMemNum[%u]",
+                peerRank, symWin->remoteMemNum), HCCL_E_PARA);
+        CommMem &remoteMem = symWin->remoteMems[peerRank];
+        CHK_PRT_RET(remoteMem.addr == nullptr || remoteMem.type == COMM_MEM_TYPE_INVALID,
+            HCCL_ERROR("[HcclSymWinGetPeerPointer] remote mem is invalid, peerRank[%u], addr[%p], type[%d].",
+                peerRank, remoteMem.addr, remoteMem.type), HCCL_E_PARA);
+        CHK_PRT_RET(offset >= remoteMem.size,
+            HCCL_ERROR("[%s] Invalid offset: %llu. remoteMemSize[%llu]", __func__, offset, remoteMem.size),
+            HCCL_E_PARA);
+        *ptr = reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(remoteMem.addr) + offset);
+        HCCL_INFO("[HcclSymWinGetPeerPointer] Get URMA Ptr[%p] from winHandle[%p], peerRank[%d], offset[%llu]",
+            *ptr, winHandle, peerRank, offset);
+        return HCCL_SUCCESS;
+    }
+
     size_t peerOffset = peerRank * symWin->stride + offset;
     *ptr = reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(symWin->baseVa) + peerOffset);
     HCCL_INFO("[HcclSymWinGetPeerPointer] Get Ptr[%p] from winHandle[%p], peerRank[%d], peerOffset[%llu]",

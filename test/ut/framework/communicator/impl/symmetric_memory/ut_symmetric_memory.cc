@@ -47,6 +47,15 @@ protected:
     }
 };
 
+TEST_F(SymmetricMemoryTest, ut_SymmetricMemoryCtor_When_UrmaMode_Expect_NoVaAllocator)
+{
+    SymmetricMemory urmaMemory(0, 2, 0, SymmetricMemoryMode::URMA);
+    EXPECT_EQ(urmaMemory.vaAllocator_, nullptr);
+
+    SymmetricMemory hccsMemory(0, 2, 4096, SymmetricMemoryMode::HCCS);
+    EXPECT_NE(hccsMemory.vaAllocator_, nullptr);
+}
+
 class SimpleVaAllocatorTest : public testing::Test {
 protected:
     static void SetUpTestCase()
@@ -1125,6 +1134,14 @@ HcclResult stub_hrtMalloc(void **devPtr, u64 size, bool Level2Address)
     return HCCL_SUCCESS;
 }
 
+HcclResult stub_hrtMallocUrma(void **devPtr, u64 size, bool Level2Address)
+{
+    static uintptr_t devAddr = 0x5000000;
+    *devPtr = reinterpret_cast<void*>(devAddr);
+    devAddr += 0x1000;
+    return HCCL_SUCCESS;
+}
+
 TEST_F(SymmetricMemoryTest, ut_DeRegisterSymmetricMem_When_Normal_Expect_ReturnHCCL_SUCCESS)
 {  
     MOCKER_CPP(&SymmetricMemoryAgent::Init)
@@ -1242,4 +1259,249 @@ TEST_F(SymmetricMemoryTest, ut_DeRegisterSymmetricMem_When_FreePhysical_Is_Faile
         .will(returnValue(1));
     ret = symmetricMemory.DeregisterSymmetricMem(win);
     EXPECT_EQ(ret, HCCL_E_DRV);
+}
+
+TEST_F(SymmetricMemoryTest, ut_RegisterUrmaSymmetricMem_When_RepeatRegister_Expect_ReuseSameWin)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(stub_hrtMallocUrma));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    SymmetricMemory symmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA);
+    void* ptr = reinterpret_cast<void*>(0x1000000);
+    void* firstWin = nullptr;
+    void* secondWin = nullptr;
+
+    HcclResult ret = symmetricMemory.RegisterUrmaSymmetricMem(ptr, 0x2000, &firstWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_NE(firstWin, nullptr);
+    EXPECT_EQ(symmetricMemory.sortedWindows_.size(), 1U);
+
+    ret = symmetricMemory.RegisterUrmaSymmetricMem(ptr, 0x2000, &secondWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(secondWin, firstWin);
+    EXPECT_EQ(symmetricMemory.sortedWindows_.size(), 1U);
+    EXPECT_EQ(symmetricMemory.windowMap_.size(), 1U);
+    EXPECT_EQ(symmetricMemory.remoteMemMap_.size(), 1U);
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(firstWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(firstWin);
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+}
+
+TEST_F(SymmetricMemoryTest, ut_DeregisterUrmaSymmetricMem_When_SingleRankRepeatDeregister_Expect_NotFound)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(stub_hrtMallocUrma));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    SymmetricMemory symmetricMemory(0, 1, 0, SymmetricMemoryMode::URMA);
+    void* win = nullptr;
+    void* ptr = reinterpret_cast<void*>(0x18000000);
+
+    HcclResult ret = symmetricMemory.RegisterUrmaSymmetricMem(ptr, 0x2000, &win);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_NE(win, nullptr);
+    EXPECT_EQ(symmetricMemory.singleRankUrmaWindows_.size(), 1U);
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(win);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_TRUE(symmetricMemory.singleRankUrmaWindows_.empty());
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(win);
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+}
+
+TEST_F(SymmetricMemoryTest, ut_RegisterUrmaSymmetricMem_When_SubsetRegister_Expect_ReuseParentWin)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(stub_hrtMallocUrma));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    SymmetricMemory symmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA);
+    void* parentPtr = reinterpret_cast<void*>(0x2000000);
+    void* subsetPtr = reinterpret_cast<void*>(0x2000800);
+    void* parentWin = nullptr;
+    void* subsetWin = nullptr;
+
+    HcclResult ret = symmetricMemory.RegisterUrmaSymmetricMem(parentPtr, 0x4000, &parentWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+
+    ret = symmetricMemory.RegisterUrmaSymmetricMem(subsetPtr, 0x1000, &subsetWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(subsetWin, parentWin);
+    EXPECT_EQ(symmetricMemory.sortedWindows_.size(), 1U);
+    EXPECT_EQ(symmetricMemory.windowMap_.size(), 1U);
+    EXPECT_EQ(symmetricMemory.remoteMemMap_.size(), 1U);
+
+    void* foundWin = nullptr;
+    u64 offset = 0;
+    ret = symmetricMemory.FindUrmaSymmetricWindow(subsetPtr, 0x1000, &foundWin, &offset);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(foundWin, parentWin);
+    EXPECT_EQ(offset, 0x800U);
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(parentWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(SymmetricMemoryTest, ut_RegisterUrmaSymmetricMem_When_PartialOverlap_Expect_RegisterIndependently)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(stub_hrtMallocUrma));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    SymmetricMemory symmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA);
+    void* firstPtr = reinterpret_cast<void*>(0x3000000);
+    void* overlapPtr = reinterpret_cast<void*>(0x3001000);
+    void* firstWin = nullptr;
+    void* overlapWin = nullptr;
+
+    HcclResult ret = symmetricMemory.RegisterUrmaSymmetricMem(firstPtr, 0x3000, &firstWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    ret = symmetricMemory.RegisterUrmaSymmetricMem(overlapPtr, 0x3000, &overlapWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_NE(overlapWin, nullptr);
+    EXPECT_NE(overlapWin, firstWin);
+    EXPECT_EQ(symmetricMemory.sortedWindows_.size(), 2U);
+    EXPECT_EQ(symmetricMemory.windowMap_.size(), 2U);
+    EXPECT_EQ(symmetricMemory.remoteMemMap_.size(), 2U);
+    EXPECT_EQ(symmetricMemory.sortedWindows_[0]->userVa, firstPtr);
+    EXPECT_EQ(symmetricMemory.sortedWindows_[0]->userSize, 0x3000U);
+    EXPECT_EQ(symmetricMemory.sortedWindows_[1]->userVa, overlapPtr);
+    EXPECT_EQ(symmetricMemory.sortedWindows_[1]->userSize, 0x3000U);
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(firstWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(overlapWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(SymmetricMemoryTest, ut_TryReuseRegisteredUrmaWindow_When_ExactOrSubset_Expect_Reused)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(stub_hrtMallocUrma));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    SymmetricMemory symmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA);
+    void* parentPtr = reinterpret_cast<void*>(0x4000000);
+    void* parentWin = nullptr;
+    HcclResult ret = symmetricMemory.RegisterUrmaSymmetricMem(parentPtr, 0x4000, &parentWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+
+    bool reused = false;
+    void* reusedWin = nullptr;
+    ret = symmetricMemory.TryReuseRegisteredUrmaWindow(parentPtr, 0x4000, &reusedWin, reused);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_TRUE(reused);
+    EXPECT_EQ(reusedWin, parentWin);
+
+    reused = false;
+    reusedWin = nullptr;
+    void* subsetPtr = reinterpret_cast<void*>(0x4001000);
+    ret = symmetricMemory.TryReuseRegisteredUrmaWindow(subsetPtr, 0x1000, &reusedWin, reused);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_TRUE(reused);
+    EXPECT_EQ(reusedWin, parentWin);
+
+    reused = false;
+    reusedWin = nullptr;
+    void* overlapPtr = reinterpret_cast<void*>(0x4003000);
+    ret = symmetricMemory.TryReuseRegisteredUrmaWindow(overlapPtr, 0x3000, &reusedWin, reused);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_FALSE(reused);
+    EXPECT_EQ(reusedWin, nullptr);
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(parentWin);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(SymmetricMemoryTest, ut_UpdateRemoteMemByTag_When_TagMatched_Expect_UpdateAndMatched)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(stub_hrtMallocUrma));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    SymmetricMemory symmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA);
+    void* ptr = reinterpret_cast<void*>(0x5000000);
+    void* win = nullptr;
+    constexpr size_t winSize = 0x2000;
+    HcclResult ret = symmetricMemory.RegisterUrmaSymmetricMem(ptr, winSize, &win);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+
+    SymmetricMemoryResource resource;
+    resource.memHandle = reinterpret_cast<void*>(0x5100000);
+    resource.memTag = std::string(HCCL_SYMMETRIC_MEMORY_TAG_PREFIX) + "ut_addr_" +
+        std::to_string(reinterpret_cast<uintptr_t>(ptr)) + "_size_" + std::to_string(winSize);
+    ret = symmetricMemory.SetRegisteredMemoryResource(win, resource);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+
+    std::unordered_map<void*, bool> matchedResources;
+    matchedResources.emplace(win, false);
+    std::unordered_map<std::string, std::vector<void*>> tagIndex;
+    symmetricMemory.BuildRemoteMemTagIndex(tagIndex);
+    std::vector<void*> dirtyResources;
+    CommMem remoteMem {};
+    remoteMem.type = COMM_MEM_TYPE_DEVICE;
+    remoteMem.addr = reinterpret_cast<void*>(0x5200000);
+    remoteMem.size = winSize;
+    ret = symmetricMemory.UpdateRemoteMemByTag(1, remoteMem, resource.memTag.c_str(), tagIndex,
+        matchedResources, dirtyResources);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_TRUE(matchedResources[win]);
+    ASSERT_EQ(dirtyResources.size(), 1U);
+    EXPECT_EQ(dirtyResources[0], win);
+
+    ret = symmetricMemory.UpdateRemoteMemByTag(1, remoteMem, resource.memTag.c_str(), tagIndex,
+        matchedResources, dirtyResources);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    ASSERT_EQ(dirtyResources.size(), 1U);
+
+    ret = symmetricMemory.SyncDirtyRemoteMems(dirtyResources);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    ret = symmetricMemory.CheckAllRemoteMemMatched(1, matchedResources);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+
+    auto remoteMemIt = symmetricMemory.remoteMemMap_.find(win);
+    ASSERT_NE(remoteMemIt, symmetricMemory.remoteMemMap_.end());
+    ASSERT_EQ(remoteMemIt->second.size(), 2U);
+    EXPECT_EQ(remoteMemIt->second[1].addr, remoteMem.addr);
+    EXPECT_EQ(remoteMemIt->second[1].size, remoteMem.size);
+
+    ret = symmetricMemory.DeregisterUrmaSymmetricMem(win);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
 }

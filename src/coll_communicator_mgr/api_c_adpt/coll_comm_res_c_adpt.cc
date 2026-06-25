@@ -9,6 +9,8 @@
  */
 
 #include "my_rank.h"
+#include <algorithm>
+#include <limits>
 #include "hccl_comm_pub.h"
 #include "exception_handler.h"
 #include "config_log.h"
@@ -295,6 +297,106 @@ static HcclResult ConvertAivChannelHandlesToDevicePtrs(CommEngine engine, const 
     }
     return HCCL_SUCCESS;
 }
+static bool IsUbUrmaChannelProtocol(CommProtocol protocol)
+{
+    return protocol == COMM_PROTOCOL_UBC_CTP || protocol == COMM_PROTOCOL_UBC_TP || protocol == COMM_PROTOCOL_UBOE;
+}
+
+static bool HasUbUrmaChannel(const std::vector<HcclChannelDesc> &channelDescFinals)
+{
+    for (const HcclChannelDesc &channelDesc : channelDescFinals) {
+        if (IsUbUrmaChannelProtocol(channelDesc.channelProtocol)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void AppendUniqueMemHandle(std::vector<HcclMemHandle> &mergedHandles, HcclMemHandle memHandle)
+{
+    if (memHandle == nullptr) {
+        return;
+    }
+    if (std::find(mergedHandles.begin(), mergedHandles.end(), memHandle) == mergedHandles.end()) {
+        mergedHandles.emplace_back(memHandle);
+    }
+}
+
+static HcclResult MergeSymmetricMemHandles(HcclChannelDesc &channelDesc,
+    const std::vector<HcclMemHandle> &symmetricMemHandles, std::vector<HcclMemHandle> &mergedHandles)
+{
+    if (!IsUbUrmaChannelProtocol(channelDesc.channelProtocol)) {
+        return HCCL_SUCCESS;
+    }
+    if (channelDesc.memHandleNum != 0) {
+        CHK_PTR_NULL(channelDesc.memHandles);
+        for (uint32_t handleIdx = 0; handleIdx < channelDesc.memHandleNum; ++handleIdx) {
+            AppendUniqueMemHandle(mergedHandles, channelDesc.memHandles[handleIdx]);
+        }
+    }
+    for (HcclMemHandle memHandle : symmetricMemHandles) {
+        AppendUniqueMemHandle(mergedHandles, memHandle);
+    }
+    CHK_PRT_RET(mergedHandles.size() > static_cast<size_t>(std::numeric_limits<uint32_t>::max()),
+        HCCL_ERROR("[MergeSymmetricMemHandles] merged memHandleNum[%zu] exceeds uint32 max.",
+            mergedHandles.size()), HCCL_E_PARA);
+    channelDesc.memHandles = mergedHandles.data();
+    channelDesc.memHandleNum = static_cast<uint32_t>(mergedHandles.size());
+    return HCCL_SUCCESS;
+}
+
+static HcclResult AppendSymmetricMemHandles(hccl::CollComm *collComm,
+    std::vector<HcclChannelDesc> &channelDescFinals,
+    std::vector<std::vector<HcclMemHandle>> &mergedMemHandles,
+    bool &hasSymmetricMemHandles)
+{
+    CHK_PTR_NULL(collComm);
+    hasSymmetricMemHandles = false;
+    if (!HasUbUrmaChannel(channelDescFinals)) {
+        return HCCL_SUCCESS;
+    }
+    // 只有UB/URMA类channel需要追加symmetric memHandle参与建链交换。
+    std::vector<HcclMemHandle> symmetricMemHandles;
+    CHK_RET(collComm->RegisterPendingSymmetricMemHandles(symmetricMemHandles));
+    if (symmetricMemHandles.empty()) {
+        return HCCL_SUCCESS;
+    }
+    hasSymmetricMemHandles = true;
+
+    mergedMemHandles.clear();
+    mergedMemHandles.resize(channelDescFinals.size());
+    for (size_t idx = 0; idx < channelDescFinals.size(); ++idx) {
+        CHK_RET(MergeSymmetricMemHandles(channelDescFinals[idx], symmetricMemHandles, mergedMemHandles[idx]));
+    }
+    HCCL_INFO("[AppendSymmetricMemHandles] append symmetric memHandles success, channelNum[%zu], symMemHandleNum[%zu], "
+        "protocols[UBC_CTP/UBC_TP/UBOE].",
+        channelDescFinals.size(), symmetricMemHandles.size());
+    return HCCL_SUCCESS;
+}
+
+static HcclResult UpdateSymmetricRemoteMems(hccl::CollComm *collComm, hccl::MyRank *myRank,
+    const std::vector<HcclChannelDesc> &channelDescFinals, const ChannelHandle *channels, uint32_t channelNum)
+{
+    CHK_PTR_NULL(collComm);
+    CHK_PTR_NULL(myRank);
+    CHK_PTR_NULL(channels);
+    for (uint32_t idx = 0; idx < channelNum; ++idx) {
+        const HcclChannelDesc &channelDesc = channelDescFinals[idx];
+        if (!IsUbUrmaChannelProtocol(channelDesc.channelProtocol)) {
+            continue;
+        }
+        CommMem *remoteMems = nullptr;
+        char **memTags = nullptr;
+        uint32_t memNum = 0;
+        // CreateChannels完成后，从channel取回交换到的remoteMem/memTag并回填window。
+        CHK_RET(myRank->ChannelGetRemoteMems(channels[idx], &memNum, &remoteMems, &memTags));
+        if (memNum == 0) {
+            continue;
+        }
+        CHK_RET(collComm->UpdateSymmetricRemoteMem(channelDesc.remoteRank, remoteMems, memTags, memNum));
+    }
+    return HCCL_SUCCESS;
+}
 
 bool CheckCommEngine(const CommEngine engine, const uint32_t opExpansionMode)
 {
@@ -350,6 +452,7 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine,
     hccl::hcclComm *hcclComm = static_cast<hccl::hcclComm *>(comm);
     HCCL_RUN_INFO("Entry-%s channelNum[%u], engine[%d] group[%s]", __func__, channelNum, engine, hcclComm->GetIdentifier().c_str());
     std::vector<HcclChannelDesc> channelDescFinals;
+    std::vector<std::vector<HcclMemHandle>> mergedMemHandles;
     for (uint32_t idx = 0; idx < channelNum; idx++) {
         HcclChannelDesc channelDescFinal;
         HcclChannelDescInit(&channelDescFinal, 1);
@@ -382,11 +485,20 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine,
         if (!GetDebugConfigInited()) {
             InitDebugConfigByEnv();
         }
+
+        bool hasSymmetricMemHandles = false;
+        CHK_RET(AppendSymmetricMemHandles(collComm, channelDescFinals, mergedMemHandles, hasSymmetricMemHandles));
+        HCCL_INFO("[HcclChannelAcquire] AppendSymmetricMemHandles done, group[%s], engine[%d], channelNum[%u], "
+            "hasSymmetricMemHandles[%d], mergedMemHandleGroups[%zu].",
+            commTag.c_str(), engine, channelNum, hasSymmetricMemHandles, mergedMemHandles.size());
         ret = myRank->CreateChannels(engine, commTag, channelDescFinals.data(), channelNum, channels);
         CHK_PRT_RET((ret == HCCL_E_AGAIN || ret == HCCL_E_UNAVAIL),
             HCCL_WARNING("CreateChannels group[%s], engine[%d] ret[%d]", commTag.c_str(), engine, ret), ret);
         CHK_PRT_RET(ret != HCCL_SUCCESS,
             HCCL_ERROR("CreateChannels failed. group[%s], engine[%d] ret[%d]", commTag.c_str(), engine, ret), ret);
+        if (hasSymmetricMemHandles) {
+            CHK_RET(UpdateSymmetricRemoteMems(collComm, myRank, channelDescFinals, channels, channelNum));
+        }
         if (engine == COMM_ENGINE_CPU) {
             HcclCommDfx* hcclCommDfx = collComm->GetHcclCommDfx();
             CHK_PTR_NULL(hcclCommDfx);

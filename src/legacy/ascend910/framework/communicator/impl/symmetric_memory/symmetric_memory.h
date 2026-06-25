@@ -14,16 +14,18 @@
 #include "log.h"
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <mutex>
-#include <functional>
 #include <memory>
+#include <string>
 #include "symmetric_memory_agent.h"
 #include "hccl_mem_alloc.h"
 
 // HCCL
 #include "hccl/base.h"
 #include "hccl_comm.h"
+#include "hccl/hccl_res.h"
 #include "adapter_rts_common.h"
 #include "hccl_inner.h"
 
@@ -32,9 +34,27 @@
 
 namespace hccl {
 
+constexpr const char *HCCL_SYMMETRIC_MEMORY_TAG_PREFIX = "__hccl_sym_win__";
+
+enum class SymmetricMemoryMode {
+    HCCS = 0,
+    URMA = 1
+};
+
 struct FreeBlock {
     size_t offset;
     size_t size;
+};
+
+struct SymmetricMemoryResource {
+    std::string memTag;
+    void* memHandle{nullptr};
+};
+
+struct SymmetricMemoryRegisterInfo {
+    void* devWin{nullptr};
+    void* userVa{nullptr};
+    size_t userSize{0};
 };
 
 struct ShareableInfo {
@@ -54,7 +74,9 @@ struct SymmetricWindow {
     u32 rankSize;
     size_t stride;
     aclrtDrvMemHandle paHandle;
-
+    SymmetricMemoryMode mode;
+    CommMem* remoteMems;
+    u32 remoteMemNum;
     void* devWin; // device端结构体
 };
 
@@ -82,6 +104,8 @@ struct PaMappingInfo {
 class SymmetricMemory {
 public:
     SymmetricMemory(u32 rank, u32 rankSize, size_t stride, std::shared_ptr<SymmetricMemoryAgent> symmetricMemoryAgent);
+    SymmetricMemory(u32 rank, u32 rankSize, size_t stride, SymmetricMemoryMode mode,
+        std::shared_ptr<SymmetricMemoryAgent> symmetricMemoryAgent = nullptr);
     ~SymmetricMemory();
 
     // 禁止拷贝和赋值
@@ -92,14 +116,40 @@ public:
     HcclResult FreeSymmetricMem(void* devWin);
     HcclResult GetMemoryInfo(void* ptr, size_t size, void** baseUserVa, size_t* baseVaSize, aclrtDrvMemHandle* paHandle);
     HcclResult RegisterSymmetricMem(void* ptr, size_t size, void** devWin);
+    HcclResult RegisterUrmaSymmetricMem(void* ptr, size_t size, void** devWin);
     HcclResult DeregisterSymmetricMem(void* devWin);
+    HcclResult DeregisterUrmaSymmetricMem(void* devWin);
     HcclResult FindSymmetricWindow(void* ptr, size_t size, void** win, u64 *offset);
+    HcclResult FindUrmaSymmetricWindow(void* ptr, size_t size, void** win, u64 *offset);
+    HcclResult GetPendingRegisterInfos(std::vector<SymmetricMemoryRegisterInfo> &registerInfos) const;
+    HcclResult SetRegisteredMemoryResource(void* devWin, const SymmetricMemoryResource &resource);
+    HcclResult GetRegisteredMemoryResource(void* devWin, SymmetricMemoryResource &resource) const;
+    void RemoveRegisteredMemoryResource(void* devWin);
+    HcclResult UpdateRemoteMem(uint32_t remoteRank, const CommMem *remoteMems, char **memTags, uint32_t memNum);
 
 private:
     HcclResult Init();
     HcclResult GetAllRankPid();
     HcclResult RegisterInternal(aclrtDrvMemHandle &paHandle, size_t offset, size_t mapSize);
+    std::shared_ptr<SymmetricWindow> FindExactUrmaSymmetricWindow(void* userVa, size_t userSize) const;
+    std::shared_ptr<SymmetricWindow> FindContainingUrmaSymmetricWindow(void* userVa, size_t userSize,
+        u64* offset) const;
+    std::shared_ptr<SymmetricWindow> FindOverlappingUrmaSymmetricWindow(void* userVa, size_t userSize) const;
+    HcclResult TryReuseRegisteredUrmaWindow(void* ptr, size_t size, void** devWin, bool &reused) const;
+    HcclResult InitUrmaRemoteMems(std::vector<CommMem> &remoteMems, CommMem **devRemoteMems) const;
+    void FillUrmaSymmetricWindow(std::shared_ptr<SymmetricWindow> &win, void* ptr, size_t size,
+        CommMem *devRemoteMems) const;
+    void BuildRemoteMemTagIndex(std::unordered_map<std::string, std::vector<void*>> &tagIndex) const;
+    HcclResult UpdateRemoteMemByTag(uint32_t remoteRank, const CommMem &remoteMem, const char *memTag,
+        const std::unordered_map<std::string, std::vector<void*>> &tagIndex,
+        std::unordered_map<void*, bool> &matchedResources, std::vector<void*> &dirtyResources);
+    HcclResult UpdateRemoteMemForResource(uint32_t remoteRank, const CommMem &remoteMem, void *devWin,
+        const SymmetricMemoryResource &resource);
+    HcclResult SyncDirtyRemoteMems(const std::vector<void*> &dirtyResources);
+    HcclResult CheckAllRemoteMemMatched(uint32_t remoteRank,
+        const std::unordered_map<void*, bool> &matchedResources) const;
     HcclResult AddSymmetricWindow(std::shared_ptr<SymmetricWindow> &win);
+    HcclResult AddUrmaSymmetricWindow(std::shared_ptr<SymmetricWindow> &win);
     HcclResult DeleteSymmetricWindow(std::shared_ptr<SymmetricWindow> &win);
     HcclResult DeleteSymmetricWindow(void* devWin);
 
@@ -108,6 +158,7 @@ private:
     std::once_flag init_flag_;
     u32 rank_{0};
     u32 rankSize_{0};
+    SymmetricMemoryMode mode_{SymmetricMemoryMode::HCCS};
     size_t stride_{0};      // 每个Rank的VA空间大小
     void* heapBase_{nullptr};  // 对称VA空间的总基地址 (所有rank相同)
     size_t granularity_{0};
@@ -118,6 +169,9 @@ private:
     std::map<void*, std::shared_ptr<SymmetricWindow>> windowMap_; // device指针到host SymmetricWindow 的映射
     std::unordered_map<aclrtDrvMemHandle, std::shared_ptr<PaMappingInfo>> paMappingMap_;
     std::shared_ptr<SymmetricMemoryAgent> symmetricMemoryAgent_;
+    std::unordered_map<void*, SymmetricMemoryResource> memoryResourceMap_;
+    std::unordered_map<void*, std::vector<CommMem>> remoteMemMap_;
+    std::unordered_set<void*> singleRankUrmaWindows_;
     std::vector<int32_t> remoteShareablePids;   // 所有rank进程号
     aclrtPhysicalMemProp prop = {              // 内存信息，用来获取内存映射的粒度
         ACL_MEM_HANDLE_TYPE_NONE,

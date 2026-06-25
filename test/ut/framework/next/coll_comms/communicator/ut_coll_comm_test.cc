@@ -11,6 +11,7 @@
 #include "../../ut_hcomm_base.h"
 #define private public
 #include "coll_comm.h"
+#include "symmetric_memory/symmetric_memory.h"
 #undef private
 #include "hcom_common.h"
 
@@ -23,6 +24,16 @@ public:
         TestHcommCAdptBase::TearDown();
     }
 };
+
+HcclResult StubCollCommUrmaHrtMalloc(void **devPtr, u64 size, bool Level2Address)
+{
+    static uintptr_t devAddr = 0x7000000;
+    (void)size;
+    (void)Level2Address;
+    *devPtr = reinterpret_cast<void*>(devAddr);
+    devAddr += 0x1000;
+    return HCCL_SUCCESS;
+}
 
 TEST_F(TestCollComm, Ut_TestCollCommInit_When_RankGraphNullptr_Return_HCCL_E_PTR)
 {
@@ -205,4 +216,79 @@ TEST_F(TestCollComm, Ut_ApplyUserCommConfig_When_InvalidServiceLevel_Expect_EPar
     config.hcclRdmaServiceLevel = 8U;
     uint32_t opExpansionMode = 0U;
     EXPECT_EQ(coll.ApplyUserCommConfig(&config, opExpansionMode), HCCL_E_PARA);
+}
+
+TEST_F(TestCollComm, Ut_RegisterPendingSymmetricMemHandles_When_HasPendingWindow_Expect_ReturnMemHandleOnce)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(StubCollCommUrmaHrtMalloc));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    hccl::CollComm coll(nullptr, 0, "ut_sym", hccl::ManagerCallbacks{});
+    aclrtBinHandle binHandle {};
+    coll.myRank_ = std::make_shared<MyRank>(binHandle, 0, coll.GetCommConfig(), ManagerCallbacks(), nullptr, nullptr);
+    coll.myRank_->commMems_ = std::make_unique<CommMems>(0);
+    coll.symmetricMemory_.reset(new SymmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA));
+
+    void* win = nullptr;
+    void* ptr = reinterpret_cast<void*>(0x8000000);
+    EXPECT_EQ(coll.RegisterWindow(ptr, 0x2000, &win), HCCL_SUCCESS);
+
+    std::vector<HcclMemHandle> memHandles;
+    EXPECT_EQ(coll.RegisterPendingSymmetricMemHandles(memHandles), HCCL_SUCCESS);
+    ASSERT_EQ(memHandles.size(), 1U);
+    EXPECT_NE(memHandles[0], nullptr);
+
+    SymmetricMemoryResource resource;
+    EXPECT_EQ(coll.symmetricMemory_->GetRegisteredMemoryResource(win, resource), HCCL_SUCCESS);
+    EXPECT_EQ(resource.memHandle, static_cast<void*>(memHandles[0]));
+
+    memHandles.clear();
+    EXPECT_EQ(coll.RegisterPendingSymmetricMemHandles(memHandles), HCCL_SUCCESS);
+    EXPECT_TRUE(memHandles.empty());
+}
+
+TEST_F(TestCollComm, Ut_UpdateSymmetricRemoteMem_When_ChannelReturnsRemoteMem_Expect_UpdateWindow)
+{
+    MOCKER_CPP(hrtMalloc)
+        .stubs()
+        .will(invoke(StubCollCommUrmaHrtMalloc));
+    MOCKER_CPP(hrtMemSyncCopy)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(hrtFree)
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    hccl::CollComm coll(nullptr, 0, "ut_sym", hccl::ManagerCallbacks{});
+    coll.symmetricMemory_.reset(new SymmetricMemory(0, 2, 0, SymmetricMemoryMode::URMA));
+
+    void* win = nullptr;
+    void* ptr = reinterpret_cast<void*>(0x9000000);
+    constexpr size_t winSize = 0x2000;
+    EXPECT_EQ(coll.RegisterWindow(ptr, winSize, &win), HCCL_SUCCESS);
+
+    SymmetricMemoryResource resource;
+    resource.memHandle = reinterpret_cast<void*>(0x9100000);
+    resource.memTag = std::string(HCCL_SYMMETRIC_MEMORY_TAG_PREFIX) + "ut_sym_addr_" +
+        std::to_string(reinterpret_cast<uintptr_t>(ptr)) + "_size_" + std::to_string(winSize);
+    EXPECT_EQ(coll.symmetricMemory_->SetRegisteredMemoryResource(win, resource), HCCL_SUCCESS);
+
+    CommMem remoteMem {};
+    remoteMem.type = COMM_MEM_TYPE_DEVICE;
+    remoteMem.addr = reinterpret_cast<void*>(0x9200000);
+    remoteMem.size = winSize;
+    char *memTags[] = {const_cast<char*>(resource.memTag.c_str())};
+    EXPECT_EQ(coll.UpdateSymmetricRemoteMem(1, &remoteMem, memTags, 1), HCCL_SUCCESS);
+
+    auto remoteMemIt = coll.symmetricMemory_->remoteMemMap_.find(win);
+    ASSERT_NE(remoteMemIt, coll.symmetricMemory_->remoteMemMap_.end());
+    ASSERT_EQ(remoteMemIt->second.size(), 2U);
+    EXPECT_EQ(remoteMemIt->second[1].addr, remoteMem.addr);
+    EXPECT_EQ(remoteMemIt->second[1].size, remoteMem.size);
 }

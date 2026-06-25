@@ -11,6 +11,7 @@
 #include "symmetric_memory.h"
 #include <algorithm> // for std::max
 #include <cstddef>
+#include <exception>
 #include <list>      // for SimpleVaAllocator
 #include "hccl_comm.h"
 
@@ -178,23 +179,56 @@ public:
 };
 
 SymmetricMemory::SymmetricMemory(u32 rank, u32 rankSize, size_t stride, std::shared_ptr<SymmetricMemoryAgent> symmetricMemoryAgent)
+    : SymmetricMemory(rank, rankSize, stride, SymmetricMemoryMode::HCCS, std::move(symmetricMemoryAgent))
+{
+}
+
+SymmetricMemory::SymmetricMemory(u32 rank, u32 rankSize, size_t stride, SymmetricMemoryMode mode,
+    std::shared_ptr<SymmetricMemoryAgent> symmetricMemoryAgent)
     : rank_(rank),
       rankSize_(rankSize),
-      stride_(stride), 
-      vaAllocator_(new (std::nothrow) SimpleVaAllocator()),
-      symmetricMemoryAgent_(std::move(symmetricMemoryAgent))
+      mode_(mode),
+      stride_(stride),
+      symmetricMemoryAgent_(std::move(symmetricMemoryAgent)),
+      isSingleRank_(rankSize == 1)
 {
+    if (mode_ != SymmetricMemoryMode::URMA) {
+        vaAllocator_.reset(new (std::nothrow) SimpleVaAllocator());
+    }
     remoteShareablePids.resize(rankSize_, 0);
 }
 
 SymmetricMemory::~SymmetricMemory() 
 {
     HCCL_INFO("[SymmetricMemory][~SymmetricMemory] begin");
-    for (auto& pair : windowMap_) {
-        DeregisterSymmetricMem(pair.first);
+    std::vector<void*> winHandles;
+    winHandles.reserve(windowMap_.size());
+    for (const auto& pair : windowMap_) {
+        winHandles.emplace_back(pair.first);
     }
+    for (void* winHandle : winHandles) {
+        if (mode_ == SymmetricMemoryMode::URMA) {
+            HcclResult ret = DeregisterUrmaSymmetricMem(winHandle);
+            if (ret != HCCL_SUCCESS) {
+                HCCL_WARNING("[SymmetricMemory][~SymmetricMemory] deregister URMA window failed, "
+                    "winHandle[%p], ret[%d], continue cleanup.", winHandle, ret);
+            }
+        } else {
+            (void)DeregisterSymmetricMem(winHandle);
+        }
+    }
+    for (void* winHandle : singleRankUrmaWindows_) {
+        HcclResult ret = hrtFree(winHandle);
+        if (ret != HCCL_SUCCESS) {
+            HCCL_WARNING("[SymmetricMemory][~SymmetricMemory] free single rank URMA window failed, "
+                "winHandle[%p], ret[%d], continue cleanup.", winHandle, ret);
+        }
+    }
+    singleRankUrmaWindows_.clear();
     windowMap_.clear();
     sortedWindows_.clear();
+    memoryResourceMap_.clear();
+    remoteMemMap_.clear();
     importAddrs_.clear();
 
     if (heapBase_) {
@@ -216,12 +250,10 @@ HcclResult SymmetricMemory::EnsureInit() {
 HcclResult SymmetricMemory::Init() 
 {
     CHK_SMART_PTR_NULL(vaAllocator_);
-    CHK_SMART_PTR_NULL(symmetricMemoryAgent_);
 
     isSingleRank_ = (rankSize_ == 1);
     CHK_PRT_RET(isSingleRank_, HCCL_INFO("[SymmetricMemory][Init] single rank communicator"), HCCL_SUCCESS);
     CHK_PRT_RET(stride_ == 0, HCCL_ERROR("[SymmetricMemory][Init] invalid stride: 0"), HCCL_E_PARA);
-
     size_t free = 0;
     size_t total = 0;
     aclError acl_ret = aclrtGetMemInfo(ACL_HBM_MEM_HUGE, &free, &total); // 获取当前进程总的物理内存大小
@@ -239,9 +271,10 @@ HcclResult SymmetricMemory::Init()
     CHK_PRT_RET(stride_ % granularity_ != 0,
         HCCL_ERROR("[SymmetricMemory][Init] Stride %llu is not a multiple of granularity %zu.", stride_, granularity_), HCCL_E_PARA);
 
-    size_t totalHeapSize = static_cast<size_t>(stride_ * rankSize_); // 每个rank都预留一个总大小为 totalHeapSize 的VA空间。
+    size_t totalHeapSize = static_cast<size_t>(stride_ * rankSize_);
     void* hintPtr = reinterpret_cast<void*>(targetStartTB);
 
+    // 每个rank都预留一个总大小为 totalHeapSize 的VA空间。
     if (aclrtReserveMemAddressNoUCMemory(&heapBase_, totalHeapSize, 0, hintPtr, 0) != ACL_SUCCESS) {
         HCCL_ERROR("[SymmetricMemory][Init] aclrtReserveMemAddress failed to reserve %zu bytes. stride: %llu, rankSize: %u.",
                    totalHeapSize, stride_, rankSize_);
@@ -251,11 +284,12 @@ HcclResult SymmetricMemory::Init()
     //  这是一个集合调用，所有rank上的vaAllocator_状态将保持一致（前提是 SimpleVaAllocator 是确定性的）
     CHK_RET(vaAllocator_->Init(stride_));
 
+    CHK_SMART_PTR_NULL(symmetricMemoryAgent_);
     CHK_RET(symmetricMemoryAgent_->Init());
     CHK_RET(GetAllRankPid());
 
-    HCCL_INFO("[SymmetricMemory][Init] SymmetricMemory initialized. Rank[%u], Local Heap Base: %p, Stride: %llu, RankSize: %u.",
-               rank_, heapBase_, stride_, rankSize_);
+    HCCL_INFO("[SymmetricMemory][Init] SymmetricMemory initialized. Rank[%u], Local Heap Base: %p, Stride: %llu, "
+        "RankSize: %u, mode[%u].", rank_, heapBase_, stride_, rankSize_, static_cast<u32>(mode_));
 
     return HCCL_SUCCESS;
 }
@@ -315,17 +349,132 @@ HcclResult SymmetricMemory::FreeSymmetricMem(void* devWin)
 
 HcclResult SymmetricMemory::AddSymmetricWindow(std::shared_ptr<SymmetricWindow> &win)
 {
+    CHK_SMART_PTR_NULL(win);
     CHK_RET(hrtMalloc(&win->devWin, sizeof(SymmetricWindow)));
-    CHK_RET(hrtMemSyncCopy(win->devWin, sizeof(SymmetricWindow), 
+    CHK_RET(hrtMemSyncCopy(win->devWin, sizeof(SymmetricWindow),
         win.get(), sizeof(SymmetricWindow), HcclRtMemcpyKind::HCCL_RT_MEMCPY_KIND_HOST_TO_DEVICE));
 
     sortedWindows_.push_back(win);
-    std::sort(sortedWindows_.begin(), sortedWindows_.end(), 
+    std::sort(sortedWindows_.begin(), sortedWindows_.end(),
         [](const std::shared_ptr<SymmetricWindow>& a, const std::shared_ptr<SymmetricWindow>& b) {
-            return (reinterpret_cast<uintptr_t>(a->userVa) < reinterpret_cast<uintptr_t>(b->userVa)) || 
-                ((reinterpret_cast<uintptr_t>(a->userVa) == reinterpret_cast<uintptr_t>(b->userVa)) && (a->userSize < b->userSize));
-    });
+            return (reinterpret_cast<uintptr_t>(a->userVa) < reinterpret_cast<uintptr_t>(b->userVa)) ||
+                ((reinterpret_cast<uintptr_t>(a->userVa) == reinterpret_cast<uintptr_t>(b->userVa)) &&
+                (a->userSize < b->userSize));
+        });
 
+    windowMap_[win->devWin] = win;
+    return HCCL_SUCCESS;
+}
+
+std::shared_ptr<SymmetricWindow> SymmetricMemory::FindExactUrmaSymmetricWindow(void* userVa, size_t userSize) const
+{
+    const uintptr_t newStart = reinterpret_cast<uintptr_t>(userVa);
+    auto insertIt = std::lower_bound(sortedWindows_.begin(), sortedWindows_.end(), newStart,
+        [](const std::shared_ptr<SymmetricWindow>& window, uintptr_t addr) {
+            return reinterpret_cast<uintptr_t>(window->userVa) < addr;
+        });
+    for (; insertIt != sortedWindows_.end(); ++insertIt) {
+        if (reinterpret_cast<uintptr_t>((*insertIt)->userVa) != newStart) {
+            break;
+        }
+        if ((*insertIt)->userSize == userSize) {
+            return *insertIt;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<SymmetricWindow> SymmetricMemory::FindContainingUrmaSymmetricWindow(void* userVa, size_t userSize,
+    u64* offset) const
+{
+    if (userVa == nullptr || offset == nullptr) {
+        return nullptr;
+    }
+    CHK_PRT_RET(userSize == 0, HCCL_ERROR("[SymmetricMemory][FindContainingUrmaSymmetricWindow] Invalid size: 0."),
+        nullptr);
+
+    const uintptr_t requestStart = reinterpret_cast<uintptr_t>(userVa);
+    const uintptr_t requestEnd = requestStart + userSize;
+    CHK_PRT_RET(requestEnd < requestStart,
+        HCCL_ERROR("[SymmetricMemory][FindContainingUrmaSymmetricWindow] window address overflow, userVa[%p], "
+            "size[%zu].", userVa, userSize), nullptr);
+
+    auto upper = std::upper_bound(sortedWindows_.begin(), sortedWindows_.end(), requestStart,
+        [](uintptr_t addr, const std::shared_ptr<SymmetricWindow>& window) {
+            return addr < reinterpret_cast<uintptr_t>(window->userVa);
+        });
+    for (auto it = upper; it != sortedWindows_.begin();) {
+        --it;
+        const uintptr_t winStart = reinterpret_cast<uintptr_t>((*it)->userVa);
+        const uintptr_t winEnd = winStart + (*it)->userSize;
+        if (requestStart >= winStart && requestEnd <= winEnd) {
+            *offset = requestStart - winStart;
+            return *it;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<SymmetricWindow> SymmetricMemory::FindOverlappingUrmaSymmetricWindow(void* userVa, size_t userSize) const
+{
+    if (userVa == nullptr) {
+        return nullptr;
+    }
+    CHK_PRT_RET(userSize == 0, HCCL_ERROR("[SymmetricMemory][FindOverlappingUrmaSymmetricWindow] Invalid size: 0."),
+        nullptr);
+
+    const uintptr_t requestStart = reinterpret_cast<uintptr_t>(userVa);
+    const uintptr_t requestEnd = requestStart + userSize;
+    CHK_PRT_RET(requestEnd < requestStart,
+        HCCL_ERROR("[SymmetricMemory][FindOverlappingUrmaSymmetricWindow] window address overflow, userVa[%p], "
+            "size[%zu].", userVa, userSize), nullptr);
+
+    auto upper = std::upper_bound(sortedWindows_.begin(), sortedWindows_.end(), requestStart,
+        [](uintptr_t addr, const std::shared_ptr<SymmetricWindow>& window) {
+            return addr < reinterpret_cast<uintptr_t>(window->userVa);
+        });
+    for (auto it = upper; it != sortedWindows_.begin();) {
+        --it;
+        const uintptr_t prevStart = reinterpret_cast<uintptr_t>((*it)->userVa);
+        const uintptr_t prevEnd = prevStart + (*it)->userSize;
+        if (requestStart < prevEnd && requestEnd > prevStart) {
+            return *it;
+        }
+    }
+    if (upper != sortedWindows_.end()) {
+        const uintptr_t nextStart = reinterpret_cast<uintptr_t>((*upper)->userVa);
+        const uintptr_t nextEnd = nextStart + (*upper)->userSize;
+        if (requestStart < nextEnd && requestEnd > nextStart) {
+            return *upper;
+        }
+    }
+    return nullptr;
+}
+
+HcclResult SymmetricMemory::AddUrmaSymmetricWindow(std::shared_ptr<SymmetricWindow> &win)
+{
+    CHK_SMART_PTR_NULL(win);
+    const uintptr_t newStart = reinterpret_cast<uintptr_t>(win->userVa);
+    auto insertIt = std::upper_bound(sortedWindows_.begin(), sortedWindows_.end(), newStart,
+        [](uintptr_t addr, const std::shared_ptr<SymmetricWindow>& window) {
+            return addr < reinterpret_cast<uintptr_t>(window->userVa);
+        });
+
+    HcclResult ret = hrtMalloc(&win->devWin, sizeof(SymmetricWindow));
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[SymmetricMemory][AddUrmaSymmetricWindow] alloc device window failed, ret[%d].", ret);
+        return ret;
+    }
+    ret = hrtMemSyncCopy(win->devWin, sizeof(SymmetricWindow),
+        win.get(), sizeof(SymmetricWindow), HcclRtMemcpyKind::HCCL_RT_MEMCPY_KIND_HOST_TO_DEVICE);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[SymmetricMemory][AddUrmaSymmetricWindow] copy window to device failed, ret[%d].", ret);
+        CHK_PRT(hrtFree(win->devWin));
+        win->devWin = nullptr;
+        return ret;
+    }
+
+    sortedWindows_.insert(insertIt, win);
     windowMap_[win->devWin] = win;
     return HCCL_SUCCESS;
 }
@@ -451,7 +600,9 @@ HcclResult SymmetricMemory::RegisterSymmetricMem(void* ptr, size_t size, void** 
     pWin->rankSize = rankSize_;
     pWin->stride = stride_;
     pWin->paHandle = paHandle;
-
+    pWin->mode = mode_;
+    pWin->remoteMems = nullptr;
+    pWin->remoteMemNum = 0;
     HcclResult ret = RegisterInternal(paHandle, paMapInfo->heapBaseOffset,  baseVaSize);
     if (ret != HCCL_SUCCESS) {
         HCCL_ERROR("[SymmetricMemory] RegisterInternal Failed!");
@@ -475,6 +626,125 @@ INTERNAL_ERROR:
         paMapInfo->refCount--;
     }
     return ret;
+}
+
+HcclResult SymmetricMemory::TryReuseRegisteredUrmaWindow(void* ptr, size_t size, void** devWin, bool &reused) const
+{
+    reused = false;
+    std::shared_ptr<SymmetricWindow> exactWindow = FindExactUrmaSymmetricWindow(ptr, size);
+    if (exactWindow != nullptr) {
+        *devWin = exactWindow->devWin;
+        reused = true;
+        HCCL_INFO("[SymmetricMemory][RegisterUrmaSymmetricMem] symmetric window already registered, "
+            "reuse devWin[%p], ptr[%p], size[%zu].", *devWin, ptr, size);
+        return HCCL_SUCCESS;
+    }
+
+    u64 parentOffset = 0;
+    std::shared_ptr<SymmetricWindow> parentWindow = FindContainingUrmaSymmetricWindow(ptr, size, &parentOffset);
+    if (parentWindow != nullptr) {
+        *devWin = parentWindow->devWin;
+        reused = true;
+        HCCL_INFO("[SymmetricMemory][RegisterUrmaSymmetricMem] symmetric window is subset of registered window, "
+            "reuse parent devWin[%p], request ptr[%p], request size[%zu], parent ptr[%p], parent size[%zu], "
+            "offset[%llu].", *devWin, ptr, size, parentWindow->userVa, parentWindow->userSize, parentOffset);
+        return HCCL_SUCCESS;
+    }
+
+    std::shared_ptr<SymmetricWindow> overlapWindow = FindOverlappingUrmaSymmetricWindow(ptr, size);
+    if (overlapWindow != nullptr) {
+        HCCL_INFO("[SymmetricMemory][RegisterUrmaSymmetricMem] symmetric window overlaps registered window, "
+            "register independently, request ptr[%p], request size[%zu], overlap ptr[%p], overlap size[%zu].",
+            ptr, size, overlapWindow->userVa, overlapWindow->userSize);
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::InitUrmaRemoteMems(std::vector<CommMem> &remoteMems, CommMem **devRemoteMems) const
+{
+    remoteMems.resize(rankSize_);
+    for (CommMem &remoteMem : remoteMems) {
+        remoteMem.type = COMM_MEM_TYPE_INVALID;
+        remoteMem.addr = nullptr;
+        remoteMem.size = 0;
+    }
+
+    HcclResult ret = hrtMalloc(reinterpret_cast<void **>(devRemoteMems), remoteMems.size() * sizeof(CommMem));
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[SymmetricMemory][RegisterUrmaSymmetricMem] alloc device remoteMems failed, size[%zu], ret[%d].",
+            remoteMems.size() * sizeof(CommMem), ret);
+        return ret;
+    }
+    ret = hrtMemSyncCopy(*devRemoteMems, remoteMems.size() * sizeof(CommMem),
+        remoteMems.data(), remoteMems.size() * sizeof(CommMem),
+        HcclRtMemcpyKind::HCCL_RT_MEMCPY_KIND_HOST_TO_DEVICE);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[SymmetricMemory][RegisterUrmaSymmetricMem] copy remoteMems to device failed, ret[%d].", ret);
+        CHK_PRT(hrtFree(*devRemoteMems));
+        return ret;
+    }
+    return HCCL_SUCCESS;
+}
+
+void SymmetricMemory::FillUrmaSymmetricWindow(std::shared_ptr<SymmetricWindow> &win, void* ptr, size_t size,
+    CommMem *devRemoteMems) const
+{
+    win->userVa = ptr;
+    win->userSize = size;
+    win->baseVa = nullptr;
+    win->alignedHeapOffset = 0;
+    win->alignedSize = 0;
+    win->localRank = 0;
+    win->rankSize = rankSize_;
+    win->stride = 0;
+    win->paHandle = nullptr;
+    win->mode = mode_;
+    win->remoteMems = devRemoteMems;
+    win->remoteMemNum = rankSize_;
+}
+
+HcclResult SymmetricMemory::RegisterUrmaSymmetricMem(void* ptr, size_t size, void** devWin)
+{
+    CHK_PTR_NULL(devWin);
+    CHK_PTR_NULL(ptr);
+    CHK_PRT_RET(mode_ != SymmetricMemoryMode::URMA,
+        HCCL_ERROR("[SymmetricMemory][RegisterUrmaSymmetricMem] invalid mode[%d].", mode_), HCCL_E_PARA);
+    CHK_PRT_RET(size == 0, HCCL_ERROR("[SymmetricMemory][RegisterUrmaSymmetricMem] Invalid size: 0."), HCCL_E_PARA);
+    CHK_PRT_RET(reinterpret_cast<uintptr_t>(ptr) + size < reinterpret_cast<uintptr_t>(ptr),
+        HCCL_ERROR("[SymmetricMemory][RegisterUrmaSymmetricMem] address overflow, ptr[%p], size[%zu].", ptr, size),
+        HCCL_E_PARA);
+    // URMA模式先校验窗口范围，避免非法/重叠地址进入后续device资源申请。
+    bool reused = false;
+    CHK_RET(TryReuseRegisteredUrmaWindow(ptr, size, devWin, reused));
+    if (reused) {
+        return HCCL_SUCCESS;
+    }
+    if (isSingleRank_) {
+        HCCL_INFO("[SymmetricMemory][RegisterUrmaSymmetricMem] single rank communicator");
+        CHK_RET(hrtMalloc(devWin, sizeof(SymmetricWindow)));
+        singleRankUrmaWindows_.emplace(*devWin);
+        return HCCL_SUCCESS;
+    }
+
+    std::shared_ptr<SymmetricWindow> pWin = nullptr;
+    EXCEPTION_CATCH((pWin = std::make_shared<SymmetricWindow>()), return HCCL_E_PTR);
+
+    // remoteMems初始为invalid，待ChannelAcquire交换完成后按remoteRank回填。
+    CommMem *devRemoteMems = nullptr;
+    std::vector<CommMem> remoteMems;
+    CHK_RET(InitUrmaRemoteMems(remoteMems, &devRemoteMems));
+    FillUrmaSymmetricWindow(pWin, ptr, size, devRemoteMems);
+
+    HcclResult ret = AddUrmaSymmetricWindow(pWin);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[SymmetricMemory][RegisterUrmaSymmetricMem] AddUrmaSymmetricWindow failed, ret[%d].", ret);
+        CHK_PRT(hrtFree(devRemoteMems));
+        return ret;
+    }
+
+    *devWin = pWin->devWin;
+    remoteMemMap_[pWin->devWin] = std::move(remoteMems);
+    return HCCL_SUCCESS;
 }
 
 HcclResult SymmetricMemory::DeregisterSymmetricMem(void* devWin)
@@ -533,6 +803,40 @@ HcclResult SymmetricMemory::DeregisterSymmetricMem(void* devWin)
     return ret;
 }
 
+HcclResult SymmetricMemory::DeregisterUrmaSymmetricMem(void* devWin)
+{
+    CHK_PTR_NULL(devWin);
+    CHK_PRT_RET(mode_ != SymmetricMemoryMode::URMA,
+        HCCL_ERROR("[SymmetricMemory][DeregisterUrmaSymmetricMem] invalid mode[%d].", mode_), HCCL_E_PARA);
+    if (isSingleRank_) {
+        HCCL_INFO("[SymmetricMemory][DeregisterUrmaSymmetricMem] single rank communicator");
+        auto singleRankWinIt = singleRankUrmaWindows_.find(devWin);
+        CHK_PRT_RET(singleRankWinIt == singleRankUrmaWindows_.end(),
+            HCCL_ERROR("[SymmetricMemory][DeregisterUrmaSymmetricMem] Window handle[%p] is not registered.",
+                devWin), HCCL_E_NOT_FOUND);
+        CHK_RET(hrtFree(devWin));
+        singleRankUrmaWindows_.erase(singleRankWinIt);
+        return HCCL_SUCCESS;
+    }
+
+    auto winIt = windowMap_.find(devWin);
+    CHK_PRT_RET(winIt == windowMap_.end(),
+        HCCL_ERROR("[SymmetricMemory][DeregisterUrmaSymmetricMem] Window handle[%p] is not registered.", devWin),
+        HCCL_E_NOT_FOUND);
+
+    std::shared_ptr<SymmetricWindow> win = winIt->second;
+    if (win->remoteMems != nullptr) {
+        CHK_PRT(hrtFree(win->remoteMems));
+        win->remoteMems = nullptr;
+        win->remoteMemNum = 0;
+    }
+    CHK_RET(DeleteSymmetricWindow(devWin));
+
+    memoryResourceMap_.erase(devWin);
+    remoteMemMap_.erase(devWin);
+    return HCCL_SUCCESS;
+}
+
 HcclResult SymmetricMemory::FindSymmetricWindow(void* ptr, size_t size, void** win, u64 *offset)
 {
     CHK_PTR_NULL(ptr);
@@ -557,6 +861,232 @@ HcclResult SymmetricMemory::FindSymmetricWindow(void* ptr, size_t size, void** w
     }
 
     return HCCL_E_NOT_FOUND;
+}
+
+HcclResult SymmetricMemory::FindUrmaSymmetricWindow(void* ptr, size_t size, void** win, u64 *offset)
+{
+    CHK_PTR_NULL(ptr);
+    CHK_PTR_NULL(win);
+    CHK_PTR_NULL(offset);
+    // A5查询未命中不是错误，返回nullptr让算子侧按普通内存路径处理。
+    *win = nullptr;
+    *offset = 0;
+    CHK_PRT_RET(mode_ != SymmetricMemoryMode::URMA,
+        HCCL_ERROR("[SymmetricMemory][FindUrmaSymmetricWindow] invalid mode[%d].", mode_), HCCL_E_PARA);
+    if (isSingleRank_) {
+        HCCL_DEBUG("[SymmetricMemory][FindUrmaSymmetricWindow] single rank communicator");
+        return HCCL_SUCCESS;
+    }
+
+    uintptr_t userVaStart = reinterpret_cast<uintptr_t>(ptr);
+    uintptr_t userVaEnd = userVaStart + size;
+    CHK_PRT_RET(userVaEnd < userVaStart,
+        HCCL_ERROR("[SymmetricMemory][FindUrmaSymmetricWindow] address overflow, ptr[%p], size[%zu].", ptr, size),
+        HCCL_E_PARA);
+
+    auto upper = std::upper_bound(sortedWindows_.begin(), sortedWindows_.end(), userVaStart,
+        [](uintptr_t addr, const std::shared_ptr<SymmetricWindow>& window) {
+            return addr < reinterpret_cast<uintptr_t>(window->userVa);
+        });
+    if (upper == sortedWindows_.begin()) {
+        return HCCL_SUCCESS;
+    }
+
+    const auto &candidate = *std::prev(upper);
+    const uintptr_t winStart = reinterpret_cast<uintptr_t>(candidate->userVa);
+    const uintptr_t winEnd = winStart + candidate->userSize;
+    if (userVaStart >= winStart && userVaEnd <= winEnd) {
+        *win = candidate->devWin;
+        *offset = userVaStart - winStart;
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::GetPendingRegisterInfos(std::vector<SymmetricMemoryRegisterInfo> &registerInfos) const
+{
+    registerInfos.clear();
+    if (mode_ != SymmetricMemoryMode::URMA || windowMap_.empty()) {
+        return HCCL_SUCCESS;
+    }
+
+    for (const auto &winItem : windowMap_) {
+        void *devWin = winItem.first;
+        if (memoryResourceMap_.find(devWin) != memoryResourceMap_.end()) {
+            continue;
+        }
+        const std::shared_ptr<SymmetricWindow> &win = winItem.second;
+        CHK_SMART_PTR_NULL(win);
+        registerInfos.push_back({devWin, win->userVa, win->userSize});
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::SetRegisteredMemoryResource(void* devWin, const SymmetricMemoryResource &resource)
+{
+    CHK_PTR_NULL(devWin);
+    CHK_PRT_RET(windowMap_.find(devWin) == windowMap_.end(),
+        HCCL_ERROR("[SymmetricMemory][SetRegisteredMemoryResource] Window handle[%p] is not registered.", devWin),
+        HCCL_E_NOT_FOUND);
+    CHK_PRT_RET(resource.memHandle == nullptr || resource.memTag.empty(),
+        HCCL_ERROR("[SymmetricMemory][SetRegisteredMemoryResource] invalid memory resource, devWin[%p], "
+            "memHandle[%p], memTagEmpty[%d].", devWin, resource.memHandle, resource.memTag.empty()),
+        HCCL_E_PARA);
+
+    memoryResourceMap_[devWin] = resource;
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::GetRegisteredMemoryResource(void* devWin, SymmetricMemoryResource &resource) const
+{
+    CHK_PTR_NULL(devWin);
+    auto resourceIt = memoryResourceMap_.find(devWin);
+    CHK_PRT_RET(resourceIt == memoryResourceMap_.end(),
+        HCCL_INFO("[SymmetricMemory][GetRegisteredMemoryResource] Window handle[%p] has no registered resource.",
+            devWin), HCCL_E_NOT_FOUND);
+
+    resource = resourceIt->second;
+    return HCCL_SUCCESS;
+}
+
+void SymmetricMemory::RemoveRegisteredMemoryResource(void* devWin)
+{
+    if (devWin == nullptr) {
+        return;
+    }
+    memoryResourceMap_.erase(devWin);
+}
+
+static void AppendUniqueDirtyResource(std::vector<void*> &dirtyResources, void *devWin)
+{
+    if (std::find(dirtyResources.begin(), dirtyResources.end(), devWin) == dirtyResources.end()) {
+        dirtyResources.emplace_back(devWin);
+    }
+}
+
+void SymmetricMemory::BuildRemoteMemTagIndex(std::unordered_map<std::string, std::vector<void*>> &tagIndex) const
+{
+    tagIndex.clear();
+    for (const auto &resourceItem : memoryResourceMap_) {
+        const SymmetricMemoryResource &resource = resourceItem.second;
+        tagIndex[resource.memTag].emplace_back(resourceItem.first);
+    }
+}
+
+HcclResult SymmetricMemory::UpdateRemoteMemForResource(uint32_t remoteRank, const CommMem &remoteMem, void *devWin,
+    const SymmetricMemoryResource &resource)
+{
+    auto winIt = windowMap_.find(devWin);
+    auto remoteMemIt = remoteMemMap_.find(devWin);
+    CHK_PRT_RET(winIt == windowMap_.end() || remoteMemIt == remoteMemMap_.end(),
+        HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] window resource not found, win[%p], tag[%s].",
+            devWin, resource.memTag.c_str()), HCCL_E_NOT_FOUND);
+    std::shared_ptr<SymmetricWindow> win = winIt->second;
+    CHK_SMART_PTR_NULL(win);
+    CHK_PTR_NULL(win->remoteMems);
+    CHK_PRT_RET(remoteMem.addr == nullptr || remoteMem.size == 0,
+        HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] invalid remote symmetric mem, tag[%s], "
+            "remoteRank[%u], addr[%p], size[%llu].", resource.memTag.c_str(), remoteRank, remoteMem.addr,
+            remoteMem.size), HCCL_E_PARA);
+    CHK_PRT_RET(remoteMem.size != static_cast<uint64_t>(win->userSize),
+        HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] remote symmetric mem size mismatch, tag[%s], "
+            "remoteRank[%u], localSize[%zu], remoteSize[%llu].", resource.memTag.c_str(), remoteRank,
+            win->userSize, remoteMem.size), HCCL_E_PARA);
+    std::vector<CommMem> &windowRemoteMems = remoteMemIt->second;
+    CHK_PRT_RET(remoteRank >= windowRemoteMems.size(),
+        HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] remoteRank[%u] exceeds remoteMem size[%zu].",
+            remoteRank, windowRemoteMems.size()), HCCL_E_PARA);
+    windowRemoteMems[remoteRank] = remoteMem;
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::UpdateRemoteMemByTag(uint32_t remoteRank, const CommMem &remoteMem, const char *memTag,
+    const std::unordered_map<std::string, std::vector<void*>> &tagIndex,
+    std::unordered_map<void*, bool> &matchedResources, std::vector<void*> &dirtyResources)
+{
+    auto tagIt = tagIndex.find(memTag);
+    if (tagIt == tagIndex.end()) {
+        return HCCL_SUCCESS;
+    }
+    for (void *devWin : tagIt->second) {
+        auto resourceIt = memoryResourceMap_.find(devWin);
+        CHK_PRT_RET(resourceIt == memoryResourceMap_.end(),
+            HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] memory resource not found, win[%p], tag[%s].",
+                devWin, memTag), HCCL_E_NOT_FOUND);
+        const SymmetricMemoryResource &resource = resourceIt->second;
+        CHK_RET(UpdateRemoteMemForResource(remoteRank, remoteMem, devWin, resource));
+        matchedResources[devWin] = true;
+        AppendUniqueDirtyResource(dirtyResources, devWin);
+        HCCL_INFO("[SymmetricMemory][UpdateRemoteMem] record remote mem success, tag[%s], remoteRank[%u], "
+            "addr[%p], size[%llu].", resource.memTag.c_str(), remoteRank, remoteMem.addr, remoteMem.size);
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::SyncDirtyRemoteMems(const std::vector<void*> &dirtyResources)
+{
+    for (void *devWin : dirtyResources) {
+        auto winIt = windowMap_.find(devWin);
+        auto remoteMemIt = remoteMemMap_.find(devWin);
+        CHK_PRT_RET(winIt == windowMap_.end() || remoteMemIt == remoteMemMap_.end(),
+            HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] dirty window resource not found, win[%p].", devWin),
+            HCCL_E_NOT_FOUND);
+        std::shared_ptr<SymmetricWindow> win = winIt->second;
+        CHK_SMART_PTR_NULL(win);
+        CHK_PTR_NULL(win->remoteMems);
+        const std::vector<CommMem> &windowRemoteMems = remoteMemIt->second;
+        CHK_RET(hrtMemSyncCopy(win->remoteMems, windowRemoteMems.size() * sizeof(CommMem),
+            windowRemoteMems.data(), windowRemoteMems.size() * sizeof(CommMem),
+            HcclRtMemcpyKind::HCCL_RT_MEMCPY_KIND_HOST_TO_DEVICE));
+        HCCL_INFO("[SymmetricMemory][UpdateRemoteMem] sync remote mems success, win[%p], remoteMemNum[%zu].",
+            devWin, windowRemoteMems.size());
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::CheckAllRemoteMemMatched(uint32_t remoteRank,
+    const std::unordered_map<void*, bool> &matchedResources) const
+{
+    for (const auto &resourceItem : memoryResourceMap_) {
+        void *devWin = resourceItem.first;
+        const SymmetricMemoryResource &resource = resourceItem.second;
+        auto matchedIt = matchedResources.find(devWin);
+        CHK_PRT_RET(matchedIt == matchedResources.end() || !matchedIt->second,
+            HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] symmetric remote mem not found, tag[%s], "
+                "remoteRank[%u]. Please make sure all ranks register the same symmetric memory address and size.",
+                resource.memTag.c_str(), remoteRank), HCCL_E_PARA);
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult SymmetricMemory::UpdateRemoteMem(uint32_t remoteRank, const CommMem *remoteMems, char **memTags,
+    uint32_t memNum)
+{
+    if (mode_ != SymmetricMemoryMode::URMA || memoryResourceMap_.empty()) {
+        return HCCL_SUCCESS;
+    }
+    CHK_PTR_NULL(remoteMems);
+    CHK_PTR_NULL(memTags);
+    CHK_PRT_RET(remoteRank >= rankSize_,
+        HCCL_ERROR("[SymmetricMemory][UpdateRemoteMem] invalid remoteRank[%u], rankSize[%u].",
+            remoteRank, rankSize_), HCCL_E_PARA);
+
+    std::unordered_map<void*, bool> matchedResources;
+    for (const auto &resourceItem : memoryResourceMap_) {
+        matchedResources.emplace(resourceItem.first, false);
+    }
+    std::unordered_map<std::string, std::vector<void*>> tagIndex;
+    BuildRemoteMemTagIndex(tagIndex);
+    std::vector<void*> dirtyResources;
+
+    for (uint32_t memIdx = 0; memIdx < memNum; ++memIdx) {
+        if (memTags[memIdx] == nullptr) {
+            continue;
+        }
+        CHK_RET(UpdateRemoteMemByTag(remoteRank, remoteMems[memIdx], memTags[memIdx], tagIndex,
+            matchedResources, dirtyResources));
+    }
+    CHK_RET(SyncDirtyRemoteMems(dirtyResources));
+    return CheckAllRemoteMemMatched(remoteRank, matchedResources);
 }
 
 // --- Private Methods ---

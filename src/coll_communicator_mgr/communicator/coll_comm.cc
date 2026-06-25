@@ -15,6 +15,11 @@
 #include "dlhal_function.h"
 #include "hcclCommTaskException.h"
 #include "hcom_common.h"
+#include "symmetric_memory/symmetric_memory.h"
+#include "env_config.h"
+
+#include <cstdint>
+#include <exception>
 
 constexpr uint32_t MULTIPLE = 4;               // 用于A5判断TC是否为4的倍数
 constexpr uint32_t TC_MAX = 255;               // TC的最大值（不区分芯片类型）
@@ -23,6 +28,11 @@ constexpr uint32_t TC_DEFAULT = 0xFFFFFFFFu;   // TC的默认值（不区分芯�
 constexpr uint32_t SL_DEFAULT = 0xFFFFFFFFu;   // SL的默认值（不区分芯片类型）
 
 namespace hccl {
+void SymmetricMemoryDeleter::operator()(SymmetricMemory *ptr) const
+{
+    delete ptr;
+}
+
 CollComm::CollComm(void * comm, uint32_t rankId, const std::string &commName, const ManagerCallbacks& callbacks,
                    CollCommInitMode initMode)
     : comm_(comm), rankId_(rankId), commId_ (commName), callbacks_(callbacks), initMode_(initMode)
@@ -173,6 +183,7 @@ HcclResult CollComm::InitFullMode(void* rankGraph, aclrtBinHandle binHandle, Hcc
         return HCCL_E_PTR);
     CHK_RET(myRank_->Init(cclBuffer, opExpansionMode, rankNum));
     CHK_RET(hrtGetDevice(&deviceLogicId_));
+    CHK_RET(InitSymmetricMemory(config));
 
     CHK_RET(InitHDCommunicate());
 
@@ -186,6 +197,160 @@ HcclResult CollComm::InitFullMode(void* rankGraph, aclrtBinHandle binHandle, Hcc
 
     EXCEPTION_HANDLE_END
     return HCCL_SUCCESS;
+}
+
+HcclResult CollComm::InitSymmetricMemory(HcclCommConfig *config)
+{
+    (void)config;
+    uint32_t rankSize = GetRankSize();
+    HCCL_RUN_INFO("[CollComm][InitSymmetricMemory] commId[%s], rank[%u], rankSize[%u].",
+        commId_.c_str(), rankId_, rankSize);
+
+    EXCEPTION_CATCH(symmetricMemory_.reset(new SymmetricMemory(rankId_, rankSize, 0, SymmetricMemoryMode::URMA)),
+        return HCCL_E_PTR);
+    CHK_SMART_PTR_NULL(symmetricMemory_);
+    return HCCL_SUCCESS;
+}
+
+HcclResult CollComm::RegisterSymmetricMemoryResource(void* ptr, size_t size, SymmetricMemoryResource &resource)
+{
+    CHK_PTR_NULL(ptr);
+    CHK_PRT_RET(size == 0,
+        HCCL_ERROR("[CollComm][RegisterSymmetricMemoryResource] invalid symmetric memory size 0."), HCCL_E_PARA);
+    CHK_SMART_PTR_NULL(myRank_);
+
+    CommMems* commMems = myRank_->GetCommMems();
+    CHK_PTR_NULL(commMems);
+
+    CommMem commMem{};
+    commMem.type = COMM_MEM_TYPE_DEVICE;
+    commMem.addr = ptr;
+    commMem.size = static_cast<uint64_t>(size);
+    resource.memTag = std::string(HCCL_SYMMETRIC_MEMORY_TAG_PREFIX) + commId_ + "_addr_" +
+        std::to_string(reinterpret_cast<uintptr_t>(ptr)) + "_size_" + std::to_string(size);
+    HcclResult ret = commMems->CommRegMem(resource.memTag, commMem, &resource.memHandle);
+    CHK_PRT_RET(ret != HCCL_SUCCESS,
+        HCCL_ERROR("[CollComm][RegisterSymmetricMemoryResource] CommRegMem failed, tag[%s], ptr[%p], "
+            "size[%zu], ret[%d].", resource.memTag.c_str(), ptr, size, ret), ret);
+
+    HCCL_RUN_INFO("[CollComm][RegisterSymmetricMemoryResource] register symmetric memory success, group[%s], "
+        "tag[%s], ptr[%p], size[%zu], memHandle[%p].", commId_.c_str(), resource.memTag.c_str(), ptr, size,
+        resource.memHandle);
+    return HCCL_SUCCESS;
+}
+
+void CollComm::UnregisterSymmetricMemoryResource(const SymmetricMemoryResource &resource)
+{
+    if (resource.memHandle == nullptr || resource.memTag.empty()) {
+        HCCL_WARNING("[CollComm][UnregisterSymmetricMemoryResource] invalid resource, tag[%s], memHandle[%p].",
+            resource.memTag.c_str(), resource.memHandle);
+        return;
+    }
+    if (myRank_ == nullptr) {
+        HCCL_WARNING("[CollComm][UnregisterSymmetricMemoryResource] myRank is null, skip CommUnregMem, "
+            "tag[%s], memHandle[%p].", resource.memTag.c_str(), resource.memHandle);
+        return;
+    }
+    CommMems* commMems = myRank_->GetCommMems();
+    if (commMems == nullptr) {
+        HCCL_WARNING("[CollComm][UnregisterSymmetricMemoryResource] commMems is null, skip CommUnregMem, "
+            "tag[%s], memHandle[%p].", resource.memTag.c_str(), resource.memHandle);
+        return;
+    }
+    HcclResult ret = commMems->CommUnregMem(resource.memTag, resource.memHandle);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_WARNING("[CollComm][UnregisterSymmetricMemoryResource] CommUnregMem failed, tag[%s], "
+            "memHandle[%p], ret[%d].", resource.memTag.c_str(), resource.memHandle, ret);
+        return;
+    }
+    HCCL_INFO("[CollComm][UnregisterSymmetricMemoryResource] unregister symmetric memory success, "
+        "tag[%s], memHandle[%p].", resource.memTag.c_str(), resource.memHandle);
+}
+
+HcclResult CollComm::RegisterWindow(void* ptr, size_t size, HcclCommSymWindow *winHandle)
+{
+    CHK_SMART_PTR_NULL(symmetricMemory_);
+    return symmetricMemory_->RegisterUrmaSymmetricMem(ptr, size, winHandle);
+}
+
+HcclResult CollComm::DeregisterWindow(HcclCommSymWindow winHandle)
+{
+    CHK_SMART_PTR_NULL(symmetricMemory_);
+    SymmetricMemoryResource resource;
+    HcclResult getResourceRet = symmetricMemory_->GetRegisteredMemoryResource(winHandle, resource);
+    CHK_PRT_RET(getResourceRet != HCCL_SUCCESS && getResourceRet != HCCL_E_NOT_FOUND,
+        HCCL_ERROR("[CollComm][DeregisterWindow] get registered symmetric memory resource failed, "
+            "winHandle[%p], ret[%d].", winHandle, getResourceRet), getResourceRet);
+
+    HcclResult ret = symmetricMemory_->DeregisterUrmaSymmetricMem(winHandle);
+    if (ret == HCCL_SUCCESS && getResourceRet == HCCL_SUCCESS) {
+        UnregisterSymmetricMemoryResource(resource);
+    }
+    return ret;
+}
+
+HcclResult CollComm::GetCommSymWin(void* ptr, size_t size, HcclCommSymWindow *winHandle, size_t *offset)
+{
+    CHK_SMART_PTR_NULL(symmetricMemory_);
+    return symmetricMemory_->FindUrmaSymmetricWindow(ptr, size, winHandle, reinterpret_cast<u64*>(offset));
+}
+
+HcclResult CollComm::RegisterPendingSymmetricMemHandles(std::vector<HcclMemHandle> &memHandles)
+{
+    memHandles.clear();
+    if (symmetricMemory_ == nullptr) {
+        return HCCL_SUCCESS;
+    }
+
+    std::vector<SymmetricMemoryRegisterInfo> registerInfos;
+    // HcclCommSymWinRegister只记录窗口，真正CommRegMem延迟到ChannelAcquire阶段执行。
+    CHK_RET(symmetricMemory_->GetPendingRegisterInfos(registerInfos));
+    if (registerInfos.empty()) {
+        return HCCL_SUCCESS;
+    }
+
+    std::vector<std::pair<void*, SymmetricMemoryResource>> registeredResources;
+    for (const SymmetricMemoryRegisterInfo &registerInfo : registerInfos) {
+        SymmetricMemoryResource resource;
+        HcclResult ret = RegisterSymmetricMemoryResource(registerInfo.userVa, registerInfo.userSize, resource);
+        if (ret != HCCL_SUCCESS) {
+            HCCL_ERROR("[CollComm][RegisterPendingSymmetricMemHandles] register symmetric memory failed, "
+                "win[%p], userVa[%p], size[%zu], ret[%d].", registerInfo.devWin, registerInfo.userVa,
+                registerInfo.userSize, ret);
+            for (const auto &registeredResource : registeredResources) {
+                symmetricMemory_->RemoveRegisteredMemoryResource(registeredResource.first);
+                UnregisterSymmetricMemoryResource(registeredResource.second);
+            }
+            return ret;
+        }
+
+        ret = symmetricMemory_->SetRegisteredMemoryResource(registerInfo.devWin, resource);
+        if (ret != HCCL_SUCCESS) {
+            HCCL_ERROR("[CollComm][RegisterPendingSymmetricMemHandles] save symmetric memory resource failed, "
+                "win[%p], userVa[%p], size[%zu], ret[%d].", registerInfo.devWin, registerInfo.userVa,
+                registerInfo.userSize, ret);
+            UnregisterSymmetricMemoryResource(resource);
+            for (const auto &registeredResource : registeredResources) {
+                symmetricMemory_->RemoveRegisteredMemoryResource(registeredResource.first);
+                UnregisterSymmetricMemoryResource(registeredResource.second);
+            }
+            return ret;
+        }
+        registeredResources.emplace_back(registerInfo.devWin, resource);
+        // 仅返回本次新注册的memHandle，避免普通URMA重复携带历史对称内存句柄。
+        memHandles.emplace_back(static_cast<HcclMemHandle>(resource.memHandle));
+    }
+
+    return HCCL_SUCCESS;
+}
+
+HcclResult CollComm::UpdateSymmetricRemoteMem(uint32_t remoteRank, const CommMem *remoteMems, char **memTags,
+    uint32_t memNum)
+{
+    if (symmetricMemory_ == nullptr) {
+        return HCCL_SUCCESS;
+    }
+    return symmetricMemory_->UpdateRemoteMem(remoteRank, remoteMems, memTags, memNum);
 }
 
 HcclResult CollComm::InitKfcAndRegisterCollComm()
@@ -231,6 +396,14 @@ HcclResult CollComm::DestroyAicpuComm()
 uint32_t CollComm::GetMyRankId() const
 {
     return rankId_;
+}
+
+HcclResult CollComm::GetParentRankId(u32& parentRankId)
+{
+    Hccl::HcclCommunicator* comV2 = static_cast<Hccl::HcclCommunicator*>(comm_);
+    CHK_PTR_NULL(comV2);
+    parentRankId = comV2->GetRankInParentComm();
+    return HCCL_SUCCESS;
 }
 
 HcclResult CollComm::InitHDCommunicate()
