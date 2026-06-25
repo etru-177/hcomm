@@ -182,7 +182,7 @@ HcclResult TransportManager::createSubCommLinkThreads(const std::string &tag, co
         DeviceMem expMem;
         GetIOMem(transMem, transportRequest.inputMemType, transportRequest.outputMemType,
             inputMem, outputMem, expMem);
-        HCCL_DEBUG("transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
+        HCCL_INFO("transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
             transportRequest.inputMemType, transportRequest.outputMemType, isBackup);
                 
         if (opType == HcclCMDType::HCCL_CMD_BATCH_SEND_RECV && isGroupMode_) { // Group 批量send/recv，切分cclbuffer
@@ -406,7 +406,7 @@ HcclResult TransportManager::CreateBatchSendRecvLinks(const std::string &tag, co
         DeviceMem outputMem;
         DeviceMem expMem;
         GetIOMem(transMem, transportRequest.inputMemType, transportRequest.outputMemType, inputMem, outputMem, expMem);
-        HCCL_DEBUG("[CreateBatchSendRecvLinks]transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
+        HCCL_INFO("[CreateBatchSendRecvLinks]transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
             transportRequest.inputMemType, transportRequest.outputMemType, isBackup);
 
         if (isGroupMode_) { // Group 批量send/recv，切分cclbuffer
@@ -424,7 +424,7 @@ HcclResult TransportManager::CreateBatchSendRecvLinks(const std::string &tag, co
         IndOpMem indOpMem;
         if (isIndOp) {
             indOpMem = transMem.indOpMem;
-            HCCL_DEBUG("[CreateBatchSendRecvLinks]transportRequest indOpMem, userHostMem size[%llu], userDeviceMem size[%llu]",
+            HCCL_INFO("[CreateBatchSendRecvLinks]transportRequest indOpMem, userHostMem size[%llu], userDeviceMem size[%llu]",
                 indOpMem.userHostMem.size(), indOpMem.userDeviceMem.size());
         }
 
@@ -725,7 +725,7 @@ HcclResult TransportManager::Alloc(const std::string &tag, const TransportIOMem 
                     DeviceMem inputMem;
                     DeviceMem outputMem;
                     DeviceMem expMem;
-                    HCCL_DEBUG("transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
+                    HCCL_INFO("transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
                         transportRequest.inputMemType, transportRequest.outputMemType, isBackup);
                     GetIOMem(transMem, transportRequest.inputMemType, transportRequest.outputMemType,
                         inputMem, outputMem, expMem);
@@ -903,6 +903,8 @@ HcclResult TransportManager::IncreAlloc(const std::string &tag, const TransportI
                     DeviceMem expMem;
                     GetIOMem(transMem, transportRequest.inputMemType, transportRequest.outputMemType,
                         inputMem, outputMem, expMem);
+                    HCCL_INFO("[IncreAlloc] transportRequest.inputMemType[%d] transportRequest.outputMemType[%d], isBackup[%d]",
+ 	                        transportRequest.inputMemType, transportRequest.outputMemType, isBackup);
 
                     if (opType == HcclCMDType::HCCL_CMD_BATCH_SEND_RECV && isGroupMode_) {// Group 批量send/recv，切分cclbuffer
                         CHK_RET(AllocSliceMem(inputMem, outputMem, transportRequest.remoteUserRank));
