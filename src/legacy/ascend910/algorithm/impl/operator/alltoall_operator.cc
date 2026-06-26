@@ -703,10 +703,12 @@ bool AlltoAllOperator::IsSatisfyAlltoallContinuousPipelineCondition(const OpPara
     bool isAlltoAllv = param.opType == HcclCMDType::HCCL_CMD_ALLTOALLV;
     bool res = (deviceType_ == DevType::DEV_TYPE_910B && isAlltoAllv && satisfyAlgType && multiRankPerServer &&
         GetWorkflowMode() == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE && isMultiServer &&
-        !multiModuleDiffDeviceNumMode_ && cclBigEnough && !useOneLevelAlgorithm);
+        !multiModuleDiffDeviceNumMode_ && cclBigEnough && !useOneLevelAlgorithm && !param.isCapture);
     HCCL_DEBUG("[AlltoAllOperator][IsSatisfyAlltoallContinuousPipelineCondition] isSatisfy[%d], isAlltoAllv %u,"
-        "multiRankPerServer %u, isMultiServer %u, satisfyAlgType %u, multiModuleDiffDeviceNumMode_ %u, useOneLevelAlgorithm %u.",
-        res, isAlltoAllv, multiRankPerServer, isMultiServer, satisfyAlgType, multiModuleDiffDeviceNumMode_, useOneLevelAlgorithm);
+        "multiRankPerServer %u, isMultiServer %u, satisfyAlgType %u, multiModuleDiffDeviceNumMode_ %u,"
+        "useOneLevelAlgorithm %u, isCapture %u.",
+        res, isAlltoAllv, multiRankPerServer, isMultiServer, satisfyAlgType, multiModuleDiffDeviceNumMode_,
+        useOneLevelAlgorithm, param.isCapture);
     return res;
 }
 
