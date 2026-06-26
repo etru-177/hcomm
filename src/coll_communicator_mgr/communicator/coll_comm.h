@@ -110,6 +110,7 @@ public:
     HcclResult GetCommSymWin(void* ptr, size_t size, HcclCommSymWindow *winHandle, size_t *offset);
     HcclResult RegisterPendingSymmetricMemHandles(std::vector<HcclMemHandle> &memHandles);
     HcclResult UpdateSymmetricRemoteMem(uint32_t remoteRank, const CommMem *remoteMems, char **memTags, uint32_t memNum);
+    std::shared_ptr<class GroupScheduleMgr> groupScheduleMgr {nullptr}; //for group
 
 private:
     HcclResult ValidateConfig(const HcclCommConfig *config);

@@ -28,6 +28,7 @@
         <file value="hccl_ccu_res.h"/>
         <file value="hccl_res.h"/>
         <file value="hccl_sym_win.h"/>
+        <file value="hccl_launch.h"/>
     </file_info>
     <file_info value="include" copy_type="source" src_path="hcomm/include" dst_path="$(TARGET_ENV)/include/hcomm" install_path="$(TARGET_ENV)/include/hcomm" install_type="devel" install_mod="440">
         <file value="hcomm_primitives.h" install_softlink="$(TARGET_ENV)/include/hccl/hcomm_primitives.h"/>

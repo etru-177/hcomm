@@ -19,7 +19,7 @@ thread_local s32 hcclGroupDepth = 0;
 thread_local std::deque<std::shared_ptr<struct hcclAsyncJob>> hcclInitJobs;
 thread_local std::vector<HcclComm> hcclGroupCommList;
 
-HcclResult HcclGroupStart()
+HcclResult HcclLegacyGroupStart()
 {
     hcclGroupDepth++;
     HCCL_INFO("[HcclGroupStart] hcclGroupDepth=[%d]", hcclGroupDepth);
@@ -260,18 +260,8 @@ inline void groupLocalResetJobState()
     return;
 }
 
-HcclResult HcclGroupEnd()
+HcclResult HcclLegacyGroupEnd()
 {
-    if (hcclGroupDepth == 0) {
-        HCCL_ERROR("HcclGroupEnd: not in a group call. Didn't call HcclGroupStart before.");
-        return HCCL_E_NOT_SUPPORT;
-    }
-    if (--hcclGroupDepth > 0) {
-        return HCCL_SUCCESS;
-    }
-    HCCL_INFO("[HcclGroupEnd] hcclGroupDepth=[%d]", hcclGroupDepth);
-    /*遇到最后一个HcclGroupEnd才处理group内的所有任务*/
-
     groupLaunch();
     HCCL_INFO("[GroupEnd] done groupLaunch");
     groupLocalResetJobState();

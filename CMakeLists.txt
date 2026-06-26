@@ -171,6 +171,7 @@ elseif(BUILD_OPEN_PROJECT)
         include/hccl/hccl_ccu_res.h
         include/hccl/hccl_res.h
         include/hccl/hccl_sym_win.h
+        include/hccl/hccl_launch.h
     )
 
     set(HCOMM_HEAD

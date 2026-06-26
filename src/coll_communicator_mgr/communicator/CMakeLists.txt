@@ -22,3 +22,4 @@ if(TARGET hcomm)
 endif()
 
 add_subdirectory(device)
+add_subdirectory(group_schedule_mgr)

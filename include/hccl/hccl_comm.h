@@ -12,6 +12,8 @@
 #define HCCL_COMM_H_
 
 #include <hccl/hccl_types.h>
+#include <hccl/hccl_res.h>
+#include <hccl/hccl_launch.h>
 #include <acl/acl.h>
 
 #ifndef HCOMM_WEAK_SYMBOL

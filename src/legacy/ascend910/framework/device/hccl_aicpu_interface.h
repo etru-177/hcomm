@@ -12,10 +12,24 @@
 #define __MC2_AICPU_INTERFACE_H__
 
 #include <cstdint>
+#include "hcomm_res_defs.h"
+#include "hccl_group_utils.h"
+
+struct ThreadNotifyRecordParam {
+    ThreadHandle thread;
+    ThreadHandle dstThread;
+    uint32_t dstNotifyIdx;
+};
+struct ThreadNotifyWaitParam {
+    ThreadHandle thread;
+    uint32_t notifyIdx;
+};
 
 extern "C" {
 __attribute__((visibility("default"))) uint32_t RunAicpuKfcResInitV2(void *args);
 __attribute__((visibility("default"))) uint32_t RunAicpuRpcSrvLaunchV2(void *args);
+__attribute__((visibility("default"))) uint32_t RunAicpuNotifyRecord(void *args);
+__attribute__((visibility("default"))) uint32_t RunAicpuNotifyWait(void *args);
 }
 
 #endif // __MC2_AICPU_INTERFACE_HPP__

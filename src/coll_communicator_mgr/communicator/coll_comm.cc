@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <exception>
+#include "group_schedule_mgr.h"
 
 constexpr uint32_t MULTIPLE = 4;               // 用于A5判断TC是否为4的倍数
 constexpr uint32_t TC_MAX = 255;               // TC的最大值（不区分芯片类型）
@@ -37,6 +38,7 @@ CollComm::CollComm(void * comm, uint32_t rankId, const std::string &commName, co
                    CollCommInitMode initMode)
     : comm_(comm), rankId_(rankId), commId_ (commName), callbacks_(callbacks), initMode_(initMode)
 {
+    groupScheduleMgr = std::make_shared<GroupScheduleMgr>();
 }
 
 CollComm::~CollComm()

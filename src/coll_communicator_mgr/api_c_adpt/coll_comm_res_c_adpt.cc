@@ -27,6 +27,9 @@
 #include "channel_process.h"
 #include "aicpu_ts_roce_channel_v2.h"
 #include "aiv_urma_channel.h"
+#include "hccl_group.h"
+#include "../resource_mgr/local/my_rank/comm_engine_reses/kernel_launch/hccl_kernel_launch_aicpu.h"
+#include "param_check_basic_v2.h"
 
 using namespace hccl;
 /**
@@ -548,4 +551,33 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine,
     HCCL_RUN_INFO("[%s] acquire channel success, group[%s], engine[%d], channelNum[%llu], take time [%lld]us.", __func__, hcclComm->GetIdentifier().c_str(), engine, channelNum, DURATION_US(TIME_NOW() - startut));
     EXCEPTION_HANDLE_END
     return HCCL_SUCCESS;
+}
+
+HcclResult HcclGroupStart()
+{
+    return HcclLegacyGroupStart();
+}
+
+HcclResult HcclGroupEndV2()
+{
+    CHK_RET(groupLaunchA5());
+    HCCL_INFO("[GroupEnd] to the end");
+    return HCCL_SUCCESS;
+}
+
+HcclResult HcclGroupEnd()
+{
+    if (hcclGroupDepth == 0) {
+        HCCL_ERROR("HcclGroupEnd: not in a group call. Didn't call HcclGroupStart before.");
+        return HCCL_E_NOT_SUPPORT;
+    }
+    if (--hcclGroupDepth > 0) {
+        return HCCL_SUCCESS;
+    }
+    HCCL_INFO("[HcclGroupEnd] hcclGroupDepth=[%d]", hcclGroupDepth);
+    /*遇到最后一个HcclGroupEnd才处理group内的所有任务*/
+    HCCLV2_FUNC_RUN([&]() -> HcclResult {
+        return HcclGroupEndV2();
+    }());
+    return HcclLegacyGroupEnd();
 }

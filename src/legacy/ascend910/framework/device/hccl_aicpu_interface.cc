@@ -1,16 +1,17 @@
 /**
- * Copyright (c) 2025 Huawei Technologies Co., Ltd.
- * This program is free software, you can redistribute it and/or modify it under the terms and conditions of
- * CANN Open Software License Agreement Version 2.0 (the "License").
- * Please refer to the License for details. You may not use this file except in compliance with the License.
- * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE.
- * See LICENSE in the root of the software repository for the full text of the License.
- */
+ * Copyright (c) 2025 Huawei Technologies Co., Ltd.
+ * This program is free software, you can redistribute it and/or modify it under the terms and conditions of
+ * CANN Open Software License Agreement Version 2.0 (the "License").
+ * Please refer to the License for details. You may not use this file except in compliance with the License.
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE.
+ * See LICENSE in the root of the software repository for the full text of the License.
+ */
 
 #include "hccl_aicpu_interface.h"
 
 #include <sstream>
+#include <dlfcn.h>
 #include "common/aicpu_hccl_common.h"
 #include "common/aicpu_hccl_def.h"
 #include "common/aicpu_sqe_context.h"
@@ -19,6 +20,8 @@
 #include "utils/hccl_aicpu_utils.h"
 #include "framework/aicpu_communicator.h"
 #include "utils/aicpu_hdc_utils.h"
+#include "hccl_group_utils.h"
+#include "hccl_dl.h"
 
 extern "C" {
 __attribute__((visibility("default"))) uint32_t RunAicpuKfcResInitV2(void *args)
@@ -118,4 +121,40 @@ __attribute__((visibility("default"))) uint32_t RunAicpuRpcSrvLaunchV2(void *arg
     HCCL_INFO("end RunAicpuRpcSrvLaunchV2");
     return 0;
 }
+
+__attribute__((visibility("default"))) uint32_t RunAicpuNotifyRecord(void *args)
+{
+    if (args == nullptr) {
+        HCCL_ERROR("RunAicpuNotifyRecord args is null.");
+        return HCCL_E_PARA;
+    }
+    ThreadNotifyRecordParam *param = reinterpret_cast<ThreadNotifyRecordParam *>(args);
+    HCCL_INFO("[RunAicpuNotifyRecord] thread[0x%llx], dstThread[0x%llx], dstNotifyIdx[%u]",
+        param->thread, param->dstThread, param->dstNotifyIdx);
+    int32_t ret = HcommThreadNotifyRecordOnThread(param->thread, param->dstThread, param->dstNotifyIdx);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("RunAicpuNotifyRecord failed. ret[%d]", ret);
+        return ret;
+    }
+    HCCL_INFO("RunAicpuNotifyRecord success.");
+    return HCCL_SUCCESS;
+}
+
+__attribute__((visibility("default"))) uint32_t RunAicpuNotifyWait(void *args)
+{
+    if (args == nullptr) {
+        HCCL_ERROR("RunAicpuNotifyWait args is null.");
+        return HCCL_E_PARA;
+    }
+    ThreadNotifyWaitParam *param = reinterpret_cast<ThreadNotifyWaitParam *>(args);
+    HCCL_INFO("[RunAicpuNotifyWait] thread[0x%llx], notifyIdx[%u]", param->thread, param->notifyIdx);
+    int32_t ret = HcommThreadNotifyWaitOnThreadWithDefaultTimeout(param->thread, param->notifyIdx);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("RunAicpuNotifyWait failed. ret[%d]", ret);
+        return ret;
+    }
+    HCCL_INFO("RunAicpuNotifyWait success.");
+    return HCCL_SUCCESS;
+}
+
 }  // extern "C"

@@ -9,3 +9,4 @@
 # -----------------------------------------------------------------------------------------------------------
 add_subdirectory(engine_ctxs)
 add_subdirectory(threads)
+add_subdirectory(kernel_launch)

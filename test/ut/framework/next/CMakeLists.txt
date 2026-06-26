@@ -21,6 +21,7 @@ set(src_to_test_list
     comms/comm_engine_res/threads/test_cpu_ts_thread_class.cc
     comms/comm_engine_res/threads/test_iaicpu_ts_thread_interface.cc
     comms/comm_engine_res/threads/test_thread_api.cc
+    comms/comm_engine_res/kernel_launch/test_kernel_launch_aicpu.cc
     comms/endpoint_pairs/socket/ut_socket_process.cc
     comms/endpoint_pairs/ut_endpoint_pair.cc
     comms/api_c_adpt/ut_hcomm_c_adpt.cc
@@ -37,6 +38,7 @@ set(src_to_test_list
     comms/api_c_adpt/ut_hcomm_engine_ctx_test.cc
     comms/api_c_adpt/ut_hcomm_dfx_test.cc
     coll_comms/communicator/ut_coll_comm_test.cc
+    coll_comms/communicator/group_schedule_mgr/ut_group_schedule_mgr.cc
     comms/endpoint_pairs/channels/ut_channel_process_test.cc
     comms/endpoint_pairs/channels/ut_channel_roce_factory.cc
     coll_comms/communicator/aicpu/ut_aicpu_indop_process_test.cc
@@ -91,6 +93,7 @@ target_include_directories(hccl_utest_test_next_resource PRIVATE
     ${UT_COMMON_INCLUDE_LIST}
     ${HCCL_CODE_ROOT}/src/base_comm/resources/endpoint_pairs/channels
     ${HCCL_CODE_ROOT}/src/coll_communicator_mgr/resource_mgr/local/my_rank/
+    ${HCCL_CODE_ROOT}/src/coll_communicator_mgr/communicator/group_schedule_mgr/
 )
 
 target_compile_definitions(hccl_utest_test_next_resource PRIVATE

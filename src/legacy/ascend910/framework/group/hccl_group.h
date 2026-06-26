@@ -18,8 +18,8 @@ extern thread_local s32 hcclGroupDepth; // depth of HcclGroupStart nesting
 extern "C" {
 #endif
 
-HcclResult HcclGroupStart();
-HcclResult HcclGroupEnd();
+HcclResult HcclLegacyGroupStart();
+HcclResult HcclLegacyGroupEnd();
 
 #ifdef __cplusplus
 }
