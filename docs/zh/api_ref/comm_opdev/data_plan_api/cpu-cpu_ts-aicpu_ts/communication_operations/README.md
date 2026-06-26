@@ -14,3 +14,4 @@
 - [HcommChannelFenceOnThread](HcommChannelFenceOnThread.md)
 - [HcommFenceOnThread](HcommFenceOnThread.md)
 - [HcommBatchTransferOnThread](HcommBatchTransferOnThread.md)
+- [HcommChannelDrainOnThread](HcommChannelDrainOnThread.md)
