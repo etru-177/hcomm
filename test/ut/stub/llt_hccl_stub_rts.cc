@@ -10,6 +10,7 @@
 
 #include "acl/acl_rt.h"
 #include "rt_external.h"
+#include "securec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,6 +38,15 @@ rtError_t rtGetServerIDBySDID(uint32_t sdid, uint32_t *srvId)
 {
     *srvId = 0;
     return 0;
+}
+
+rtError_t rtMemcpyEx(void *dst, uint64_t destMax, const void *src, uint64_t cnt, rtMemcpyKind_t kind)
+{
+    if (dst == nullptr || src == nullptr || cnt == 0 || cnt > destMax) {
+        return RT_ERROR_NONE;
+    }
+    (void)memcpy_s(dst, destMax, src, cnt);
+    return RT_ERROR_NONE;
 }
 
 RTS_API rtError_t rtUbDevQueryInfo(rtUbDevQueryCmd cmd, void *devInfo)

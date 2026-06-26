@@ -587,7 +587,7 @@ HccnResult HccnRpingGetPayload(HccnRpingCtx rpingCtx, void **payload, uint32_t *
 
     // 判断devLogicId与pingmesh所记录的是否一致
     if (devLogicId != rping->GetDeviceLogicId()) {
-        HCCL_ERROR("[HccnRpingGetResult]curr devId[%d] not match record[%d].", devLogicId, rping->GetDeviceLogicId());
+        HCCL_ERROR("[HccnRpingGetPayload]curr devId[%d] not match record[%d].", devLogicId, rping->GetDeviceLogicId());
         return HCCN_E_PARA;
     }
 
