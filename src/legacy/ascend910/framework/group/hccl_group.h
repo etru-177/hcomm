@@ -38,6 +38,9 @@ HcclResult taskAppend(HcclComm comm, hcclOpInfo& info);
 }
 #endif
 
-
 }// namespace hccl
+
+u64 calcOpDataVolume(const hccl::hcclOpInfo& info);
+std::vector<hccl::hcclOpInfo> sortGroupTasks(const std::deque<hccl::hcclOpInfo>& tasks);
+
 #endif
