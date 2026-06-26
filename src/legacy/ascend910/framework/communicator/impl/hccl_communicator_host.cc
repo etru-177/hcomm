@@ -417,7 +417,7 @@ namespace hccl
     {
         CHK_RET(InitCommParams(params));
         CHK_RET(attrCollector_.Init(params, rankList, groupCommonData, commConfig_.GetConfigHcclAlgoMap()));
-        CHK_RET(InitRankInfoSubGroup(rankList, groupCommonData));
+        CHK_RET(InitRankInfoSubGroup(groupCommonData));
         CHK_RET(InitDebugSubGroup());
         CHK_RET(InitNotifyManager());
         CHK_RET(InitDispatcher());
@@ -4252,7 +4252,7 @@ namespace hccl
         CHK_PRT_RET(mode == HcclWorkflowMode::HCCL_WORKFLOW_MODE_RESERVED, HCCL_ERROR("Invalid Workflow Mode[%d]", mode), HCCL_E_INTERNAL);
 
         // h to d
-        CHK_RET(SetInfoToDevice(opParam, preMetaInfo, mode, preProcessStream));
+        CHK_RET(SetInfoToDevice(preMetaInfo, preProcessStream));
         // opParam准备
         CHK_RET(alltoAllOperator->PreparePreOpParam(preProcessOpParam, preMetaInfo, preProcessStream));
 
@@ -4267,7 +4267,7 @@ namespace hccl
         // d to h
         HostMem hostCollectBuffer = HostMem::alloc(preMetaInfo->outputSize);
         CHK_PTR_NULL(hostCollectBuffer.ptr());
-        CHK_RET(GetInfoFromDevice(opParam, preMetaInfo, mode, preProcessStream, hostCollectBuffer));
+        CHK_RET(GetInfoFromDevice(preMetaInfo, mode, hostCollectBuffer));
 
         hostCollectBuffer_ = hostCollectBuffer;
         alltoAllOperator->SetPreProcessResult(std::move(hostCollectBuffer));
@@ -5365,7 +5365,7 @@ namespace hccl
             "tag[%s], curRankId[%u] rankNum[%u]", __func__, newTag.c_str(), aiRMAInfoPtr->curRankId,
             aiRMAInfoPtr->rankNum), HCCL_E_INTERNAL);
         
-        CHK_RET(GetAivQPInfoV2(tmpLinks, newTag, meshAggregationRankSize_));
+        CHK_RET(GetAivQPInfoV2(tmpLinks, newTag));
         u32 tmpQueueSize = aiRMAInfoPtr->rankNum * aiRMAInfoPtr->qpNum;
         u32 tmpMemSize = aiRMAInfoPtr->rankNum;
         u32 tmpMemDetailSize = aiRMAInfoPtr->rankNum * AiMemMaxNum;
@@ -6317,8 +6317,8 @@ namespace hccl
         // 记录主流相关信息, 给profiling和task exception使用
         HCCL_PROFILER_ADD_STREAM_BY_STREAMID(param.stream.id(), param.tag, 0, algType);
         if (((GetWorkflowMode() == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE) &&
-             hccl::ProfilingManagerPub::GetAdditionInfoState() &&
-             hccl::ProfilingManagerPub::GetTaskApiState()) &&
+             !hccl::ProfilingManagerPub::GetAdditionInfoState() &&
+             !hccl::ProfilingManagerPub::GetTaskApiState()) &&
              !param.isCapture) {
             return HCCL_SUCCESS;
         }
@@ -6782,7 +6782,7 @@ namespace hccl
             // 获取当前rdma相连的所有对端rankList
             std::vector<u32> rankList;
             CHK_RET(transportManager_->GetIncreRemoteRankList(resRequest.opTransport,
-                                                              algResResponse.opTransportResponse, rankList, TransportType::TRANS_TYPE_IBV_EXP));
+                                                              rankList, TransportType::TRANS_TYPE_IBV_EXP));
             std::string rankListStr = "";
             for (auto remoteRank : rankList)
             {
@@ -9120,7 +9120,7 @@ namespace hccl
 
     HcclResult HcclCommunicator::GetTopoType(uint32_t netLayer, uint32_t topoInstId, CommTopo *topoType)
     {
-        return rankGraph_.GetTopoType(netLayer, topoInstId, topoType);
+        return rankGraph_.GetTopoType(netLayer, topoType);
     }
 
     HcclResult HcclCommunicator::GetRanksByTopoInst(uint32_t netLayer, uint32_t topoInstId, uint32_t **ranks, uint32_t *rankNum)

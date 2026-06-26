@@ -68,8 +68,8 @@ extern HcclResult HcommProfilingRegThread(HcomProInfo profInfo, ThreadHandle *th
     HCCL_PROFILER_ADD_STREAM_BY_STREAMID(mainStreamId, tag, 0, algType);
 
     if (((GetWorkflowMode() == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE) &&
-            hccl::ProfilingManagerPub::GetAdditionInfoState() &&
-            hccl::ProfilingManagerPub::GetTaskApiState()) &&
+            !hccl::ProfilingManagerPub::GetAdditionInfoState() &&
+            !hccl::ProfilingManagerPub::GetTaskApiState()) &&
             !profInfo.isCapture) {
         return HCCL_SUCCESS;
     }
@@ -94,8 +94,8 @@ extern HcclResult HcommProfilingUnRegThread(HcomProInfo profInfo, ThreadHandle *
     HCCL_PROFILER_DEL_STREAM_BY_STREAMID(mainStreamId);
     HCCL_PROFILER_DEL_OPDATA(tag);
     if (((GetWorkflowMode() == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE) &&
-            hccl::ProfilingManagerPub::GetAdditionInfoState() &&
-            hccl::ProfilingManagerPub::GetTaskApiState()) &&
+            !hccl::ProfilingManagerPub::GetAdditionInfoState() &&
+            !hccl::ProfilingManagerPub::GetTaskApiState()) &&
             !profInfo.isCapture) {
         return HCCL_SUCCESS;
     }

@@ -11,6 +11,8 @@
 #ifndef H2D_DTO_TRANSPORT_H2D_H
 #define H2D_DTO_TRANSPORT_H2D_H
 
+#include "hccl/base.h"
+
 // 全部 Transport QP/Mem 信息
 struct HcclAiRMAInfo {
     u32 curRankId;  // 当前rankId

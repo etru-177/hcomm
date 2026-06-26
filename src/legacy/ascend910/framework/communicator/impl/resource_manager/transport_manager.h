@@ -227,7 +227,7 @@ public:
     HcclResult GetRemoteRankList(OpCommTransport &opTransportResponse, std::vector<u32> &rankList,
         TransportType transportType);
     HcclResult GetIncreRemoteRankList(OpCommTransport &opTransportReq,
-        OpCommTransport &opTransportResponse, std::vector<u32> &rankList, TransportType transportType);
+        std::vector<u32> &rankList, TransportType transportType);
     HcclResult AddremoteUserRankToList(TransportRequest &transportRequest, std::vector<u32> &rankList,
         TransportType transportType);
     TransportManager(TransportManager const&) = delete;                 // Copy construct
@@ -268,9 +268,9 @@ private:
         const IndOpMem &indOpMem = IndOpMem(), bool isIndOp = false,
 		const HcclCMDType &opType = HcclCMDType::HCCL_CMD_INVALID, bool isNpuDirectRoce = false);
     HcclResult GetTransportType(const u32 dstRank, bool isUsedRdma, TransportType &transportType);
-    void SetTransportParam(TransportPara &para, MachinePara &machinePara);
-    HcclResult TransportInit(const u32 dstRank, MachinePara &machinePara,
-        std::shared_ptr<Transport> &link, bool useOneDoorbell, bool isUsedRdma, TransportType type);
+    void SetTransportParam(TransportPara &para);
+    HcclResult TransportInit(MachinePara &machinePara,
+        std::shared_ptr<Transport> &link, bool useOneDoorbell, TransportType type);
     HcclResult AllocSliceMem(DeviceMem &inputMem,  DeviceMem &outputMem, u32 remoteUserRank);
     HcclResult CreateLink(const std::string &tag, const ErrContextPub &error_context, const MachineType machineType,
         const std::string &serverId, const u32 remoteRank, const bool supportDataReceivedAck, const LinkMode linkMode,

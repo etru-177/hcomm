@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <arpa/inet.h>
 #include <fstream>
-#include <fcntl.h>
 #include <unistd.h>
 #include <hccl/hccl_types.h>
 #include "device_capacity.h"
@@ -385,7 +384,7 @@ namespace hccl
 
     HcclResult hcclComm::InitCollCommInner(uint32_t userRank)
     {
-        if (!GetConnectMode()) {
+        if (GetConnectMode() == 0) {
             return HCCL_SUCCESS;
         }
 

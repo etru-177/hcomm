@@ -12,7 +12,13 @@
 #define OP_BASE_V2_H
 
 #include <functional>
-#include "hccl_types.h"
+#include <string>
+#include "hccl/base.h"
+#include "hccl/hccl_types.h"
+#include "hccl/hccl_rank_graph.h"
+#include "hccl_mem_defs.h"
+#include "hcomm_res_defs.h"
+#include "acl/acl_rt.h"
 #include "task_param.h"
 
 namespace Hccl {

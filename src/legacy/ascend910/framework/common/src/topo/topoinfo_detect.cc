@@ -243,8 +243,8 @@ HcclResult TopoInfoDetect::SetupServer(HcclRootHandle &rootInfo)
     g_topoExchangeServerStatus_.EmplaceAndUpdate(hostPort, [] (volatile u32 &status) {
         status = TOPO_EXCHANGE_SERVER_STATUS_RUNING;
     });
-    exchangeServerThreadPtr_.reset(new (nothrow) thread(&TopoInfoDetect::SetupTopoExchangeServer, this, devicePhysicID_,
-        deviceLogicID_, hostIP, hostPort, whitelist, serverPortCtx_, listenSocket_, false));
+    exchangeServerThreadPtr_.reset(new (nothrow) thread(&TopoInfoDetect::SetupTopoExchangeServer, this,
+        devicePhysicID_, deviceLogicID_, hostIP, hostPort, whitelist, serverPortCtx_, listenSocket_, false));
     CHK_SMART_PTR_NULL(exchangeServerThreadPtr_);
 
     rootInfo = rootInfo_;
@@ -296,8 +296,8 @@ HcclResult TopoInfoDetect::GroupLeaderAccept(HcclRankHandle &grpLeaderInfo, vect
     std::shared_ptr<HcclSocket> grpLeaderToRoot)
 {
     rootInfo_ = grpLeaderInfo;
-    exchangeServerThreadPtr_.reset(new (nothrow) thread(&TopoInfoDetect::SetupTopoGroupLeader, this, devicePhysicID_,
-        deviceLogicID_, bootstrapHostIP_, rootInfo_.port, whitelist, serverPortCtx_, listenSocket_,
+    exchangeServerThreadPtr_.reset(new (nothrow) thread(&TopoInfoDetect::SetupTopoGroupLeader, this,
+        devicePhysicID_, deviceLogicID_, bootstrapHostIP_, rootInfo_.port, whitelist, serverPortCtx_, listenSocket_,
         grpLeaderToRoot, false));
     CHK_SMART_PTR_NULL(exchangeServerThreadPtr_);
 

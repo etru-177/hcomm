@@ -97,7 +97,7 @@ HcclResult ZeroCopyMemoryAgent::Init()
 HcclResult ZeroCopyMemoryAgent::InitInnerThread()
 {
     threadRun_ = true;
-    innerThread_.reset(new (std::nothrow) std::thread(&ZeroCopyMemoryAgent::InnerThread, this));
+    innerThread_.reset(new (std::nothrow) std::thread(&ZeroCopyMemoryAgent::InnerThread, std::ref(*this)));
     CHK_SMART_PTR_NULL(innerThread_);
     return HCCL_SUCCESS;
 }

@@ -53,7 +53,7 @@ private:
         RankTable_t &clusterInfo, RankInfo_t &rankinfo);
     void DetectNicDepoly(RankTable_t &rankTable);
     HcclResult GetSingleNicInfo(const nlohmann::json &serverListObj, u32 objIndex,
-        RankTable_t &clusterInfo, RankInfo_t &rankinfo);
+        RankInfo_t &rankinfo);
     HcclResult CheckNicDeployConsistence(RankTable_t &clusterInfo, NICDeployment deploy) const;
 
     // 解析超节点信息

@@ -66,7 +66,7 @@ TEST_F(RankGraphV1DirectTest, Ut_GetTopoType_When_ValidParams_Expect_Success)
     uint32_t topoInstId = 0;
     CommTopo topoType = CommTopo::COMM_TOPO_CLOS;
 
-    HcclResult ret = rankGraph.GetTopoType(netLayer, topoInstId, &topoType);
+    HcclResult ret = rankGraph.GetTopoType(netLayer, &topoType);
 
     EXPECT_EQ(ret, HCCL_SUCCESS);
     EXPECT_EQ(topoType, CommTopo::COMM_TOPO_910_93);

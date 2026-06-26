@@ -517,7 +517,7 @@ HcclResult CheckPortValid(u32 port)
     return HCCL_SUCCESS;
 }
 
-HcclResult CheckRoleAndRankConsistent(const hccl::RoleTableInfo &roleTableInfo, const hccl::HcclCommParams &params,
+HcclResult CheckRoleAndRankConsistent(const hccl::RoleTableInfo &roleTableInfo,
     const hccl::RankTable_t &rankTable)
 {
     u32 roleTableSize = roleTableInfo.servers.size() + roleTableInfo.clients.size();

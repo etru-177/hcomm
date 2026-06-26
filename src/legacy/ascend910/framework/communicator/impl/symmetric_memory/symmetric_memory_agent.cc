@@ -52,7 +52,7 @@ HcclResult SymmetricMemoryAgent::Init() {
 
 HcclResult SymmetricMemoryAgent::InitRecvThread() {
     threadRun_ = true;
-    recvThread_.reset(new (std::nothrow) std::thread(&SymmetricMemoryAgent::DealWithRequest, this));
+    recvThread_.reset(new (std::nothrow) std::thread(&SymmetricMemoryAgent::DealWithRequest, std::ref(*this)));
     CHK_SMART_PTR_NULL(recvThread_);
     return HCCL_SUCCESS;
 }

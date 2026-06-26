@@ -8,10 +8,6 @@
  * See LICENSE in the root of the software repository for the full text of the License.
  */
 
-#include <algorithm>
-#include <arpa/inet.h>
-#include <fstream>
-#include <fcntl.h>
 #include <unistd.h>
 #include <hccl/hccl_types.h>
 #include "device_capacity.h"

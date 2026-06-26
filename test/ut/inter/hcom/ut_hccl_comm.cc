@@ -5198,7 +5198,7 @@ TEST_F(HcclCommTest, hcclComm_InitRankInfoSubGroup_devPortSwitchOn_branch)
     hcclCommunicator.commPortConfig_.devPortSwitchOn = true;
     hcclCommunicator.vnicRanksPort_.push_back(50000);
     HcclResult ret ;
-    ret = hcclCommunicator.InitRankInfoSubGroup(rankLists, groupCommonData);
+    ret = hcclCommunicator.InitRankInfoSubGroup(groupCommonData);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
     GlobalMockObject::verify();

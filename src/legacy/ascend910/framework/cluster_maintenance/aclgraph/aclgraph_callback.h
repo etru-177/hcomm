@@ -14,7 +14,6 @@
 #include <mutex>
 #include "hccl_communicator.h"
 #include "hccl_common.h"
-#include "acl/acl_rt.h"
 
 namespace hccl {
 struct AclgraphDestroyCallbackParam

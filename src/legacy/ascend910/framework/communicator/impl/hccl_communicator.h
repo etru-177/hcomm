@@ -506,7 +506,7 @@ private:
     u32 HcclGetCmdTimeout();
     HcclResult InitCommParams(HcclCommParams &params);
     HcclResult InitRankInfo(const RankTable_t &rankTable);
-    HcclResult InitRankInfoSubGroup(const std::vector<RankInfo> &rankList, WorldGroupInfo &groupCommonData);
+    HcclResult InitRankInfoSubGroup(WorldGroupInfo &groupCommonData);
     HcclResult CheckSingleServerComm(const std::vector<RankInfo_t> &rankList) const;
     HcclResult SetRanksPort(const std::vector<RankInfo_t> &rankList);
     HcclResult InitNetResource(const RankTable_t &rankTable);
@@ -748,10 +748,9 @@ private:
     HcclResult GetAiCpuNotifyData(const std::shared_ptr<LocalNotify> &localNotify, HcclSignalInfo &notifyInfo);
     HcclResult ReplaceCommInfoByTag(const std::string &tag, std::unique_ptr<CommInfo> &commInfo);
     HcclResult CreateCommAndStreamRes(const std::string &tag, Stream &stream);
-    HcclResult SetInfoToDevice(const OpParam &opParam, const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
-        const HcclWorkflowMode &mode, Stream &stream);
-    HcclResult GetInfoFromDevice(const OpParam &opParam, const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
-        const HcclWorkflowMode &mode, Stream &stream, HostMem& hostCollectBuffer);
+    HcclResult SetInfoToDevice(const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo, Stream &stream);
+    HcclResult GetInfoFromDevice(const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
+        const HcclWorkflowMode &mode, HostMem& hostCollectBuffer);
     HcclResult RegressCalPreOp(AlltoAllOperator* &alltoAllOperator, const OpParam &opParam,
         std::unique_ptr<PreProcessMetaInfo> &preMetaInfo);
     HcclResult RegressCalPreOp(AlltoAllOperator* &alltoAllOperator, const OpParam &opParam,
@@ -810,7 +809,7 @@ private:
     HcclResult BuildZeroCopyParam();
     HcclResult AllocAndClearHostMem(u64 size, std::shared_ptr<HostMem> &bufferPtr) const;
     HcclResult AllocAndClearDeviceMem(u64 size, std::shared_ptr<DeviceMem> &bufferPtr) const;
-    HcclResult updateList(u64 size, void *buffer) const;
+    HcclResult updateList() const;
     HcclResult BuildOpLocalResParam(const AlgResourceResponse &algResource, const std::string &newTag);
     HcclResult BuildOpLocalScratchMemResParam(
         const AlgResourceResponse &algResource, const std::string &newTag, LocalResInfoV2 *localResHostPtr);
@@ -891,7 +890,7 @@ private:
     HcclResult GetAIVNormalQPInfoV2(std::vector<LINK>& links, const std::string &tag);
     template<typename T>
     HcclResult GenIbvAiRMAInfo(u32 rankid, const std::shared_ptr<Transport>& transport, const std::string &tag, T* aiRMAInfoPtr);
-    HcclResult GetAivQPInfoV2(std::vector<LINK>& links, const std::string &tag, u32 localRankSize);
+    HcclResult GetAivQPInfoV2(std::vector<LINK>& links, const std::string &tag);
     HcclResult CaptureSlaveStreams(rtStream_t mainStream, std::vector<Stream> &slaveStreams);
     HcclResult HandleAclGraphFirstOpAivBuff(rtStream_t mainStream);
     bool StreamIsCapture(rtStream_t mainStream);

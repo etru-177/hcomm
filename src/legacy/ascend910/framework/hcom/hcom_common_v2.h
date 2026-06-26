@@ -10,6 +10,11 @@
 
 #ifndef HCOM_COMMOM_V2_H
 #define HCOM_COMMOM_V2_H
+
+#include <string>
+#include <vector>
+#include "hccl/base.h"
+#include "hccl/hccl_types.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

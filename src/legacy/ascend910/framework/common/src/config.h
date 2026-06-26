@@ -40,7 +40,7 @@ HcclResult CheckGroupRankList(const std::vector<hccl::RankInfo_t> &rankList, u32
 HcclResult CheckDeviceNumValid(const std::vector<hccl::RankInfo_t> &rankList, u32 deviceNum,
                                u32 serverNum, std::string version = "");
 HcclResult CheckPortValid(u32 port);
-HcclResult CheckRoleAndRankConsistent(const hccl::RoleTableInfo &roleTableInfo, const hccl::HcclCommParams &params,
+HcclResult CheckRoleAndRankConsistent(const hccl::RoleTableInfo &roleTableInfo,
     const hccl::RankTable_t &rankTable);
 HcclResult CfgGetRoleTableInfo(const std::string &rankTableM, hccl::RoleTableInfo &roleTableInfo);
 HcclResult GetDevNum(const std::vector<hccl::RankInfo_t> &rankList, u32 &devNum);

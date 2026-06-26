@@ -119,12 +119,12 @@ HcclResult TopoInfoExchangeServer::Setup()
                 error = connectRet);
             HCCL_INFO("cluster topo exchange server connect with all agent success.");
         }
-        ret = StopSocketListen(whitelist_, hostIP_, hostPort_);
+        ret = StopSocketListen(whitelist_, hostPort_);
         CHK_PRT_BREAK(ret != HCCL_SUCCESS,
             HCCL_ERROR("[TopoInfoExchangeServer][Setup]topo exchange server stop socket listen port[%u] failed.",
                  hostPort_), error = ret);
     } while (0);
-    if (error) {
+    if (error != HCCL_SUCCESS) {
         CHK_RET(Disconnect(connectSockets_));
         CHK_RET(StopNetwork(whitelist_, hostIP_, hostPort_));
     }
@@ -263,12 +263,12 @@ HcclResult TopoInfoExchangeServer::SetupGroupLeader()
             HCCL_ERROR("[TopoInfoExchangeServer][Setup]Broadcast Rank Basic Infos failed"), error = ret);
         HCCL_INFO("cluster topo exchange server send rank basic info to all agent success.");
 
-        ret = StopSocketListen(whitelist_, hostIP_, hostPort_);
+        ret = StopSocketListen(whitelist_, hostPort_);
         CHK_PRT_BREAK(ret != HCCL_SUCCESS,
             HCCL_ERROR("[TopoInfoExchangeServer][Setup]topo exchange server stop socket listen failed."), error = ret);
     } while (0);
 
-    if (error) {
+    if (error != HCCL_SUCCESS) {
         CHK_RET(Disconnect(connectSockets_));
         CHK_RET(StopNetwork(whitelist_, hostIP_, hostPort_));
     }
@@ -557,7 +557,7 @@ HcclResult TopoInfoExchangeServer::DeleteSocketWhiteList(u32 port,
 }
 
 HcclResult TopoInfoExchangeServer::StopSocketListen(const std::vector<HcclIpAddress> &whitelist,
-    HcclIpAddress &hostIP, u32 hostPort)
+    u32 hostPort)
 {
     if (listenSocket_) {
         if (GetExternalInputHcclEnableWhitelist() == HCCL_WHITELIST_ON) {
@@ -579,7 +579,7 @@ HcclResult TopoInfoExchangeServer::StopNetwork(const std::vector<HcclIpAddress> 
     HcclIpAddress &hostIP, u32 hostPort)
 {
     std::unique_lock<std::mutex> lock(lock_);
-    CHK_RET(StopSocketListen(whitelist, hostIP, hostPort));
+    CHK_RET(StopSocketListen(whitelist, hostPort));
 
     netDevCtx_ = nullptr;
     return HCCL_SUCCESS;

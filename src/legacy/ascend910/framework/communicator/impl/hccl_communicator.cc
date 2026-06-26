@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <numeric>
 #include <unordered_set>
-#include <sys/time.h>
 #include <memory>
 #include "externalinput_pub.h"
 #include "env_config.h"
@@ -454,8 +453,7 @@ namespace hccl
         ForceProfOn(dispatcher_, isForce);
     }
 
-    HcclResult HcclCommunicator::InitRankInfoSubGroup(const std::vector<RankInfo> &rankList,
-                                                      WorldGroupInfo &groupCommonData)
+    HcclResult HcclCommunicator::InitRankInfoSubGroup(WorldGroupInfo &groupCommonData)
     {
         SetAttrs();
         // inline reduce 开关
@@ -484,7 +482,7 @@ namespace hccl
             isDiffDeviceType_, isAivMode, serverIp, localIp, retryEnable_,
             commConfig_.GetConfigInterServerRetryEnable(), commConfig_.GetConfigInterSuperPodRetryEnable());
         groupNicRanksPort_.resize(rankInfoList_.size(), HCCL_INVALID_PORT);
-        if (nicRanksPort_.size())
+        if (nicRanksPort_.size() != 0)
         {
             for (auto &rankInfo : rankInfoList_)
             {
@@ -499,7 +497,7 @@ namespace hccl
         if (commPortConfig_.devPortSwitchOn)
         {
             groupVnicRanksPort_.resize(rankInfoList_.size(), HCCL_INVALID_PORT);
-            if (vnicRanksPort_.size())
+            if (vnicRanksPort_.size() != 0)
             {
                 for (auto &rankInfo : rankInfoList_)
                 {
@@ -835,7 +833,7 @@ bool HcclCommunicator::IsEnableRoce()
     {
         HCCL_INFO("[HcclCommunicator][%s]start to destroy the aicpu comm, group[%s].", __func__, identifier_.c_str());
         if (deviceType_ != DevType::DEV_TYPE_910_93 &&
-            !(deviceType_ == DevType::DEV_TYPE_910B && GetAicpuUnfoldFlag()) && !myRankConnectMode_)
+            !(deviceType_ == DevType::DEV_TYPE_910B && GetAicpuUnfoldFlag()) && (myRankConnectMode_ == 0))
         {
             HCCL_INFO("[HcclCommunicator][%s]Device type[%d] no needs to destroy the aicpu comm.", __func__,
                       deviceType_);
@@ -925,9 +923,8 @@ bool HcclCommunicator::IsEnableRoce()
         return HCCL_SUCCESS;
     }
 
-    HcclResult HcclCommunicator::SetInfoToDevice(const OpParam &opParam,
-                                                 const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
-                                                 const HcclWorkflowMode &mode, Stream &stream)
+    HcclResult HcclCommunicator::SetInfoToDevice(const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
+                                                 Stream &stream)
     {
         auto inAlltoAllvParaBuffer = cclBufferManager_.GetInAlltoAllvParaBuffer();
         auto outAlltoAllvParaBuffer = cclBufferManager_.GetOutAlltoAllvParaBuffer();
@@ -957,9 +954,8 @@ bool HcclCommunicator::IsEnableRoce()
         return HCCL_SUCCESS;
     }
 
-    HcclResult HcclCommunicator::GetInfoFromDevice(const OpParam &opParam,
-                                                   const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
-                                                   const HcclWorkflowMode &mode, Stream &stream, HostMem &hostCollectBuffer)
+    HcclResult HcclCommunicator::GetInfoFromDevice(const std::unique_ptr<PreProcessMetaInfo> &preMetaInfo,
+                                                   const HcclWorkflowMode &mode, HostMem &hostCollectBuffer)
     {
         CHK_RET(hrtMemSyncCopy(hostCollectBuffer.ptr(), preMetaInfo->outputSize,
                                cclBufferManager_.GetOutAlltoAllvParaBuffer().ptr(), preMetaInfo->outputSize,
@@ -1070,7 +1066,7 @@ bool HcclCommunicator::IsEnableRoce()
         return HCCL_SUCCESS;
     }
 
-    HcclResult HcclCommunicator::updateList(u64 size, void *buffer) const
+    HcclResult HcclCommunicator::updateList() const
     {
         return HCCL_SUCCESS;
     }
@@ -1436,8 +1432,8 @@ bool HcclCommunicator::IsEnableRoce()
         HCCL_PROFILER_DEL_STREAM_BY_STREAMID(param.stream.id());
         HCCL_PROFILER_DEL_OPDATA(param.tag);
         if (((GetWorkflowMode() == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE) &&
-             hccl::ProfilingManagerPub::GetAdditionInfoState() &&
-             hccl::ProfilingManagerPub::GetTaskApiState()) &&
+             !hccl::ProfilingManagerPub::GetAdditionInfoState() &&
+             !hccl::ProfilingManagerPub::GetTaskApiState()) &&
              !param.isCapture)
         {
             return HCCL_SUCCESS;
@@ -3010,10 +3006,11 @@ bool HcclCommunicator::IsEnableRoce()
         for (u32 j = 0; j < aiRMAInfoPtr->qpNum; j++)
         {
             const auto &aiQpInfo = aiQpVec[j];
-            aiSqHost[rankid * aiRMAInfoPtr->qpNum + j] = aiQpInfo.sq;
-            aiScqHost[rankid * aiRMAInfoPtr->qpNum + j] = aiQpInfo.scq;
-            aiRqHost[rankid * aiRMAInfoPtr->qpNum + j] = aiQpInfo.rq;
-            aiRcqHost[rankid * aiRMAInfoPtr->qpNum + j] = aiQpInfo.rcq;
+            u32 qpIndex = rankid * aiRMAInfoPtr->qpNum + j;
+            aiSqHost[qpIndex] = aiQpInfo.sq;
+            aiScqHost[qpIndex] = aiQpInfo.scq;
+            aiRqHost[qpIndex] = aiQpInfo.rq;
+            aiRcqHost[qpIndex] = aiQpInfo.rcq;
         }
         return HCCL_SUCCESS;
     }
@@ -3058,7 +3055,7 @@ bool HcclCommunicator::IsEnableRoce()
         return HCCL_SUCCESS;
     }
     
-    HcclResult HcclCommunicator::GetAivQPInfoV2(std::vector<LINK>& links, const std::string &tag, u32 localRankSize)
+    HcclResult HcclCommunicator::GetAivQPInfoV2(std::vector<LINK>& links, const std::string &tag)
     {
         HCCL_DEBUG("[HcclCommunicator][%s] Start prepare.", __func__);
         // 获取 Transport QP 数量

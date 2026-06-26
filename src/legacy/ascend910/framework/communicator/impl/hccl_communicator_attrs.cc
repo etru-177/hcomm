@@ -400,7 +400,7 @@ HcclResult HcclCommunicatorAttrs::InitRankInfoSubGroup(const std::vector<RankInf
     CHK_RET(IsHostUseDevNic(isHostUseDevNic_));
 
     groupNicRanksPort_.resize(rankInfoList_.size(), HCCL_INVALID_PORT);
-    if (nicRanksPort_.size()) {
+    if (nicRanksPort_.size() != 0) {
         for (auto &rankInfo : rankInfoList_) {
             groupNicRanksPort_[rankInfo.userRank] = nicRanksPort_[rankInfo.worldRank];
             HCCL_INFO("hostIp[%s], nicIp[%s], rankInfo.userRank[%u], rankInfo.worldRank[%u], "
@@ -412,7 +412,7 @@ HcclResult HcclCommunicatorAttrs::InitRankInfoSubGroup(const std::vector<RankInf
     bool devicePortSwitchOn = groupCommonData.devPortSwitchOn;
     if (devicePortSwitchOn) {
         groupVnicRanksPort_.resize(rankInfoList_.size(), HCCL_INVALID_PORT);
-        if (vnicRanksPort_.size()) {
+        if (vnicRanksPort_.size() != 0) {
             for (auto &rankInfo : rankInfoList_) {
                 groupVnicRanksPort_[rankInfo.userRank] = vnicRanksPort_[rankInfo.worldRank];
                 HCCL_INFO("hostIp[%s], nicIp[%s], rankInfo.userRank[%u], rankInfo.worldRank[%u], "

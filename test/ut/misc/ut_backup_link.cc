@@ -316,7 +316,7 @@ TEST_F(BackupLinkTest, ut_GetIncreRemoteRankList)
     communicator->Init(params, rankTable);
 
     std::vector<u32> rankList;
-    ret = communicator->transportManager_->GetIncreRemoteRankList(opTrans, opTrans, rankList,
+    ret = communicator->transportManager_->GetIncreRemoteRankList(opTrans, rankList,
         TransportType::TRANS_TYPE_ROCE);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     GlobalMockObject::verify();

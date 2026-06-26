@@ -5985,7 +5985,7 @@ TEST_F(OpbaseTest, ut_topoInfoExchangeServer_PreemptPortManager_releaseSocket)
     bool portSwitch = 1;
     MOCKER(GetExternalInputHostPortSwitch).stubs().will(returnValue(portSwitch));
 
-    EXPECT_EQ(topoExServer.StopSocketListen(whitelist, hostIP, hostPort), HCCL_SUCCESS);
+    EXPECT_EQ(topoExServer.StopSocketListen(whitelist, hostPort), HCCL_SUCCESS);
     GlobalMockObject::verify();
 }
 

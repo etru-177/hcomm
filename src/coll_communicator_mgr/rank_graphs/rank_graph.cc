@@ -525,7 +525,7 @@ HcclResult RankGraphV1::GetTopoInstsByLayer(uint32_t netLayer, uint32_t **topoIn
     return HCCL_SUCCESS;
 }
 
-HcclResult RankGraphV1::GetTopoType(uint32_t netLayer, uint32_t topoInstId, CommTopo *topoType)
+HcclResult RankGraphV1::GetTopoType(uint32_t netLayer, CommTopo *topoType)
 {
     if (netLayer >= netLayer_.size()) {
         return HCCL_E_PARA;

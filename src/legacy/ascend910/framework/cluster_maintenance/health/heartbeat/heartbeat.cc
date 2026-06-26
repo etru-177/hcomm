@@ -153,7 +153,7 @@ HcclResult Heartbeat::Init(const RankInfo &locRank, const bool useSuperPodMode, 
     s32 hcclExecTimeOut = CommConfiger::GetInstance().GetCommConfigExecTimeOut(group);
     stuckDetectTime_ = std::max(hcclExecTimeOut / HCCL_STUCK_DETECT_TIME_BASE, HCCL_STUCK_DETECT_TIME_MIN);
     startSendRecvTask_ = true;
-    sendRecvThread_.reset(new (std::nothrow) std::thread(&Heartbeat::HeartbeatStatusMonitor, this));
+    sendRecvThread_.reset(new (std::nothrow) std::thread(&Heartbeat::HeartbeatStatusMonitor, std::ref(*this)));
     CHK_SMART_PTR_NULL(sendRecvThread_);
     lostThreshold_ = HCCL_LOST_THRESHOLD; // 心跳丢失阈值为30s
     initialized_ = true;
@@ -1101,7 +1101,7 @@ void Heartbeat::CheckRecvOpInfoList()
                 CHK_PRT_CONT(ret == -1, HCCL_ERROR("Failed to build log info"));
                 char remoteInfo[LOG_TMPBUF_SIZE];
                 ret = snprintf_s(remoteInfo, LOG_TMPBUF_SIZE, LOG_TMPBUF_SIZE - 1U,
-                                "node[%s] optype[%s] dataType[%s] reduceOp[%s] count[%d] root[%d]",
+                                "node[%s] optype[%s] dataType[%s] reduceOp[%s] count[%lu] root[%u]",
                                 FormatUId(uid).c_str(), GetCMDTypeEnumStr(opInfoRecv.opType).c_str(), GetDataTypeEnumStr(opInfoRecv.dataType).c_str(),
                                 GetReduceOpEnumStr(opInfoRecv.reduceOp).c_str(), opInfoRecv.count, opInfoRecv.root);
                 CHK_PRT_CONT(ret == -1, HCCL_ERROR("Failed to build log info"));
@@ -1520,7 +1520,7 @@ void Heartbeat::CreateHBLinksAsync()
                 groupName.c_str(), FormatUId(remUid).c_str());
         }
         linkThreadMap_[remUid].reset(
-            new (std::nothrow) std::thread(&Heartbeat::CreateLinkWithRemote, this, groupName, remUid, connInfo));
+            new (std::nothrow) std::thread(&Heartbeat::CreateLinkWithRemote, std::ref(*this), groupName, remUid, connInfo));
         if (linkThreadMap_[remUid] == nullptr) {
             HCCL_RUN_WARNING("Group[%s] establish rank[%s] to rank[%s] heartbeat connection failed. Reason: "
                 "create thread failed.",

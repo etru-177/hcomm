@@ -276,7 +276,7 @@ TEST_F(TopoExchangeDispatcherTest, ut_Teardown)
     std::map<u32, std::shared_ptr<HcclSocket>> connectSockets;
     ret = topoServer.GetConnections(connectSockets);
     EXPECT_EQ(ret, HCCL_SUCCESS);
-    ret = topoServer.StopSocketListen(whitelist, hostIP, hostPort);
+    ret = topoServer.StopSocketListen(whitelist, hostPort);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     ret = topoServer.StopNetwork(whitelist, hostIP, hostPort);
     EXPECT_EQ(ret, HCCL_SUCCESS);

@@ -11958,10 +11958,10 @@ TEST_F(HcomTest, ut_hcom_CheckPortValid)
     RoleTableInfo roleTableInfo;
     roleTableInfo.servers = clientsInfoCtx;
     roleTableInfo.clients = clientsInfoCtx;
-    ret = CheckRoleAndRankConsistent(roleTableInfo, hcom_info.params, hcom_info.rankTable);
+    ret = CheckRoleAndRankConsistent(roleTableInfo, hcom_info.rankTable);
     EXPECT_EQ(ret, HCCL_E_PARA);
     hcom_info.rankTable.rankNum = 4;
-    ret = CheckRoleAndRankConsistent(roleTableInfo, hcom_info.params, hcom_info.rankTable);
+    ret = CheckRoleAndRankConsistent(roleTableInfo, hcom_info.rankTable);
     EXPECT_EQ(ret, HCCL_E_PARA);
     std::string rankTableM;
     ret = CfgGetRoleTableInfo(rankTableM, roleTableInfo);

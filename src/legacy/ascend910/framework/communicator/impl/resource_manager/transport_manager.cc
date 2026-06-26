@@ -829,7 +829,7 @@ HcclResult TransportManager::Alloc(const std::string &tag, const TransportIOMem 
 }
 
 HcclResult TransportManager::GetIncreRemoteRankList(OpCommTransport &opTransportReq,
-    OpCommTransport &opTransportResponse, std::vector<u32> &rankList, TransportType transportType)
+    std::vector<u32> &rankList, TransportType transportType)
 {
     for (u32 levelIndex = 0; levelIndex < opTransportReq.size(); levelIndex++) {
         for (u32 ringIndex = 0; ringIndex < opTransportReq[levelIndex].size(); ringIndex++) {
@@ -1086,7 +1086,7 @@ uint32_t TransportManager::GetConnectMode(RankId remoteRank)
 HcclResult TransportManager::GetTransNewTag(const std::string &tag, std::string &newTag, RankId remoteRank,
     bool &isInterRdma, u32 subCommIndex, TransportLinkType linkType, HcclRankLinkInfo remoteLink, uint32_t mode)
 {
-    if (mode) {
+    if (mode != 0) {
         if (userRank_ < remoteRank) {
             newTag = identifier_ + "_" + std::to_string(userRank_) + "_" + std::to_string(remoteRank) + "_" +
                 devIpAddr_[0].GetReadableIP() + "_" + remoteLink.ip.GetReadableIP();
@@ -1341,7 +1341,7 @@ HcclResult TransportManager::CreateLink(const std::string &tag, const ErrContext
                 machinePara.queueDepthAttr.sqDepth = SEND_QP_DEPTH_FOR_BSR;
             }
         }
-        ret = TransportInit(remoteRank, machinePara, link, enableUseOneDoorbell, isUsedRdma, type);
+        ret = TransportInit(machinePara, link, enableUseOneDoorbell, type);
         retOut = ret;
         CHK_PRT_BREAK(ret != HCCL_SUCCESS, HCCL_ERROR("[%s]errNo[0x%016llx]TransportInit error.", __func__, HCCL_ERROR_CODE(ret)),);
     } while(0);
@@ -1531,7 +1531,7 @@ HcclResult TransportManager::GetTransportType(const u32 dstRank, bool isUsedRdma
     return HCCL_SUCCESS;
 }
 
-void TransportManager::SetTransportParam(TransportPara &para, MachinePara &machinePara)
+void TransportManager::SetTransportParam(TransportPara &para)
 {
     std::chrono::milliseconds kdefaultTimeout = std::chrono::seconds(
         GetExternalInputHcclLinkTimeOut());
@@ -1539,12 +1539,12 @@ void TransportManager::SetTransportParam(TransportPara &para, MachinePara &machi
     para.virtualFlag = false;
 }
 
-HcclResult TransportManager::TransportInit(const u32 dstRank, MachinePara &machinePara,
-    std::shared_ptr<Transport> &link, bool useOneDoorbell, bool isUsedRdma, TransportType type)
+HcclResult TransportManager::TransportInit(MachinePara &machinePara,
+    std::shared_ptr<Transport> &link, bool useOneDoorbell, TransportType type)
 {
     // 实例化TransportBase
     TransportPara para{};
-    SetTransportParam(para, machinePara);
+    SetTransportParam(para);
 
     if (type == TransportType::TRANS_TYPE_P2P) {
         link.reset(new (std::nothrow) Transport(type, para, dispatcher_, notifyPool_, machinePara));

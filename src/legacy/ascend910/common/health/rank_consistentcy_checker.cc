@@ -393,7 +393,7 @@ bool RankConsistentcyChecker::CompareCrcInfo(const  HcclCMDInfo &hcclCMDInfo, Hc
 }
 
 void RankConsistentcyChecker::ReportCmdInfoCheckFailed(const HcclCMDInfo &hcclCMDInfo, const std::string &paraName,
-    const std::string &localPara, const std::string &remotePara)
+    const std::string &localPara, const std::string &remotePara) const
 {
     ReportCommonError(hcclCMDInfo, paraName, localPara, remotePara, "CMD information" );
 }
@@ -405,7 +405,7 @@ void RankConsistentcyChecker::ReportCmdInfoCheckFailed(const HcclCMDInfo &hcclCM
 }
 
 void RankConsistentcyChecker::ReportCrcCheckFailed(const HcclCMDInfo &hcclCMDInfo, HcclCrcRecordType crcType,
-    const uint32_t localCrc, const uint32_t remoteCrc)
+    const uint32_t localCrc, const uint32_t remoteCrc) const
 {
     const auto crcTypeStr = GetCRCTypeEnumStr(crcType);
     ReportCommonError(hcclCMDInfo, crcTypeStr, std::to_string(localCrc), std::to_string(remoteCrc), "CRC check");

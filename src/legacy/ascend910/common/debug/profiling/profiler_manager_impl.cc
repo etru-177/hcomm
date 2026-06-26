@@ -316,11 +316,11 @@ void ProfilerManagerImpl::HandleGraphLaunchTask(struct TaskPara *taskPara)
         HcclResult retCapture = GetStreamCaptureInfo(taskPara->stream, rtModel, isCapture);
         CHK_PRT_CONT(retCapture != HCCL_SUCCESS,
             HCCL_ERROR("Get capture status error. return[%d], capture model", retCapture));
-        if (!profilingManager.GetFftsLaunchApiState() || isCapture) {
+        if (profilingManager.GetFftsLaunchApiState() || isCapture) {
             // 上报批量下发的ContextId信息
             (void)profilingManager.CallMsprofReportContextIdInfo((taskPara->graphLaunch.ctxNum - 1));
 
-            if (!profilingManager.GetTaskApiState() || isCapture) {
+            if (profilingManager.GetTaskApiState() || isCapture) {
                 // 上报编排的task(memcpy\notify等) addition Info
                 profilingManager.ReportStoragedFftsInfo();
             }

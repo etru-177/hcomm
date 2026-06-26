@@ -141,11 +141,11 @@ private:
     bool CompareFrame(HcclCheckInfo &checkInfo, HcclCheckInfo &checkInfoRecv);
     bool CompareCrcInfo(const  HcclCMDInfo &hcclCMDInfo, HcclCRCInfo &crcInfo, HcclCRCInfo &crcInfoRecv);
     void ReportCmdInfoCheckFailed(const HcclCMDInfo &hcclCMDInfo, const std::string &paraName,
-        const std::string &localPara, const std::string &remotePara);
+        const std::string &localPara, const std::string &remotePara) const;
     void ReportCmdInfoCheckFailed(const HcclCMDInfo &hcclCMDInfo, const std::string &paraName,
         uint32_t localPara, uint32_t remotePara);
     void ReportCrcCheckFailed(const HcclCMDInfo &hcclCMDInfo, HcclCrcRecordType crcType, const uint32_t localCrc,
-        const uint32_t remoteCrc); // 打印CRC校验失败信息
+        const uint32_t remoteCrc) const; // 打印CRC校验失败信息
     void ReportCommonError(const HcclCMDInfo &hcclCMDInfo, const std::string &paraName,
         const std::string &localParaStr, const std::string &remoteParaStr, const std::string &errorMsg) const;
     void CompareCmdInfo(HcclCheckInfo &checkInfo, HcclCheckInfo &checkInfoRecv);

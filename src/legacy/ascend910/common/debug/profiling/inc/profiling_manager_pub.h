@@ -22,8 +22,8 @@ namespace hccl {
 class ProfilingManagerPub {
 public:
     static HcclResult CallMsprofReportMultiThreadInfo(const std::vector<uint32_t> &tidInfo);
-    static HcclResult GetAdditionInfoState();
-    static HcclResult GetTaskApiState();
+    static bool GetAdditionInfoState();
+    static bool GetTaskApiState();
     static HcclResult CallMsprofReportHostApi(HcclCMDType cmdType, uint64_t beginTime, u64 count, HcclDataType dataType,
         AlgType algType, uint64_t groupName, u32 numBlocks=0);
     static HcclResult CallMsprofReportMc2CommInfo(uint64_t timeStamp, const void *data, int len);

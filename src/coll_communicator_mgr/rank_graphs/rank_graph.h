@@ -50,7 +50,7 @@ public:
     HcclResult GetInstSizeListByNetLayer(uint32_t netLayer, uint32_t **instSizeList, uint32_t *listSize) override;
 
     HcclResult GetTopoInstsByLayer(uint32_t netLayer, uint32_t **topoInsts, uint32_t *topoInstNum);
-    HcclResult GetTopoType(uint32_t netLayer, uint32_t topoInstId, CommTopo *topoType);
+    HcclResult GetTopoType(uint32_t netLayer, CommTopo *topoType);
     HcclResult GetRanksByTopoInst(uint32_t netLayer, uint32_t topoInstId, uint32_t **ranks, uint32_t *rankNum);
     std::vector<const RankInfo_t *> GetRanksInTopoInst(uint32_t netLayer, uint32_t topoInstId);
     std::set<CommProtocol> GetProtocolsByConnections(uint32_t netLayer,

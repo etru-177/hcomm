@@ -242,7 +242,7 @@ HcclResult SnapshotControl::PreProcess()
     CHK_RET(SetStatus(SnapshotStatus::PRE_SNAPSHOT));
     CHK_RET(CheckCommsPreProcess());
 
-    if (commCallbacks_.size()) {
+    if (commCallbacks_.size() != 0) {
         CHK_RET(DevicePreProcess());
     }
 
@@ -290,7 +290,7 @@ HcclResult SnapshotControl::DevicePostProcess()
 
 HcclResult SnapshotControl::PostProcess()
 {
-    if (commCallbacks_.size()) {
+    if (commCallbacks_.size() != 0) {
         CHK_RET(DevicePostProcess());
     }
 
@@ -342,7 +342,7 @@ HcclResult SnapshotControl::Recovery()
 {
     HCCL_ERROR("-------------------- THE ABOVE AND THIS ERROR LOG CAN BE IGNORED. --------------------");
 
-    if (commCallbacks_.size()) {
+    if (commCallbacks_.size() != 0) {
         CHK_RET(DeviceRestore());
     }
 

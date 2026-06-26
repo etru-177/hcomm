@@ -347,7 +347,7 @@ HcclResult TopoinfoRanktableConcise::GetDeviceList(const nlohmann::json &serverL
 }
 
 HcclResult TopoinfoRanktableConcise::GetSingleNicInfo(const nlohmann::json &serverListObj, u32 objIndex,
-    RankTable_t &clusterInfo, RankInfo_t &rankinfo)
+    RankInfo_t &rankinfo)
 {
     std::string netPosition;
     rankinfo.deviceInfo.nicDeploy = NICDeployment::NIC_DEPLOYMENT_DEVICE;
@@ -427,7 +427,7 @@ HcclResult TopoinfoRanktableConcise::GetSingleDevice(const nlohmann::json &devic
     CHK_RET(GetSingleDeviceIp(deviceListObj, objIndex, clusterInfo, rankinfo, deviceType, rankinfo.hostIp.IsInvalid()));
     CHK_RET(GetSingleDevicePort(deviceListObj, objIndex, rankinfo));
     CHK_RET(GetSingleBackupDeviceIp(deviceListObj, objIndex, rankinfo));
-    CHK_RET(GetSingleNicInfo(deviceListObj, objIndex, clusterInfo, rankinfo));
+    CHK_RET(GetSingleNicInfo(deviceListObj, objIndex, rankinfo));
 
     if (SalStrToULong(rankId, HCCL_BASE_DECIMAL, rankinfo.rankId) != HCCL_SUCCESS) {
         RPT_INPUT_ERR(true, "EI0014", std::vector<std::string>({ "value", "variable" ,"expect" }),

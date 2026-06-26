@@ -98,8 +98,8 @@ namespace hccl
         }
         if (devIdList.size() == (DEVICE_PER_MODULE / FACTOR_NUM_TWO) && checkDevList[0].size() == checkDevList[1].size())
         {
-            return (checkDevList[1][0] - checkDevList[0][0]) == 1 &&
-                   (checkDevList[1][1] - checkDevList[0][1]);
+            return ((checkDevList[1][0] - checkDevList[0][0]) == 1) &&
+                   ((checkDevList[1][1] - checkDevList[0][1]) != 0);
         }
         else
         {
@@ -856,7 +856,7 @@ namespace hccl
                 }
             }
             u32 tmpsize = INVALID_VALUE_RANKSIZE;
-            if (aggregationRankSize0 && aggregationRankSize1)
+            if ((aggregationRankSize0 != 0) && (aggregationRankSize1 != 0))
             {
                 tmpsize = aggregationRankSize0;
             }
@@ -989,7 +989,7 @@ namespace hccl
         }
         // 机间卡数不一致场景下，IP有效情况下就走RDMA
         // 机间卡数一致场景下，需环境变量ROCE打开(多机环境下未对IsEnableRoce开关进行控制)且IP有效情况下走RDMA
-        return ((GetExternalInputIntraRoceSwitch() || multiModuleDiffDeviceNumMode_ || isDiffDeviceType_) && ipInvalid);
+        return ((GetExternalInputIntraRoceSwitch() != 0 || multiModuleDiffDeviceNumMode_ || isDiffDeviceType_) && ipInvalid);
     }
 
     bool HcclCommunicatorAttrs::IsSupportEnableRoce()
@@ -1003,7 +1003,7 @@ namespace hccl
         }
         else if (deviceType_ == DevType::DEV_TYPE_910B)
         {
-            roceSwitch = (GetExternalInputIntraRoceSwitch() && (!isSingleMeshAggregation_ || isStandardCard_)) ||
+            roceSwitch = ((GetExternalInputIntraRoceSwitch() != 0) && (!isSingleMeshAggregation_ || isStandardCard_)) ||
                          multiModuleDiffDeviceNumMode_;
         }
         else if (deviceType_ == DevType::DEV_TYPE_910_93)

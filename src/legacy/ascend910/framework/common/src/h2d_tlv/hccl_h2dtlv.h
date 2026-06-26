@@ -11,10 +11,7 @@
 #ifndef HCCL_H2DTLV_H
 #define HCCL_H2DTLV_H
 
-#include <vector>
 #include <memory>
-#include <map>
-#include <mutex>
 
 #include "hccl/base.h"
 #include "hccl_common.h"

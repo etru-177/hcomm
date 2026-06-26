@@ -974,7 +974,6 @@ HcclResult TopoInfoExchangeAgent::VerifyClusterSuperPodInfo(const std::vector<Ra
                     errormessage.c_str());
                 return HCCL_E_PARA;
             }
-
         }
     }
 

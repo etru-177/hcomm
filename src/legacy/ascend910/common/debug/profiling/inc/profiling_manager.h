@@ -102,20 +102,20 @@ public:
 
     void StartFftsLaunchSubscribe()
     {
-        isFftsLaunchSubscribe_ = HCCL_SUCCESS;
+        isFftsLaunchSubscribe_ = true;
         CallMsprofRegFftsLaunch();
         HCCL_RUN_INFO("StartFftsLaunchSubscribe:[%d]", isFftsLaunchSubscribe_);
     }
 
     void StartHostHcclOpSubscribe()
     {
-        isHostHcclOpSubscribe_ = HCCL_SUCCESS;
+        isHostHcclOpSubscribe_ = true;
         HCCL_RUN_INFO("StartHostHcclOpSubscribe:[%d]", isHostHcclOpSubscribe_);
     }
 
     void StartHostApiSubscribe()
     {
-        isHostApiSubscribe_ = HCCL_SUCCESS;
+        isHostApiSubscribe_ = true;
         CallMsprofRegHostApi();
         ReportStoragedCompactInfo();
         HCCL_RUN_INFO("SetHostApiSubscribe:[%d]", isHostApiSubscribe_);
@@ -123,14 +123,14 @@ public:
 
     void StartTaskApiSubscribe()
     {
-        isTaskApiSubscribe_ = HCCL_SUCCESS;
+        isTaskApiSubscribe_ = true;
         CallMsprofRegTaskTypeApi();
         HCCL_RUN_INFO("SetTaskApiSubscribe:[%d]", isTaskApiSubscribe_);
     }
 
     void StartAdditionInfoSubscribe()
     {
-        isAdditionInfoSubscribe_ = HCCL_SUCCESS;
+        isAdditionInfoSubscribe_ = true;
         ReportStoragedAdditionInfo();
         HCCL_RUN_INFO("StartAdditionInfoSubscribe:[%d]", isAdditionInfoSubscribe_);
     }
@@ -171,14 +171,14 @@ public:
 
     void EsStartTaskApiSubscribe()
     {
-        isTaskApiSubscribe_ = HCCL_SUCCESS;
+        isTaskApiSubscribe_ = true;
         CallMsprofRegEsTaskTypeApi();
         HCCL_INFO("EsStartTaskApiSubscribe:[%d]", isTaskApiSubscribe_);
     }
 
     void EsStartAdditionInfoSubscribe()
     {
-        isAdditionInfoSubscribe_ = HCCL_SUCCESS;
+        isAdditionInfoSubscribe_ = true;
         HCCL_INFO("[Check][Param]EsStartAdditionInfoSubscribe.");
     }
 
@@ -205,11 +205,11 @@ public:
         CallMsprofRegHcclOpApi();
         ReportStoragedOpApi();
         ReportStoragedTaskApi();
-        isHostApiSubscribe_ = HCCL_E_NOT_SUPPORT;
-        isHostHcclOpSubscribe_ = HCCL_E_NOT_SUPPORT;
-        isTaskApiSubscribe_ = HCCL_E_NOT_SUPPORT;
-        isAdditionInfoSubscribe_ = HCCL_E_NOT_SUPPORT;
-        isFftsLaunchSubscribe_ = HCCL_E_NOT_SUPPORT;
+        isHostApiSubscribe_ = false;
+        isHostHcclOpSubscribe_ = false;
+        isTaskApiSubscribe_ = false;
+        isAdditionInfoSubscribe_ = false;
+        isFftsLaunchSubscribe_ = false;
         HCCL_RUN_INFO("[ProfilingManage]StopSubscribe.");
     }
 
@@ -217,30 +217,30 @@ public:
     {
         // profconfig同步到platform
         SetProfConfig(profconfig);
-        isTaskApiSubscribe_ = HCCL_E_NOT_SUPPORT;
-        isAdditionInfoSubscribe_ = HCCL_E_NOT_SUPPORT;
+        isTaskApiSubscribe_ = false;
+        isAdditionInfoSubscribe_ = false;
         HCCL_INFO("[Check][Param]EsStopSubscribe.");
     }
 
-    HcclResult GetFftsLaunchApiState()
+    bool GetFftsLaunchApiState()
     {
         return isFftsLaunchSubscribe_;
     }
-    HcclResult GetAdditionInfoState()
+    bool GetAdditionInfoState()
     {
         return isAdditionInfoSubscribe_;
     }
-    HcclResult GetTaskApiState()
+    bool GetTaskApiState()
     {
         return isTaskApiSubscribe_;
     }
     bool GetAllState()
     {
-        return (isHostApiSubscribe_ == HCCL_E_NOT_SUPPORT) &&
-               (isTaskApiSubscribe_ == HCCL_E_NOT_SUPPORT) &&
-               (isAdditionInfoSubscribe_ == HCCL_E_NOT_SUPPORT) &&
-               (isHostHcclOpSubscribe_ == HCCL_E_NOT_SUPPORT) &&
-               (isFftsLaunchSubscribe_ == HCCL_E_NOT_SUPPORT);
+        return !isHostApiSubscribe_ &&
+               !isTaskApiSubscribe_ &&
+               !isAdditionInfoSubscribe_ &&
+               !isHostHcclOpSubscribe_ &&
+               !isFftsLaunchSubscribe_;
     }
     void SetFftsDispatcherMode();
     void ReSetFftsDispatcherMode();
@@ -249,11 +249,11 @@ public:
     static void DeleteThreadCaptureStatus(s32 threadID);
 private:
     MsprofReporterCallback reporterCallback_;
-    HcclResult isHostApiSubscribe_ = HCCL_E_NOT_SUPPORT;
-    HcclResult isTaskApiSubscribe_ = HCCL_E_NOT_SUPPORT;
-    HcclResult isAdditionInfoSubscribe_ = HCCL_E_NOT_SUPPORT;
-    HcclResult isHostHcclOpSubscribe_ = HCCL_E_NOT_SUPPORT;
-    HcclResult isFftsLaunchSubscribe_ = HCCL_E_NOT_SUPPORT;
+    bool isHostApiSubscribe_ = false;
+    bool isTaskApiSubscribe_ = false;
+    bool isAdditionInfoSubscribe_ = false;
+    bool isHostHcclOpSubscribe_ = false;
+    bool isFftsLaunchSubscribe_ = false;
     static std::queue<MsprofApi> storageTaskApi_;
     static std::array<std::queue<MsprofAdditionalInfo>, MAX_MODULE_DEVICE_NUM> storageAdditionInfo_;
     static std::array<std::mutex, MAX_MODULE_DEVICE_NUM> reportAddInfoMutex_;

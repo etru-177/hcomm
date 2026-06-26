@@ -50,6 +50,6 @@ TEST_F(TopoinfoRanktableConciseTest, Ut_GetSingleNicInfo_When_EmptyJsonArray_Exp
     RankTable_t clusterInfo;
     RankInfo_t rankinfo;
 
-    HcclResult ret = topoParser.GetSingleNicInfo(serverListObj, objIndex, clusterInfo, rankinfo);
+    HcclResult ret = topoParser.GetSingleNicInfo(serverListObj, objIndex, rankinfo);
     EXPECT_EQ(ret, HCCL_E_NOT_SUPPORT);
 }
