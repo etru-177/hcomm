@@ -878,6 +878,8 @@ CcuResult CcuKernel::IfBegin(CcuVariableHandle varHandle, uint64_t immediate,
     CcuRep::Variable *variable{nullptr};
     CCU_CHK_RET(GetVariableByHandle(varHandle, &variable));
 
+    FlushClosablePendingIfs();
+
     std::string labelStr(label);
     if (pendingIfCtx_.find(labelStr) != pendingIfCtx_.end()) {
         HCCL_ERROR("[%s] label '%s' already has a pending IfBegin without IfEnd", __func__, label);
