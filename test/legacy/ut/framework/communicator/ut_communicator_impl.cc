@@ -3739,6 +3739,23 @@ TEST_F(CommunicatorImplTest, Ut_SaveDpuStreamId_When_Normal_Expect_ReturnSuccess
     EXPECT_EQ(comm.GetDpuStreamId(), static_cast<u32>(fakeStreamId));
 }
 
+// 测试 LaunchDpuKernel - aclrtLaunchKernelWithHostArgs 返回成功
+TEST_F(CommunicatorImplTest, Ut_LaunchDpuKernel_When_aclrtLaunchKernelWithHostArgsSuccess_Expect_ReturnSuccess)
+{
+    CommunicatorImpl comm;
+    comm.id = "test_comm";
+    comm.devLogicId = 0;
+    aclrtStream fakeStream = reinterpret_cast<aclrtStream>(0x11111111);
+    comm.dpuStream = fakeStream;
+    aclrtFuncHandle fakeFuncHandle = reinterpret_cast<aclrtFuncHandle>(0x22222222);
+
+    MOCKER(HrtGetStreamId).stubs().with(mockcpp::any()).will(returnValue(0));
+    MOCKER(aclrtLaunchKernelWithHostArgs).stubs().will(returnValue(ACL_SUCCESS));
+
+    HcclResult ret = comm.LaunchDpuKernel(fakeFuncHandle);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
 TEST_F(TryFastCcuLaunchTest, GetJsonPorperty_When_MissingProperty_Expect_Throw)
 {
     nlohmann::json obj = nlohmann::json::object();

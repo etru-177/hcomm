@@ -17,7 +17,7 @@
 #include <memory>
 #include "task_service.h"
 
-extern std::unordered_map<std::string, std::unique_ptr<Hccl::TaskService>> g_taskServiceMap;
+extern std::unordered_map<std::string, std::unordered_map<int32_t, std::unique_ptr<Hccl::TaskService>>> g_taskServiceMap;
 extern "C" {
 __attribute__((visibility("default"))) uint32_t RunDpuRpcSrvLaunch(const uint64_t args);
 }

@@ -397,6 +397,13 @@ public:
      
     HcclResult GetRankIpPortMap(RankIpPortMapPtr& rankIpPortMap);
     HcclResult SetRankIpPortMap(const RankIpPortMapPtr& rankIpPortMap);
+    struct DpuKernelLaunchParam {
+        u64         memorySize;
+        void       *shareHBM;
+        void       *hostMem;
+        int32_t     deviceId;
+        std::string commId;
+    };
 
 private:
     std::string                                id;
@@ -483,6 +490,7 @@ private:
     std::shared_ptr<DevBuffer> barrierOutMemory;
     std::unordered_map<std::string, std::shared_ptr<DevBuffer>> tagWorkspaceMap_;
     bool isFirstBarrier = true;
+    DpuKernelLaunchParam hostArgs;
     // Dpu Kernel Launch 申请的共享内存
     void* hostShareBuf{nullptr};
     void* va_{nullptr};

@@ -34,6 +34,8 @@
 #include "communicator_callback.h"
 #include "task_abort_handler.h"
 #include "internal_exception.h"
+#include "task_service.h"
+#include "hostdpu/dpu_kernel_entrance.h"
 #undef private
  
 using namespace Hccl;
@@ -2731,6 +2733,99 @@ TEST_F(OpbaseTestV2, Ut_HcclRankGraphGetEndpointDescV2_When_Valid_Expect_ReturnH
     HcclResult ret = HcclRankGraphGetEndpointDescV2(comm, layer, topoInstId, &descNum, endPointDesc);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     delete[] endPointDesc;
+}
+
+// HcclTaskRegisterV2 Tests
+
+TEST_F(OpbaseTestV2, Ut_HcclTaskRegisterV2_When_CommIdNotFound_Expect_ReturnHCCL_E_NOT_FOUND)
+{
+    Hccl::CommParams commParams;
+    std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
+    HcclComm comm = static_cast<HcclComm>(hcclComm.get());
+    g_taskServiceMap.clear();
+
+    HcclResult ret = HcclTaskRegisterV2(comm, "test_tag", [](uint64_t, int32_t) -> int32_t { return 0; });
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+}
+
+TEST_F(OpbaseTestV2, Ut_HcclTaskRegisterV2_When_DeviceIdNotFound_Expect_ReturnHCCL_E_NOT_FOUND)
+{
+    Hccl::CommParams commParams;
+    std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
+    HcclComm comm = static_cast<HcclComm>(hcclComm.get());
+    g_taskServiceMap.clear();
+
+    std::string commId = hcclComm->GetId();
+    auto taskService = std::make_unique<Hccl::TaskService>();
+    g_taskServiceMap[commId][9999] = std::move(taskService);
+
+    HcclResult ret = HcclTaskRegisterV2(comm, "test_tag", [](uint64_t, int32_t) -> int32_t { return 0; });
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+    g_taskServiceMap.clear();
+}
+
+// HcclTaskRegisterProfV2 Tests
+
+TEST_F(OpbaseTestV2, Ut_HcclTaskRegisterProfV2_When_CommIdNotFound_Expect_ReturnHCCL_E_NOT_FOUND)
+{
+    Hccl::CommParams commParams;
+    std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
+    HcclComm comm = static_cast<HcclComm>(hcclComm.get());
+    g_taskServiceMap.clear();
+
+    Hccl::ProfCallbackTemplate callback = [](const Hccl::TaskParam&, uint64_t) -> HcclResult {
+        return HCCL_SUCCESS;
+    };
+    HcclResult ret = HcclTaskRegisterProfV2(comm, callback);
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+}
+
+TEST_F(OpbaseTestV2, Ut_HcclTaskRegisterProfV2_When_DeviceIdNotFound_Expect_ReturnHCCL_E_NOT_FOUND)
+{
+    Hccl::CommParams commParams;
+    std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
+    HcclComm comm = static_cast<HcclComm>(hcclComm.get());
+    g_taskServiceMap.clear();
+
+    std::string commId = hcclComm->GetId();
+    auto taskService = std::make_unique<Hccl::TaskService>();
+    g_taskServiceMap[commId][9999] = std::move(taskService);
+
+    Hccl::ProfCallbackTemplate callback = [](const Hccl::TaskParam&, uint64_t) -> HcclResult {
+        return HCCL_SUCCESS;
+    };
+    HcclResult ret = HcclTaskRegisterProfV2(comm, callback);
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+    g_taskServiceMap.clear();
+}
+
+// HcclTaskUnRegisterV2 Tests
+
+TEST_F(OpbaseTestV2, Ut_HcclTaskUnRegisterV2_When_CommIdNotFound_Expect_ReturnHCCL_E_NOT_FOUND)
+{
+    Hccl::CommParams commParams;
+    std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
+    HcclComm comm = static_cast<HcclComm>(hcclComm.get());
+    g_taskServiceMap.clear();
+
+    HcclResult ret = HcclTaskUnRegisterV2(comm, "test_tag");
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+}
+
+TEST_F(OpbaseTestV2, Ut_HcclTaskUnRegisterV2_When_DeviceIdNotFound_Expect_ReturnHCCL_E_NOT_FOUND)
+{
+    Hccl::CommParams commParams;
+    std::shared_ptr<Hccl::HcclCommunicator> hcclComm = std::make_shared<Hccl::HcclCommunicator>(commParams);
+    HcclComm comm = static_cast<HcclComm>(hcclComm.get());
+    g_taskServiceMap.clear();
+
+    std::string commId = hcclComm->GetId();
+    auto taskService = std::make_unique<Hccl::TaskService>();
+    g_taskServiceMap[commId][9999] = std::move(taskService);
+
+    HcclResult ret = HcclTaskUnRegisterV2(comm, "test_tag");
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+    g_taskServiceMap.clear();
 }
 
 TEST_F(OpbaseTestV2, Ut_HcclRankGraphGetEndpointDescV2_When_InValid_Expect_ReturnHCCL_E_NOT_FOUND)

@@ -450,17 +450,31 @@ HcclResult HcclCommInitClusterInfoConfigV2(
     return HCCL_SUCCESS;
 }
 
+HcclResult HcclCheckTaskServiceExist(const std::string &commId, s32 deviceId)
+{
+    auto outerIt = g_taskServiceMap.find(commId);
+    if (outerIt == g_taskServiceMap.end()) {
+        HCCL_ERROR("[CheckTaskServiceExist] TaskService of CommId[%s] deviceId[%d],CommId  Not Found", commId.c_str(), deviceId);
+        return HCCL_E_NOT_FOUND;
+    }
+    auto innerIt = outerIt->second.find(deviceId);
+    if (innerIt == outerIt->second.end()) {
+        HCCL_ERROR("[CheckTaskServiceExist] TaskService of CommId[%s] deviceId[%d],deviceId Not Found", commId.c_str(), deviceId);
+        return HCCL_E_NOT_FOUND;
+    }
+    return HCCL_SUCCESS;
+}
+
 HcclResult HcclTaskRegisterV2(HcclComm comm, const char *msgTag, Callback cb)
 {
     HCCL_RUN_INFO("[HcclTaskRegisterV2] start to register task");
     CHK_PTR_NULL(comm);
     Hccl::HcclCommunicator *communicator = static_cast<Hccl::HcclCommunicator *>(comm);
     std::string commId = communicator->GetId();
-    if (g_taskServiceMap.find(commId) == g_taskServiceMap.end()) {
-        HCCL_ERROR("[HcclTaskRegisterV2] TaskService of CommId[%s] Not Found, g_taskServiceMap size[%zu]", commId.c_str(), g_taskServiceMap.size());
-        return HCCL_E_NOT_FOUND;
-    }
-    return g_taskServiceMap[commId]->TaskRegister(msgTag, cb);
+    s32 deviceId = communicator->GetDeviceLogicId();
+    CHK_RET(HcclCheckTaskServiceExist(commId, deviceId));
+
+    return g_taskServiceMap[commId][deviceId]->TaskRegister(msgTag, cb);
 }
 
 HcclResult HcclTaskRegisterProfV2(HcclComm comm, ProfCallbackTemplate profCallback)
@@ -469,11 +483,9 @@ HcclResult HcclTaskRegisterProfV2(HcclComm comm, ProfCallbackTemplate profCallba
     Hccl::HcclCommunicator *communicator = static_cast<Hccl::HcclCommunicator *>(comm);
     std::string commId = communicator->GetId();
     HCCL_INFO("[HcclTaskRegisterProfV2] commId[%s]", commId.c_str());
-    if (g_taskServiceMap.find(commId) == g_taskServiceMap.end()) {
-        HCCL_ERROR("[HcclTaskRegisterProfV2] TaskService of CommId[%s] Not Found, g_taskServiceMap size[%zu]", commId.c_str(), g_taskServiceMap.size());
-        return HCCL_E_NOT_FOUND;
-    }
-    return g_taskServiceMap[commId]->TaskProfRegister(profCallback);
+    s32 deviceId = communicator->GetDeviceLogicId();
+    CHK_RET(HcclCheckTaskServiceExist(commId, deviceId));
+    return g_taskServiceMap[commId][deviceId]->TaskProfRegister(profCallback);
 }
 
 HcclResult HcclGetDpuSteamIdV2(HcclComm comm, u32 &dpuStreamId) {
@@ -494,11 +506,9 @@ HcclResult HcclTaskUnRegisterV2(HcclComm comm, const char *msgTag)
     CHK_PTR_NULL(comm);
     Hccl::HcclCommunicator *communicator = static_cast<Hccl::HcclCommunicator *>(comm);
     std::string commId = communicator->GetId();
-    if (g_taskServiceMap.find(commId) == g_taskServiceMap.end()) {
-        HCCL_ERROR("[HcclTaskUnRegisterV2] TaskService of CommId[%s] Not Found, g_taskServiceMap size[%zu]", commId.c_str(), g_taskServiceMap.size());
-        return HCCL_E_NOT_FOUND;
-    }
-    return g_taskServiceMap[commId]->TaskUnRegister(msgTag);
+    s32 deviceId = communicator->GetDeviceLogicId();
+    CHK_RET(HcclCheckTaskServiceExist(commId, deviceId));
+    return g_taskServiceMap[commId][deviceId]->TaskUnRegister(msgTag);
 }
 
 HcclResult HcclGetRootInfoV2(HcclRootInfo *rootInfo)

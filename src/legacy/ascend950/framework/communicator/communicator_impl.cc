@@ -81,15 +81,6 @@ constexpr uint8_t DEVICE_SIGNAL_THIRD = 3;
 constexpr uint32_t TEMP_DEV_TYPE_DPU = 0; // 临时适配，后续rts接口上库之后使用rts的定义
 static std::atomic<u32> g_commNum(0);     // 一个进程内创建的通信域数量
 
-struct DpuKernelLaunchParam {
-    u64         memorySize;
-    void       *shareHBM;
-    void       *hostMem;
-    int32_t     deviceId;
-    std::string commId;
-};
-DpuKernelLaunchParam hostArgsTemp;
-
 // 支持零拷贝算子的白名单
 std::set<OpType> opWhiteSet = {
     OpType::BROADCAST,
@@ -2444,7 +2435,13 @@ CommunicatorImpl::~CommunicatorImpl()
         free(hostShareBuf);
         hostShareBuf = nullptr;
     }
-    g_taskServiceMap.erase(id);
+    auto outerIt = g_taskServiceMap.find(id);
+    if (outerIt != g_taskServiceMap.end()) {
+        outerIt->second.erase(devLogicId);
+        if (outerIt->second.empty()) {
+            g_taskServiceMap.erase(id);
+        }
+    }
     (void)NotifyAicpuDestroyComm();
     ccuDrvHandle = nullptr;
 
@@ -3245,19 +3242,19 @@ HcclResult CommunicatorImpl::LaunchDpuKernel(aclrtFuncHandle &funcHandle)
     cfg.numAttrs             = 1;
     cfg.attrs                = &kernelAttr;
     constexpr u32 numBlocks   = 1;
-    hostArgsTemp.commId     = id;
-    hostArgsTemp.memorySize = SHARE_HBM_MEMORY_SIZE;
-    hostArgsTemp.hostMem    = hostShareBuf;
-    hostArgsTemp.shareHBM = accessVA_;
-    hostArgsTemp.deviceId = devLogicId;
+    hostArgs.commId     = id;
+    hostArgs.memorySize = SHARE_HBM_MEMORY_SIZE;
+    hostArgs.hostMem    = hostShareBuf;
+    hostArgs.shareHBM = accessVA_;
+    hostArgs.deviceId = devLogicId;
     HCCL_INFO("[CommunicatorImpl::%s] DpuKernelLaunchParam{commId:%s; memorySize:%u; shareHBM:%p; hostMem:%p}",
-              __func__, hostArgsTemp.commId.c_str(), hostArgsTemp.memorySize, hostArgsTemp.shareHBM,
-              hostArgsTemp.hostMem);
+              __func__, hostArgs.commId.c_str(), hostArgs.memorySize, hostArgs.shareHBM,
+              hostArgs.hostMem);
     CHK_RET(SaveDpuStreamId());
-    size_t               argsSize = sizeof(hostArgsTemp);
+    size_t               argsSize = sizeof(hostArgs);
     aclrtPlaceHolderInfo placeHolderArrays;
     size_t               placeHolderNum = 0;
-    if (aclrtLaunchKernelWithHostArgs(funcHandle, numBlocks, dpuStream, &cfg, &hostArgsTemp, argsSize,
+    if (aclrtLaunchKernelWithHostArgs(funcHandle, numBlocks, dpuStream, &cfg, &hostArgs, argsSize,
                                       &placeHolderArrays, placeHolderNum)
         != ACL_SUCCESS) {
         HCCL_ERROR("[CommunicatorImpl::%s] Launch Dpu Kernel Failed", __func__);

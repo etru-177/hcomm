@@ -14,7 +14,7 @@
 
 using namespace Hccl;
 using u64 = unsigned long long;
-std::unordered_map<std::string, std::unique_ptr<Hccl::TaskService>> g_taskServiceMap;
+std::unordered_map<std::string, std::unordered_map<int32_t, std::unique_ptr<Hccl::TaskService>>> g_taskServiceMap;
 extern "C" {
 __attribute__((visibility("default"))) uint32_t RunDpuRpcSrvLaunch(const uint64_t args)
 {
@@ -63,11 +63,11 @@ __attribute__((visibility("default"))) uint32_t RunDpuRpcSrvLaunch(const uint64_
 
     // 设置到通信域中保存 map<commId, TaskService>
     HCCL_INFO("[%s] save TaskService", __func__);
-    g_taskServiceMap.insert(std::make_pair(params->commId, std::move(taskService)));
+    g_taskServiceMap[params->commId][params->deviceId] = std::move(taskService);
 
     // Run
     HCCL_INFO("[%s] start to TaskRun", __func__);
-    g_taskServiceMap.at(params->commId)->TaskRun();
+    g_taskServiceMap.at(params->commId).at(params->deviceId)->TaskRun();
     return HCCL_SUCCESS;
 }
 }

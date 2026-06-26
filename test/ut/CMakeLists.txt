@@ -323,6 +323,7 @@ set(UT_COMMON_INCLUDE_LIST
     ${HCCL_CODE_ROOT}/src/legacy/ascend910/common
 
 
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/communicator/hostdpu/    
     ${HCCL_CODE_ROOT}/src/base_comm/resources/southbound_adpt/
     ${HCCL_CODE_ROOT}/src/base_comm/common/
     ${HCCL_CODE_ROOT}/src/base_comm/common/device

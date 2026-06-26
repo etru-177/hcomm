@@ -4872,10 +4872,8 @@ int32_t HcclTaskRegister(HcclComm comm, const char *msgTag, Callback cb)
             HCCL_ERROR_CODE(ret)), ret);
     } else {
         std::string commId = hcclComm->GetIdentifier();
-        if (g_taskServiceMap.find(commId) == g_taskServiceMap.end()) {
-            return HCCL_E_NOT_FOUND;
-        }
-        ret =  g_taskServiceMap[commId]->TaskRegister(msgTag, cb);
+        CHK_RET(HcclCheckTaskServiceExist(commId, g_hcclDeviceId));
+        ret = g_taskServiceMap[commId][g_hcclDeviceId]->TaskRegister(msgTag, cb);
         CHK_PRT_RET(ret != HCCL_SUCCESS, HCCL_ERROR("[HcclTaskRegister] TaskRegister failed, ret[0x%016llx]",
             HCCL_ERROR_CODE(ret)), ret);
         return HCCL_SUCCESS;
@@ -4910,10 +4908,8 @@ int32_t HcclTaskUnRegister(HcclComm comm,  const char *msgTag)
         return HcclTaskUnRegisterV2(commV2, msgTag);
     } else {
         std::string commId = hcclComm->GetIdentifier();
-        if (g_taskServiceMap.find(commId) == g_taskServiceMap.end()) {
-            return HCCL_E_NOT_FOUND;
-        }
-        return g_taskServiceMap[commId]->TaskUnRegister(msgTag);
+        CHK_RET(HcclCheckTaskServiceExist(commId, g_hcclDeviceId));
+        return g_taskServiceMap[commId][g_hcclDeviceId]->TaskUnRegister(msgTag);
     }
 #endif
     return HCCL_E_NOT_SUPPORT;

@@ -2129,6 +2129,17 @@ u32 Hccl::HcclCommunicator::GetRankInParentComm()
     return 0;
 }
 
+const std::string &Hccl::HcclCommunicator::GetId() const
+{
+    static const std::string id = "group";
+    return id;
+}
+
+u32 Hccl::HcclCommunicator::GetDeviceLogicId() const
+{
+    return 0;
+}
+
 HcclResult CcuCleanTaskKillState(const int32_t deviceLogicId)
 {
     return HCCL_SUCCESS;
