@@ -139,9 +139,10 @@ struct UIDContext {
     uint32_t    netLayer{0};
     uint32_t    rankId{0};
     uint32_t    localId{0}; // 用来netLayer=0的时候排序使用
+    std::string netInstId{}; // 用来netLayer>1的时候排序使用
     UIDContext() {}
-    UIDContext(ClusterUIDType &uid, uint32_t netLayer, uint32_t rankId, uint32_t localId)
-        : uid(uid), netLayer(netLayer), rankId(rankId), localId(localId)
+    UIDContext(ClusterUIDType &uid, uint32_t netLayer, uint32_t rankId, uint32_t localId, std::string netInstId)
+        : uid(uid), netLayer(netLayer), rankId(rankId), localId(localId), netInstId(netInstId)
     {}
 };
 

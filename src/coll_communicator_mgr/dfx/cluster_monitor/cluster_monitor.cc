@@ -59,7 +59,7 @@ HcclResult ClusterMonitor::GetRemEndpointDescs(HcclComm comm, std::map<uint32_t,
     // 获取netLayer信息存入到netLayersVector中
     uint32_t *netLayers = nullptr;
     uint32_t netLayerNum = 0;
-    CHK_RET(HcclRankGraphGetLayers(comm, &netLayers, &netLayerNum));
+    HcclRankGraphGetLayers(comm, &netLayers, &netLayerNum);
     if (netLayerNum == 0) {
         HCCL_WARNING("[%s] no netLayer in RankGraph", __func__);
         return HCCL_SUCCESS;
@@ -98,7 +98,7 @@ HcclResult ClusterMonitor::GetRemEndpointDescs(HcclComm comm, std::map<uint32_t,
             if (uidCtxs.find(netLayer) == uidCtxs.end()) {
                 uidCtxs.insert(std::make_pair(netLayer, std::vector<UIDContext>()));
             }
-            UIDContext uidCtx(uid, netLayer, rankId, localId);
+            UIDContext uidCtx(uid, netLayer, rankId, localId, netInstanceId);
             uidCtxs[netLayer].emplace_back(uidCtx);
             HCCL_INFO("commId[%s] insert remoteUID[%s]", collComm->GetCommId().c_str(), GetUID(uid).c_str());
         }
@@ -151,7 +151,11 @@ HcclResult ClusterMonitor::InsertClusterMonitorCxt(HcclComm comm, UIDContext rem
     }
     CommLink *links = nullptr;
     uint32_t linkNum = 0;
-    CHK_RET(HcclRankGraphGetLinks(comm, netLayer, myRankId, remoteRank, &links, &linkNum));
+    HcclResult result = HcclRankGraphGetLinks(comm, netLayer, myRankId, remoteRank, &links, &linkNum);
+	if (result != HCCL_SUCCESS) {
+	    HCCL_WARNING("[%s] Get links between myRank[%u] and remoteRank[%u] failed, ret:%d", __func__, myRankId, remoteRank, result);
+	    return HCCL_SUCCESS;
+	}
     if (linkNum == 0) { // 如果没有查询到任何链接，不报错，不把该link加入needConnectRank，直接返回成功
         HCCL_INFO("[%s] no link between myRank[%u] and remoteRank[%u]", __func__, myRankId, remoteRank);
         return HCCL_SUCCESS;
@@ -183,7 +187,7 @@ HcclResult ClusterMonitor::InsertClusterMonitorCxt(HcclComm comm, UIDContext rem
     socketDesc.remoteEndpoint = links[0].dstEndpointDesc;
     ClusterMonitorSocketCtx ctx(socketDesc, newConn);
     needConnectRank.insert(std::make_pair(remoteUID, ctx));
-    HCCL_DEBUG("[%s] InsertClusterMonitorCxt for remoteUID[%s], role[%s], localEndpoint[commAddr:0x%llx], "
+    HCCL_INFO("[%s] InsertClusterMonitorCxt for remoteUID[%s], role[%s], localEndpoint[commAddr:0x%llx], "
         "remoteEndpoint[commAddr:0x%llx], tag[%s], listenPort [%u], newConn[%d]", __func__, GetUID(remoteUID).c_str(),
         (socketDesc.role == HcommSocketRole::HCOMM_SOCKET_ROLE_SERVER) ? "SERVER" : "CLIENT",
         hcomm::logger::CommAddrLogger::ToString(socketDesc.localEndpoint.commAddr).c_str(),
@@ -242,10 +246,7 @@ HcclResult ClusterMonitor::GetConnectRank(HcclComm comm,
     // 从layer=1开始，将commLinks存入vector中，找到所有与当前localId相同的节点
     std::vector<UIDContext> highLayerCommLinks;
     for (uint32_t netLayer : netLayersVector) {
-        if (netLayer == 0) {
-            continue; // netLayer=0的节点已经处理过了
-        }
-        for (auto it = uidCtxs[netLayersVector[netLayer]].begin(); it != uidCtxs[netLayersVector[netLayer]].end(); ++it) {
+        for (auto it = uidCtxs[netLayer].begin(); it != uidCtxs[netLayer].end(); ++it) {
             if (it->localId == this->myRankLocalId_) {
                 // 在跨server、跨pod、跨超节点的场景，统一拿到local，打平处理为同一个平面，类似layer=0的情况
                 // 由于A5上的devPhyId在64卡的场景下8个[0,7]，所以使用localId
@@ -254,6 +255,9 @@ HcclResult ClusterMonitor::GetConnectRank(HcclComm comm,
         }
     }
 
+    std::sort(highLayerCommLinks.begin(), highLayerCommLinks.end(), [&](const UIDContext& a, const UIDContext& b) {
+        return a.netInstId < b.netInstId;
+    });
     // 每个平面都分别成环
     CHK_RET(GetSamePlaneRank(comm, layer0CommLinks, needConnectRank));
     CHK_RET(GetSamePlaneRank(comm, highLayerCommLinks, needConnectRank));
@@ -706,7 +710,10 @@ HcclResult ClusterMonitor::DeInit()
     {
         std::unique_lock<std::mutex> lock(threadLock_);
         for (auto iter = uid2SocketRefMap_.begin(); iter != uid2SocketRefMap_.end(); iter++) {
-            CHK_RET(SocketDestroy(iter->second.socketHandler));
+            HcclResult ret = (SocketDestroy(iter->second.socketHandler)); // 销毁socket句柄不判断返回值
+            if (ret != HCCL_SUCCESS) {
+                HCCL_WARNING("[DeInit] SocketDestroy failed, ret[%d]", ret);
+            }
         }
         uid2SocketRefMap_.clear();
         uid2FrameStatusMap_.clear();
