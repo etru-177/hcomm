@@ -10,7 +10,6 @@
 #ifndef HCCLV2_DEV_BUFFER_H
 #define HCCLV2_DEV_BUFFER_H
 
-#include <cstdint>
 #include <cstddef>
 #include <string>
 #include <memory>

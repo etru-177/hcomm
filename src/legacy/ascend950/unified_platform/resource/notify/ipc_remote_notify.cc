@@ -10,7 +10,6 @@
 #include "ipc_remote_notify.h"
 #include "not_support_exception.h"
 #include "invalid_params_exception.h"
-#include "exception_util.h"
 #include "exchange_ipc_notify_dto.h"
 #include "dev_capability.h"
 namespace Hccl {

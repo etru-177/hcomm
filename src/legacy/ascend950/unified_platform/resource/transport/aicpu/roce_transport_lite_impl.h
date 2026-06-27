@@ -69,7 +69,7 @@ private:
     void ParseConnVec(std::vector<char> &data);
 
     // ========== 底层 Task 构造接口(rtsq) ==========
-    void BuildRdmaDbSendTask(const StreamLite &stream, u64 remoteAddr, u64 dbValue);
+    void BuildRdmaDbSendTask(const StreamLite &stream, u64 remoteAddr, u64 dbValue) const;
     void BuildNotifyWaitTask(u32 notifyId, const StreamLite &stream, u32 timeout) const;
 };
 

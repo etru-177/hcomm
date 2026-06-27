@@ -322,7 +322,7 @@ static bool ParseDscpFromCfgByQos(const std::string &cfg, uint8_t qos, uint8_t &
     bool inNum = false;
     for (char ch : cfg) {
         if (std::isdigit(static_cast<unsigned char>(ch)) != 0) {
-            cur = cur * 10U + static_cast<uint32_t>(ch - '0');
+            cur = cur * 10U + static_cast<uint32_t>(ch) - static_cast<uint32_t>('0');
             inNum = true;
             continue;
         }
@@ -695,6 +695,7 @@ HcclResult TpManager::ReleaseTpInfo(const RaUbGetTpInfoParam &param, const TpInf
 
 HcclResult TpManager::ReleaseTpAttr(const TpHandle tpHandle, const TpAttrInfo &tpAttrInfo)
 {
+    (void)tpAttrInfo;
     std::lock_guard<std::mutex> lock(tpAttrCtxMutex);
     auto attrIter = tpAttrCtxMap.find(tpHandle);
     if (attrIter == tpAttrCtxMap.end()) {

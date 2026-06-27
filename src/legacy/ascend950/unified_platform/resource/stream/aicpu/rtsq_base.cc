@@ -110,7 +110,7 @@ u32 RtsqBase::QueryCqeStatus() const
     return QuerySqStatusByType(drvSqCqPropType_t::DRV_SQCQ_PROP_SQ_CQE_STATUS);
 }
 
-void RtsqBase::ConfigSqStatusByType(drvSqCqPropType_t givenType, u32 value)
+void RtsqBase::ConfigSqStatusByType(drvSqCqPropType_t givenType, u32 value) const
 {
     halSqCqConfigInfo configInfo;
     configInfo.tsId     = 0;
@@ -139,7 +139,7 @@ void RtsqBase::ConfigDisableToEnable(u32 value)
     ConfigSqStatusByType(drvSqCqPropType_t::DRV_SQCQ_PROP_SQ_DISABLE_TO_ENABLE, value);
 }
 
-HcclResult RtsqBase::GetStreamIdAndTaskIdBySqIdx(u32 sqIdx, uint16_t& streamId, uint16_t& taskId)
+HcclResult RtsqBase::GetStreamIdAndTaskIdBySqIdx(u32 sqIdx, uint16_t& streamId, uint16_t& taskId) const
 {
     const u32 rtsqLength = 2048;
     if (sqBaseAddr_ == 0 || sqIdx >= rtsqLength) {

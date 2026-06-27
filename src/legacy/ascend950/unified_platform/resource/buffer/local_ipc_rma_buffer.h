@@ -12,8 +12,6 @@
 #define HCCLV2_LOCAL_IPC_RMA_BUFFER_H
 
 #include "local_rma_buffer.h"
-
-#include "rma_buffer_lite.h"
 #include "orion_adapter_rts.h"
 
 namespace Hccl {

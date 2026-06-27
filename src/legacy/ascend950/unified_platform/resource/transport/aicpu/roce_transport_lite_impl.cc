@@ -341,7 +341,7 @@ void RoceTransportLiteImpl::WaitWithTimeout(u32 index, const StreamLite &stream,
 }
 
 // 下发Rtsq sqe, 敲DB
-void RoceTransportLiteImpl::BuildRdmaDbSendTask(const StreamLite &stream, u64 remoteAddr, u64 dbValue)
+void RoceTransportLiteImpl::BuildRdmaDbSendTask(const StreamLite &stream, u64 remoteAddr, u64 dbValue) const
 {
     stream.GetRtsq()->RdmaDbSend(remoteAddr, dbValue);
 }

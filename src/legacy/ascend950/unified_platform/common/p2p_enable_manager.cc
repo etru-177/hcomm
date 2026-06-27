@@ -39,7 +39,7 @@ HcclResult P2PEnableManager::EnableP2P(uint32_t localDeviceLogicID, uint32_t rem
     if ((iterRemoteDevice == iterLocalDevice.end()) || (iterRemoteDevice->second.reference == 0)) {
         auto localDevicePhysicID = HrtGetDevicePhyIdByIndex(localDeviceLogicID);
         CHK_RET(HrtEnableP2P(localDeviceLogicID, remoteDevicePhysicID));
-        HCCL_INFO("[EnableP2P]enable p2p: local logic id:%u, local physic id:%d, remote physic id:%u.",
+        HCCL_INFO("[EnableP2P]enable p2p: local logic id:%u, local physic id:%u, remote physic id:%u.",
             localDeviceLogicID, localDevicePhysicID, remoteDevicePhysicID);
         iterLocalDevice[remoteDevicePhysicID].status = P2PStatus::P2P_STATUS_ENABLING;
         iterLocalDevice[remoteDevicePhysicID].reference++;
@@ -86,7 +86,7 @@ HcclResult P2PEnableManager::WaitP2PEnabled(uint32_t localDeviceLogicID, uint32_
     return HCCL_SUCCESS;
 }
 
-HcclResult P2PEnableManager::WaitP2PConnected(int32_t localDeviceLogicID, uint32_t remoteDevicePhysicID)
+HcclResult P2PEnableManager::WaitP2PConnected(uint32_t localDeviceLogicID, uint32_t remoteDevicePhysicID)
 {
     // 读取P2P状态超时时间
     const std::chrono::seconds timeout(EnvConfig::GetInstance().GetSocketConfig().GetLinkTimeOut());
@@ -148,7 +148,7 @@ HcclResult P2PEnableManager::DisableP2P(uint32_t localDeviceLogicID, uint32_t re
     iterRemoteDevice->second.reference--;
     if (iterRemoteDevice->second.reference == 0) {
         auto localDevicePhysicID = HrtGetDevicePhyIdByIndex(localDeviceLogicID);
-        HCCL_INFO("disable p2p: local logic id:%u, local physic id:%d, remote physic id:%u.", localDeviceLogicID,
+        HCCL_INFO("disable p2p: local logic id:%u, local physic id:%u, remote physic id:%u.", localDeviceLogicID,
             localDevicePhysicID, remoteDevicePhysicID);
         CHK_RET(HrtDisableP2P(localDeviceLogicID, remoteDevicePhysicID));
         iterLocalDevice[remoteDevicePhysicID].status = P2PStatus::P2P_STATUS_DISABLED;

@@ -11,7 +11,6 @@
 #define HCCLV2_RTSQ_BASE_H
 #include <vector>
 #include <functional>
-#include <queue>
 #include "types.h"
 #include "buffer.h"
 #include "notify_lite.h"
@@ -229,7 +228,7 @@ public:
         return false;
     }
 
-    HcclResult GetStreamIdAndTaskIdBySqIdx(u32 sqIdx, uint16_t& streamId, uint16_t& taskId);
+    HcclResult GetStreamIdAndTaskIdBySqIdx(u32 sqIdx, uint16_t& streamId, uint16_t& taskId) const;
 
 protected:
     u32 devPhyId_{0};
@@ -271,7 +270,7 @@ private:
     u32 QueryCqeStatus() const;
 
     u32 QuerySqStatusByType(drvSqCqPropType_t givenType) const;
-    void ConfigSqStatusByType(drvSqCqPropType_t givenType, u32 value);
+    void ConfigSqStatusByType(drvSqCqPropType_t givenType, u32 value) const;
 };
 
 } // namespace Hccl

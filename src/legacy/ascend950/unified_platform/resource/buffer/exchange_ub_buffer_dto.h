@@ -51,7 +51,7 @@ public:
 
     u64 addr{0};
     u64 size{0};
-    HcclMemType memType;
+    HcclMemType memType{HcclMemType::HCCL_MEM_TYPE_DEVICE};
     std::string memInfo;
     u8  key[HRT_UB_MEM_KEY_MAX_LEN]{0};
     u32 tokenValue{0};

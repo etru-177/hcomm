@@ -182,7 +182,7 @@ private:
         }
     }
 
-    inline void FillTaskParamDmaPub(TaskParam &taskParam, void *dst, u64 size, DmaOp dmaOp)
+    inline void FillTaskParamDmaPub(TaskParam &taskParam, void *dst, u64 size, DmaOp dmaOp) const
     {
         taskParam.taskPara.DMA.dst      = dst;
         taskParam.taskPara.DMA.size     = size;

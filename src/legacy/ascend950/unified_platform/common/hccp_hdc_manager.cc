@@ -45,11 +45,11 @@ void HccpHdcManager::DeInit(u32 deviceLogicId)
     if (destroyed.load()) {
         return;
     }
-    HCCL_INFO("[HccpHdcManager::%s] deviceLogicId [%d]", __func__, deviceLogicId);
+    HCCL_INFO("[HccpHdcManager::%s] deviceLogicId [%u]", __func__, deviceLogicId);
 
     std::lock_guard<std::recursive_mutex> lock(managerMutex);
     if (instances.count(deviceLogicId) == 0) {
-        HCCL_WARNING("[HccpHdcManager::%s] deviceLogicId[%d] not ra init", __func__, deviceLogicId);
+        HCCL_WARNING("[HccpHdcManager::%s] deviceLogicId[%u] not ra init", __func__, deviceLogicId);
         return;
     }
     instances.erase(deviceLogicId);
@@ -58,7 +58,7 @@ void HccpHdcManager::DeInit(u32 deviceLogicId)
     cfg.phyId = HrtGetDevicePhyIdByIndex(deviceLogicId);
     cfg.mode = HrtNetworkMode::HDC;
     DECTOR_TRY_CATCH("HccpHdcManager", HrtRaDeInit(cfg));
-    HCCL_INFO("[HccpHdcManager::%s] devLogicId [%d] ra deinit success.", __func__, deviceLogicId);
+    HCCL_INFO("[HccpHdcManager::%s] devLogicId [%u] ra deinit success.", __func__, deviceLogicId);
 }
 
 void HccpHdcManager::DestroyAll()
@@ -84,7 +84,7 @@ void HccpHdcManager::DestroyAll()
     instances.clear();
 }
 
-void HccpHdcManager::UnregisterDeviceResetCallback()
+void HccpHdcManager::UnregisterDeviceResetCallback() const
 {
     aclError ret = aclrtRegDeviceStateCallback("hcomm_res_mgr", nullptr, nullptr);
     if (ret != ACL_SUCCESS) {
