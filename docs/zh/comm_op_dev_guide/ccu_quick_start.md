@@ -139,8 +139,11 @@ rankId: 1, output: [ 0 1 ]
     
     // 注册kernel
     CcuKernelHandle kernelHandle;
-    CcuResult regRet = HcommCcuKernelRegister(insHandle, kernelInfo.kernelFuncName, reinterpret_cast<void*>(kernelInfo.kernelFunc),
-                                              kernelInfo.kernelArg, &kernelHandle);
+    constexpr uint32_t dieId = 0;
+    constexpr uint32_t kernelArgNum = 1;
+    const void *kernelArgsArr[] = { kernelInfo.kernelArg }; // 按HcommCcuKernelRegister签名构造入参指针数组
+    CcuResult regRet = HcommCcuKernelRegister(insHandle, dieId, kernelInfo.kernelFuncName, reinterpret_cast<void*>(kernelInfo.kernelFunc),
+                                              kernelArgsArr, kernelArgNum, &kernelHandle);
     
     resCtxHost.ccuKernels[0] = kernelHandle;
     CcuResult regEndRet = HcommCcuKernelRegisterEnd(insHandle);

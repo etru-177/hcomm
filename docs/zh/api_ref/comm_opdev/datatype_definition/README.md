@@ -32,3 +32,6 @@
 - [HcclHeterogMode](HcclHeterogMode.md)  
 - [HcclMemHandle](HcclMemHandle.md)  
 - [HcclResult](../../comm_mgr_c/data_type_definition/HcclResult.md)  
+- [CcuResult](CcuResult.md)  
+- [CcuInsHandle](CcuInsHandle.md)  
+- [CcuKernelHandle](CcuKernelHandle.md)  

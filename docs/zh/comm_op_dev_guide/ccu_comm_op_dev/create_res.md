@@ -94,7 +94,7 @@ strcpy_s(kernelFuncName, sizeof(kernelFuncName), "CcuAllGatherMesh1DMem2MemKerne
 kernelFunc = reinterpret_cast<void *>(CcuAllGatherMesh1DMem2MemKernel);
 auto kernelArg = std::make_shared<CcuKernelArgAllGatherMesh1DMem2Mem>(rankSize, myRank);
 // 将channel与kernel绑定
-auto* kernelArgBase = static_cast<CcuKernelArgBase*>(kernelArg);
+auto* kernelArgBase = static_cast<CcuKernelArgBase*>(kernelArg.get());
 for (uint32_t i = 0; i < kernelChannels.size(); ++i) {
     kernelArgBase->channels[i] = kernelChannels[i];  // 将channelhandle保存在kernelArgBase中
 }
@@ -113,7 +113,10 @@ if (regStartRet != CCU_SUCCESS) {
     return ConvertCcuToHccl(regStartRet);
 }
 CcuKernelHandle kernelHandle;
-CcuResult regRet = HcommCcuKernelRegister(insHandle, kernelFuncName, reinterpret_cast<void*>(kernelFunc), kernelArg, &kernelHandle); // 注册kernel
+constexpr uint32_t dieId = 0;
+constexpr uint32_t kernelArgNum = 1;
+const void *kernelArgsArr[] = { kernelArg.get() }; // 按HcommCcuKernelRegister签名构造入参指针数组
+CcuResult regRet = HcommCcuKernelRegister(insHandle, dieId, kernelFuncName, reinterpret_cast<void*>(kernelFunc), kernelArgsArr, kernelArgNum, &kernelHandle); // 注册kernel
 if (regRet != CCU_SUCCESS) {
     HCCL_ERROR("ccu kernel register failed: ccuRet -> %d", regRet);
     return ConvertCcuToHccl(regRet);
