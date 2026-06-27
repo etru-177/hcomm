@@ -22,9 +22,9 @@ void RdmaConnLiteV2::ParseSqContext(std::vector<char>& data)
     binaryStream >> sqContext.depth;
     binaryStream >> sqContext.headAddr;
     binaryStream >> sqContext.tailAddr;
-    binaryStream >> sqContext.sl;
     binaryStream >> sqContext.dbVa;
     binaryStream >> sqContext.dbMode;
+    binaryStream >> sqContext.sl;
 }
 
 void RdmaConnLiteV2::ParseCqContext(std::vector<char>& data)

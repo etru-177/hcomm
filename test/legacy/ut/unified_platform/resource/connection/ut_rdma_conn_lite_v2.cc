@@ -28,9 +28,9 @@ static std::vector<char> BuildSqUniqueId(const RdmaSqContextLite &sqCtx)
     bs << sqCtx.depth;
     bs << sqCtx.headAddr;
     bs << sqCtx.tailAddr;
-    bs << sqCtx.sl;
     bs << sqCtx.dbVa;
     bs << sqCtx.dbMode;
+    bs << sqCtx.sl;
     std::vector<char> result;
     bs.Dump(result);
     return result;

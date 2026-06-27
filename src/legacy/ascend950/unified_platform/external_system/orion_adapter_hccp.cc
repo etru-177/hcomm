@@ -37,6 +37,7 @@ constexpr u32 MAX_WR_NUM = 1024;
 constexpr u32 MAX_SEND_SGE_NUM = 1;
 constexpr u32 MAX_RECV_SGE_NUM = 1;
 constexpr u32 MAX_CQ_DEPTH = 65535;
+constexpr u32 NDA_CQ_DEPTH = 31 * 1024;
 constexpr u32 MAX_INLINE_DATA = 64;
 constexpr u32 RA_TLV_REQUEST_UNAVAIL = 128308;
 constexpr u32 ROCE_ENOMEM_RET = 328100;
@@ -2578,7 +2579,7 @@ HcclResult HrtRaNdaCqCreate(RdmaHandle rdmaHandle, NdaOps *ndaOps, uint32_t dmaM
 
     struct ibv_cq_init_attr_ex ibCqAttr;
     CHK_SAFETY_FUNC_RET(memset_s(&ibCqAttr, sizeof(ibv_cq_init_attr_ex), 0, sizeof(ibv_cq_init_attr_ex)));
-    ibCqAttr.cqe = MAX_CQ_DEPTH;
+    ibCqAttr.cqe = NDA_CQ_DEPTH;
     ibCqAttr.cq_context = nullptr;
     ibCqAttr.channel = nullptr;
     ibCqAttr.comp_vector = 0;

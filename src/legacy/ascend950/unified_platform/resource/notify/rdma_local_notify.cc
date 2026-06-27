@@ -21,22 +21,24 @@ RdmaLocalNotify::RdmaLocalNotify(RdmaHandle rdmaHandle, bool devUsed)
 {
     HrtDevResInfo devResInfo;
     devResInfo.dieId            = 0;
-    devResInfo.procType         = HrtDevResProcType::PROCESS_HCCP;
+    devResInfo.procType         = HrtDevResProcType::PROCESS_CP1;
     devResInfo.resType          = HrtDevResType::RES_TYPE_STARS_NOTIFY_RECORD;
     devResInfo.resId            = GetNotify()->GetId();
-    devResInfo.flag             = 0;
+    devResInfo.flag             = HRT_DEV_RES_FLAG_USE_UNIQUE_VA;
     auto resAddrInfo            = HrtGetDevResAddress(devResInfo);
     addr                        = resAddrInfo.address;
     DevCapability::GetInstance().Init(DevType::DEV_TYPE_950); // 单例初始化
     size                        = DevCapability::GetInstance().GetNotifySize();
     // 注册内存
     struct MrInfoT mrInfo;
+    addr = addr & ~(4096 - 1ULL); // 临时规避，待ubdevmem适配后修改
+    size = 4096;
     mrInfo.addr   = reinterpret_cast<void *>(addr);
     mrInfo.size   = size;
     mrInfo.access = RA_ACCESS_REMOTE_WRITE | RA_ACCESS_LOCAL_WRITE | RA_ACCESS_REMOTE_READ;
     s32 ret = RaRegisterMr(rdmaHandle, &mrInfo, &mrHandle);
     if (ret != 0 || mrHandle == nullptr) {
-        HCCL_ERROR("[RdmaLocalNotify] RaRegisterMr failed, call interface error[%d]", ret);
+        HCCL_ERROR("[RdmaLocalNotify] RaRegisterMr failed, call interface error[%d] mrHandle[%p]", ret, mrHandle);
         THROW<InternalException>("[%s] failed, call interface error[%d].", __func__, ret);
     }
     lkey = mrInfo.lkey;
@@ -56,10 +58,10 @@ RdmaLocalNotify::~RdmaLocalNotify()
 
     HrtDevResInfo devResInfo;
     devResInfo.dieId    = 0;
-    devResInfo.procType = HrtDevResProcType::PROCESS_HCCP;
+    devResInfo.procType = HrtDevResProcType::PROCESS_CP1;
     devResInfo.resType  = HrtDevResType::RES_TYPE_STARS_NOTIFY_RECORD;
     devResInfo.resId    = GetNotify()->GetId();
-    devResInfo.flag     = 0;
+    devResInfo.flag     = HRT_DEV_RES_FLAG_USE_UNIQUE_VA;
     HrtReleaseDevResAddress(devResInfo);
 }
 

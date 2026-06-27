@@ -100,14 +100,13 @@ private:
 
     HcclResult BuildAndGetLocNotifyInfo(RegedNotifyEntity** notify);
     HcclResult BuildAndGetRmtNotifyInfo(RegedNotifyEntity** notify);
-    HcclResult BuildAndGetRmtBufInfo(RegedBufferEntity** bufferEntityPtr);
-    HcclResult BuildAndGetLocBufInfo(RegedBufferEntity** bufferEntityPtr);
-    HcclResult BuildAndGetSqContext(SqContext** sqContextPtr);
-    HcclResult BuildAndGetCqContext(CqContext** cqContextPtr);
+    HcclResult BuildAndGetRmtBufInfo(std::vector<RegedBufferEntity>& bufList, RegedBufferEntity** bufferEntityPtr);
+    HcclResult BuildAndGetLocBufInfo(std::vector<RegedBufferEntity>& bufList, RegedBufferEntity** bufferEntityPtr);
+    HcclResult BuildAndGetSqContext(std::vector<SqContext>& sqList, SqContext** sqContextPtr);
+    HcclResult BuildAndGetCqContext(std::vector<CqContext>& cqList, CqContext** cqContextPtr);
 
-    template<typename T>
-    HcclResult CopyArrayToDevice(const T* hostArray, uint32_t arrayNum, T** deviceArrayPtr, const char* arrayName);
     void FreeDeviceMemories();
+    void ReleaseDeviceEntitySlab();
 
     std::vector<char> GetLocalNotifyUniqueIds() const;
     std::vector<char> GetRemoteNotifyUniqueIds() const;
@@ -151,12 +150,8 @@ private:
     std::vector<char*>                                      memInfoPointers_{};
     bool                                                    cacheValid_{false};
 
-    std::vector<SqContext>                                  sqContextList_{};
-    std::vector<CqContext>                                  cqContextList_{};
-    std::vector<RegedBufferEntity>                          locBufEntityList_{};
-    std::vector<RegedBufferEntity>                          rmtBufEntityList_{};
-    std::vector<hccl::DeviceMem>                            deviceMemories_;
-    uint64_t                                              devChannelEntityPtr_{0};
+    void *                                                devChannelEntitySlab_{nullptr};
+    size_t                                                devChannelEntitySlabSize_{0};
 };
 
 } // namespace hcomm

@@ -349,6 +349,7 @@ std::pair<u32, u32> HrtUbDevQueryToken(u64 addr, u64 size);
 MAKE_ENUM(HrtDevResProcType, PROCESS_CP1, PROCESS_HCCP)
 MAKE_ENUM(HrtDevResType, RES_TYPE_STARS_NOTIFY_RECORD, RES_TYPE_CCU_CKE, RES_TYPE_CCU_XN,
           RES_TYPE_STARS_CNT_NOTIFY_BIT_WR)
+#define HRT_DEV_RES_FLAG_USE_UNIQUE_VA (1U << 7U)  // bit0, map to unified va, for RT_RES_TYPE_STARS_NOTIFY_RECORD
 struct HrtDevResInfo {
     u32               dieId{0}; // for ccu res need set devId, for others set 0
     HrtDevResProcType procType{HrtDevResProcType::PROCESS_CP1};

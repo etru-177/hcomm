@@ -14,6 +14,8 @@
 #include "exception_handler.h"
 #include "mem_transport_common.h"
 
+#include "acl/acl_rt.h"
+
 // Orion
 #include "exchange_rdma_buffer_dto.h"
 #include "dev_capability.h"
@@ -29,6 +31,174 @@ constexpr uint32_t TC_TEMP = 132;
 constexpr uint32_t SL_TEMP = 4;
 constexpr uint32_t RETRY_CNT_TEMP = 7;
 constexpr uint32_t RETRY_TIME_TEMP = 20;
+
+namespace {
+constexpr size_t AICPU_TS_ROCE_ENTITY_ALIGN_SIZE = 64;
+
+struct DeviceEntitySection {
+    size_t offset{0};
+    size_t size{0};
+};
+
+struct DeviceChannelEntityLayout {
+    DeviceEntitySection entitySection{0, sizeof(ChannelEntity)};
+    DeviceEntitySection localNotifySection;
+    DeviceEntitySection remoteNotifySection;
+    DeviceEntitySection localBufferSection;
+    DeviceEntitySection remoteBufferSection;
+    DeviceEntitySection sqContextSection;
+    DeviceEntitySection cqContextSection;
+    size_t slabSize{0};
+};
+
+class AclDeviceSlabGuard {
+public:
+    AclDeviceSlabGuard() = default;
+    ~AclDeviceSlabGuard()
+    {
+        if (ptr_ != nullptr) {
+            aclError ret = aclrtFree(ptr_);
+            if (ret != ACL_SUCCESS) {
+                HCCL_WARNING("[AclDeviceSlabGuard] aclrtFree failed, ptr[%p], size[%zu], ret[%d]", ptr_, size_, ret);
+            }
+        }
+    }
+
+    void Reset(void *ptr, size_t size)
+    {
+        ptr_ = ptr;
+        size_ = size;
+    }
+
+    void *Release()
+    {
+        void *ptr = ptr_;
+        ptr_ = nullptr;
+        size_ = 0;
+        return ptr;
+    }
+
+private:
+    void *ptr_{nullptr};
+    size_t size_{0};
+};
+
+size_t AlignUp(size_t value, size_t alignment)
+{
+    return (value + alignment - 1) / alignment * alignment;
+}
+
+HcclResult AddDeviceEntitySection(size_t elemSize, uint32_t elemNum, size_t &offset, DeviceEntitySection &section,
+    const char *sectionName)
+{
+    section.offset = AlignUp(offset, AICPU_TS_ROCE_ENTITY_ALIGN_SIZE);
+    if (elemNum == 0) {
+        section.size = 0;
+        offset = section.offset;
+        return HCCL_SUCCESS;
+    }
+    CHK_PRT_RET(elemSize != 0 && elemNum > (SIZE_MAX / elemSize),
+        HCCL_ERROR("[AicpuTsRoceChannelV2::AddDeviceEntitySection] %s size overflow, elemSize[%zu], elemNum[%u]",
+            sectionName, elemSize, elemNum), HCCL_E_PARA);
+    section.size = elemSize * static_cast<size_t>(elemNum);
+    CHK_PRT_RET(section.offset > (SIZE_MAX - section.size),
+        HCCL_ERROR("[AicpuTsRoceChannelV2::AddDeviceEntitySection] %s offset overflow, offset[%zu], size[%zu]",
+            sectionName, section.offset, section.size), HCCL_E_PARA);
+    offset = section.offset + section.size;
+    return HCCL_SUCCESS;
+}
+
+void *GetSlabPtr(void *base, const DeviceEntitySection &section)
+{
+    if (section.size == 0) {
+        return nullptr;
+    }
+    return reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(base) + section.offset);
+}
+
+template <typename T>
+HcclResult CopyArrayToSlab(void *slabBase, const T *hostArray, uint32_t arrayNum, const DeviceEntitySection &section,
+    T **deviceArrayPtr, const char *arrayName)
+{
+    CHK_PTR_NULL(deviceArrayPtr);
+    if (arrayNum == 0 || hostArray == nullptr) {
+        CHK_PRT_RET(arrayNum != 0,
+            HCCL_ERROR("[AicpuTsRoceChannelV2::CopyArrayToSlab] %s hostArray is nullptr, num[%u]",
+                arrayName, arrayNum), HCCL_E_PTR);
+        *deviceArrayPtr = nullptr;
+        return HCCL_SUCCESS;
+    }
+    CHK_PRT_RET(section.size != static_cast<size_t>(arrayNum) * sizeof(T),
+        HCCL_ERROR("[AicpuTsRoceChannelV2::CopyArrayToSlab] %s size mismatch, sectionSize[%zu], expect[%zu]",
+            arrayName, section.size, static_cast<size_t>(arrayNum) * sizeof(T)), HCCL_E_PARA);
+    void *sectionPtr = GetSlabPtr(slabBase, section);
+    CHK_PTR_NULL(sectionPtr);
+    Hccl::HrtMemcpy(sectionPtr, section.size, hostArray, section.size,
+        Hccl::tagRtMemcpyKind::RT_MEMCPY_HOST_TO_DEVICE);
+    *deviceArrayPtr = reinterpret_cast<T *>(sectionPtr);
+    HCCL_INFO("[AicpuTsRoceChannelV2::CopyArrayToSlab] %s: host[%p] -> dev[%p], num[%u], size[%zu]",
+        arrayName, hostArray, sectionPtr, arrayNum, section.size);
+    return HCCL_SUCCESS;
+}
+
+HcclResult BuildDeviceChannelEntityLayout(const ChannelEntity &hostChannel, DeviceChannelEntityLayout &layout)
+{
+    layout.slabSize = AlignUp(sizeof(ChannelEntity), AICPU_TS_ROCE_ENTITY_ALIGN_SIZE);
+    CHK_RET(AddDeviceEntitySection(sizeof(RegedNotifyEntity), hostChannel.localNotifyNum, layout.slabSize,
+        layout.localNotifySection, "localNotifyAddr"));
+    CHK_RET(AddDeviceEntitySection(sizeof(RegedNotifyEntity), hostChannel.remoteNotifyNum, layout.slabSize,
+        layout.remoteNotifySection, "remoteNotifyAddr"));
+    CHK_RET(AddDeviceEntitySection(sizeof(RegedBufferEntity), hostChannel.localBufferNum, layout.slabSize,
+        layout.localBufferSection, "localBufferAddr"));
+    CHK_RET(AddDeviceEntitySection(sizeof(RegedBufferEntity), hostChannel.remoteBufferNum, layout.slabSize,
+        layout.remoteBufferSection, "remoteBufferAddr"));
+    CHK_RET(AddDeviceEntitySection(sizeof(SqContext), hostChannel.sqNum, layout.slabSize,
+        layout.sqContextSection, "sqContextAddr"));
+    CHK_RET(AddDeviceEntitySection(sizeof(CqContext), hostChannel.cqNum, layout.slabSize,
+        layout.cqContextSection, "cqContextAddr"));
+    layout.slabSize = AlignUp(layout.slabSize, AICPU_TS_ROCE_ENTITY_ALIGN_SIZE);
+    return HCCL_SUCCESS;
+}
+
+HcclResult AllocDeviceEntitySlab(size_t slabSize, AclDeviceSlabGuard &slabGuard, void *&slabPtr)
+{
+    aclError aclRet = aclrtMalloc(&slabPtr, slabSize, static_cast<aclrtMemMallocPolicy>(ACL_MEM_MALLOC_HUGE_ONLY));
+    CHK_PRT_RET(aclRet != ACL_SUCCESS || slabPtr == nullptr,
+        HCCL_ERROR("[AicpuTsRoceChannelV2::%s] aclrtMalloc huge-only slab failed, ret[%d], size[%zu]",
+            __func__, aclRet, slabSize), HCCL_E_MEMORY);
+    slabGuard.Reset(slabPtr, slabSize);
+    return HCCL_SUCCESS;
+}
+
+HcclResult CopyChannelEntityArrayToSlab(void *slabPtr, const ChannelEntity &hostChannel,
+    const DeviceChannelEntityLayout &layout, ChannelEntity &devChannel)
+{
+    devChannel = hostChannel;
+    CHK_RET(CopyArrayToSlab(slabPtr, hostChannel.localNotifyAddr, hostChannel.localNotifyNum,
+        layout.localNotifySection, &devChannel.localNotifyAddr, "localNotifyAddr"));
+    CHK_RET(CopyArrayToSlab(slabPtr, hostChannel.remoteNotifyAddr, hostChannel.remoteNotifyNum,
+        layout.remoteNotifySection, &devChannel.remoteNotifyAddr, "remoteNotifyAddr"));
+    CHK_RET(CopyArrayToSlab(slabPtr, hostChannel.localBufferAddr, hostChannel.localBufferNum,
+        layout.localBufferSection, &devChannel.localBufferAddr, "localBufferAddr"));
+    CHK_RET(CopyArrayToSlab(slabPtr, hostChannel.remoteBufferAddr, hostChannel.remoteBufferNum,
+        layout.remoteBufferSection, &devChannel.remoteBufferAddr, "remoteBufferAddr"));
+    CHK_RET(CopyArrayToSlab(slabPtr, hostChannel.sqContextAddr, hostChannel.sqNum,
+        layout.sqContextSection, &devChannel.sqContextAddr, "sqContextAddr"));
+    CHK_RET(CopyArrayToSlab(slabPtr, hostChannel.cqContextAddr, hostChannel.cqNum,
+        layout.cqContextSection, &devChannel.cqContextAddr, "cqContextAddr"));
+    return HCCL_SUCCESS;
+}
+
+HcclResult CopyChannelEntityToSlab(void *slabPtr, const DeviceChannelEntityLayout &layout,
+    const ChannelEntity &devChannel, void *&entityDevPtr)
+{
+    entityDevPtr = GetSlabPtr(slabPtr, layout.entitySection);
+    CHK_PTR_NULL(entityDevPtr);
+    Hccl::HrtMemcpy(entityDevPtr, sizeof(ChannelEntity), &devChannel, sizeof(ChannelEntity),
+        Hccl::tagRtMemcpyKind::RT_MEMCPY_HOST_TO_DEVICE);
+    return HCCL_SUCCESS;
+}
+} // namespace
 
 AicpuTsRoceChannelV2::AicpuTsRoceChannelV2(EndpointHandle endpointHandle, HcommChannelDesc channelDesc, CommEngine engine)
     : endpointHandle_(endpointHandle), channelDesc_(channelDesc), engine_(engine)
@@ -91,7 +261,8 @@ HcclResult AicpuTsRoceChannelV2::BuildSocket()
         HCCL_INFO("[AicpuTsRoceChannelV2::%s] channelDesc port is 0, use default port [%u]", __func__, port);
     }
     std::string socketTag = "AUTOMATIC_SOCKET_TAG";
-    Hccl::SocketConfig socketConfig = Hccl::SocketConfig(linkData, port, socketTag);
+    bool isServer = (channelDesc_.role == HCOMM_SOCKET_ROLE_SERVER);
+    Hccl::SocketConfig socketConfig = Hccl::SocketConfig(linkData, port, socketTag, isServer);
     CHK_RET(SocketMgr::GetInstance(devicePhyId_).GetSocket(socketConfig, socket_));
     HCCL_INFO("[AicpuTsRoceChannelV2::%s] SUCCESS. port[%u].", __func__, port);
     return HCCL_SUCCESS;
@@ -187,8 +358,10 @@ HcclResult AicpuTsRoceChannelV2::BuildNotifyValueBuffer()
     if (engine_ == COMM_ENGINE_AIV) {
         return HCCL_SUCCESS;
     }
-    
+
+    Hccl::DevCapability::GetInstance().Init(Hccl::DevType::DEV_TYPE_950);
     u32 notifysize = Hccl::DevCapability::GetInstance().GetNotifySize();
+    notifysize = 4096; // 临时规避，待ubdevmem适配后修改
     EXCEPTION_CATCH((notifyValueMem_ = std::make_shared<Hccl::DevBuffer>(notifysize)),
         return HCCL_E_PTR);
     HCCL_DEBUG("create notify value buffer[%p], size[%u]", notifyValueMem_.get(), notifysize);
@@ -207,7 +380,7 @@ HcclResult AicpuTsRoceChannelV2::Init()
     devicePhyId_ = Hccl::HrtGetDevicePhyIdByIndex(static_cast<u32>(devLogicId));
 
     CHK_RET(ParseInputParam());
-    if (channelDesc_.exchangeAllMems) {
+    if (channelDesc_.exchangeAllMems && channelDesc_.role == HCOMM_SOCKET_ROLE_SERVER) {
         CHK_RET(StartListen());
     }
     CHK_RET(BuildSocket());
@@ -517,7 +690,8 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetRmtNotifyInfo(RegedNotifyEntity** no
     return HCCL_SUCCESS;
 }
 
-HcclResult AicpuTsRoceChannelV2::BuildAndGetRmtBufInfo(RegedBufferEntity** bufferEntityPtr)
+HcclResult AicpuTsRoceChannelV2::BuildAndGetRmtBufInfo(std::vector<RegedBufferEntity>& bufList,
+    RegedBufferEntity** bufferEntityPtr)
 {
     if (channelStatus_ != ChannelStatus::READY) {
         HCCL_ERROR("[AicpuTsRoceChannelV2::%s] channel status[%d] is not ready[%d], please check.",
@@ -537,21 +711,20 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetRmtBufInfo(RegedBufferEntity** buffe
 
     for (uint32_t i = 0; i < bufferNum_; i++) {
         auto& rmtRmaBuffer = rmtRmaBuffers_[i];
-        RegedBufferEntity bufferEntity;
-        bufferEntity.type = REGED_BUFFER_RMA;
-        bufferEntity.bufferInfo.rma.addr = static_cast<uint64_t>(rmtRmaBuffer->GetAddr());
-        bufferEntity.bufferInfo.rma.size = rmtRmaBuffer->GetSize();
-        bufferEntity.bufferInfo.rma.protectionInfo.type = PROTECTION_TYPE_ROCE;
-        bufferEntity.bufferInfo.rma.protectionInfo.memInfo.roce.rkey = rmtRmaBuffer->GetRkey();
-        rmtBufEntityList_.emplace_back(bufferEntity);
-        HCCL_INFO("[AicpuTsRoceChannelV2::%s] rmtBuf[addr[%p], size[%lu]]", 
-            __func__, bufferEntity.bufferInfo.rma.addr, bufferEntity.bufferInfo.rma.size);
+        bufList[i].type = REGED_BUFFER_RMA;
+        bufList[i].bufferInfo.rma.addr = static_cast<uint64_t>(rmtRmaBuffer->GetAddr());
+        bufList[i].bufferInfo.rma.size = rmtRmaBuffer->GetSize();
+        bufList[i].bufferInfo.rma.protectionInfo.type = PROTECTION_TYPE_ROCE;
+        bufList[i].bufferInfo.rma.protectionInfo.memInfo.roce.rkey = rmtRmaBuffer->GetRkey();
+        HCCL_INFO("[AicpuTsRoceChannelV2::%s] rmtBuf[addr[%p], size[%lu]]",
+            __func__, bufList[i].bufferInfo.rma.addr, bufList[i].bufferInfo.rma.size);
     }
-    *bufferEntityPtr = rmtBufEntityList_.data();
+    *bufferEntityPtr = bufList.data();
     return HCCL_SUCCESS;
 }
 
-HcclResult AicpuTsRoceChannelV2::BuildAndGetLocBufInfo(RegedBufferEntity** bufferEntityPtr)
+HcclResult AicpuTsRoceChannelV2::BuildAndGetLocBufInfo(std::vector<RegedBufferEntity>& bufList,
+    RegedBufferEntity** bufferEntityPtr)
 {
     if (channelStatus_ != ChannelStatus::READY) {
         HCCL_ERROR("[AicpuTsRoceChannelV2::%s] channel status[%d] is not ready[%d], please check.",
@@ -571,21 +744,19 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetLocBufInfo(RegedBufferEntity** buffe
 
     for (uint32_t i = 0; i < bufferNum_; i++) {
         auto& locRmaBuffer = localRmaBuffers_[i];
-        RegedBufferEntity bufferEntity;
-        bufferEntity.type = REGED_BUFFER_RMA;
-        bufferEntity.bufferInfo.rma.addr = static_cast<uint64_t>(locRmaBuffer->GetAddr());
-        bufferEntity.bufferInfo.rma.size = locRmaBuffer->GetSize();
-        bufferEntity.bufferInfo.rma.protectionInfo.type = PROTECTION_TYPE_ROCE;
-        bufferEntity.bufferInfo.rma.protectionInfo.memInfo.roce.lkey = locRmaBuffer->GetLkey();
-        locBufEntityList_.emplace_back(bufferEntity);
-        HCCL_INFO("[AicpuTsRoceChannelV2::%s] locBuf[addr[%p], size[%lu]]", 
-            __func__, bufferEntity.bufferInfo.rma.addr, bufferEntity.bufferInfo.rma.size);
+        bufList[i].type = REGED_BUFFER_RMA;
+        bufList[i].bufferInfo.rma.addr = static_cast<uint64_t>(locRmaBuffer->GetAddr());
+        bufList[i].bufferInfo.rma.size = locRmaBuffer->GetSize();
+        bufList[i].bufferInfo.rma.protectionInfo.type = PROTECTION_TYPE_ROCE;
+        bufList[i].bufferInfo.rma.protectionInfo.memInfo.roce.lkey = locRmaBuffer->GetLkey();
+        HCCL_INFO("[AicpuTsRoceChannelV2::%s] locBuf[addr[%p], size[%lu]]",
+            __func__, bufList[i].bufferInfo.rma.addr, bufList[i].bufferInfo.rma.size);
     }
-    *bufferEntityPtr = locBufEntityList_.data();
+    *bufferEntityPtr = bufList.data();
     return HCCL_SUCCESS;
 }
 
-HcclResult AicpuTsRoceChannelV2::BuildAndGetSqContext(SqContext** sqContextPtr)
+HcclResult AicpuTsRoceChannelV2::BuildAndGetSqContext(std::vector<SqContext>& sqList, SqContext** sqContextPtr)
 {
     if (channelStatus_ != ChannelStatus::READY) {
         HCCL_ERROR("[AicpuTsRoceChannelV2::%s] channel status[%d] is not ready[%d], please check.",
@@ -609,13 +780,13 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetSqContext(SqContext** sqContextPtr)
             Hccl::StringFormat("[AicpuTsRoceChannelV2::%s] failed, connection pointer is nullptr", __func__));
         SqContext sqContext;
         CHK_RET(conn->BuildSqContext(&sqContext));
-        sqContextList_.emplace_back(sqContext);
+        sqList[i] = sqContext;
     }
-    *sqContextPtr = sqContextList_.data();
+    *sqContextPtr = sqList.data();
     return HCCL_SUCCESS;
 }
 
-HcclResult AicpuTsRoceChannelV2::BuildAndGetCqContext(CqContext** cqContextPtr)
+HcclResult AicpuTsRoceChannelV2::BuildAndGetCqContext(std::vector<CqContext>& cqList, CqContext** cqContextPtr)
 {
     if (channelStatus_ != ChannelStatus::READY) {
         HCCL_ERROR("[AicpuTsRoceChannelV2::%s] channel status[%d] is not ready[%d], please check.",
@@ -639,9 +810,9 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetCqContext(CqContext** cqContextPtr)
             Hccl::StringFormat("[AicpuTsRoceChannelV2::%s] failed, connection pointer is nullptr", __func__));
         CqContext cqContext;
         CHK_RET(conn->BuildCqContext(&cqContext));
-        cqContextList_.emplace_back(cqContext);
+        cqList[i] = cqContext;
     }
-    *cqContextPtr = cqContextList_.data();
+    *cqContextPtr = cqList.data();
     return HCCL_SUCCESS;
 }
 
@@ -649,9 +820,9 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetDevChannelEntity(uint64_t* devChanne
 {
     CHK_PTR_NULL(devChannelEntityPtr);
 
-    if (devChannelEntityPtr_ != 0) {
-        *devChannelEntityPtr = devChannelEntityPtr_;
-        HCCL_INFO("[AicpuTsRoceChannelV2::%s] already built, return cached devPtr=0x%lx", __func__, devChannelEntityPtr_);
+    if (devChannelEntitySlab_ != nullptr) {
+        *devChannelEntityPtr = reinterpret_cast<uint64_t>(devChannelEntitySlab_);
+        HCCL_INFO("[AicpuTsRoceChannelV2::%s] already built, return cached devPtr=0x%lx", __func__, *devChannelEntityPtr);
         return HCCL_SUCCESS;
     }
 
@@ -664,87 +835,69 @@ HcclResult AicpuTsRoceChannelV2::BuildAndGetDevChannelEntity(uint64_t* devChanne
     hostEntity.engine   = GetCommEngine();
     hostEntity.protocol = GetCommProtocol();
 
-    locBufEntityList_.clear();
-    rmtBufEntityList_.clear();
-    sqContextList_.clear();
-    cqContextList_.clear();
-    deviceMemories_.clear();
-
-    CHK_RET(GetNotifyNum(&hostEntity.localNotifyNum));
+    hostEntity.localNotifyNum = 0;
     CHK_RET(BuildAndGetLocNotifyInfo(&hostEntity.localNotifyAddr));
-    hostEntity.remoteNotifyNum = hostEntity.localNotifyNum;
+    
+    hostEntity.remoteNotifyNum = 0;
     CHK_RET(BuildAndGetRmtNotifyInfo(&hostEntity.remoteNotifyAddr));
 
-    CHK_RET(GetBufferNum(&hostEntity.localBufferNum));
-    CHK_RET(BuildAndGetLocBufInfo(&hostEntity.localBufferAddr));
-    hostEntity.remoteBufferNum = hostEntity.localBufferNum;
-    CHK_RET(BuildAndGetRmtBufInfo(&hostEntity.remoteBufferAddr));
+    std::vector<RegedBufferEntity> locBufList;
+    locBufList.resize(bufferNum_);
+    hostEntity.localBufferNum = bufferNum_;
+    CHK_RET(BuildAndGetLocBufInfo(locBufList, &hostEntity.localBufferAddr));
 
-    CHK_RET(GetQpNum(&hostEntity.sqNum));
-    CHK_RET(BuildAndGetSqContext(&hostEntity.sqContextAddr));
-    hostEntity.cqNum = hostEntity.sqNum;
-    CHK_RET(BuildAndGetCqContext(&hostEntity.cqContextAddr));
+    std::vector<RegedBufferEntity> rmtBufList;
+    rmtBufList.resize(bufferNum_);
+    hostEntity.remoteBufferNum = bufferNum_;
+    CHK_RET(BuildAndGetRmtBufInfo(rmtBufList, &hostEntity.remoteBufferAddr));
 
-    hccl::DeviceMem entityDevMem = hccl::DeviceMem::alloc(sizeof(ChannelEntity));
-    CHK_PRT_RET(!entityDevMem,
-        HCCL_ERROR("[AicpuTsRoceChannelV2::%s] DeviceMem::alloc for ChannelEntity failed", __func__), HCCL_E_MEMORY);
-    deviceMemories_.push_back(std::move(entityDevMem));
-    void* entityDevPtr = deviceMemories_.back().ptr();
+    std::vector<SqContext> sqList;
+    sqList.resize(connNum_);
+    hostEntity.sqNum = connNum_;
+    CHK_RET(BuildAndGetSqContext(sqList, &hostEntity.sqContextAddr));
 
-    ChannelEntity devEntity = hostEntity;
+    std::vector<CqContext> cqList;
+    cqList.resize(connNum_);
+    hostEntity.cqNum = connNum_;
+    CHK_RET(BuildAndGetCqContext(cqList, &hostEntity.cqContextAddr));
 
-    CHK_RET(CopyArrayToDevice(hostEntity.localNotifyAddr, hostEntity.localNotifyNum,
-                              &devEntity.localNotifyAddr, "localNotifyAddr"));
-    CHK_RET(CopyArrayToDevice(hostEntity.remoteNotifyAddr, hostEntity.remoteNotifyNum,
-                              &devEntity.remoteNotifyAddr, "remoteNotifyAddr"));
-    CHK_RET(CopyArrayToDevice(hostEntity.localBufferAddr, hostEntity.localBufferNum,
-                              &devEntity.localBufferAddr, "localBufferAddr"));
-    CHK_RET(CopyArrayToDevice(hostEntity.remoteBufferAddr, hostEntity.remoteBufferNum,
-                              &devEntity.remoteBufferAddr, "remoteBufferAddr"));
-    CHK_RET(CopyArrayToDevice(hostEntity.sqContextAddr, hostEntity.sqNum,
-                              &devEntity.sqContextAddr, "sqContextAddr"));
-    CHK_RET(CopyArrayToDevice(hostEntity.cqContextAddr, hostEntity.cqNum,
-                              &devEntity.cqContextAddr, "cqContextAddr"));
+    DeviceChannelEntityLayout layout;
+    CHK_RET(BuildDeviceChannelEntityLayout(hostEntity, layout));
+    void *slabPtr = nullptr;
+    AclDeviceSlabGuard slabGuard;
+    CHK_RET(AllocDeviceEntitySlab(layout.slabSize, slabGuard, slabPtr));
 
-    Hccl::HrtMemcpy(entityDevPtr, sizeof(ChannelEntity), &devEntity, sizeof(ChannelEntity),
-                     Hccl::tagRtMemcpyKind::RT_MEMCPY_HOST_TO_DEVICE);
+    ChannelEntity devEntity;
+    CHK_RET(CopyChannelEntityArrayToSlab(slabPtr, hostEntity, layout, devEntity));
+    void *entityDevPtr = nullptr;
+    CHK_RET(CopyChannelEntityToSlab(slabPtr, layout, devEntity, entityDevPtr));
+
+    ReleaseDeviceEntitySlab();
+    devChannelEntitySlab_ = slabGuard.Release();
+    devChannelEntitySlabSize_ = layout.slabSize;
 
     *devChannelEntityPtr = reinterpret_cast<uint64_t>(entityDevPtr);
-    devChannelEntityPtr_ = reinterpret_cast<uint64_t>(entityDevPtr);
-    HCCL_INFO("[AicpuTsRoceChannelV2::%s] Success, devPtr=0x%lx", __func__, devChannelEntityPtr_);
+    HCCL_INFO("[AicpuTsRoceChannelV2::%s] Success, devPtr=0x%lx, slabPtr=%p, slabSize=%zu",
+        __func__, *devChannelEntityPtr, devChannelEntitySlab_, devChannelEntitySlabSize_);
     return HCCL_SUCCESS;
 }
 
-template<typename T>
-HcclResult AicpuTsRoceChannelV2::CopyArrayToDevice(const T* hostArray, uint32_t arrayNum,
-    T** deviceArrayPtr, const char* arrayName)
+void AicpuTsRoceChannelV2::ReleaseDeviceEntitySlab()
 {
-    if (arrayNum == 0 || hostArray == nullptr) {
-        *deviceArrayPtr = nullptr;
-        return HCCL_SUCCESS;
+    if (devChannelEntitySlab_ != nullptr) {
+        aclError ret = aclrtFree(devChannelEntitySlab_);
+        if (ret != ACL_SUCCESS) {
+            HCCL_WARNING("[AicpuTsRoceChannelV2::%s] aclrtFree devChannelEntitySlab failed, ptr[%p], size[%zu], ret[%d]",
+                __func__, devChannelEntitySlab_, devChannelEntitySlabSize_, ret);
+        }
+        devChannelEntitySlab_ = nullptr;
+        devChannelEntitySlabSize_ = 0;
     }
-
-    size_t arraySize = arrayNum * sizeof(T);
-    hccl::DeviceMem arrayDevMem = hccl::DeviceMem::alloc(arraySize);
-    CHK_PRT_RET(!arrayDevMem,
-        HCCL_ERROR("[AicpuTsRoceChannelV2::%s] DeviceMem::alloc for %s failed, size=%zu", __func__, arrayName, arraySize),
-        HCCL_E_MEMORY);
-    void* arrayDevPtr = arrayDevMem.ptr();
-    deviceMemories_.push_back(std::move(arrayDevMem));
-
-    Hccl::HrtMemcpy(arrayDevPtr, arraySize, hostArray, arraySize,
-                     Hccl::tagRtMemcpyKind::RT_MEMCPY_HOST_TO_DEVICE);
-
-    *deviceArrayPtr = reinterpret_cast<T*>(arrayDevPtr);
-    HCCL_INFO("[AicpuTsRoceChannelV2::%s] %s: host=%p -> dev=%p, num=%u, size=%zu",
-              __func__, arrayName, hostArray, arrayDevPtr, arrayNum, arraySize);
-    return HCCL_SUCCESS;
 }
 
 void AicpuTsRoceChannelV2::FreeDeviceMemories()
 {
-    deviceMemories_.clear();
-    devChannelEntityPtr_ = 0;
+    ReleaseDeviceEntitySlab();
 }
 
 std::string AicpuTsRoceChannelV2::Describe() const
@@ -984,6 +1137,7 @@ HcclResult AicpuTsRoceChannelV2::GetRemoteMems(uint32_t *memNum, CommMem **remot
 
 HcclResult AicpuTsRoceChannelV2::Clean()
 {
+    ReleaseDeviceEntitySlab();
     return HCCL_SUCCESS;
 }
 
