@@ -29,6 +29,7 @@ constexpr uint32_t NUM_ZERO = 0;
 constexpr uint32_t NUM_ONE = 1;
 constexpr uint32_t NUM_TWO = 2;
 constexpr uint32_t NUM_THREE = 3;
+static uint32_t g_KernelLaunchTimeout = UINT16_MAX;
 
 static HcclResult LaunchNotifyWaitToThread(
     HcclComm comm, aclrtStream unfoldStream, ThreadHandle srcThread, uint32_t dstNotifyIdx)
@@ -69,7 +70,7 @@ static HcclResult LaunchNotifyWaitToThread(
     aclrtLaunchKernelCfg cfg;
     aclrtLaunchKernelAttr attr;
     attr.id = ACL_RT_LAUNCH_KERNEL_ATTR_TIMEOUT;
-    attr.value.timeout = NOTIFY_DEFAULT_WAIT_TIME;
+    attr.value.timeout = g_KernelLaunchTimeout;
     cfg.numAttrs = 1;
     cfg.attrs = &attr;
     constexpr u32 numBlocks = 1;
@@ -82,7 +83,7 @@ static HcclResult LaunchNotifyWaitToThread(
 }
 
 static HcclResult LaunchP2pExec(HcclComm comm, aclrtStream unfoldStream, const HcclKernelFuncInfo *funcInfo, const void *funcArgs,
-    uint32_t argSize, ThreadHandle sendRecvStream)
+    uint32_t argSize, ThreadHandle sendRecvThread)
 {
     aclrtFuncHandle funcHandle;
     aclrtArgsHandle argsHandle;
@@ -101,13 +102,13 @@ static HcclResult LaunchP2pExec(HcclComm comm, aclrtStream unfoldStream, const H
             ret, funcInfo->kernelFuncName), HCCL_E_RUNTIME);
 
     // 3. 准备参数并 append
-    P2pParam params;
-    params.sendRecvStream = sendRecvStream;
-    memset_s(params.opParams, MAX_ARG_SIZE, 0, MAX_ARG_SIZE);
-    memcpy_s(params.opParams, MAX_ARG_SIZE, funcArgs, argSize);
+    HcclP2pKernelParam params;
+    params.sendRecvThread = sendRecvThread;
+    memset_s(params.opParams, P2P_MAX_ARG_SIZE, 0, P2P_MAX_ARG_SIZE);
+    memcpy_s(params.opParams, P2P_MAX_ARG_SIZE, funcArgs, argSize);
 
     aclrtParamHandle paraHandle;
-    ret = aclrtKernelArgsAppend(argsHandle, &params, sizeof(P2pParam), &paraHandle);
+    ret = aclrtKernelArgsAppend(argsHandle, &params, sizeof(HcclP2pKernelParam), &paraHandle);
     CHK_PRT_RET(ret != ACL_SUCCESS,
         HCCL_ERROR("[aclrtKernelArgsAppend]errNo[0x%016llx] args append failed, kernelName:%s",
             ret, funcInfo->kernelFuncName), HCCL_E_RUNTIME);
@@ -122,7 +123,7 @@ static HcclResult LaunchP2pExec(HcclComm comm, aclrtStream unfoldStream, const H
     aclrtLaunchKernelCfg cfg;
     aclrtLaunchKernelAttr attr;
     attr.id = ACL_RT_LAUNCH_KERNEL_ATTR_TIMEOUT;
-    attr.value.timeout = NOTIFY_DEFAULT_WAIT_TIME;
+    attr.value.timeout = g_KernelLaunchTimeout;
     cfg.numAttrs = 1;
     cfg.attrs = &attr;
     constexpr u32 numBlocks = 1;
@@ -180,7 +181,7 @@ static HcclResult LaunchNotifyRecordToThread(
     aclrtLaunchKernelCfg cfg;
     aclrtLaunchKernelAttr attr;
     attr.id = ACL_RT_LAUNCH_KERNEL_ATTR_TIMEOUT;
-    attr.value.timeout = NOTIFY_DEFAULT_WAIT_TIME;
+    attr.value.timeout = g_KernelLaunchTimeout;
     cfg.numAttrs = 1;
     cfg.attrs = &attr;
     constexpr u32 numBlocks = 1;
@@ -238,16 +239,18 @@ static HcclResult AicpuKernelLaunchDirect(HcclComm comm, const HcclKernelFuncInf
 }
 
 HcclResult HcclAicpuKernelLaunch(HcclComm comm, const HcclOpDesc *opInfo, const HcclKernelFuncInfo *funcInfo,
-    ThreadHandle aicpuThreadHandle, aclrtStream userStream)
+    ThreadHandle aicpuThreadHandle, aclrtStream userStream, const HcclKernelLaunchCfg *kernelLaunchCfg)
 {
     CHK_PTR_NULL(comm);
     CHK_PTR_NULL(userStream);
     CHK_PTR_NULL(funcInfo);
     CHK_PTR_NULL(opInfo);
+    CHK_PTR_NULL(kernelLaunchCfg);
 
     uint32_t argSize = funcInfo->argSize;
     void *args = funcInfo->args;
 
+    g_KernelLaunchTimeout = kernelLaunchCfg->timeOut;
     if (argSize > 0 && args == nullptr) {
         HCCL_ERROR("[HcclAicpuKernelLaunch] args is null but argSize[%u] > 0", argSize);
         return HCCL_E_PTR;
@@ -261,8 +264,8 @@ HcclResult HcclAicpuKernelLaunch(HcclComm comm, const HcclOpDesc *opInfo, const 
         hccl::hcclComm *hcclComm = static_cast<hccl::hcclComm *>(comm);
         CollComm *collComm = hcclComm->GetCollComm();
         CHK_PTR_NULL(collComm);
-        if (argSize > MAX_ARG_SIZE) {
-            HCCL_ERROR("[HcclAicpuKernelLaunch] argSize[%u] over MAX_ARG_SIZE", argSize);
+        if (argSize > P2P_MAX_ARG_SIZE) {
+            HCCL_ERROR("[HcclAicpuKernelLaunch] argSize[%u] over P2P_MAX_ARG_SIZE", argSize);
             return HCCL_E_PARA;
         }
         HCCL_INFO("[HcclAicpuKernelLaunch] group mode, add p2p task hcclGroupDepth[%d]", hcclGroupDepth);
@@ -273,7 +276,7 @@ HcclResult HcclAicpuKernelLaunch(HcclComm comm, const HcclOpDesc *opInfo, const 
             HCCL_KERNEL_SO_NAME_MAX_LEN);
         memcpy_s(task.funcInfo.kernelFuncName, HCCL_KERNEL_FUNC_NAME_MAX_LEN, funcInfo->kernelFuncName,
             HCCL_KERNEL_FUNC_NAME_MAX_LEN);
-        memcpy_s(task.args, MAX_ARG_SIZE, args, argSize);
+        memcpy_s(task.args, P2P_MAX_ARG_SIZE, args, argSize);
         task.argSize = argSize;
         task.usrStream = userStream;
         CHK_RET(collComm->groupScheduleMgr->AppendGroupP2pTask(comm, task, opInfo->p2p));

@@ -581,3 +581,10 @@ HcclResult HcclGroupEnd()
     }());
     return HcclLegacyGroupEnd();
 }
+
+HcclResult HcclGroupStatusGet(bool *isGroupEnabled)
+{
+    CHK_PTR_NULL(isGroupEnabled);
+    *isGroupEnabled = (hcclGroupDepth > 0);
+    return HCCL_SUCCESS;
+}

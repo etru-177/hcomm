@@ -299,6 +299,8 @@ extern HcclResult HcclCommDeactivateCommMemory(HcclComm comm, void *virPtr) HCOM
  */
 extern HcclResult HcclCommWorkingDevNicSet(HcclComm comm, uint32_t *ranks, bool *useBackup, uint32_t nRanks) HCOMM_WEAK_SYMBOL;
 
+#define HCCL_GROUP_FEATURE_SUPPORT
+
 /**
  * @brief Group Start
  * WARNING: experimental API, No compatibility is currently guaranteed for this API
@@ -310,6 +312,12 @@ extern HcclResult HcclGroupStart();
  * WARNING: experimental API, No compatibility is currently guaranteed for this API
  */
 extern HcclResult HcclGroupEnd();
+
+/**
+ * @brief get Group status
+ */
+
+extern HcclResult HcclGroupStatusGet(bool *isGroupEnabled);
 
 /**
  * @brief Register a memory window for HCCL communication.

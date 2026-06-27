@@ -82,8 +82,10 @@ TEST_F(TestKernelLaunchAicpu, Ut_HcclAicpuKernelLaunch_When_CommIsNull_Expect_HC
     HcclKernelFuncInfo funcInfo;
     ThreadHandle aicpuThreadHandle = 0;
     aclrtStream userStream = reinterpret_cast<aclrtStream>(0x1000);
+    HcclKernelLaunchCfg kernelLaunchCfg;
+    kernelLaunchCfg.timeOut = 120U;
 
-    HcclResult ret = HcclAicpuKernelLaunch(nullptr, &opInfo, &funcInfo, aicpuThreadHandle, userStream);
+    HcclResult ret = HcclAicpuKernelLaunch(nullptr, &opInfo, &funcInfo, aicpuThreadHandle, userStream, &kernelLaunchCfg);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
@@ -93,8 +95,10 @@ TEST_F(TestKernelLaunchAicpu, Ut_HcclAicpuKernelLaunch_When_FuncInfoIsNull_Expec
     HcclOpDesc opInfo;
     ThreadHandle aicpuThreadHandle = 0;
     aclrtStream userStream = reinterpret_cast<aclrtStream>(0x1000);
+    HcclKernelLaunchCfg kernelLaunchCfg;
+    kernelLaunchCfg.timeOut = 120U;
 
-    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, nullptr, aicpuThreadHandle, userStream);
+    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, nullptr, aicpuThreadHandle, userStream, &kernelLaunchCfg);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
@@ -104,8 +108,10 @@ TEST_F(TestKernelLaunchAicpu, Ut_HcclAicpuKernelLaunch_When_UserStreamIsNull_Exp
     HcclOpDesc opInfo;
     HcclKernelFuncInfo funcInfo;
     ThreadHandle aicpuThreadHandle = 0;
+    HcclKernelLaunchCfg kernelLaunchCfg;
+    kernelLaunchCfg.timeOut = 120U;
 
-    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, &funcInfo, aicpuThreadHandle, nullptr);
+    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, &funcInfo, aicpuThreadHandle, nullptr, &kernelLaunchCfg);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
@@ -118,8 +124,10 @@ TEST_F(TestKernelLaunchAicpu, Ut_HcclAicpuKernelLaunch_When_ArgSizePositiveButAr
     funcInfo.args = nullptr;
     ThreadHandle aicpuThreadHandle = 0;
     aclrtStream userStream = reinterpret_cast<aclrtStream>(0x1000);
+    HcclKernelLaunchCfg kernelLaunchCfg;
+    kernelLaunchCfg.timeOut = 120U;
 
-    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, &funcInfo, aicpuThreadHandle, userStream);
+    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, &funcInfo, aicpuThreadHandle, userStream, &kernelLaunchCfg);
     EXPECT_EQ(ret, HCCL_E_PTR);
 }
 
@@ -137,6 +145,8 @@ TEST_F(TestKernelLaunchAicpu, Ut_HcclAicpuKernelLaunch_Expect_AicpuKernelLaunchD
     funcInfo.args = static_cast<void*>(&arg);
     ThreadHandle aicpuThreadHandle = 0;
     aclrtStream userStream = reinterpret_cast<aclrtStream>(0x1000);
+    HcclKernelLaunchCfg kernelLaunchCfg;
+    kernelLaunchCfg.timeOut = 120U;
 
     MOCKER(HcclThreadAcquire).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(HcclThreadAcquireWithStream).stubs().will(returnValue(HCCL_SUCCESS));
@@ -152,7 +162,7 @@ TEST_F(TestKernelLaunchAicpu, Ut_HcclAicpuKernelLaunch_Expect_AicpuKernelLaunchD
     MOCKER(HcclReportAicpuKernel).stubs().will(returnValue(ACL_SUCCESS));
     MOCKER(HcommGetProfilingSysCycleTime).stubs().will(returnValue(0x1000U));
 
-    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, &funcInfo, aicpuThreadHandle, userStream);
+    HcclResult ret = HcclAicpuKernelLaunch(comm, &opInfo, &funcInfo, aicpuThreadHandle, userStream, &kernelLaunchCfg);
     GlobalMockObject::verify();
 }
 

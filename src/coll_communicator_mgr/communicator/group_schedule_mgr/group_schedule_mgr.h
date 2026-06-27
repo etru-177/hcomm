@@ -34,7 +34,7 @@ struct HcclP2pTask {
     aclrtStream stream;
     aclrtStream usrStream;
     HcclKernelFuncInfo funcInfo;
-    uint8_t args[MAX_ARG_SIZE];
+    uint8_t args[P2P_MAX_ARG_SIZE];
     uint32_t argSize;
 };
 
