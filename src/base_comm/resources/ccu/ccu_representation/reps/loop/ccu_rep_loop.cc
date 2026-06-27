@@ -6,6 +6,7 @@
  */
 
 #include "ccu_rep_v1.h"
+#include <climits>
 
 #include "string_util.h"
 #include "exception_util.h"
@@ -40,12 +41,34 @@ bool CcuRepLoop::Translate(CcuInstr *&instr, uint16_t &instrId, const TransDep &
     this->instrId = instrId;
     translated    = true;
 
+    Hccl::CHECK_NULLPTR(loopBlock, "[CcuRepLoop::Translate] LoopBlock is nullptr!");
+
     if (!loopBlock->Translated()) {
         Hccl::THROW<Hccl::CcuApiException>("Reference To Invalid LoopBlock");
     }
 
-    LoopInstr(instr++, loopBlock->StartInstrId(), loopBlock->StartInstrId() + loopBlock->InstrCount() - 1,
-              loopParam.Id());
+    uint16_t startInstrId = loopBlock->StartInstrId();
+    uint16_t loopBlockInstrCount = loopBlock->InstrCount();
+    if (loopBlockInstrCount == 0) {
+        HCCL_ERROR("[CcuRepLoop][Translate] loopBlockInstrCount[%u] is 0, which causes underflow in endInstrId calculation.",
+                    loopBlockInstrCount);
+        return false;
+    }
+    if (startInstrId > USHRT_MAX - loopBlockInstrCount) {
+        HCCL_ERROR("[CcuRepLoop][Translate] startInstrId[%u] + loopBlockInstrCount[%u] exceeds the maximum value of unsigned short int.",
+                    startInstrId, loopBlockInstrCount);
+        return false;
+    }
+
+    if (instrId > USHRT_MAX - instrCount) {
+        HCCL_ERROR("[CcuRepLoop][Translate] instrId[%u] exceeds the maximum value of unsigned short int.", instrId);
+        return false;
+    }
+    
+    uint16_t endInstrId = startInstrId + loopBlockInstrCount - 1;
+
+    LoopInstr(instr++, startInstrId, endInstrId, loopParam.Id());
+
 
     instrId += instrCount;
 

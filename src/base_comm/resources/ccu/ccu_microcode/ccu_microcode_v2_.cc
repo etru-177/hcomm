@@ -152,6 +152,10 @@ void LoadFromMem(CcuInstr *instr, uint16_t dst, uint16_t src, uint16_t srcToken,
 void LoadXFromMem(CcuInstr *instr, uint16_t dst, uint16_t src, uint16_t srcToken, uint16_t len,
                   const CacheConfig &cacheConfig, uint16_t setCKEId, uint16_t setCKEMask)
 {
+    if (instr == nullptr) {
+        HCCL_ERROR("[CcuV2::LoadXFromMem] instr is nullptr!");
+        return;
+    }
     LoadFromMem(instr, dst, src, srcToken, len, cacheConfig, setCKEId, setCKEMask);
     instr->v2.load.dstType = 0x0;
 }
@@ -405,6 +409,10 @@ inline void Reduce(CcuInstr *instr, uint16_t *ms, uint16_t count, uint16_t castE
 void ReduceAdd(CcuInstr *instr, uint16_t *ms, uint16_t count, uint16_t castEn, uint16_t dataType, uint16_t setCKEId,
                uint16_t setCKEMask)
 {
+    if (instr == nullptr) {
+        HCCL_ERROR("[CcuV2::ReduceAdd] instr is nullptr!");
+        return;
+    }
     instr->header = InstrHeader(REDUCE_TYPE, REDUCE_ADD_CODE);
     Reduce(instr, ms, count, castEn, dataType, setCKEId, setCKEMask);
 }

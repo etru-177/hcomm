@@ -15,6 +15,7 @@
 
 #include "ccu_rep_base_v1.h"
 #include "ccu_rep_block_v1.h"
+#include "ccu_rep_nop_v1.h"
 #include "ccu_rep_arg_v1.h"
 #include "ccu_rep_loopblock_v1.h"
 #include "ccu_rep_loopcall_v1.h"
@@ -25,6 +26,8 @@
 #include "ccu_microcode_v1.h"
 #include "ccu_assist_v1.h"
 #include "ccu_api_exception.h"
+#include "null_ptr_exception.h"
+#include "internal_exception.h"
 #include "ccu_types.h"
 
 namespace hcomm {
@@ -94,6 +97,30 @@ TEST_F(CcuRepLoopTest, Translate)
     CcuRepLoop loop("test_loop", loopParam);
 
     auto loopBlock = std::make_shared<CcuRepLoopBlock>("loop_block");
+    loopBlock->Append(std::make_shared<CcuRepNop>());
+    loop.Reference(loopBlock);
+
+    CcuInstr instr[2] {};
+    CcuInstr* instrPtr = instr;
+    uint16_t instrId = 0;
+    TransDep dep {};
+
+    loopBlock->Translate(instrPtr, instrId, dep);
+    instrPtr = instr;
+    instrId = 0;
+
+    bool result = loop.Translate(instrPtr, instrId, dep);
+
+    EXPECT_TRUE(result);
+    EXPECT_EQ(instrId, 1U);
+}
+
+TEST_F(CcuRepLoopTest, Translate_EmptyLoopBlock)
+{
+    Variable loopParam(nullptr);
+    CcuRepLoop loop("test_loop", loopParam);
+
+    auto loopBlock = std::make_shared<CcuRepLoopBlock>("loop_block");
     loop.Reference(loopBlock);
 
     CcuInstr instr {};
@@ -106,9 +133,59 @@ TEST_F(CcuRepLoopTest, Translate)
     instrId = 0;
 
     bool result = loop.Translate(instrPtr, instrId, dep);
+    EXPECT_FALSE(result);
+}
 
-    EXPECT_TRUE(result);
-    EXPECT_EQ(instrId, 1U);
+TEST_F(CcuRepLoopTest, Translate_NullLoopBlock)
+{
+    Variable loopParam(nullptr);
+    CcuRepLoop loop("test_loop", loopParam);
+
+    CcuInstr instr {};
+    CcuInstr* instrPtr = &instr;
+    uint16_t instrId = 0;
+    TransDep dep {};
+
+    EXPECT_THROW(loop.Translate(instrPtr, instrId, dep), Hccl::NullPtrException);
+}
+
+TEST_F(CcuRepLoopTest, Translate_UntranslatedLoopBlock)
+{
+    Variable loopParam(nullptr);
+    CcuRepLoop loop("test_loop", loopParam);
+
+    auto loopBlock = std::make_shared<CcuRepLoopBlock>("loop_block");
+    loopBlock->Append(std::make_shared<CcuRepNop>());
+    loop.Reference(loopBlock);
+
+    CcuInstr instr {};
+    CcuInstr* instrPtr = &instr;
+    uint16_t instrId = 0;
+    TransDep dep {};
+
+    EXPECT_THROW(loop.Translate(instrPtr, instrId, dep), Hccl::CcuApiException);
+}
+
+TEST_F(CcuRepLoopTest, Translate_InstrIdOverflow)
+{
+    Variable loopParam(nullptr);
+    CcuRepLoop loop("test_loop", loopParam);
+
+    auto loopBlock = std::make_shared<CcuRepLoopBlock>("loop_block");
+    loopBlock->Append(std::make_shared<CcuRepNop>());
+    loop.Reference(loopBlock);
+
+    CcuInstr instr[2] {};
+    CcuInstr* instrPtr = instr;
+    uint16_t instrId = 0;
+    TransDep dep {};
+
+    loopBlock->Translate(instrPtr, instrId, dep);
+    instrPtr = instr;
+    instrId = USHRT_MAX;
+
+    bool result = loop.Translate(instrPtr, instrId, dep);
+    EXPECT_FALSE(result);
 }
 
 class CcuRepLoopBlockTest : public ::testing::Test {
@@ -407,11 +484,12 @@ protected:
         entry.config = CcuLoopConfig{};
         entry.executor = Executor(nullptr);
         entry.repLoopBlock = std::make_shared<CcuRepLoopBlock>("loop_block");
+        entry.repLoopBlock->Append(std::make_shared<CcuRepNop>());
         entry.loopParamVar = Variable(nullptr);
         entry.isVarBased = false;
 
-        CcuInstr blockInstr {};
-        CcuInstr* blockPtr = &blockInstr;
+        CcuInstr blockInstr[1] {};
+        CcuInstr* blockPtr = blockInstr;
         uint16_t blockInstrId = 0;
         TransDep blockDep {0, 0, 1, 1, 0, {0, 0}, 0, 0, 0, {0, 0, 0}, {0, 0}, 0, false};
         entry.repLoopBlock->Translate(blockPtr, blockInstrId, blockDep);

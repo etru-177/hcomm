@@ -26,6 +26,11 @@ void LoopGroupCall::Run(const std::vector<LoopCall> &loopVec, const std::vector<
     if (ret1 != HcclResult::HCCL_SUCCESS || ret2 != HcclResult::HCCL_SUCCESS) {
         THROW<CcuApiException>("CreateVariable failed. ret1[%d], ret2[%d]", ret1, ret2);
     }
+
+    if (executors.size() < loopVec.size() || loopCfg.size() < loopVec.size()) {
+        THROW<CcuApiException>("Executors size[%lu] or loopCfg size[%lu] is less than loopVec size", executors.size(), loopCfg.size());
+    }
+
     auto loopGroup = std::make_shared<CcuRepLoopGroup>(var1, var2);
 
     std::vector<std::shared_ptr<CcuRepLoop>> loops;

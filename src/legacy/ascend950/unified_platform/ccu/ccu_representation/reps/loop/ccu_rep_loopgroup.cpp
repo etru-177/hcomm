@@ -9,6 +9,7 @@
  */
 
 #include "ccu_rep.h"
+#include <climits>
 
 #include "string_util.h"
 
@@ -26,6 +27,11 @@ bool CcuRepLoopGroup::Translate(CcuInstr *&instr, uint16_t &instrId, const Trans
     this->instrId = instrId;
     translated    = true;
 
+    if (instrId > USHRT_MAX - 3) {
+        HCCL_ERROR("[CcuRepLoopGroup][Translate] instrId[%u] + 3 exceeds the maximum value of unsigned short int.",
+                    instrId);
+        return false;
+    }
     // 这是个非常危险的操作，需要谨慎使用
     // 依赖于LoopGroupCall的实现
     // LoopGroup所指向的Loop的位置为当前指令Id + 3

@@ -61,8 +61,12 @@ std::string CcuRepBlock::Describe()
 std::shared_ptr<CcuRepBase> CcuRepBlock::GetRepByInstrId(uint16_t instrId)
 {
     for (const auto& rep : GetReps()) {
+        const uint16_t repCount = rep->InstrCount();
+        if (repCount == 0) {
+            continue;
+        }
         const uint16_t startId = rep->StartInstrId();
-        const uint16_t endId = startId + rep->InstrCount() - 1;
+        const uint16_t endId = startId + repCount - 1;
         if (instrId >= startId && instrId <= endId) {
             return rep;
         }

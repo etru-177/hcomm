@@ -70,8 +70,12 @@ const std::vector<std::shared_ptr<CcuRep::CcuRepBase>> &CcuRepContext::GetRepSeq
 std::shared_ptr<CcuRep::CcuRepBase> CcuRepContext::GetRepByInstrId(uint16_t instrId)
 {
     for (const auto& rep : GetRepSequence()) {
+        const uint16_t instrCount = rep->InstrCount();
+        if (instrCount == 0) {
+            continue;
+        }
         const uint16_t startId = rep->StartInstrId();
-        const uint16_t endId = startId + rep->InstrCount() - 1;
+        const uint16_t endId = startId + instrCount - 1;
         if (instrId >= startId && instrId <= endId) {
             return rep;
         }

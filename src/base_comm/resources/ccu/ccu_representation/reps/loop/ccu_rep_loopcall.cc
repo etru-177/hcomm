@@ -97,6 +97,8 @@ bool CcuRepLoopCall::Translate(CcuInstr *&instr, uint16_t &instrId, const TransD
     this->instrId = instrId;
     translated    = true;
 
+    Hccl::CHECK_NULLPTR(loopBlock, "[CcuRepLoopCall::Translate] LoopBlock is nullptr!");
+
     if (!loopBlock->Translated()) {
         Hccl::THROW<Hccl::CcuApiException>("Reference To Invalid LoopBlock");
     }

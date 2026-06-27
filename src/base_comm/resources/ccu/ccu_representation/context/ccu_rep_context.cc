@@ -76,8 +76,12 @@ std::shared_ptr<CcuRep::CcuRepBase> CcuRepContext::GetRepByInstrId(uint16_t inst
 {
     for (const auto& rep : GetRepSequence()) {
         CHK_PRT_RET(rep == nullptr, HCCL_ERROR("[%s]fail, rep is nullptr", __func__), nullptr);
+        const uint16_t repInstrCount = rep->InstrCount();
+        if (repInstrCount == 0) {
+            continue;
+        }
         const uint16_t startId = rep->StartInstrId();
-        const uint16_t endId = startId + rep->InstrCount() - 1;
+        const uint16_t endId = startId + repInstrCount - 1;
         HCCL_INFO("[%s]startId[%u], endId[%u], instrId[%u]", __func__, startId, endId, instrId);
         if (instrId >= startId && instrId <= endId) {
             return rep;
