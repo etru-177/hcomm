@@ -20,7 +20,6 @@
 #include "topo_common_types.h"
 #include "virtual_topo.h"
 #include "aicpu_res_package_helper.h"
-#include "tp_manager.h"
 #include "exchange_ub_buffer_dto.h"
 #include "exchange_ub_conn_dto.h"
 #include "user_remote_mem_getter.h"
@@ -97,29 +96,18 @@ HcclResult AicpuTsUboeChannel::ParseInputParam()
 
 HcclResult AicpuTsUboeChannel::BuildConnection()
 {
-    Hccl::OpMode        opMode = Hccl::OpMode::OPBASE;
-    bool                devUsed  = true;  // aicpu 为 true
-    Hccl::LinkProtocol  protocol;
-    CHK_RET(CommProtocolToLinkProtocol(localEp_.protocol, protocol));
+    UbConnBuildContext ctx;
+    CHK_RET(PrepareUbConnBuildContext(localEp_, remoteEp_, channelDesc_.qos, ctx));
 
-    Hccl::IpAddress locIpv4Addr;
-    Hccl::IpAddress rmtIpv4Addr;
-    CHK_RET(CommAddrToIpAddress(localEp_.commAddr, locIpv4Addr));
-    CHK_RET(CommAddrToIpAddress(remoteEp_.commAddr, rmtIpv4Addr));
-    HCCL_INFO("[AicpuTsUboeChannel][%s] LinkProtocol[%s], locIpv4Addr[%s], rmtIpv4Addr[%s]", 
-        __func__, protocol.Describe().c_str(), locIpv4Addr.Describe().c_str(), rmtIpv4Addr.Describe().c_str());
-    HCCL_INFO("[RmaConnManager::%s] locAddr_[%s], rmtAddr_[%s]", 
+    Hccl::OpMode opMode = Hccl::OpMode::OPBASE;
+    bool devUsed = true; // aicpu 为 true
+    HCCL_INFO("[AicpuTsUboeChannel][%s] LinkProtocol[%s], locIpv4Addr[%s], rmtIpv4Addr[%s]",
+        __func__, ctx.protocol.Describe().c_str(), ctx.locAddr.Describe().c_str(), ctx.rmtAddr.Describe().c_str());
+    HCCL_INFO("[AicpuTsUboeChannel][%s] locAddr_[%s], rmtAddr_[%s]",
         __func__, locAddr_.Describe().c_str(), rmtAddr_.Describe().c_str());
 
-    s32 deviceLogicId;
-    CHK_RET(hrtGetDevice(&deviceLogicId));
-    Hccl::TpManager::GetInstance(deviceLogicId).Init();
-
-    const u8 qosPre = static_cast<u8>(
-        (channelDesc_.qos > 7U) ? Hccl::kRaUbGetTpInfoParamDefaultQos : (channelDesc_.qos & 7U));
-
     std::unique_ptr<Hccl::DevUbConnection> ubConn = std::make_unique<Hccl::DevUbUboeConnection>(rdmaHandle_,
-        locAddr_, rmtAddr_, opMode, devUsed, Hccl::HrtUbJfcMode::STARS_POLL, locIpv4Addr, rmtIpv4Addr, qosPre);
+        locAddr_, rmtAddr_, opMode, devUsed, Hccl::HrtUbJfcMode::STARS_POLL, ctx.locAddr, ctx.rmtAddr, ctx.qosPre);
     CHK_SMART_PTR_NULL(ubConn);
 
     commonRes_.connVec.clear();

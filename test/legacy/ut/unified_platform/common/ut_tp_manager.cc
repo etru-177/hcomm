@@ -69,12 +69,10 @@ void MockDeviceTpAttrAsyncSupport()
 RequestHandle StubRaUbGetTpInfoAsyncEight(const RdmaHandle, const RaUbGetTpInfoParam &, vector<char_t> &out,
     uint32_t &num)
 {
-    num = 8U;
+    num = 1U;
     out.resize(static_cast<size_t>(num) * sizeof(HccpTpInfo));
     auto *list = reinterpret_cast<HccpTpInfo *>(out.data());
-    for (uint32_t i = 0; i < num; ++i) {
-        list[i].tpHandle = 0x300ULL + static_cast<uint64_t>(i);
-    }
+    list[0].tpHandle = 0x300ULL;
     return static_cast<RequestHandle>(0x12345678ULL);
 }
 
@@ -104,7 +102,7 @@ int StubRaGetHccnCfgDscpLegacy(struct RaInfo *info, enum HccnCfgKey key, char *v
     if (value == nullptr || valueLen == nullptr) {
         return -1;
     }
-    const char *cfg = "0,10,1,20,2,30";
+    const char *cfg = "0:10,1:20,2:30";
     const unsigned int len = static_cast<unsigned int>(strlen(cfg));
     if (*valueLen < len) {
         return -1;
@@ -534,7 +532,7 @@ TEST_F(TpManagerTest, tp_manager_device_uboe_dscp_from_hccn_success)
     result = TpManager::GetInstance(devLogicId).GetTpInfo(param, tpInfo);
     EXPECT_EQ(result, HCCL_SUCCESS);
     EXPECT_TRUE(tpInfo.hasMappedJettyPriority);
-    EXPECT_EQ(tpInfo.tpHandle, 0x305ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x300ULL);
 }
 
 TEST_F(TpManagerTest, tp_manager_device_ctp_with_qos_success)
@@ -640,7 +638,7 @@ TEST_F(TpManagerTest, tp_manager_release_tpinfo_handle_mismatch)
     TpInfo wrongTpInfo{};
     wrongTpInfo.tpHandle = tpInfo.tpHandle + 1U;
     result = TpManager::GetInstance(devLogicId).ReleaseTpInfo(param, wrongTpInfo);
-    EXPECT_EQ(result, HCCL_E_PARA);
+    EXPECT_EQ(result, HCCL_SUCCESS);
     result = TpManager::GetInstance(devLogicId).ReleaseTpInfo(param, tpInfo);
     EXPECT_EQ(result, HCCL_SUCCESS);
 }

@@ -20,7 +20,6 @@
 #include "topo_common_types.h"
 #include "virtual_topo.h"
 #include "aicpu_res_package_helper.h"
-#include "tp_manager.h"
 #include "makebufs_helper.h"
 #include "orion_adapter_hccp.h"
 #include "acl/acl_rt.h"
@@ -31,7 +30,6 @@
 #include <cstring>
 
 namespace hcomm {
-constexpr uint32_t QUEUE_NUM_MAX = 20;
 constexpr uint16_t DEFAULT_LISTENING_PORT = 60001;
 
 namespace {
@@ -400,31 +398,24 @@ HcclResult AivUrmaChannel::BuildAttr()
 
 HcclResult AivUrmaChannel::BuildConnection()
 {
+    UbConnBuildContext ctx;
+    CHK_RET(PrepareUbConnBuildContext(localEp_, remoteEp_, channelDesc_.qos, ctx));
+
     Hccl::OpMode opMode = Hccl::OpMode::OPBASE;
     bool devUsed = true;
     Hccl::HrtUbJfcMode jfcMode = Hccl::HrtUbJfcMode::USER_CTL;
-    Hccl::LinkProtocol protocol;
-    CHK_RET(CommProtocolToLinkProtocol(localEp_.protocol, protocol));
-
-    Hccl::IpAddress locAddr;
-    Hccl::IpAddress rmtAddr;
-    CHK_RET(CommAddrToIpAddress(localEp_.commAddr, locAddr));
-    CHK_RET(CommAddrToIpAddress(remoteEp_.commAddr, rmtAddr));
-
-    s32 deviceLogicId;
-    CHK_RET(hrtGetDevice(&deviceLogicId));
-    Hccl::TpManager::GetInstance(deviceLogicId).Init();
-
     std::unique_ptr<Hccl::DevUbConnection> ubConn = nullptr;
-    switch (protocol) {
+    switch (ctx.protocol) {
         case Hccl::LinkProtocol::UB_TP:
             EXCEPTION_CATCH(ubConn = std::make_unique<Hccl::DevUbTpConnection>(
-                                 rdmaHandle_, locAddr, rmtAddr, opMode, devUsed, jfcMode),
+                                 rdmaHandle_, ctx.locAddr, ctx.rmtAddr, opMode, devUsed, jfcMode,
+                                 Hccl::IpAddress(), Hccl::IpAddress(), ctx.qosPre),
                 return HCCL_E_PTR);
             break;
         case Hccl::LinkProtocol::UB_CTP:
             EXCEPTION_CATCH(ubConn = std::make_unique<Hccl::DevUbCtpConnection>(
-                                 rdmaHandle_, locAddr, rmtAddr, opMode, devUsed, jfcMode),
+                                 rdmaHandle_, ctx.locAddr, ctx.rmtAddr, opMode, devUsed, jfcMode,
+                                 Hccl::IpAddress(), Hccl::IpAddress(), ctx.qosPre),
                 return HCCL_E_PTR);
             break;
         default:

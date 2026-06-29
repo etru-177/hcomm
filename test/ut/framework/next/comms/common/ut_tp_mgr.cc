@@ -17,6 +17,7 @@
 #include <mockcpp/mockcpp.hpp>
 
 #include "tp_mgr.h"
+#include "tp_qos.h"
 #include "orion_adpt_utils.h"
 #include "rdma_handle_manager.h"
 #include "hccp.h"
@@ -115,6 +116,15 @@ HcclResult PollGetTpAttr(TpMgr &mgr, const GetTpAttrParam &param, TpAttrInfo &tp
     return HCCL_E_AGAIN;
 }
 
+static unsigned int StubTpListWriteCnt(unsigned int *num, unsigned int desiredCnt)
+{
+    if (num == nullptr) {
+        return 0U;
+    }
+    const unsigned int cap = *num;
+    return (cap < desiredCnt) ? cap : desiredCnt;
+}
+
 int StubRaGetTpAttrAsyncUboe(void *ctxHandle, uint64_t tpHandle, uint32_t *attrBitmap, struct TpAttr *attr,
     void **reqHandle)
 {
@@ -140,12 +150,10 @@ int StubRaGetTpInfoListAsyncUboeEight(void *ctxHandle, struct GetTpCfg *cfg, str
     (void)ctxHandle;
     (void)cfg;
     if (infoList != nullptr) {
-        for (unsigned int i = 0; i < 8U; ++i) {
-            infoList[i].tpHandle = 0x100ULL + static_cast<uint64_t>(i);
-        }
+        infoList[0].tpHandle = 0x100ULL;
     }
     if (num != nullptr) {
-        *num = 8U;
+        *num = 1U;
     }
     if (reqHandle != nullptr) {
         *reqHandle = &kUboeTpListReq;
@@ -177,13 +185,14 @@ int StubRaGetTpInfoListAsyncThree(void *ctxHandle, struct GetTpCfg *cfg, struct 
     static int kThreeTpListReq = 33445;
     (void)ctxHandle;
     (void)cfg;
+    const unsigned int writeCnt = StubTpListWriteCnt(num, 3U);
     if (infoList != nullptr) {
-        for (unsigned int i = 0; i < 3U; ++i) {
+        for (unsigned int i = 0; i < writeCnt; ++i) {
             infoList[i].tpHandle = 0x200ULL + static_cast<uint64_t>(i);
         }
     }
     if (num != nullptr) {
-        *num = 3U;
+        *num = writeCnt;
     }
     if (reqHandle != nullptr) {
         *reqHandle = &kThreeTpListReq;
@@ -252,7 +261,7 @@ int StubRaGetHccnCfgDscp(struct RaInfo *info, enum HccnCfgKey key, char *value, 
     if (value == nullptr || valueLen == nullptr) {
         return -1;
     }
-    const char *cfg = "0,10,1,20,2,30";
+    const char *cfg = "0:10,1:20,2:30";
     const unsigned int len = static_cast<unsigned int>(std::strlen(cfg));
     if (*valueLen < len) {
         return -1;
@@ -269,7 +278,58 @@ int StubRaGetHccnCfgDscpKeyValue(struct RaInfo *info, enum HccnCfgKey key, char 
     if (value == nullptr || valueLen == nullptr) {
         return -1;
     }
-    const char *cfg = "2,30,5,40";
+    const char *cfg = "2:30,5:40";
+    const unsigned int len = static_cast<unsigned int>(std::strlen(cfg));
+    if (*valueLen < len) {
+        return -1;
+    }
+    (void)std::memcpy(value, cfg, len);
+    *valueLen = len;
+    return 0;
+}
+
+int StubRaGetHccnCfgDscpProduction(struct RaInfo *info, enum HccnCfgKey key, char *value, unsigned int *valueLen)
+{
+    (void)info;
+    (void)key;
+    if (value == nullptr || valueLen == nullptr) {
+        return -1;
+    }
+    const char *cfg = "0:33,1:65";
+    const unsigned int len = static_cast<unsigned int>(std::strlen(cfg));
+    if (*valueLen < len) {
+        return -1;
+    }
+    (void)std::memcpy(value, cfg, len);
+    *valueLen = len;
+    return 0;
+}
+
+int StubRaGetHccnCfgDscpEightPairs(struct RaInfo *info, enum HccnCfgKey key, char *value, unsigned int *valueLen)
+{
+    (void)info;
+    (void)key;
+    if (value == nullptr || valueLen == nullptr) {
+        return -1;
+    }
+    const char *cfg = "0:10,1:11,2:12,3:13,4:14,5:15,6:16,7:17";
+    const unsigned int len = static_cast<unsigned int>(std::strlen(cfg));
+    if (*valueLen < len) {
+        return -1;
+    }
+    (void)std::memcpy(value, cfg, len);
+    *valueLen = len;
+    return 0;
+}
+
+int StubRaGetHccnCfgDscpNinePairs(struct RaInfo *info, enum HccnCfgKey key, char *value, unsigned int *valueLen)
+{
+    (void)info;
+    (void)key;
+    if (value == nullptr || valueLen == nullptr) {
+        return -1;
+    }
+    const char *cfg = "0:10,1:11,2:12,3:13,4:14,5:15,6:16,7:17,8:18";
     const unsigned int len = static_cast<unsigned int>(std::strlen(cfg));
     if (*valueLen < len) {
         return -1;
@@ -304,12 +364,14 @@ int StubRaGetTpInfoListAsyncTwo(void *ctxHandle, struct GetTpCfg *cfg, struct Hc
     static int kTwoTpListReq = 44556;
     (void)ctxHandle;
     (void)cfg;
+    const unsigned int writeCnt = StubTpListWriteCnt(num, 2U);
     if (infoList != nullptr) {
-        infoList[0].tpHandle = 0x400ULL;
-        infoList[1].tpHandle = 0x401ULL;
+        for (unsigned int i = 0; i < writeCnt; ++i) {
+            infoList[i].tpHandle = 0x400ULL + static_cast<uint64_t>(i);
+        }
     }
     if (num != nullptr) {
-        *num = 2U;
+        *num = writeCnt;
     }
     if (reqHandle != nullptr) {
         *reqHandle = &kTwoTpListReq;
@@ -408,7 +470,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_EightTp_DynamicSl012_Qos0_Expect_LastT
     const GetTpInfoParam param = MakeParam("10.10.11.1", "10.10.11.2", TpProtocol::UBOE, 0U);
     TpInfo tpInfo{};
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x107ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x100ULL);
     EXPECT_EQ(tpInfo.mappedJettyPriority, 2U);
 }
 
@@ -421,7 +483,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_EightTp_Sl789_Qos0_Expect_LastTp_Sl9)
     const GetTpInfoParam param = MakeParam("10.10.10.1", "10.10.10.2", TpProtocol::UBOE, 0U);
     TpInfo tpInfo{};
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x107ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x100ULL);
     EXPECT_TRUE(tpInfo.hasMappedJettyPriority);
     EXPECT_EQ(tpInfo.mappedJettyPriority, 9U);
 }
@@ -514,7 +576,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Rtp_ThreeTp_Qos4_Expect_GroupedMapping)
     const GetTpInfoParam param = MakeParam("10.10.12.1", "10.10.12.2", TpProtocol::RTP, 4U);
     TpInfo tpInfo{};
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x201ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x200ULL);
     EXPECT_EQ(tpInfo.mappedJettyPriority, 2U);
 }
 
@@ -527,7 +589,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_EightTp_SingleSlBit_Qos0_Expect_Sl5)
     const GetTpInfoParam param = MakeParam("10.10.13.1", "10.10.13.2", TpProtocol::UBOE, 0U);
     TpInfo tpInfo{};
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x107ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x100ULL);
     EXPECT_EQ(tpInfo.mappedJettyPriority, 5U);
 }
 
@@ -540,7 +602,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_EightTp_TwoSlBits_Qos3_Expect_MappedSl
     const GetTpInfoParam param = MakeParam("10.10.14.1", "10.10.14.2", TpProtocol::UBOE, 3U);
     TpInfo tpInfo{};
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x104ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x100ULL);
     EXPECT_EQ(tpInfo.mappedJettyPriority, 7U);
 }
 
@@ -568,7 +630,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_DscpFromHccnCfg_Expect_Success)
     const GetTpInfoParam param = MakeParam("10.10.16.1", "10.10.16.2", TpProtocol::UBOE, 2U);
     TpInfo tpInfo{};
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x105ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x100ULL);
 }
 
 TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_DscpKeyValueCfg_Expect_Success)
@@ -578,10 +640,67 @@ TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Uboe_DscpKeyValueCfg_Expect_Success)
     MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscpKeyValue));
 
     TpMgr &mgr = TpMgr::GetInstance(0);
-    const GetTpInfoParam param = MakeParam("10.10.16.3", "10.10.16.4", TpProtocol::UBOE, 5U);
+    const GetTpInfoParam param = MakeParam("10.10.16.3", "10.10.16.4", TpProtocol::UBOE, 2U);
     TpInfo tpInfo{};
     EXPECT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
-    EXPECT_EQ(tpInfo.tpHandle, 0x102ULL);
+    EXPECT_EQ(tpInfo.tpHandle, 0x100ULL);
+}
+
+TEST_F(TpMgrTest, Ut_TpQos_ParseDscp_KeyValueCfg_Qos2_Expect_Dscp30)
+{
+    MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscpKeyValue));
+
+    uint8_t dscp = 0U;
+    EXPECT_TRUE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, 2U, dscp));
+    EXPECT_EQ(dscp, 30U);
+}
+
+TEST_F(TpMgrTest, Ut_TpQos_ParseDscp_PairCfg_Qos2_Expect_Dscp30)
+{
+    MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscp));
+
+    uint8_t dscp = 0U;
+    EXPECT_TRUE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, 2U, dscp));
+    EXPECT_EQ(dscp, 30U);
+}
+
+TEST_F(TpMgrTest, Ut_TpQos_ParseDscp_ProductionCfg_Qos0_Expect_Dscp33)
+{
+    MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscpProduction));
+
+    uint8_t dscp = 0U;
+    EXPECT_TRUE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, 0U, dscp));
+    EXPECT_EQ(dscp, 33U);
+}
+
+TEST_F(TpMgrTest, Ut_TpQos_ParseDscp_ProductionCfg_Qos1_Expect_Dscp65)
+{
+    MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscpProduction));
+
+    uint8_t dscp = 0U;
+    EXPECT_TRUE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, 1U, dscp));
+    EXPECT_EQ(dscp, 65U);
+}
+
+TEST_F(TpMgrTest, Ut_TpQos_ParseDscp_EightPairs_AllQos_Expect_Match)
+{
+    MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscpEightPairs));
+
+    for (uint32_t qos = 0U; qos < 8U; ++qos) {
+        uint8_t dscp = 0U;
+        ASSERT_TRUE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, static_cast<uint8_t>(qos), dscp));
+        EXPECT_EQ(dscp, static_cast<uint8_t>(10U + qos));
+    }
+}
+
+TEST_F(TpMgrTest, Ut_TpQos_ParseDscp_NinePairs_Qos8_Expect_NotFound)
+{
+    MOCKER(RaGetHccnCfg).stubs().will(invoke(StubRaGetHccnCfgDscpNinePairs));
+
+    uint8_t dscp = 0U;
+    EXPECT_FALSE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, 8U, dscp));
+    EXPECT_TRUE(Hccl::TpQosGetDscpByQosFromHccnCfg(0U, 7U, dscp));
+    EXPECT_EQ(dscp, 17U);
 }
 
 TEST_F(TpMgrTest, Ut_TpMgr_GetTpInfo_Ctp_WithQos_Expect_SuccessWithoutSlCommit)
@@ -646,7 +765,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_ReleaseTpInfo_UseCntDecrement_Expect_Success)
     EXPECT_EQ(mgr.ReleaseTpInfo(param, tpInfo), HCCL_SUCCESS);
 }
 
-TEST_F(TpMgrTest, Ut_TpMgr_ReleaseTpInfo_TpHandleMismatch_Expect_EPara)
+TEST_F(TpMgrTest, Ut_TpMgr_ReleaseTpInfo_TpHandleMismatch_Expect_Skip)
 {
     TpMgr &mgr = TpMgr::GetInstance(0);
     const GetTpInfoParam param = MakeParam("10.10.22.1", "10.10.22.2", TpProtocol::RTP, 3U);
@@ -654,7 +773,7 @@ TEST_F(TpMgrTest, Ut_TpMgr_ReleaseTpInfo_TpHandleMismatch_Expect_EPara)
     ASSERT_EQ(PollGetTpInfo(mgr, param, tpInfo), HCCL_SUCCESS);
     TpInfo wrongTpInfo{};
     wrongTpInfo.tpHandle = tpInfo.tpHandle + 1U;
-    EXPECT_EQ(mgr.ReleaseTpInfo(param, wrongTpInfo), HCCL_E_PARA);
+    EXPECT_EQ(mgr.ReleaseTpInfo(param, wrongTpInfo), HCCL_SUCCESS);
     EXPECT_EQ(mgr.ReleaseTpInfo(param, tpInfo), HCCL_SUCCESS);
 }
 

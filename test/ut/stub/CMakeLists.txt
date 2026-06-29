@@ -126,6 +126,7 @@ set(orion_list
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/env_config/env_func.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/rdma_handle_manager.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/tokenInfo_manager.cc
+    ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/tp_qos.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/framework/resource_manager/socket/socket_handle_manager.cc
     ${HCCL_CODE_ROOT}/src/legacy/ascend950/unified_platform/common/hccp_hdc_manager.cc
 )

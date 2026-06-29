@@ -785,6 +785,30 @@ int RaCtxGetTpInfoList(void *ctxHandle, struct GetTpCfg *cfg, struct HccpTpInfo 
     return 0;
 }
 
+int RaCtxGetTpAttr(void *ctxHandle, uint64_t tpHandle, uint32_t *attrBitmap, struct TpAttr *attr)
+{
+    (void)ctxHandle;
+    (void)tpHandle;
+    if (attrBitmap != nullptr) {
+        *attrBitmap = 0x3U;
+    }
+    if (attr != nullptr) {
+        (void)std::memset(attr, 0, sizeof(struct TpAttr));
+        attr->slBitmap = 0x7U;
+        attr->dscpConfigMode = 1U;
+    }
+    return 0;
+}
+
+int RaCtxSetTpAttr(void *ctxHandle, uint64_t tpHandle, uint32_t attrBitmap, struct TpAttr *attr)
+{
+    (void)ctxHandle;
+    (void)tpHandle;
+    (void)attrBitmap;
+    (void)attr;
+    return 0;
+}
+
 
 int RaNdaGetDirectFlag(void *rdmaHandle, int *directFlag)
 {

@@ -29,7 +29,7 @@ using namespace std;
 constexpr u32 kRaUbGetTpInfoParamDefaultQos = 4U;
 
 /// 单次向管控面查询 TP 列表条数上限（异步接口传入/返回 num；与 buffer 中 HccpTpInfo 条数一致）。
-constexpr uint32_t TP_HANDLE_REQUEST_NUM = 8U;
+constexpr uint32_t TP_HANDLE_REQUEST_NUM = 1U;
 
 constexpr u32 DEFAULT_INIT_PHY_ID  = 0;
 constexpr u32 DEFAULT_INIT_NIC_POS = 0;
@@ -613,6 +613,9 @@ using RaUbGetTpInfoParam = struct RaUbGetTpInfoParamDef {
     bool loopFirstTpLowestSl{false};
     /// 与 Next `GetTpInfoParam::ccuLoopbackGetTpInfo` 对齐：标识 CCU 设备环回 GetTpInfo（便于日志/后续分支）
     bool ccuLoopbackGetTpInfo{false};
+    /// UBOE SetTpAttr sip/dip 用 IPv4 地址（GetTpInfo 写回 SL/DSCP 后再设置）
+    IpAddress locIpv4Addr{};
+    IpAddress rmtIpv4Addr{};
 
     explicit RaUbGetTpInfoParamDef() = default;
     RaUbGetTpInfoParamDef(const IpAddress &locAddr, const IpAddress &rmtAddr, TpProtocol tpProtocol)
@@ -733,6 +736,7 @@ HcclResult HrtGetCcuMemInfo(void* tlv_handle, uint32_t udieIdx, uint64_t memType
 
 HcclResult HrtRaGetEidByIp(RdmaHandle handle, const vector<IpAddress>& ipV4AddrList, vector<IpAddress>& eidAddrList);
 
+/// 发起 RaSetTpAttrAsync 后 WaitRequestResult 阻塞至完成；对调用方为同步语义。
 HcclResult HrtRaSetTpAttrAsync(RdmaHandle handle, uint64_t tpHandle, uint32_t attrBitmap, TpAttr& attr, RequestHandle& reqHandle);
 HcclResult HrtRaGetTpAttrAsync(u32 phyId, RdmaHandle handle, uint64_t tpHandle, uint32_t& attrBitmap, TpAttr& attr, RequestHandle& reqHandle);
 

@@ -19,13 +19,15 @@
 #include "stream.h"
 #include "task.h"
 #include "mc2_type.h"
+#include "env_config/env_config.h"
 
 namespace Hccl {
 
 class HostUbConnection : public RmaConnection {
 public:
     HostUbConnection(const RdmaHandle rdmaHandle, const IpAddress &locAddr, const IpAddress &rmtAddr,
-                    const OpMode opMode, const HrtUbJfcMode jfcMode = HrtUbJfcMode::NORMAL);
+                    const OpMode opMode, const HrtUbJfcMode jfcMode = HrtUbJfcMode::NORMAL,
+                    u8 qos = static_cast<u8>(UB_QOS_DEFAULT));
     void          Connect() override;
     RmaConnStatus GetStatus() override;
     bool          Suspend() override;
@@ -128,6 +130,8 @@ private:
     u32                 localTpNum{0};
     TpInfo              tpInfo{};
 
+    u8 qos_{static_cast<u8>(UB_QOS_DEFAULT)}; // 业务 QoS，GetTpInfo / ReleaseTpInfo 缓存键
+
     u32 piVal{0};
     u32 ciVal{0};
 
@@ -155,13 +159,15 @@ private:
 class HostUbTpConnection : public HostUbConnection {
 public:
     HostUbTpConnection(const RdmaHandle rdmaHandle, const IpAddress &locAddr, const IpAddress &rmtAddr,
-                    const OpMode opMode, const HrtUbJfcMode jfcMode = HrtUbJfcMode::NORMAL);
+                    const OpMode opMode, const HrtUbJfcMode jfcMode = HrtUbJfcMode::NORMAL,
+                    u8 qos = static_cast<u8>(UB_QOS_DEFAULT));
 };
 
 class HostUbCtpConnection : public HostUbConnection {
 public:
     HostUbCtpConnection(const RdmaHandle rdmaHandle, const IpAddress &locAddr, const IpAddress &rmtAddr,
-                    const OpMode opMode, const HrtUbJfcMode jfcMode = HrtUbJfcMode::NORMAL);
+                    const OpMode opMode, const HrtUbJfcMode jfcMode = HrtUbJfcMode::NORMAL,
+                    u8 qos = static_cast<u8>(UB_QOS_DEFAULT));
 };
 
 bool IfNeedUpdatingUbCi(const std::vector<HostUbConnection *> &ubConns);

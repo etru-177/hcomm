@@ -192,18 +192,18 @@ private:
     HcclResult FindAndGetTpInfo(const GetTpInfoParam &param, TpInfo &tpInfo);
     HcclResult FindAndGetTpAttr(const TpHandle tpHandle, TpAttrInfo &tpAttrInfo);
     HcclResult LookupInfoCtxEntry(InfoCtxMap &infoMap, const Hccl::IpAddress &locAddr, const Hccl::IpAddress &rmtAddr,
-        QosKey qosKey, InfoCtxMap::iterator &lit, InfoRmtMap::iterator &rit, InfoQosMap::iterator &qosIt) const;
+        const QosKey qosKey, InfoCtxMap::iterator &lit, InfoRmtMap::iterator &rit, InfoQosMap::iterator &qosIt) const;
     HcclResult PollGetTpInfoReqCtx(std::unique_lock<std::mutex> &reqCtxLock, const GetTpInfoParam &param, TpInfo &tpInfo);
-    HcclResult BeginGetTpInfoListRequest(const GetTpInfoParam &param, ReqQosMap &qosMap, QosKey qosKey);
+    HcclResult BeginGetTpInfoListRequest(const GetTpInfoParam &param, ReqQosMap &qosMap, const QosKey qosKey);
     HcclResult AdvanceGetTpInfoWaitList(const GetTpInfoParam &param, RequestCtx &reqCtx, ReqQosMap &qosMap,
-        ReqQosMap::iterator it, std::unique_lock<std::mutex> &reqCtxLock, TpInfo &tpInfo);
+        const ReqQosMap::iterator it, std::unique_lock<std::mutex> &reqCtxLock, TpInfo &tpInfo);
 
     HcclResult StartGetTpInfoListRequest(const GetTpInfoParam &param, RequestCtx &reqCtx) const;
     HcclResult StartGetTpAttrForFirstTp(const GetTpInfoParam &param, RequestCtx &reqCtx) const;
     HcclResult StartGetTpAttrRequest(const GetTpAttrParam &param, TpAttrRequestCtx &reqCtx, CtxHandle ctxHandle) const;
     HcclResult BuildTpInfoAndCommitQosAttr(const GetTpInfoParam &param, const RequestCtx &reqCtx,
-        const struct HccpTpInfo *baseInfoPtr, uint32_t tpListIndex, uint32_t mappedSl, TpInfo &tmpTpInfo);
-    HcclResult CommitTpInfoToCache(const GetTpInfoParam &param, TpInfo tmpTpInfo, TpInfo &tpInfo);
+        const struct HccpTpInfo *baseInfoPtr, uint32_t tpListIndex, uint32_t mappedSl, TpInfo &tpInfo);
+    HcclResult CommitTpInfoToCache(const GetTpInfoParam &param, TpInfo &tpInfo);
     HcclResult HandleCompletedRequest(RequestCtx reqCtx, const GetTpInfoParam &param, TpInfo &tpInfo);
     HcclResult HandleCompletedTpAttrRequest(const TpAttrRequestCtx reqCtx, const TpHandle tpHandle,
         TpAttrInfo &tpAttrInfo);

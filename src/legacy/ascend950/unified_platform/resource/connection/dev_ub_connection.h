@@ -113,7 +113,7 @@ private:
     u32          tokenValue{GetUbToken()};
     Eid          rmtEid{};
     Eid          locEid{};
-    u8           qos_{static_cast<u8>(UB_QOS_DEFAULT)};
+    u8           qos_{static_cast<u8>(UB_QOS_DEFAULT)}; // 业务 QoS，GetTpInfo / ReleaseTpInfo 缓存键
 
     bool         devUsed_{false};
 
@@ -145,9 +145,6 @@ private:
     u32                 localTpnStart{0};
     u32                 localTpNum{0};
     TpInfo              tpInfo{};
-    /// 与 `TpManager` 缓存键一致：首次成功 `GetTpInfo` 时的 `p.qos`（须在改写 `qos_` 为 mapped priority 之前记录）
-    uint32_t            tpMgrReleaseQos_{0};
-    bool                tpMgrReleaseQosCaptured_{false};
 
     u32 piVal{0};
     u32 ciVal{0};
@@ -188,10 +185,6 @@ private:
     
     std::unique_ptr<BaseTask> ConstructTaskUbSend(const HrtRaUbSendWrRespParam &sendWrResp, const SqeConfig &config);
     void                      UpdateCiVal(u32 ci);
-    HcclResult                SetTpAttrAsync(uint32_t attrBitmapCurrent, struct TpAttr& tpAttrCurrent);
-    HcclResult                GetTpAttrAsync(uint32_t& attrBitmap, struct TpAttr& tpAttr);
-    HcclResult                Ipv4ToIpArray(const char *ipv4Str, uint8_t ipArr[16U]) const;
-    bool                      IpArrayCompare(const uint8_t ipArrLeft[16U], const uint8_t ipArrRight[16U]) const;
     HcclResult                CalcTotalTimeout(uint32_t &outTotalTimeoutMs);
 };
 

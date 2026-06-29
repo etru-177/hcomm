@@ -15,6 +15,7 @@ target_sources(hccl_v2_utest
         ut_hccp_peer_manager.cc
         ut_dev_capability.cc
         ut_tp_manager.cc
+        ut_tp_qos.cc
         ut_inner_net_dev.cc
         ut_inner_net_dev_manager.cc
         ut_net_device.cc

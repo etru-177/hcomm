@@ -22,10 +22,63 @@ using namespace hcomm;
 HcclResult ProcessUbChannelDesc(const HcclChannelDesc &channelDesc, HcclChannelDesc &channelDescFinal,
     hcclComm *hcclComm);
 
+static HcclMemHandle g_userMemHandle = reinterpret_cast<HcclMemHandle>(0x1111);
+static HcclMemHandle g_symMemHandle = reinterpret_cast<HcclMemHandle>(0x2222);
+static ChannelHandle g_testChannel = static_cast<ChannelHandle>(0x3333);
+// UT stub state, used in single-threaded test execution and reset in SetUp.
+static HcclChannelDesc g_capturedChannelDesc {};
+static std::vector<HcclMemHandle> g_capturedMemHandles;
+
+HcclResult StubRegisterPendingSymmetricMemHandles(std::vector<HcclMemHandle> &memHandles)
+{
+    memHandles.clear();
+    memHandles.emplace_back(g_symMemHandle);
+    return HCCL_SUCCESS;
+}
+
+HcclResult StubRegisterPendingSymmetricMemHandlesEmpty(std::vector<HcclMemHandle> &memHandles)
+{
+    memHandles.clear();
+    return HCCL_SUCCESS;
+}
+
+HcclResult StubCreateChannelsCapture(CommEngine engine, const std::string &commTag,
+    const HcclChannelDesc* channelDescs, uint32_t channelNum, ChannelHandle *channels)
+{
+    (void)engine;
+    (void)commTag;
+    if (channelNum > 0) {
+        g_capturedChannelDesc = channelDescs[0];
+        g_capturedMemHandles.clear();
+        for (uint32_t idx = 0; idx < channelDescs[0].memHandleNum; ++idx) {
+            g_capturedMemHandles.emplace_back(channelDescs[0].memHandles[idx]);
+        }
+        channels[0] = g_testChannel;
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult StubChannelGetRemoteMems(ChannelHandle channel, uint32_t *memNum, CommMem **remoteMems, char ***memTags)
+{
+    static CommMem remoteMem {};
+    static char memTag[] = "__hccl_sym_win__ut";
+    static char *tagList[] = {memTag};
+    remoteMem.type = COMM_MEM_TYPE_DEVICE;
+    remoteMem.addr = reinterpret_cast<void*>(0x4444);
+    remoteMem.size = 0x1000;
+    EXPECT_EQ(channel, g_testChannel);
+    *memNum = 1;
+    *remoteMems = &remoteMem;
+    *memTags = tagList;
+    return HCCL_SUCCESS;
+}
+
 class HcclChannelDescTest : public testing::Test {
 public:
     void SetUp() override
     {
+        g_capturedChannelDesc = {};
+        g_capturedMemHandles.clear();
         const char *fakeA5SocName = "Ascend950PR_958b";
         MOCKER(aclrtGetSocName).stubs().will(returnValue(fakeA5SocName));
         MOCKER(&HcclCommDfx::ReportKernel).stubs().will(returnValue(HCCL_SUCCESS));

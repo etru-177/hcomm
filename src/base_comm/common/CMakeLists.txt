@@ -12,6 +12,7 @@ set(src_list
     orion_adpt_utils.cc
     hccp_tlv_hdc_mgr.cc
     eid_info_mgr.cc
+    ${HCOMM_DIR}/src/legacy/ascend950/unified_platform/common/tp_qos.cc
     tp_mgr.cc
     dlurma_function.cc
     hccl_next_dl.cc

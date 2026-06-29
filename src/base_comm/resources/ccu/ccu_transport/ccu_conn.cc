@@ -293,17 +293,10 @@ HcclResult CcuConnection::Serialize(std::vector<char> &dtoData)
 
     dtoStream << jettyNum_;
     HCCL_INFO("[CcuConnection][%s], jettyNum[%u]", __func__, jettyNum_);
-    Hccl::IpAddress locIpAddr{};
-    CHK_RET(CommAddrToIpAddress(locAddr_, locIpAddr));
     for (const auto &ccuJetty : ccuJettys_) {
         dtoStream << ccuJetty->GetCreateJettyParam().tokenValue;
         const auto &outParam = ccuJetty->GetJettyedOutParam();
-        u8 patchedKey[HRT_UB_QP_KEY_MAX_LEN]{0};
-        (void)memcpy_s(patchedKey, sizeof(patchedKey), outParam.key, outParam.keySize);
-        if (outParam.keySize >= URMA_EID_LEN) {
-            (void)memcpy_s(patchedKey, outParam.keySize, locIpAddr.GetEid().raw, URMA_EID_LEN);
-        }
-        dtoStream << patchedKey;
+        dtoStream << outParam.key;
         dtoStream << outParam.keySize;
     }
 
@@ -408,13 +401,7 @@ HcclResult CcuConnection::StartImportJettyRequest(uint32_t jettyIndex, RequestHa
         return ReturnErrorStatus(std::string(__func__));
     }
 
-    Hccl::IpAddress rmtIpAddr{};
-    CHK_RET(CommAddrToIpAddress(rmtAddr_, rmtIpAddr));
     auto &importCtx = importJettyCtxs_[jettyIndex];
-    if (importCtx.inParam.keyLen >= URMA_EID_LEN) {
-        (void)memcpy_s(importCtx.remoteQpKey, importCtx.inParam.keyLen, rmtIpAddr.GetEid().raw, URMA_EID_LEN);
-    }
-    importCtx.inParam.key = importCtx.remoteQpKey;
     auto &importCtxInParam = importCtx.inParam;
     importCtxInParam.jettyImportCfg = jettyImportCfg_;
     importCtxInParam.jettyImportCfg.protocol = tpProtocol_;
@@ -585,6 +572,7 @@ HcclResult CcuConnection::Describe(std::string &dfxMsg)
         struct TpAttr tpAttr {0};
         uint32_t attrBitmap = 1 << 13; // 13对应dataUdpSrcport
         EXCEPTION_HANDLE_BEGIN
+        // HrtRaGetTpAttrAsync：封装内已同步等待，返回时 tpAttr 已就绪
         HcclResult ret = Hccl::HrtRaGetTpAttrAsync(devPhyId_, ctxHandle_, tpInfo_.tpHandle, attrBitmap, tpAttr, reqHandles_[0]);
         if (ret == HCCL_E_NOT_SUPPORT) {
             HCCL_ERROR("[DevUbConnection::%s] failed, this package does not support RaGetTpAttrAsync for device,"

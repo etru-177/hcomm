@@ -2649,7 +2649,20 @@ HcclResult TpManager::GetTpInfo(const RaUbGetTpInfoParam &param, TpInfo &tpInfo,
 
 HcclResult TpManager::ReleaseTpInfo(const RaUbGetTpInfoParam &param, const TpInfo &tpInfo)
 {
+    (void)param;
+    (void)tpInfo;
     return HcclResult::HCCL_SUCCESS;
+}
+
+void ReleaseUbConnectionTp(const int32_t devLogicId, const IpAddress &locAddr, const IpAddress &rmtAddr,
+    const TpProtocol tpProtocol, TpInfo &tpInfo, const uint32_t requestQos)
+{
+    (void)devLogicId;
+    (void)locAddr;
+    (void)rmtAddr;
+    (void)tpProtocol;
+    (void)requestQos;
+    tpInfo.tpHandle = 0;
 }
 
 HrtRaUbLocalMemRegOutParam HrtRaUbLocalMemReg(RdmaHandle handle, const HrtRaUbLocMemRegParam &in)
