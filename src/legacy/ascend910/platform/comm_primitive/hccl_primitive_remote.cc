@@ -197,3 +197,12 @@ HcclResult HcclRemoteBatchTransfer(
     CHK_PTR_NULL(transferInfo);
     return HCCL_E_NOT_SUPPORT;
 }
+
+HcclResult HcclRemoteDrain(StreamHandle streamHandle, HcclMemTransport memTransport)
+{
+    CHK_PTR_NULL(streamHandle);
+    CHK_PTR_NULL(memTransport);
+    Stream *stream = reinterpret_cast<Stream*>(streamHandle);
+    Transport* transport = reinterpret_cast<Transport*>(memTransport);
+    return transport->Drain(*stream);
+}

@@ -537,6 +537,15 @@ extern int32_t HcommChannelNotifyWaitOnThreadWithDefaultTimeout(ThreadHandle thr
  * @return int32_t 执行结果状态码
  */
 extern int32_t HcommThreadNotifyWaitOnThreadWithDefaultTimeout(ThreadHandle thread, uint32_t notifyIdx);
+
+/**
+ * @brief 单边阻塞等待所有任务完成
+ * @param[in] thread 线程句柄
+ * @param[in] channel 通道句柄
+ * @return int32_t 执行结果状态码
+ */
+extern int32_t HcommChannelDrainOnThread(ThreadHandle thread, ChannelHandle channel);
+
 /** @} */  // 算子编程接口
 #ifdef __cplusplus
 }

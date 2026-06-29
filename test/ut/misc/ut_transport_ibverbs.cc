@@ -266,6 +266,33 @@ TEST_F(TransportIbverbsTest, Ut_FillExchangeDataTotalSize_UserMemEnableTrue_Adds
     ASSERT_EQ(ib.FillExchangeDataTotalSize(), HCCL_SUCCESS);
     EXPECT_EQ(ib.exchangeDataTotalSize_, baseSize + 5ULL * static_cast<u64>(sizeof(MemMsg)));
 }
+// 当drainenbale设置为true，此时应创建dataNotify
+TEST_F(TransportIbverbsTest, Ut_FillExchangeDataTotalSize_DrainEnableTrue_AddsNotifyMemMsg)
+{
+    std::chrono::milliseconds timeout{ 1 };
+    MachinePara base{};
+    base.userMemEnable = false;
+    // 一个dataNotify
+    base.drainEnable = true;
+    base.notifyNum = 0;
+    base.isIndOp = false;
+    TransportIbverbs ibBase(nullptr, nullptr, base, timeout);
+    ibBase.qpsPerConnection_ = 1U;
+    ibBase.notifyNum_ = 2U;
+    ASSERT_EQ(ibBase.FillExchangeDataTotalSize(), HCCL_SUCCESS);
+    const u64 baseSize = ibBase.exchangeDataTotalSize_;
+
+    // userMemEnable=true, notifyNum=3: 添加 2 + 3 = 5 个 MemMsg
+    MachinePara mp{};
+    mp.userMemEnable = true;
+    mp.notifyNum = 3U;
+    mp.isIndOp = false;
+    TransportIbverbs ib(nullptr, nullptr, mp, timeout);
+    ib.qpsPerConnection_ = 1U;
+    ib.notifyNum_ = 2U;
+    ASSERT_EQ(ib.FillExchangeDataTotalSize(), HCCL_SUCCESS);
+    EXPECT_EQ(ib.exchangeDataTotalSize_, baseSize + 3ULL * static_cast<u64>(sizeof(MemMsg)));
+}
 
 TEST_F(TransportIbverbsTest, Ut_FillExchangeDataTotalSize_UserMemEnableMultiQp_AddsAllMemMsg)
 {

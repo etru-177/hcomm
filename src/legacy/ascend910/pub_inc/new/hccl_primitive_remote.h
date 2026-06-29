@@ -151,6 +151,15 @@ extern HcclResult HcclRemoteBatchRead(
  */
 extern HcclResult HcclRemoteBatchTransfer(
     StreamHandle streamHandle, HcclMemTransport memTransport, const HcclBatchTransferInfo *transferInfo, uint32_t bufPairNum);
+
+/**
+ * @brief 单边阻塞等待接口
+ * @param[in] streamHandle 异步流句柄
+ * @param[in] memTransport 传输上下文
+ * @param[in] timeout 超时时间
+ * @return HcclResult 执行状态码
+ */
+extern HcclResult HcclRemoteDrain(StreamHandle streamHandle, HcclMemTransport memTransport);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

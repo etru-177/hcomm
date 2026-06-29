@@ -88,6 +88,25 @@ TransportDeviceIbverbs::~TransportDeviceIbverbs()
     HCCL_DEBUG("~TransportDeviceIbverbs Success!");
 }
 
+HcclResult TransportDeviceIbverbs::InitDrainNotifyInfo()
+{
+    HCCL_DEBUG("[%s] RemoteNotifyAddr[%llu], remoteNotifyKey[%u], localDataNotifyAddr[%llu], localDataNotifyKey[%u]," \
+        "notifySize[%u]", __func__, transDevIbverbsData_.remoteNotifyValueAddr,
+        transDevIbverbsData_.remoteNotifyValueKey, transDevIbverbsData_.localDataNotifyAddr,
+        transDevIbverbsData_.localDataNotifyKey, transDevIbverbsData_.notifySize);
+    CHK_PRT_RET((transDevIbverbsData_.localDataNotifyAddr == 0 || transDevIbverbsData_.remoteNotifyValueAddr == 0),
+        HCCL_ERROR("[%s] Notify addr is nullptr, RemoteNotifyAddr[%llu], localDataNotifyAddr[%llu]", __func__,
+        transDevIbverbsData_.remoteNotifyValueAddr, transDevIbverbsData_.localDataNotifyAddr), HCCL_E_PTR);
+    memMsg_[MemType::DATA_NOTIFY_MEM].addr = reinterpret_cast<void *>(transDevIbverbsData_.localDataNotifyAddr);
+    memMsg_[MemType::DATA_NOTIFY_MEM].lkey = transDevIbverbsData_.localDataNotifyKey;
+    memMsg_[MemType::DATA_NOTIFY_MEM].len = transDevIbverbsData_.notifySize;
+    remoteMemMsg_[MemType::NOTIFY_SRC_MEM].addr = reinterpret_cast<void *>(transDevIbverbsData_.remoteNotifyValueAddr);
+    remoteMemMsg_[MemType::NOTIFY_SRC_MEM].lkey = transDevIbverbsData_.remoteNotifyValueKey;
+    remoteMemMsg_[MemType::NOTIFY_SRC_MEM].len = transDevIbverbsData_.notifySize;
+    CHK_RET(SignalInit(transDevIbverbsData_.dataNotify, dataNotify_));
+    return HCCL_SUCCESS;
+}
+
 HcclResult TransportDeviceIbverbs::Init()
 {
     HCCL_DEBUG("TransportDeviceIbverbs Init Enter! notifyNum[%u]",  machinePara_.notifyNum);
@@ -1610,5 +1629,31 @@ HcclResult TransportDeviceIbverbs::HnsPostSend(const TransportDeviceNormalData &
         dbInfo = exp_rsp.db_info;
     }
     return ret;
+}
+
+HcclResult TransportDeviceIbverbs::Drain(Stream &stream)
+{
+    CHK_PTR_NULL(dataNotify_);
+    CHK_PTR_NULL(remoteMemMsg_[MemType::NOTIFY_SRC_MEM].addr);
+    CHK_PTR_NULL(memMsg_[MemType::DATA_NOTIFY_MEM].addr);
+
+    struct SgList list = {0};
+    struct SendWr wr = {nullptr};
+    list.addr = static_cast<u64>(reinterpret_cast<uintptr_t>(memMsg_[MemType::DATA_NOTIFY_MEM].addr));
+    list.len = static_cast<u32>(memMsg_[MemType::DATA_NOTIFY_MEM].len);
+    list.lkey = memMsg_[MemType::DATA_NOTIFY_MEM].lkey;
+
+    wr.bufList = &list;
+    wr.bufNum = 1; /* 此处list只有一个，设置为1 */
+    wr.dstAddr = reinterpret_cast<u64>(remoteMemMsg_[MemType::NOTIFY_SRC_MEM].addr);
+    wr.rkey = remoteMemMsg_[MemType::NOTIFY_SRC_MEM].lkey;
+    wr.op = RaWrOpcode::RA_WR_RDMA_READ;
+    wr.sendFlag = RA_SEND_SIGNALED | RA_SEND_FENCE; // fence
+
+    CHK_RET(RdmaSendAsync(wr, stream, WqeType::WQE_TYPE_DATA_NOTIFY, wr.dstAddr, INVALID_UINT));
+    CHK_RET(dispatcher_->SignalWait(dataNotify_->ptr(),
+        stream, machinePara_.localUserrank, machinePara_.remoteWorldRank,
+        INVALID_VALUE_STAGE, false, dataNotify_->notifyId_));
+    return HCCL_SUCCESS;
 }
 }  // namespace hccl

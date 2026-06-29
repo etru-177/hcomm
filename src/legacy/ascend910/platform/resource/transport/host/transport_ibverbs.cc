@@ -188,13 +188,13 @@ HcclResult TransportIbverbs::Init()
         "machineType=[%d], serverId=[%s], localDeviceId=[%d], remoteDeviceId=[%d], "\
         "localRank=[%u], localUserRank=[%u], remoteRank=[%u], remoteUserrank=[%u], "\
         "deviceType=[%d], inputMem=[%p], outputMem=[%p], isAicpuModeEn[%d], notifyNum[%u], "\
-        "isIndOp[%d], custom exchange data size [%llu].",
+        "isIndOp[%d], custom exchange data size [%llu], drainEnable[%d]",
         machinePara_.machineType, machinePara_.serverId.c_str(), machinePara_.localDeviceId,
         machinePara_.remoteDeviceId, machinePara_.localUserrank, machinePara_.localWorldRank,
         machinePara_.remoteUserrank, machinePara_.remoteWorldRank,
         machinePara_.deviceType, machinePara_.inputMem.ptr(), machinePara_.outputMem.ptr(),
         machinePara_.isAicpuModeEn, machinePara_.notifyNum, machinePara_.isIndOp, 
-        machinePara_.exchangeInfo.size());
+        machinePara_.exchangeInfo.size(), machinePara_.drainEnable);
     HcclUs startut = TIME_NOW();
 
     if (machinePara_.userMemEnable) {
@@ -202,6 +202,11 @@ HcclResult TransportIbverbs::Init()
         CHK_SMART_PTR_NULL(machinePara_.outputMem);
         CHK_SMART_PTR_NULL(notifyPool_);
     }
+
+    if (machinePara_.drainEnable) {
+        CHK_SMART_PTR_NULL(notifyPool_);
+    }
+
     CHK_PTR_NULL(dispatcher_);
     CHK_RET(CheckDeviceId());
     CHK_RET(CheckExchangeData());
@@ -297,6 +302,10 @@ HcclResult TransportIbverbs::FillExchangeDataTotalSize()
         if (UseMultiQp()) {
             exchangeDataTotalSize_ += qpsPerConnection_ * sizeof(MemMsg);  // 多QP下新增协商内容
         }
+    } 
+    if (!machinePara_.userMemEnable && machinePara_.drainEnable) {
+        exchangeDataTotalSize_ += sizeof(MemMsg); // Drain用到了dataNotify_
+        exchangeDataTotalSize_ += sizeof(MemMsg); // 本端notify srcmem, 用于Drain
     }
     if (!isHybridMode_) {
         exchangeDataTotalSize_ += machinePara_.exchangeInfo.size();
@@ -367,6 +376,20 @@ HcclResult TransportIbverbs::ConstructExchangeForSend()
             CHK_RET(CreateNotifyBuffer(dataAckNotify_, MemType::DATA_ACK_NOTIFY_MEM,
                 exchangeDataPtr, exchangeDataBlankSize));
         }
+    } 
+    if (!machinePara_.userMemEnable && machinePara_.drainEnable) {
+        if (machinePara_.isAicpuModeEn) {
+            CHK_RET(CreateNotifyBuffer(dataNotify_, MemType::DATA_NOTIFY_MEM,
+                exchangeDataPtr, exchangeDataBlankSize, NotifyLoadType::DEVICE_NOTIFY));
+        } else {
+            CHK_RET(CreateNotifyBuffer(dataNotify_, MemType::DATA_NOTIFY_MEM, exchangeDataPtr,
+                exchangeDataBlankSize));
+        }
+        // Drain操作需读取对端srcmem
+        CHK_SAFETY_FUNC_RET(memcpy_s(exchangeDataPtr, exchangeDataBlankSize,
+            reinterpret_cast<void *>(&memMsg_[static_cast<u32>(MemType::NOTIFY_SRC_MEM)]), sizeof(MemMsg)));
+        exchangeDataPtr += sizeof(MemMsg);
+        exchangeDataBlankSize -= sizeof(MemMsg);
     }
     if (!isHybridMode_) {
         CHK_RET(ConstructExchangeDataForSend(exchangeDataPtr, exchangeDataBlankSize));
@@ -473,6 +496,10 @@ HcclResult TransportIbverbs::ParseReceivedExchangeData()
             HCCL_E_MEMORY);
         CHK_RET(GetRemoteAddr(MemType::ACK_NOTIFY_MEM, exchangeDataPtr, exchangeDataBlankSize));
         CHK_RET(GetRemoteAddr(MemType::DATA_ACK_NOTIFY_MEM, exchangeDataPtr, exchangeDataBlankSize));
+    }
+    if (!machinePara_.userMemEnable && machinePara_.drainEnable) {
+        CHK_RET(GetRemoteAddr(MemType::DATA_NOTIFY_MEM, exchangeDataPtr, exchangeDataBlankSize));
+        CHK_RET(GetRemoteAddr(MemType::NOTIFY_SRC_MEM, exchangeDataPtr, exchangeDataBlankSize));
     }
 
     if (!isHybridMode_) {
@@ -769,11 +796,10 @@ HcclResult TransportIbverbs::InitQpConnect()
 
     CHK_RET(FillExchangeDataTotalSize());
 
-    CHK_RET(ConstructExchangeForSend());
-
     // 注册notify 内存信息
     CHK_RET(CreateNotifyValueBuffer());
 
+    CHK_RET(ConstructExchangeForSend());
     HCCL_DEBUG("[TransportIbverbs] resource create done exchangeDataTotalSize_[%llu]", exchangeDataTotalSize_);
 
     HcclResult ret = defaultSocket_->Send(exchangeDataForSend_.data(), exchangeDataTotalSize_);
@@ -2025,7 +2051,6 @@ HcclResult TransportIbverbs::RegCustomUserMem(u8 *&exchangeDataPtr, u64 &exchang
     return HCCL_SUCCESS;
 }
 
-
 HcclResult TransportIbverbs::GetMemInfo(UserMemType memType, void **dstMemPtr, u64 *dstMemSize)
 {
     switch (memType) {
@@ -2135,7 +2160,7 @@ HcclResult TransportIbverbs::GetRemoteNotifyAddr(u8*& exchangeDataPtr, u64& exch
 
 HcclResult TransportIbverbs::CreateNotifyValueBuffer()
 {
-    if (!machinePara_.userMemEnable) {
+    if (!machinePara_.userMemEnable && !machinePara_.drainEnable) {
         HCCL_INFO("userMemEnable is false, no need to create notify value buffer");
         return HCCL_SUCCESS;
     }
@@ -2786,4 +2811,40 @@ HcclResult TransportIbverbs::ExchangeCapabilityHybrid()
     return HCCL_SUCCESS;
 }
 
+HcclResult TransportIbverbs::GetDrainRemSrcMem(void* &remoteAddr, uint32_t &remoteKey, uint32_t &size)
+{
+    auto opType = static_cast<u32>(MemType::NOTIFY_SRC_MEM);
+    remoteAddr = remoteMemMsg_[opType].addr;
+    remoteKey = remoteMemMsg_[opType].lkey;
+    size = remoteMemMsg_[opType].len;
+    return HCCL_SUCCESS;
+}
+
+HcclResult TransportIbverbs::Drain(Stream &stream)
+{
+    auto remoteType = static_cast<u32>(MemType::NOTIFY_SRC_MEM);
+    auto localType = static_cast<u32>(MemType::DATA_NOTIFY_MEM);
+    CHK_PTR_NULL(memMsg_[localType].addr);
+    CHK_PTR_NULL(remoteMemMsg_[remoteType].addr);
+    CHK_RET(Fence());
+    std::vector<WqeInfo> wqeInfoVec;
+    WrAuxInfo aux = {};
+    CHK_RET(AddWqeList(remoteMemMsg_[remoteType].addr,
+        memMsg_[localType].addr, memMsg_[localType].len,
+        WqeType::WQE_TYPE_READ_DATA, aux, wqeInfoVec));
+    CHK_RET(RdmaSendAsync(wqeInfoVec, stream, false));
+    CHK_SMART_PTR_NULL(dataNotify_);
+    CHK_RET(LocalIpcNotify::Wait(stream, dispatcher_, dataNotify_, INVALID_VALUE_STAGE,
+        NOTIFY_INVALID_WAIT_TIME, machinePara_.localUserrank, machinePara_.remoteWorldRank));
+    return HCCL_SUCCESS;
+}
+
+HcclResult TransportIbverbs::GetDrainLocalDataNotify(void* &localAddr, uint32_t& lkey, HcclSignalInfo &dataNotify)
+{
+    localAddr = memMsg_[DATA_NOTIFY_MEM].addr;
+    lkey = memMsg_[DATA_NOTIFY_MEM].lkey;
+    CHK_SMART_PTR_NULL(dataNotify_);
+    CHK_RET(dataNotify_->GetNotifyData(dataNotify));
+    return HCCL_SUCCESS;
+}
 }  // namespace hccl

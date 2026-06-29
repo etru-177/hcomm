@@ -588,6 +588,7 @@ TEST_F(AicpuTsRoceChannelTest, Ut_Serialize_WhenInitedAndDepsStubbed_Returns_SUC
 
     MOCKER_CPP(&AicpuTsRoceRegedMemMgr::GetAllMemDetails).stubs().will(invoke(StubGetAllMemDetailsForSerialize));
     MOCKER_CPP(&hccl::Transport::GetAiQpInfo).stubs().will(invoke(StubTransportGetAiQpInfo));
+    MOCKER_CPP(&AicpuTsRoceChannel::SerializeDrainNotifyInfo).stubs().will(returnValue(HCCL_SUCCESS));
     using DeviceMemAllocRetByValue = hccl::DeviceMem (*)(u64, bool);
     mockcpp::mockAPI<DeviceMemAllocRetByValue>::get(
         "hccl::DeviceMem::alloc",

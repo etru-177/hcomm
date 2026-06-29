@@ -257,6 +257,7 @@ public:
     bool enableAtomicWrite{false}; // 使能atomicWrite
     QueueDepthAttr queueDepthAttr{}; // QP深度配置
     bool userMemEnable{true};
+    bool drainEnable{false};
     // DispatcherCtxPtr；设备侧 TS Roce 等场景传入，WriteCommon 内写入线程局部 dispatcher
     void *dctxPtr{nullptr};
     bool isNewOneSide{false};
@@ -306,6 +307,7 @@ public:
         enableAtomicWrite = that.enableAtomicWrite;
         queueDepthAttr = that.queueDepthAttr;
         userMemEnable = that.userMemEnable;
+        drainEnable = that.drainEnable;
         dctxPtr = that.dctxPtr;
         isNewOneSide = (that.isNewOneSide);
         localBufSize = (that.localBufSize);
@@ -354,6 +356,7 @@ public:
             enableAtomicWrite = that.enableAtomicWrite;
             queueDepthAttr = that.queueDepthAttr;
             userMemEnable = that.userMemEnable;
+            drainEnable = that.drainEnable;
             dctxPtr = that.dctxPtr;
             isNewOneSide = (that.isNewOneSide);
             localBufSize = (that.localBufSize);
@@ -467,7 +470,10 @@ struct TransportDeviceIbverbsData {
     std::vector<RoceMemDetails> localRoceMemDetailsList;
     std::vector<RoceMemDetails> remoteRoceMemDetailsList;
     bool useMemDetailsMgr{false};
-
+    uint64_t remoteNotifyValueAddr{0};   // 对端 NOTIFY_SRC_MEM 地址 (Fence Read 读取源)
+    uint32_t remoteNotifyValueKey{0};    // 对端 notify rkey
+    uint64_t localDataNotifyAddr{0};    // 本端dataNotify addr
+    uint32_t localDataNotifyKey{0};   // 本端dataNotifyKey
     TransportDeviceIbverbsData()
     {}
     TransportDeviceIbverbsData(void *inputBufferPtr,
@@ -490,7 +496,11 @@ struct TransportDeviceIbverbsData {
                                uint32_t notifySize,
                                u32 multiQpThreshold,
                                u32 qpsPerConnection,
-                               bool useAtomicWrite)
+                               bool useAtomicWrite,
+                               uint64_t remoteNotifyValueAddr,
+                               uint32_t remoteNotifyValueKey,
+                               uint64_t localDataNotifyAddr,
+                               uint32_t localDataNotifyKey)
         : inputBufferPtr(inputBufferPtr),
           outputBufferPtr(outputBufferPtr),
           localInputMem(localInputMem),
@@ -511,7 +521,11 @@ struct TransportDeviceIbverbsData {
           notifySize(notifySize),
           multiQpThreshold(multiQpThreshold),
           qpsPerConnection(qpsPerConnection),
-          useAtomicWrite(useAtomicWrite)
+          useAtomicWrite(useAtomicWrite),
+          remoteNotifyValueAddr(remoteNotifyValueAddr),
+          remoteNotifyValueKey(remoteNotifyValueKey),
+          localDataNotifyAddr(localDataNotifyAddr),
+          localDataNotifyKey(localDataNotifyKey)
     {}
 
     TransportDeviceIbverbsData(const TransportDeviceIbverbsData &that)
@@ -538,7 +552,11 @@ struct TransportDeviceIbverbsData {
           useAtomicWrite(that.useAtomicWrite),
           localRoceMemDetailsList(that.localRoceMemDetailsList),
           remoteRoceMemDetailsList(that.remoteRoceMemDetailsList),
-          useMemDetailsMgr(that.useMemDetailsMgr)
+          useMemDetailsMgr(that.useMemDetailsMgr),
+          remoteNotifyValueAddr(that.remoteNotifyValueAddr),
+          remoteNotifyValueKey(that.remoteNotifyValueKey),
+          localDataNotifyAddr(that.localDataNotifyAddr),
+          localDataNotifyKey(that.localDataNotifyKey)
     {}
 };
 using CqeInfo =  struct tagCqeInfo {
@@ -631,6 +649,7 @@ public:
     HcclResult GetRemoteMem(std::vector<void *> *remotePtrVec);
     HcclResult GetRemoteMemKey(UserMemType memType, uint32_t *remoteMemKey);
     HcclResult GetLocalRdmaNotify(std::vector<HcclSignalInfo> &rdmaNotify);
+    HcclResult GetDrainLocalDataNotify(void* &localAddr, uint32_t& lkey, HcclSignalInfo &dataNotify);
     HcclResult GetRemoteRdmaNotifyAddrKey(std::vector<AddrKey> &rdmaNotifyAddr);
     HcclResult GetLocalNotifyValueAddrKey(std::vector<AddrKey> &notifyValue);
     HcclResult GetLocalMemDetails(UserMemType memType, MemDetails &memDetails);
@@ -689,6 +708,9 @@ public:
     HcclResult SetStopFlag(bool value);
     HcclResult Fence();
     HcclResult UpdateRemoteAddr(void *remoteIn, void *remoteOut);
+    HcclResult Drain(Stream &stream);
+    HcclResult InitDrainNotifyInfo();
+    HcclResult GetDrainRemSrcMem(void* &remoteAddr, uint32_t &remoteKey, uint32_t &size);
     static HcclResult GetTransportErrorCqe(const HcclNetDevCtx netDevCtx,
         std::vector<std::pair<Transport*, CqeInfo>> &infos, u32 &num);
     inline TransportType GetTransportType() const

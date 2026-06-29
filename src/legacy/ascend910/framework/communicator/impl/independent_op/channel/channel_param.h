@@ -95,6 +95,12 @@ struct HcommRoceChannelRes {
     s64 chipId{LLONG_MAX};
     HcclQpInfoV2 QpInfo[RDMA_QP_MAX_NUM];
     u32 qpsPerConnection{1};
+    void *remoteNotifyAddr = nullptr;   // 对端 NOTIFY_SRC_MEM 地址 (Fence Read 读取源)
+    u32 remoteNotifyKey = 0;            // 对端 notify rkey
+    void *localDataNotifyAddr = nullptr; // 本端datanotify地址
+    u32 localDataNotifyKey = 0; // 本端dataNotify key值
+    u32 notifySize = sizeof(u32);       // notify 大小
+    HcclSignalInfo localDataSignal{}; // 本端dataNotify signal
 };
 
 // for A2/A3 endpoint with transport

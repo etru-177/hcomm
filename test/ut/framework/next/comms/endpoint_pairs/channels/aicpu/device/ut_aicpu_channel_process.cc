@@ -113,7 +113,8 @@ TEST_F(AicpuChannelProcessTest, Ut_InitHcommChannelRes_WhenValidTsRoceBlob_Retur
     blob.QpInfo[0].qpPtr = 0x7000ULL;
     blob.QpInfo[0].sqIndex = 1U;
     blob.QpInfo[0].dbIndex = 2U;
-
+    blob.localDataNotifyAddr=reinterpret_cast<void*>(static_cast<uintptr_t>(0x8000ULL));
+    blob.remoteNotifyAddr=reinterpret_cast<void*>(static_cast<uintptr_t>(0x9000ULL));
     void *dataPtr = static_cast<void *>(&blob);
     u64 sizeVal = sizeof(blob);
     u32 typeVal = kKindTsRoce;

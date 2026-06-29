@@ -241,6 +241,8 @@ public:
 
     HcclResult Fence() override;
     HcclResult ExchangeCapabilityHybrid();
+    HcclResult GetDrainRemSrcMem(void* &remoteAddr, uint32_t &remoteKey, uint32_t &size) override;
+    HcclResult Drain(Stream &stream) override;
 protected:
     HcclResult GetRemoteAddr(MemType memType, u8*& exchangeDataPtr, u64& exchangeDataBlankSize);
     HcclResult GetIndOpRemoteAddr(u8*& exchangeDataPtr, u64& exchangeDataBlankSize);
@@ -312,6 +314,7 @@ protected:
 
     HcclResult GetLocalNotify(std::vector<HcclSignalInfo> &localNotify) override;
     HcclResult GetLocalRdmaNotify(std::vector<HcclSignalInfo> &rdmaNotify) override;
+    HcclResult GetDrainLocalDataNotify(void* &localAddr, uint32_t& lkey, HcclSignalInfo &dataNotify) override; // 仅获取dataNotify
     HcclResult GetRemoteRdmaNotifyAddrKey(std::vector<AddrKey> &rdmaNotifyAddr) override;
     HcclResult GetLocalNotifyValueAddrKey(std::vector<AddrKey> &notifyValue) override;
     HcclResult GetRemoteMemKey(UserMemType memType, uint32_t *remoteMemKey) override;

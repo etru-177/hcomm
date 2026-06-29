@@ -698,6 +698,21 @@ int32_t HcommFenceOnThread(ThreadHandle thread)
     return HCCL_SUCCESS;
 }
 
+int32_t HcommChannelDrainOnThread(ThreadHandle thread, ChannelHandle channel)
+{
+    AddThreadWithTag(thread);
+    Thread *const threadPtr = reinterpret_cast<Thread *>(thread);
+    CHK_PTR_NULL(threadPtr);
+    Stream *stream = GetStream(thread);
+    CHK_PTR_NULL(stream);
+
+    HcclResult ret = HcclRemoteDrain(stream, reinterpret_cast<void *>(channel));
+    CHK_PRT_RET(ret != HCCL_SUCCESS,
+        HCCL_ERROR("[%s] FAIL. thread[0x%llx], channel[0x%llx].", __func__, thread, channel), ret);
+
+    return HCCL_SUCCESS;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus

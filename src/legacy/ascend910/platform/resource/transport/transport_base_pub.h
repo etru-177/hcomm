@@ -114,6 +114,7 @@ public:
     virtual HcclResult GetRemoteMemKey(UserMemType memType, uint32_t *remoteMemKey);
     virtual HcclResult GetRemoteMemSize(UserMemType memType, u64 &size);
     virtual HcclResult GetLocalRdmaNotify(std::vector<HcclSignalInfo> &rdmaNotify);
+    virtual HcclResult GetDrainLocalDataNotify(void* &localAddr, uint32_t& lkey, HcclSignalInfo &dataNotify);
     virtual HcclResult GetRemoteRdmaNotifyAddrKey(std::vector<AddrKey> &rdmaNotifyAddr);
     virtual HcclResult GetLocalNotifyValueAddrKey(std::vector<AddrKey> &notifyValue);
     virtual HcclResult GetLocalMemDetails(UserMemType memType, MemDetails &memDetails);
@@ -215,6 +216,9 @@ public:
 
     virtual HcclResult PostFinAck(Stream &stream);
     virtual HcclResult WaitFinAck(Stream &stream);
+    virtual HcclResult Drain(Stream &stream);
+
+    virtual HcclResult GetDrainRemSrcMem(void* &remoteAddr, uint32_t &remoteKey, uint32_t &size);
     TransportAttr GetTransportAttr();
 
     HcclResult SetStopFlag(bool value);
@@ -266,6 +270,8 @@ public:
 
         return HCCL_SUCCESS;
     }
+
+    virtual HcclResult InitDrainNotifyInfo();
 protected:
     virtual HcclResult FillExchangeDataTotalSize();
     virtual HcclResult ConstructExchangeForSend();

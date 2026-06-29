@@ -128,6 +128,8 @@ public:
     HcclResult GetTransportId(u32 &id) override;
     static HcclResult HnsPostSend(const TransportDeviceNormalData &ibvData, struct MemDetails *localMems,
         struct MemDetails *remoteMems, u32 memNum, HcclWrOpCode opCode, u64 &dbInfo, bool fence = false);
+    HcclResult Drain(Stream &stream) override;
+    HcclResult InitDrainNotifyInfo() override;
 
 private:
     bool IsModifyToAtomicWrite();

@@ -69,8 +69,8 @@ private:
     HcclResult CreateAndInitTransport(HcclDispatcher dispatcher);
     HcclResult BuildSocketTagName(std::string &outTag) const;
     HcclResult ValidateSerializeParams(u32 qpNum, size_t localMemCount, size_t remoteMemCount) const;
-    void InitSerializeRoceChannelRes(HcommRoceChannelRes &res, size_t localMemCount, size_t remoteMemCount,
-        void *localMem, void *remoteMem, const std::vector<HcclQpInfoV2> &aiQpInfos, u32 qpNum) const noexcept;
+    HcclResult InitSerializeRoceChannelRes(HcommRoceChannelRes &res, size_t localMemCount, size_t remoteMemCount,
+        void *localMem, void *remoteMem, const std::vector<HcclQpInfoV2> &aiQpInfos, u32 qpNum) const;
     HcclResult BuildSerializeChannelMem(AicpuTsRoceChannelMem &bundle, const std::vector<RoceMemDetails> &localMd,
         const std::vector<RoceMemDetails> &remoteMd, const std::vector<HcclQpInfoV2> &aiQpInfos, u32 qpNum);
 
@@ -78,6 +78,7 @@ private:
     {
         return isLocalIpClient_ ? "client" : "server";
     }
+    HcclResult SerializeDrainNotifyInfo(HcommRoceChannelRes &res) const;
 
     EndpointHandle endpointHandle_{};
     HcommChannelDesc channelDesc_{};
@@ -93,7 +94,7 @@ private:
     DispatcherCtxPtr dispatcherCtx_{nullptr};
     bool ownsDispatcherCtx_{false};
 
-    std::unique_ptr<hccl::NotifyPool> notifyPoolHolder_{};
+    std::unique_ptr<hccl::NotifyPool> notifyPool_{};
     hccl::MachinePara machinePara_{};
     hccl::TransportPara transportPara_{};
     std::unique_ptr<hccl::Transport> transport_{};

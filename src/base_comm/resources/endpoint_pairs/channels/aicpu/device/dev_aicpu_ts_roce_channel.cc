@@ -84,6 +84,18 @@ HcclResult FillIbverbsDataFromRes(const HcommRoceChannelRes *res, TransportDevic
     ibd.localRoceMemDetailsList = std::move(localMd);
     ibd.remoteRoceMemDetailsList = std::move(remoteMd);
     ibd.useMemDetailsMgr = true;
+    ibd.remoteNotifyValueAddr = reinterpret_cast<uint64_t>(res->remoteNotifyAddr);
+    ibd.remoteNotifyValueKey = res->remoteNotifyKey;
+    ibd.localDataNotifyAddr = reinterpret_cast<uint64_t>(res->localDataNotifyAddr);
+    ibd.localDataNotifyKey = res->localDataNotifyKey;
+    ibd.notifySize = res->notifySize;
+    HCCL_DEBUG("[%s]remoteNotifyAddr[%llu], remoteNotifyKey[%u], localDataNotifyAddr[%llu], localDataNotifyKey[%u]," \
+        "notifySize[%u]", __func__, ibd.remoteNotifyValueAddr, ibd.remoteNotifyValueKey, ibd.localDataNotifyAddr,
+        ibd.localDataNotifyKey, ibd.notifySize);
+
+    EXCEPTION_CATCH((ibd.dataNotify = std::make_shared<LocalNotify>()), return HCCL_E_PTR);
+    CHK_SMART_PTR_NULL(ibd.dataNotify);
+    CHK_RET(ibd.dataNotify->Init(res->localDataSignal, NotifyLoadType::DEVICE_NOTIFY));
     return HCCL_SUCCESS;
 }
 
@@ -127,6 +139,7 @@ HcclResult CreateAndInitTsRoceTransport(const HcommDeviceInfo &deviceInfo, Dispa
     machinePara.nicDeploy = NICDeployment::NIC_DEPLOYMENT_DEVICE;
     machinePara.tag = "hcomm_aicpu_ts_roce" + std::string(commId);
     machinePara.userMemEnable = false;
+    machinePara.drainEnable = true;
     machinePara.dctxPtr = dctxPtr;
 
     TransportPara transportPara{};
@@ -143,6 +156,12 @@ HcclResult CreateAndInitTsRoceTransport(const HcommDeviceInfo &deviceInfo, Dispa
         return HCCL_E_PTR;
     }
     HcclResult tr = link->Init();
+    if (tr != HCCL_SUCCESS) {
+        link.reset();
+        (void)DestroyDispatcherCtx(dctxPtr, commId);
+        return tr;
+    }
+    tr = link->InitDrainNotifyInfo();
     if (tr != HCCL_SUCCESS) {
         link.reset();
         (void)DestroyDispatcherCtx(dctxPtr, commId);

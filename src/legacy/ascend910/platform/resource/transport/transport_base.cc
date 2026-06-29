@@ -334,6 +334,14 @@ HcclResult TransportBase::GetLocalRdmaNotify(std::vector<HcclSignalInfo> &rdmaNo
     return HCCL_E_PARA;
 }
 
+HcclResult TransportBase::GetDrainLocalDataNotify(void* &localAddr, uint32_t& lkey, HcclSignalInfo &dataNotify)
+{
+    static_cast<void>(localAddr);
+    static_cast<void>(lkey);
+    static_cast<void>(dataNotify);
+    return HCCL_E_NOT_SUPPORT;
+}
+
 HcclResult TransportBase::GetRemoteRdmaNotifyAddrKey(std::vector<AddrKey> &rdmaNotifyAddr)
 {
     static_cast<void>(rdmaNotifyAddr);
@@ -1092,6 +1100,25 @@ HcclResult TransportBase::BatchTransferAsync(
 
 HcclResult TransportBase::Fence()
 {
+    return HCCL_E_NOT_SUPPORT;
+}
+
+HcclResult TransportBase::Drain(Stream &stream)
+{
+    static_cast<void>(stream);
+    return HCCL_E_NOT_SUPPORT;
+}
+
+HcclResult TransportBase::InitDrainNotifyInfo()
+{
+    return HCCL_E_NOT_SUPPORT;
+}
+
+HcclResult TransportBase::GetDrainRemSrcMem(void* &remoteAddr, uint32_t &remoteKey, uint32_t &size)
+{
+    (void)remoteAddr;
+    (void)remoteKey;
+    (void)size;
     return HCCL_E_NOT_SUPPORT;
 }
 }  // namespace hccl
