@@ -13,14 +13,14 @@
 ## 函数原型
 
 ```c
-int32_t HcommThreadResAcquireTimeOut(uint32_t timeOut)
+int32_t HcommThreadResAcquireTimeOut(float timeOut)
 ```
 
 ## 参数说明
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| timeOut | 输入 | RTSQ队列满等待超时时间。<br>单位：秒。<br>取值说明：<br>  - 0：表示永不超时，等待直到RTSQ有可用空间。<br>  - >0：具体的超时时间（秒）。<br>默认值：1856秒。 |
+| timeOut | 输入 | RTSQ队列满等待超时时间。<br>单位：秒。<br>取值说明：<br>  - 0：表示永不超时，等待直到RTSQ有可用空间。<br>  - >0：具体的超时时间（秒）。<br>默认值：1856秒。<br>当前只支持整数传入。 |
 
 ## 返回值
 
@@ -53,16 +53,17 @@ int32_t：接口成功返回0，其他失败。
 - 该接口设置的超时时间会影响所有线程的资源获取操作
 - 建议在初始化阶段或资源申请前设置合适的超时值
 - 超时值为0时会一直等待，可能导致死锁风险，请谨慎使用
+- 当前只支持整数传入`timeOut`，不支持小数传入。
 
 ## 调用示例
 
 ```c
 // 1. 设置RTSQ队列满等待超时时间（例如设置为10分钟）
-uint32_t timeout = 600;  // 600秒 = 10分钟
+float timeout = 600;  // 600秒 = 10分钟
 HcommThreadResAcquireTimeOut(timeout);
 
 // 或者设置为永不超时（0表示永不超时）
-uint32_t timeoutNever = 0;
+float timeoutNever = 0;
 HcommThreadResAcquireTimeOut(timeoutNever);
 
 // 2. 申请通信线程资源

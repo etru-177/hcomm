@@ -37,6 +37,10 @@ typedef uint64_t ChannelHandle;
 typedef uint64_t ThreadHandle;
 #endif
 
+#ifndef HCOMM_TIMEOUT_FLOAT_TYPE
+#define HCOMM_TIMEOUT_FLOAT_TYPE 1
+#endif
+
 typedef enum {
     HCOMM_REDUCE_SUM = 0,    /**< sum */
     HCOMM_REDUCE_PROD = 1,   /**< prod */
@@ -179,7 +183,7 @@ extern int32_t HcommThreadNotifyRecordOnThread(ThreadHandle thread, ThreadHandle
  * @brief 本地等待通知
  * @param[in] thread 线程句柄
  * @param[in] notifyIdx 通知索引
- * @param[in] timeOut 超时时间(毫秒)
+ * @param[in] timeOut 超时时间(秒)
  * @return int32_t 执行结果状态码
  * @note 配合HcommThreadNotifyRecordOnThread使用
  */
@@ -417,7 +421,7 @@ extern int32_t HcommChannelNotifyRecord(ChannelHandle channel, uint32_t remoteNo
  * @param[in] thread 线程句柄
  * @param[in] channel 通道句柄
  * @param[in] localNotifyIdx 本地通知索引
- * @param[in] timeOut 超时时间(毫秒)
+ * @param[in] timeOut 超时时间(秒)
  * @return int32_t 执行结果状态码
  */
 extern int32_t HcommChannelNotifyWaitOnThread(ThreadHandle thread, ChannelHandle channel, uint32_t localNotifyIdx, uint32_t timeOut);
@@ -426,7 +430,7 @@ extern int32_t HcommChannelNotifyWaitOnThread(ThreadHandle thread, ChannelHandle
  * @brief 等待通知事件
  * @param[in] channel 通道句柄
  * @param[in] localNotifyIdx 本地通知索引
- * @param[in] timeOut 超时时间(毫秒)
+ * @param[in] timeOut 超时时间(秒)
  * @return int32_t 执行结果状态码
  *
  * WARNING: experimental API, No compatibility is currently guaranteed for this API
@@ -507,7 +511,7 @@ extern int32_t HcommChannelFence(ChannelHandle channel);
  * @return int32_t 执行结果状态码
  * @note 当前仅支持AICPU模式
  */
-extern int32_t HcommSetNotifyWaitTimeOut(uint32_t timeOut);
+extern int32_t HcommSetNotifyWaitTimeOut(float timeOut);
 
 /**
  * @brief 设置线程资源获取超时时间
@@ -515,7 +519,7 @@ extern int32_t HcommSetNotifyWaitTimeOut(uint32_t timeOut);
  * @return int32_t 执行结果状态码
  * @note 当前仅支持AICPU模式
  */
-extern int32_t HcommThreadResAcquireTimeOut(uint32_t timeOut);
+extern int32_t HcommThreadResAcquireTimeOut(float timeOut);
 
 /**
  * @brief 等待通知事件

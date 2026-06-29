@@ -373,16 +373,26 @@ inline HcclResult CheckDataTypeAndReduceOp(HcommDataType dataType, HcommReduceOp
 } // namespace
 
 // 设置notify wait的等待超时时间，默认单位为秒
-int32_t HcommSetNotifyWaitTimeOut(uint32_t timeOut)
+int32_t HcommSetNotifyWaitTimeOut(float timeOut)
 {
-    HCCL_INFO("[%s] START. timeOut[%u].", __func__, timeOut);
-    return g_threadLaunchCtx.SetNotifyWaitTimeOut(timeOut);
+    if (std::isnan(timeOut) || timeOut < 0.0f || timeOut > static_cast<float>(UINT32_MAX)) {
+        HCCL_ERROR("[%s] in aicpu_ts timeOut[%f] is invalid.", __func__, timeOut);
+        return HCCL_E_PARA;
+    }
+    uint32_t timeOutInt = static_cast<uint32_t>(timeOut);
+    HCCL_INFO("[%s] START in aicpu_ts. timeOut[%u].", __func__, timeOutInt);
+    return g_threadLaunchCtx.SetNotifyWaitTimeOut(timeOutInt);
 }
 
-int32_t HcommThreadResAcquireTimeOut(uint32_t timeOut)
+int32_t HcommThreadResAcquireTimeOut(float timeOut)
 {
-    HCCL_INFO("[%s] START. timeOut[%u].", __func__, timeOut);
-    return g_threadLaunchCtx.SetSqFullTimeOut(timeOut);
+    if (std::isnan(timeOut) || timeOut < 0.0f || timeOut > static_cast<float>(UINT32_MAX)) {
+        HCCL_ERROR("[%s] in aicpu_ts timeOut[%f] is invalid.", __func__, timeOut);
+        return HCCL_E_PARA;
+    }
+    uint32_t timeOutInt = static_cast<uint32_t>(timeOut);
+    HCCL_INFO("[%s] START in aicpu_ts. timeOut[%u].", __func__, timeOutInt);
+    return g_threadLaunchCtx.SetSqFullTimeOut(timeOutInt);
 }
 
 int32_t HcommChannelNotifyWaitOnThreadWithDefaultTimeout(ThreadHandle thread, ChannelHandle channel, uint32_t localNotifyIdx)

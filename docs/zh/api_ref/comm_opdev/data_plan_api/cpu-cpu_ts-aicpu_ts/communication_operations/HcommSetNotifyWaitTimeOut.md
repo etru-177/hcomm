@@ -13,14 +13,14 @@
 ## 函数原型
 
 ```c
-int32_t HcommSetNotifyWaitTimeOut(uint32_t timeout)
+int32_t HcommSetNotifyWaitTimeOut(float timeOut)
 ```
 
 ## 参数说明
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| timeOut | 输入 | 通知等待超时时间。<br>单位：秒。<br>取值说明：<br>  - 0：表示永久等待，不超时。<br>  - >0：具体的超时时间（秒）。<br>默认值：1836秒（约30分钟）。 |
+| timeOut | 输入 | 通知等待超时时间。<br>单位：秒。<br>取值说明：<br>  - 0：表示永久等待，不超时。<br>  - >0：具体的超时时间（秒）。<br>默认值：1836秒（约30分钟）。<br>当前只支持整数传入。 |
 
 ## 返回值
 
@@ -44,12 +44,13 @@ int32_t：接口成功返回0，其他失败。
 - 本接口设置的超时时间仅对`*WithDefaultTimeout`系列接口生效
 - 手动传入超时时间的`HcommChannelNotifyWaitOnThread`和`HcommThreadNotifyWaitOnThread`不受本接口影响
 - 建议在数据面操作开始前设置默认超时时间
+- 当前只支持整数传入`timeOut`，不支持小数传入。
 
 ## 调用示例
 
 ```c
 // 1. 设置默认超时时间（例如设置为10分钟）
-uint32_t defaultTimeOut = 600;  // 600秒 = 10分钟
+float defaultTimeOut = 600;  // 600秒 = 10分钟
 HcommSetNotifyWaitTimeOut(defaultTimeOut);
 
 // 2. 申请通信线程资源
