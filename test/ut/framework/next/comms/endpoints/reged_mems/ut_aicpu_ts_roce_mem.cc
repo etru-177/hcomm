@@ -61,6 +61,30 @@ TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_MemoryExport_When_MemDescOutNull_Returns_E
     EXPECT_EQ(mgr.MemoryExport(ep, fake, nullptr, &len), HCCL_E_PTR);
 }
 
+TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Returns_NOT_FOUND)
+{
+    hccl::HcclIpAddress localIp;
+    ASSERT_EQ(localIp.SetReadableAddress("127.0.0.1"), HCCL_SUCCESS);
+    hccl::NetDevContext netCtx;
+    ASSERT_EQ(netCtx.Init(NicType::DEVICE_NIC_TYPE, 0, 0, localIp), HCCL_SUCCESS);
+
+    AicpuTsRoceRegedMemMgr mgr(reinterpret_cast<HcclNetDev>(&netCtx), nullptr);
+    EndpointDesc ep{};
+    auto localRdmaRmaBuffer = std::make_shared<hccl::LocalRdmaRmaBuffer>(
+        reinterpret_cast<HcclNetDevCtx>(&netCtx), reinterpret_cast<void *>(0xD2000ULL), 4096U,
+        hccl::RmaMemType::DEVICE);
+    void *memHandle = localRdmaRmaBuffer.get();
+
+    mgr.allRegisteredBuffers_.push_back(localRdmaRmaBuffer);
+    mgr.allRegisteredBuffers_.clear();
+
+    void *desc = nullptr;
+    uint32_t len = 0;
+    EXPECT_EQ(mgr.MemoryExport(ep, memHandle, &desc, &len), HCCL_E_NOT_FOUND);
+    EXPECT_EQ(desc, nullptr);
+    EXPECT_EQ(len, 0U);
+}
+
 TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_MemoryImport_When_DescTooShort_Returns_E_PARA)
 {
     AicpuTsRoceRegedMemMgr mgr(nullptr, nullptr);

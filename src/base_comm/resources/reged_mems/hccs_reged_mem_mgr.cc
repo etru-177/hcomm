@@ -222,7 +222,16 @@ HcclResult HccsRegedMemMgr::MemoryExport(
     CHK_PTR_NULL(memDesc);
     CHK_PTR_NULL(memDescLen);
 
-    hccl::LocalIpcRmaBuffer *localIpcRmaBuffer = reinterpret_cast<hccl::LocalIpcRmaBuffer *>(memHandle);
+    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
+        [memHandle](const std::shared_ptr<hccl::LocalIpcRmaBuffer> &buffer) {
+            return buffer != nullptr && buffer.get() == memHandle;
+        });
+    if (it == allRegisteredBuffers_.end()) {
+        HCCL_ERROR("[HccsRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
+        return HCCL_E_NOT_FOUND;
+    }
+
+    hccl::LocalIpcRmaBuffer *localIpcRmaBuffer = it->get();
     CHK_RET(SerializeToMemDesc(endpointDesc, localIpcRmaBuffer, memDesc, memDescLen));
     HCCL_INFO("[%s] memDesc[%p] descLen[%u]", __FUNCTION__, *memDesc, *memDescLen);
     return HCCL_SUCCESS;

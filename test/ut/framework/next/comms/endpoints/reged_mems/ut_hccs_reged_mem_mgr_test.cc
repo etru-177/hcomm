@@ -183,3 +183,27 @@ TEST_F(HccsRegedMemMgrTest, ut_HccsRegedMemMgr_When_MultipleSameRange_Expect_All
     EXPECT_EQ(mgr.UnregisterMemory(h1), HCCL_SUCCESS);
     EXPECT_EQ(GetRef(*localIpcRmaBufferMgr, parentKey), 0u);
 }
+
+TEST_F(HccsRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Expect_NotFound)
+{
+    hccl::HcclIpAddress localIp;
+    ASSERT_EQ(localIp.SetReadableAddress("127.0.0.1"), HCCL_SUCCESS);
+    hccl::NetDevContext netCtx;
+    ASSERT_EQ(netCtx.Init(NicType::DEVICE_NIC_TYPE, 0, 0, localIp), HCCL_SUCCESS);
+
+    HccsRegedMemMgr mgr(reinterpret_cast<HcclNetDevCtx>(&netCtx));
+    EndpointDesc endpointDesc{};
+    auto localIpcRmaBuffer = std::make_shared<hccl::LocalIpcRmaBuffer>(
+        reinterpret_cast<HcclNetDevCtx>(&netCtx), reinterpret_cast<void *>(0xD1000ULL), 4096U,
+        hccl::RmaMemType::DEVICE);
+    void *memHandle = localIpcRmaBuffer.get();
+
+    mgr.allRegisteredBuffers_.push_back(localIpcRmaBuffer);
+    mgr.allRegisteredBuffers_.clear();
+
+    void *memDesc = nullptr;
+    uint32_t memDescLen = 0;
+    EXPECT_EQ(mgr.MemoryExport(endpointDesc, memHandle, &memDesc, &memDescLen), HCCL_E_NOT_FOUND);
+    EXPECT_EQ(memDesc, nullptr);
+    EXPECT_EQ(memDescLen, 0U);
+}

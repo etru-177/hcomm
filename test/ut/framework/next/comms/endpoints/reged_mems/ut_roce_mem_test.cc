@@ -155,6 +155,26 @@ TEST_F(RoceRegedMemMgrTest, ut_RoceRegedMemMgr_When_MultipleSameRange_Expect_All
     EXPECT_EQ(GetRef(*roceRegedMemMgr.localRdmaRmaBufferMgr_, parentKey), 0u);
 }
 
+TEST_F(RoceRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Expect_NotFound)
+{
+    RoceRegedMemMgr roceRegedMemMgr{};
+    EndpointDesc endpointDesc{};
+
+    auto buf = std::make_shared<Hccl::Buffer>(0xD900, 0x100, HCCL_MEM_TYPE_DEVICE, "roce_export");
+    auto localRdmaRmaBuffer = std::make_shared<Hccl::LocalRdmaRmaBuffer>(
+        buf, reinterpret_cast<RdmaHandle>(0x1), 11U, 22U, reinterpret_cast<MrHandle>(0x2));
+    void *memHandle = localRdmaRmaBuffer.get();
+
+    roceRegedMemMgr.allRegisteredBuffers_.push_back(localRdmaRmaBuffer);
+    roceRegedMemMgr.allRegisteredBuffers_.clear();
+
+    void *memDesc = nullptr;
+    uint32_t memDescLen = 0;
+    EXPECT_EQ(roceRegedMemMgr.MemoryExport(endpointDesc, memHandle, &memDesc, &memDescLen), HCCL_E_NOT_FOUND);
+    EXPECT_EQ(memDesc, nullptr);
+    EXPECT_EQ(memDescLen, 0U);
+}
+
 TEST_F(RoceRegedMemMgrTest, Ut_GetParamsFromMemDesc_When_DescLenEqualSize_Expect_Return_Success)
 {
     std::shared_ptr<RoceRegedMemMgr> roceRegedMemMgrPtr = std::make_shared<RoceRegedMemMgr>();

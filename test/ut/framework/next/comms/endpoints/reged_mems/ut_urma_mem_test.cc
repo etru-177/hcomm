@@ -169,3 +169,22 @@ TEST_F(UrmaRegedMemMgrTest, ut_UbRegedMemMgr_URMA_When_MultipleSameRange_Expect_
     EXPECT_EQ(ubRegedMemMgr.UnregisterMemory(h1), HCCL_SUCCESS);
     EXPECT_EQ(GetRef(*ubRegedMemMgr.localUbRmaBufferMgr_, parentKey), 0u);
 }
+
+TEST_F(UrmaRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Expect_NotFound)
+{
+    UbRegedMemMgr ubRegedMemMgr{};
+    EndpointDesc endpointDesc{};
+
+    auto buf = std::make_shared<Hccl::Buffer>(0xD800, 0x100, HCCL_MEM_TYPE_DEVICE, "ub_export");
+    auto localUbRmaBuffer = std::make_shared<Hccl::LocalUbRmaBuffer>(buf);
+    void *memHandle = localUbRmaBuffer.get();
+
+    ubRegedMemMgr.allRegisteredBuffers_.push_back(localUbRmaBuffer);
+    ubRegedMemMgr.allRegisteredBuffers_.clear();
+
+    void *memDesc = nullptr;
+    uint32_t memDescLen = 0;
+    EXPECT_EQ(ubRegedMemMgr.MemoryExport(endpointDesc, memHandle, &memDesc, &memDescLen), HCCL_E_NOT_FOUND);
+    EXPECT_EQ(memDesc, nullptr);
+    EXPECT_EQ(memDescLen, 0U);
+}

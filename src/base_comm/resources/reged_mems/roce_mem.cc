@@ -85,7 +85,19 @@ HcclResult RoceRegedMemMgr::MemoryExport(const EndpointDesc endpointDesc, void *
 {
     HCCL_INFO("[%s] Begin", __FUNCTION__);
     CHK_PTR_NULL(memHandle);
-    Hccl::LocalRdmaRmaBuffer *localRdmaRmaBuffer = reinterpret_cast<Hccl::LocalRdmaRmaBuffer *>(memHandle);
+    CHK_PTR_NULL(memDesc);
+    CHK_PTR_NULL(memDescLen);
+
+    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
+        [memHandle](const std::shared_ptr<Hccl::LocalRdmaRmaBuffer> &buffer) {
+            return buffer != nullptr && buffer.get() == memHandle;
+        });
+    if (it == allRegisteredBuffers_.end()) {
+        HCCL_ERROR("[RoceRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
+        return HCCL_E_NOT_FOUND;
+    }
+
+    Hccl::LocalRdmaRmaBuffer *localRdmaRmaBuffer = it->get();
 
     // 获取序列化信息
     CHK_RET(GetMemDesc(endpointDesc, localRdmaRmaBuffer));

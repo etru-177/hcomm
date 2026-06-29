@@ -85,8 +85,20 @@ HcclResult UbRegedMemMgr::MemoryExport(const EndpointDesc endpointDesc, void *me
 {
     HCCL_INFO("[%s] Begin", __FUNCTION__);
 
-    // 获取序列化信息
-    Hccl::LocalUbRmaBuffer *localUbRmaBuffer = reinterpret_cast<Hccl::LocalUbRmaBuffer *>(memHandle);
+    CHK_PTR_NULL(memHandle);
+    CHK_PTR_NULL(memDesc);
+    CHK_PTR_NULL(memDescLen);
+
+    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
+        [memHandle](const std::shared_ptr<Hccl::LocalUbRmaBuffer> &buffer) {
+            return buffer != nullptr && buffer.get() == memHandle;
+        });
+    if (it == allRegisteredBuffers_.end()) {
+        HCCL_ERROR("[UbRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
+        return HCCL_E_NOT_FOUND;
+    }
+
+    Hccl::LocalUbRmaBuffer *localUbRmaBuffer = it->get();
     
     // 获取序列化信息
     CHK_RET(GetMemDesc(endpointDesc, localUbRmaBuffer));

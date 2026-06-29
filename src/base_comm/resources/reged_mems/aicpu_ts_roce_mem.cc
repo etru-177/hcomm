@@ -190,8 +190,24 @@ HcclResult AicpuTsRoceRegedMemMgr::MemoryExport(const EndpointDesc endpointDesc,
     CHK_PTR_NULL(memHandle);
     CHK_PTR_NULL(memDesc);
     CHK_PTR_NULL(memDescLen);
+    CHK_PTR_NULL(netDev_);
+    CHK_PTR_NULL(localRdmaRmaBufferMgr_);
 
-    auto *buf = reinterpret_cast<hccl::LocalRdmaRmaBuffer *>(memHandle);
+    auto *netDevCtx = static_cast<hccl::NetDevContext *>(netDev_);
+    std::shared_ptr<LocalBufferMgrCtx> ctx = GetOrCreateLocalBufferMgr(netDevCtx->GetPhyId());
+    CHK_PTR_NULL(ctx);
+    std::lock_guard<std::mutex> phyLocalLock(*ctx->mu);
+
+    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
+        [memHandle](const std::shared_ptr<hccl::LocalRdmaRmaBuffer> &buffer) {
+            return buffer != nullptr && buffer.get() == memHandle;
+        });
+    if (it == allRegisteredBuffers_.end()) {
+        HCCL_ERROR("[AicpuTsRoceRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
+        return HCCL_E_NOT_FOUND;
+    }
+
+    auto *buf = it->get();
     std::string &ser = buf->Serialize();
     if (ser.empty()) {
         HCCL_ERROR("[AicpuTsRoceRegedMemMgr][MemoryExport] Serialize empty");
