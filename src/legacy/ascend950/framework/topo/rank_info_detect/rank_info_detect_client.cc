@@ -21,10 +21,13 @@
 #include "socket_manager.h"
 #include "topo_addr_info.h"
 #include "adapter_error_manager_pub.h"
+#include "communicator_impl.h"
+#include "phy_topo_builder.h"
+#include "preempt_port_manager.h"
 
 namespace Hccl {
 
-void RankInfoDetectClient::Setup(RankTableInfo &rankTable, u32 hostPort)
+void RankInfoDetectClient::Setup(RankTableInfo &rankTable)
 {
     // 1. 构造localRankTable
     RankTableInfo localRankTable{};
@@ -32,7 +35,7 @@ void RankInfoDetectClient::Setup(RankTableInfo &rankTable, u32 hostPort)
 
     // 若启用单卡多进程抢占端口则执行
     SocketManager::ServerInitAll(localRankTable.ranks[0]);
-    localRankTable.ranks[0].hostPort = hostPort;
+    HostListenPortDetect(localRankTable.ranks[0]);
 
     // 2. 连接root节点
     Connect();
@@ -468,9 +471,90 @@ HcclResult RankInfoDetectClient::VerifyTlsConsistency() const
     return HCCL_SUCCESS;
 }
 
+void RankInfoDetectClient::HostListenPortDetect(NewRankInfo &rankInfo)
+{
+    const std::string &topoPath = CommunicatorImpl::GetTopoFilePath();
+    PhyTopoBuilder::GetInstance().Build(topoPath);
+    auto devLogicId = HrtGetDevice();
+    u32 devPhyId = rankInfo.deviceId;
+    for (auto &rankLevelInfo : rankInfo.rankLevelInfos) {
+        shared_ptr<Graph<PhyTopo::Node, PhyTopo::Link>> graph = PhyTopo::GetInstance()->GetTopoGraph(rankLevelInfo.netLayer);
+        if (graph == nullptr) {
+            HCCL_DEBUG("[HostListenPortDetect::%s]Can't find the layout %u Graph!", __func__, rankLevelInfo.netLayer);
+            continue;
+        }
+        std::vector<std::shared_ptr<PhyTopo::Link>> links = graph->GetEdges(rankInfo.localId);
+        for (auto &link : links) {
+            if (link->GetSourceIFace()->GetPos() != AddrPosition::HOST) {
+                continue;
+            }
+            const std::set<LinkProtocol> &protocols = link->GetLinkProtocols();
+            for (auto &protocol : protocols) {
+                LinkProtoType protoType = LinkProtocol2LinkProtoType(protocol);
+                if (protoType != LinkProtoType::RDMA || rankLevelInfo.rankAddrs.empty()) {
+                    continue;
+                }
+                HCCL_DEBUG("[HostListenPortDetect::%s] find the host rdma link %s", __func__, link->Describe().c_str());
+                const IpAddress& hostIp = rankLevelInfo.rankAddrs[0].addr;
+                uint32_t hostPort = 0;
+                SetupHostListenPort(devLogicId, devPhyId, hostIp, hostPort);
+                rankInfo.hostPort = hostPort;
+                return;
+            }
+        }
+    }
+}
+
+void RankInfoDetectClient::SetupHostListenPort(u32 devLogicId, u32 devPhyId, const IpAddress &hostIp, uint32_t &hostPort)
+{
+    std::lock_guard<std::mutex> lock(hostSocketLock_);
+    u32 listenPort = HCCL_INVALID_PORT;
+    auto portRange = EnvConfig::GetInstance().GetHostNicConfig().GetHostSocketPortRange();
+    u32 basePort = EnvConfig::GetInstance().GetHostNicConfig().GetIfBasePort();
+    if (portRange.empty() && basePort != HCCL_INVALID_PORT) {
+        listenPort = basePort + devPhyId;
+        HCCL_INFO("[RankInfoDetectClient::%s] BasePort is configured, listenPort[%u].", __func__, listenPort);
+        hostPort = listenPort;
+        return;
+    }
+
+    if (portRange.empty()) {
+        constexpr u32 HOST_CONTROL_BASE_PORT = 60000;    // 控制面起始port
+        HCCL_INFO("[RankInfoDetectClient::%s] No port configuration, using default port range[%u, %u]", __func__,
+            HOST_CONTROL_BASE_PORT, HOST_CONTROL_BASE_PORT + 15);
+        SocketPortRange defaultRange = {HOST_CONTROL_BASE_PORT, HOST_CONTROL_BASE_PORT + 15};
+        portRange.push_back(defaultRange);
+    }
+
+    SocketHandle hostSocketHandle = HostSocketHandleManager::GetInstance().Create(devPhyId, hostIp);
+    hostSocket_ = std::make_shared<Socket>(hostSocketHandle, hostIp, HCCL_INVALID_PORT, hostIp,
+        "hostport_preempt", SocketRole::SERVER, NicType::HOST_NIC_TYPE);
+    PreemptPortManager::GetInstance(devLogicId).ListenPreempt(hostSocket_, portRange, listenPort);
+    HCCL_INFO("[RankInfoDetectClient::%s] preempt hostPort[%u] success.", __func__, listenPort);
+    hostPort = listenPort;
+}
+
+void RankInfoDetectClient::SocketTearDown(u32 devPhyId)
+{
+    std::lock_guard<std::mutex> lock(hostSocketLock_);
+    if (hostSocket_ == nullptr) {
+        return;
+    }
+    const IpAddress& hostIp = hostSocket_->GetLocalIp();
+    auto devLogicId = HrtGetDevice();
+    if (EnvConfig::GetInstance().GetHostNicConfig().GetHostSocketPortRange().size() > 0 || 
+        EnvConfig::GetInstance().GetHostNicConfig().GetIfBasePort() == HCCL_INVALID_PORT) {
+        // 若开启抢占监听端口
+        PreemptPortManager::GetInstance(devLogicId).Release(hostSocket_);
+    }
+    hostSocket_ = nullptr;
+    HostSocketHandleManager::GetInstance().Destroy(devPhyId, hostIp);
+}
+
 void RankInfoDetectClient::TearDown()
 {
     HCCL_INFO("[RankInfoDetectClient::%s] start.", __func__);
+    SocketTearDown(devPhyId_);
     
     // close socket
     clientSocket_->Close();

@@ -18,6 +18,8 @@
 #include "communicator_impl.h"
 #include "ranktable_stub_clos.h"
 #include "preempt_port_manager.h"
+#include "host_socket_handle_manager.h"
+#include "phy_topo.h"
 #undef protected
 #undef private
 

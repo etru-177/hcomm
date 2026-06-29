@@ -37,7 +37,7 @@ public:
     }
     ~RankInfoDetectClient();
 
-    void Setup(RankTableInfo &rankTable, u32 hostPort);
+    void Setup(RankTableInfo &rankTable);
 
 private:
     u32                             devPhyId_{0};
@@ -47,7 +47,11 @@ private:
     u32                             currentStep_{0};
     RankTableInfo                   rankTable_{};
     SocketAgent                     socketAgent_;
+    std::mutex hostSocketLock_;
+    std::shared_ptr<Socket> hostSocket_ = nullptr;
     
+    void SetupHostListenPort(u32 devLogicId, u32 devPhyId, const IpAddress &hostIp, uint32_t &hostPort);
+    void SocketTearDown(u32 devPhyId);
     void Connect();
     void CheckStatus();
     void SendAgentIdAndRankSize();
@@ -67,6 +71,7 @@ private:
         const std::string &tlsInconsistentTlsType, const std::string &tlsEnableRankStr,
         const std::string &tlsDisableRankStr, const std::string &tlsUnknownRankStr) const;
     void TearDown();
+    void HostListenPortDetect(NewRankInfo &rankInfo);
 };
 
 } // namespace Hccl

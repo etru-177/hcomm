@@ -109,6 +109,7 @@ private:
     std::set<LinkData>      availableLinks;
 
     std::string socketTag_{};
+    static std::mutex socketLock;
 };
 
 } // namespace Hccl

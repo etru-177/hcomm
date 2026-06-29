@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "socket_manager.h"
 #include "socket_handle_manager.h"
+#include "host_socket_handle_manager.h"
 #include "communicator_impl.h"
 #include "null_ptr_exception.h"
 #include "exception_util.h"
@@ -23,8 +24,7 @@
 #include "phy_topo_builder.h"
 
 namespace Hccl {
-
-static std::mutex socketLock;
+std::mutex SocketManager::socketLock;
 
 void SocketManager::PrepareLinkAndServerInit(const SocketConfig &socketConfig)
 {
@@ -295,7 +295,6 @@ void SocketManager::ServerInitAll(NewRankInfo &rankInfo)
                         HCCL_RUN_INFO("[SocketManager::%s] Device %s listen the preempt port %u", __func__, localPort.Describe().c_str(), listenPort);
                     }
                     rankAddr.socketPort_ = listenPort;
-                    // HOST侧网卡建链使用此字段，虽然并未正式抢占，但是给它预定此端口，以最后一个为准
                     rankInfo.devicePort = listenPort;
                 }
             }
