@@ -663,6 +663,10 @@ void SubmitCcuInsGroupTasks(const CcuInstruction &ccuInstruction, CommunicatorIm
 
     // launch LocalPostTo on stream
     Rts1ToNCntNotify *cntNotify1ToN = comm.GetCcuStreamSyncNotifyManager().GetRts1ToNCntNotify(stream.GetId());
+    if (cntNotify1ToN == nullptr) {
+        HCCL_ERROR("[SubmitCcuInsGroupTasks] GetRts1ToNCntNotify returned nullptr");
+        return;
+    }
     cntNotify1ToN->PostValue(value, stream);
 
     // launch ccu task
@@ -671,6 +675,10 @@ void SubmitCcuInsGroupTasks(const CcuInstruction &ccuInstruction, CommunicatorIm
 
     // launch LocalWaitFrom on stream
     RtsCntNotify *cntNotifyNTo1 = comm.GetCcuStreamSyncNotifyManager().GetRtsNTo1CntNotify(stream.GetId());
+    if (cntNotifyNTo1 == nullptr) {
+        HCCL_ERROR("[SubmitCcuInsGroupTasks] GetRtsNTo1CntNotify returned nullptr");
+        return;
+    }
     cntNotifyNTo1->WaitValue(value, timeout, stream);
 
     auto& streamMgr = comm.GetStreamManager();

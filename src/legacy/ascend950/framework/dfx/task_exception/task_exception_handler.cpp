@@ -83,7 +83,11 @@ TaskExceptionHandler *TaskExceptionHandlerManager::GetHandler(size_t devId)
     }
     // 如果对应位置的实例为空，则创建新实例
     if (handlers_[devId] == nullptr) {
-        handlers_[devId] = new TaskExceptionHandler(devId);
+        handlers_[devId] = new (std::nothrow) TaskExceptionHandler(devId);
+        if (handlers_[devId] == nullptr) {
+            HCCL_ERROR("[TaskExceptionHandler][GetInstance] new TaskExceptionHandler failed due to OOM, devId[%lu]", devId);
+            return nullptr;
+        }
     }
     return handlers_[devId];
 }

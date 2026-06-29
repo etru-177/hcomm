@@ -34,6 +34,11 @@ void InsExecutor::Execute(const InsQueue &insQueue)
 void InsExecutor::AddOpCounter(const StreamLite &stream, bool isHead) const
 {
     CHECK_NULLPTR(resMgrFetcher_, "[InsExecutor::AddOpCounter] resMgrFetcher_ is nullptr!");
+    auto rtsq = stream.GetRtsq();
+    if (rtsq == nullptr) {
+        HCCL_ERROR("[InsExecutor::%s] stream.GetRtsq() is nullptr", __func__);
+        return;
+    }
     u64 counterSrcAddr = resMgrFetcher_->GetCounterAddr();
     if (counterSrcAddr == 0) {
         HCCL_ERROR("InsExecutor::%s counter addr is null.", __func__);
@@ -42,8 +47,8 @@ void InsExecutor::AddOpCounter(const StreamLite &stream, bool isHead) const
     u64 dstAddr = isHead == true ? counterSrcAddr + FOUR_BYTES : counterSrcAddr + FOUR_BYTES * 2;
     u64 count = FOUR_BYTES;
     HCCL_INFO("%s AddOpCounter start", __func__);
-    auto taskId = stream.GetRtsq()->GetTaskId();
-    stream.GetRtsq()->SdmaReduce(counterSrcAddr, dstAddr, count, 0, ReduceIn(DataType::FP32, ReduceOp::SUM));
+    auto taskId = rtsq->GetTaskId();
+    rtsq->SdmaReduce(counterSrcAddr, dstAddr, count, 0, ReduceIn(DataType::FP32, ReduceOp::SUM));
 
     TaskParam taskParam {};
     taskParam.taskType                 = TaskParamType::TASK_REDUCE_INLINE;

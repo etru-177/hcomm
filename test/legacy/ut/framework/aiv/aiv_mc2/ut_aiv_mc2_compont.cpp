@@ -151,3 +151,14 @@ TEST_F(AivMc2CompontTest, should_throw_InternalException_when_calling_GenerateCo
     mc2Tiling.commConfig.dataType = 5; // int64
     EXPECT_THROW(aivMc2Compont.GenerateCommContext(&commContext), InternalException);
 }
+
+TEST_F(AivMc2CompontTest, should_return_early_when_mc2Tiling_is_nullptr)
+{
+    std::unique_ptr<CommunicatorImpl> comm = std::make_unique<CommunicatorImpl>();
+    comm->rankSize = 2;
+    AivMc2Compont aivMc2Compont(comm.get());
+    
+    void *commContext = nullptr;
+    aivMc2Compont.AllocCommResource(nullptr, &commContext);
+    EXPECT_EQ(nullptr, commContext);
+}

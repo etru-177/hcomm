@@ -26,6 +26,10 @@ AivMc2Compont::~AivMc2Compont()
 
 void AivMc2Compont::AllocCommResource(void *mc2Tiling, void **commContext)
 {
+    if (mc2Tiling == nullptr) {
+        HCCL_ERROR("[AivMc2Compont::%s] mc2Tiling is nullptr", __func__);
+        return;
+    }
     auto tilingVersion = *static_cast<uint32_t *>(mc2Tiling);
     HCCL_INFO("[AivMc2Compont:%s] Tiling version [%u]", __func__, tilingVersion);
     if (tilingVersion != UNKNOWN_TILING_V1 && tilingVersion != UNKNOWN_TILING_V2) {
@@ -199,6 +203,10 @@ void AivMc2Compont::AivMC2AllocCommResV2(Mc2InitTilingInner *mc2TilingPtr) const
     auto insQueue = make_shared<InsQueue>();
 
     auto                            collService = dynamic_cast<CollServiceDeviceMode *>(comm->GetCollService());
+    if (collService == nullptr) {
+        HCCL_ERROR("[AivMc2Compont::%s] dynamic_cast<CollServiceDeviceMode*> failed", __func__);
+        return;
+    }
     auto                            aivLinks    = comm->GetFullMeshLinks();
     
     for (auto &link : aivLinks) {

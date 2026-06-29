@@ -108,8 +108,9 @@ DevBuffer *CollServiceAiCpuImpl::OpBasedCollProcess(CollOperator &op, const std:
 
     auto                  buffer = PackOpData(op.opTag, req);
     shared_ptr<DevBuffer> devMem = make_shared<DevBuffer>(buffer.size()); // 申请device内存
-    HrtMemcpy(reinterpret_cast<void *>(devMem->GetAddr()), devMem->GetSize(), buffer.data(), buffer.size(),
-              RT_MEMCPY_HOST_TO_DEVICE); // H2D拷贝，将资源拷贝到device内存
+    TRY_CATCH_THROW(InternalException, StringFormat("HrtMemcpy to device memory failed, size[%zu]", buffer.size()),
+        HrtMemcpy(reinterpret_cast<void *>(devMem->GetAddr()), devMem->GetSize(), buffer.data(), buffer.size(),
+              RT_MEMCPY_HOST_TO_DEVICE)); // H2D拷贝，将资源拷贝到device内存
 
     collOpLoadedMap[curTagKey] = devMem;
     return devMem.get();
@@ -390,8 +391,9 @@ void CollServiceAiCpuImpl::AicpuKernelLaunch(HcclKernelLaunchParam &param, Strea
 	attr.value.timeout = static_cast<u16>((timeoutCheck == 0) ? timeoutCheck : (timeoutCheck + 30)); // aicpu kernal超时时间: X+30s
 	cfg.numAttrs = 1;
 	cfg.attrs = &attr;
-    HrtMemcpy(reinterpret_cast<void *>(kernelParamBuf_.get()->GetAddr()), sizeof(HcclKernelParamLite), 
-        reinterpret_cast<void *>(&param), sizeof(HcclKernelParamLite), RT_MEMCPY_HOST_TO_HOST);
+    TRY_CATCH_THROW(InternalException, std::string("HrtMemcpy kernelParamBuf failed"),
+        HrtMemcpy(reinterpret_cast<void *>(kernelParamBuf_.get()->GetAddr()), sizeof(HcclKernelParamLite), 
+            reinterpret_cast<void *>(&param), sizeof(HcclKernelParamLite), RT_MEMCPY_HOST_TO_HOST));
     
     HCCL_INFO("[CollServiceAiCpuImpl][%s] args timeout[%u]s", __func__, attr.value.timeout);
 

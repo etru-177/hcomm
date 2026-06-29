@@ -140,3 +140,39 @@ TEST_F(HcclOneSidedConnTest, DisableMemAccess_BufferNotFound)
     // 调用DisableMemAccess，期望抛出异常，实际上没有抛出异常
     EXPECT_NO_THROW(conn.DisableMemAccess(desc));
 }
+
+static bool StubRecvForRemoteMemDesc(Socket *socket, void *data, u32 size)
+{
+    (void)socket;
+    static u32 actualNumOfRemote = 1;
+    if (size == sizeof(u32)) {
+        memcpy(data, &actualNumOfRemote, sizeof(u32));
+    }
+    return true;
+}
+
+TEST_F(HcclOneSidedConnTest, ReceiveRemoteMemDesc_When_ArrayIsNullptr_Expect_ReturnHCCL_E_PTR)
+{
+    CommunicatorImpl com;
+    BasePortType basePortType(PortDeploymentType::P2P, ConnectProtoType::UB);
+    LinkData linkData(basePortType, 0, 1, 0, 1);
+    HcclOneSidedConn conn(&com, linkData);
+
+    IpAddress localIp;
+    IpAddress remoteIp;
+    Socket *mockSocket = new Socket(nullptr, localIp, 0, remoteIp, "test", SocketRole::CLIENT, NicType::DEVICE_NIC_TYPE);
+    conn.socket_ = mockSocket;
+
+    MOCKER_CPP(&Socket::Recv).stubs().will(invoke(StubRecvForRemoteMemDesc));
+
+    HcclMemDescs remoteMemDescs;
+    remoteMemDescs.array = nullptr;
+    remoteMemDescs.arrayLength = 0;
+
+    u32 actualNumOfRemote = 0;
+    HcclResult ret = conn.ReceiveRemoteMemDesc(remoteMemDescs, actualNumOfRemote);
+    EXPECT_EQ(ret, HcclResult::HCCL_E_PTR);
+
+    delete mockSocket;
+    conn.socket_ = nullptr;
+}

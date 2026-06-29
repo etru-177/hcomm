@@ -108,6 +108,10 @@ HcclResult HcclOneSidedConn::ReceiveRemoteMemDesc(HcclMemDescs &remoteMemDescs, 
     if (remoteMemDescs.arrayLength == 0) {
         HCCL_INFO("actualNumOfRemote[%u], no need to receive data", remoteMemDescs.arrayLength);
     } else {
+        if (remoteMemDescs.array == nullptr) {
+            HCCL_ERROR("[HcclOneSidedConn]remoteMemDescs.array is nullptr but actualNumOfRemote[%u] > 0", actualNumOfRemote);
+            return HCCL_E_PTR;
+        }
         HCCL_INFO("receive descSize:%u", actualNumOfRemote * sizeof(HcclMemDesc));
         socket_->Recv((u8 *)remoteMemDescs.array, actualNumOfRemote * sizeof(HcclMemDesc));
     }
@@ -145,8 +149,9 @@ HcclResult HcclOneSidedConn::ExchangeMemDesc(const HcclMemDescs &localMemDescs, 
 
     // 校验remoteDescs中的remoteRankId和conn对象中保存的localRankId是否一样
     for (u32 i = 0; i < actualNumOfRemote; i++) {
-        CHK_PTR_NULL((remoteMemDescs.array) + i);
+        CHK_PTR_NULL(remoteMemDescs.array);
         const RmaMemDesc *remoteRmaMemDesc = reinterpret_cast<const RmaMemDesc *>(remoteMemDescs.array[i].desc);
+        CHK_PTR_NULL(remoteRmaMemDesc);
         RankId            tempRankId       = remoteRmaMemDesc->remoteRankId;
         HCCL_INFO("[TransportMem][ExchangeMemDesc]tempRankId:%u, userRank:%u", tempRankId, comm_->GetMyRank());
         if (tempRankId != comm_->GetMyRank()) {

@@ -34,6 +34,9 @@ constexpr u32 BASE_BIT = 1; // 用于左移设置二进制数的特定位
 
 template <typename INS_TYPE> MemTransportLite &GetTransportLite(const INS_TYPE &ins, ResMgrFetcher *resMgrFetcher)
 {
+    if (ins.GetLink() == nullptr) {
+        THROW<NullPtrException>(StringFormat("%s ins.GetLink() is nullptr", ins.Describe().c_str()));
+    }
     MemTransportLite *transport = nullptr;
     if (resMgrFetcher->GetCurrentOp().opMode == OpMode::OPBASE) {
         transport = resMgrFetcher->GetTransportLiteMgr()->GetOpbase(*ins.GetLink()); // 单算子，采用 GetOpBase

@@ -41,6 +41,7 @@
 #include "aiv_temp_all_reduce_mesh_1D_oneshot.h"
 #include "dev_buffer.h"
 #include "rma_buffer.h"
+#include "ccu_stream_sync_notify_manager.h"
 #undef protected
 #undef private
 using namespace Hccl;
@@ -1688,4 +1689,82 @@ TEST_F(InsRulesTest, Interpret_aiv_instruction)
     MOCKER(HrtMemAsyncCopy).stubs();
     MOCKER(HrtMemcpy).stubs();
     Interpret(ins, comm, stream, taskConfig);
+}
+
+TEST_F(InsRulesTest, SubmitCcuInsGroupTasks_GetRts1ToNCntNotify_nullptr)
+{
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().will(ignoreReturnValue());
+    CommunicatorImpl comm;
+    CollServiceDeviceMode collService{&comm};
+    comm.collService = &collService;
+    comm.InitMirrorTaskManager();
+
+    CcuInsGroup insGroup;
+    std::unique_ptr<CcuInstruction> ins = std::make_unique<CcuInstructionAllGatherMesh1D>();
+    insGroup.Append(std::move(ins));
+    std::unique_ptr<CcuInstruction> ins2 = std::make_unique<CcuInstructionAllGatherMesh1D>();
+    insGroup.Append(std::move(ins2));
+    
+    Stream stream;
+    OpTaskConfig taskConfig{};
+    comm.streamManager = std::make_unique<StreamManager>(&comm);
+    MOCKER(CcuCtxMgr::GetTaskParam).stubs().will(invoke(GetTaskParamStub));
+    MOCKER(CcuCtxMgr::GetProfilingInfo).stubs().will(invoke(GetProfilingInfoStub));
+    MOCKER_CPP(&Hccl::CcuJettyMgr::GetRemoteRankIdByChannelId).stubs().with(mockcpp::any()).will(returnValue(0x23));
+    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    comm.streamManager->opbase = make_unique<OpbaseStreamManager>(&comm);
+    comm.streamManager->opbase->master = make_unique<Stream>(&comm);
+    comm.currentCollOperator = make_unique<CollOperator>();
+    comm.currentCollOperator->opMode = OpMode::OPBASE;
+    comm.ccuStreamSyncNotifyManager = std::make_unique<CcuStreamSyncNotifyManager>();
+    
+    Rts1ToNCntNotify *nullNotify = nullptr;
+    MOCKER_CPP(&CcuStreamSyncNotifyManager::GetRts1ToNCntNotify)
+        .stubs()
+        .with(mockcpp::any())
+        .will(returnValue(nullNotify));
+    
+    Interpret(insGroup, comm, stream, taskConfig);
+}
+
+TEST_F(InsRulesTest, SubmitCcuInsGroupTasks_GetRtsNTo1CntNotify_nullptr)
+{
+    MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().will(ignoreReturnValue());
+    CommunicatorImpl comm;
+    CollServiceDeviceMode collService{&comm};
+    comm.collService = &collService;
+    comm.InitMirrorTaskManager();
+
+    CcuInsGroup insGroup;
+    std::unique_ptr<CcuInstruction> ins = std::make_unique<CcuInstructionAllGatherMesh1D>();
+    insGroup.Append(std::move(ins));
+    std::unique_ptr<CcuInstruction> ins2 = std::make_unique<CcuInstructionAllGatherMesh1D>();
+    insGroup.Append(std::move(ins2));
+    
+    Stream stream;
+    OpTaskConfig taskConfig{};
+    comm.streamManager = std::make_unique<StreamManager>(&comm);
+    MOCKER(CcuCtxMgr::GetTaskParam).stubs().will(invoke(GetTaskParamStub));
+    MOCKER(CcuCtxMgr::GetProfilingInfo).stubs().will(invoke(GetProfilingInfoStub));
+    MOCKER_CPP(&Hccl::CcuJettyMgr::GetRemoteRankIdByChannelId).stubs().with(mockcpp::any()).will(returnValue(0x23));
+    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    comm.streamManager->opbase = make_unique<OpbaseStreamManager>(&comm);
+    comm.streamManager->opbase->master = make_unique<Stream>(&comm);
+    comm.currentCollOperator = make_unique<CollOperator>();
+    comm.currentCollOperator->opMode = OpMode::OPBASE;
+    comm.ccuStreamSyncNotifyManager = std::make_unique<CcuStreamSyncNotifyManager>();
+    
+    Rts1ToNCntNotify rts1ToNCntNotify;
+    MOCKER_CPP(&CcuStreamSyncNotifyManager::GetRts1ToNCntNotify)
+        .stubs()
+        .with(mockcpp::any())
+        .will(returnValue(&rts1ToNCntNotify));
+    
+    RtsCntNotify *nullNotify = nullptr;
+    MOCKER_CPP(&CcuStreamSyncNotifyManager::GetRtsNTo1CntNotify)
+        .stubs()
+        .with(mockcpp::any())
+        .will(returnValue(nullNotify));
+    
+    Interpret(insGroup, comm, stream, taskConfig);
 }
