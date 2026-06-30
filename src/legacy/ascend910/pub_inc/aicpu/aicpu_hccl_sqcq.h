@@ -13,7 +13,6 @@
 
 #include <memory>
 #include <vector>
-#include "ascend_hal.h"
 #include "log.h"
 #include "rt_external.h"
 #include "acl/acl_rt.h"

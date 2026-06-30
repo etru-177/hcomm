@@ -176,7 +176,7 @@ HcclResult TaskExceptionHost::PrintUbRegisters(s32 devLogicId, RdmaHandle rdmaHa
         return ret;
     }
 
-    uint16_t isAuxInfoExisted{false};
+    bool isAuxInfoExisted{false};
     for (u32 i = 0; i < auxInfo.auxInfoNum; i++) {
         if (auxInfo.auxInfoValues[i]) { // 非零进行打印
             isAuxInfoExisted = true;

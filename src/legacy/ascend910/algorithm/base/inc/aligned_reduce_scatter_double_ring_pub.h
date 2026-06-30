@@ -84,11 +84,11 @@ protected:
         std::vector<DeviceMem> &localDstMemsSub);
     virtual HcclResult RunReduceScatter(const u32 rank, const u32 rankSize);
     HcclResult GetActiveSubstreamNum(u32 &activeSubstreamNum);
-    HcclResult ExecEmptyTasks();
-    HcclResult MainRecordSub();
-    HcclResult SubWaitMain();
-    HcclResult SubRecordMain();
-    HcclResult MainWaitSub();
+    virtual HcclResult ExecEmptyTasks();
+    virtual HcclResult MainRecordSub();
+    virtual HcclResult SubWaitMain();
+    virtual HcclResult SubRecordMain();
+    virtual HcclResult MainWaitSub();
 
     LINK leftLink_;
     LINK rightLink_;

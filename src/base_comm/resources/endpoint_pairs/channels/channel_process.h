@@ -66,7 +66,7 @@ private:
 
     static HcclResult CombineHostMemory(const std::vector<std::vector<char>> &hostPackBuffers, 
         hccl::HostMem &hostPackBuf);
-    static HcclResult FillChannelD2HMap(ChannelHandle *deviceChannelHandles, ChannelHandle *hostChannelHandles, 
+    static HcclResult FillChannelD2HMap(const ChannelHandle *deviceChannelHandles, const ChannelHandle *hostChannelHandles, 
         uint32_t listNum);
     static HcclResult LaunchChannelKernelCommon(ChannelHandle *channelHandles, ChannelHandle *hostChannelHandles,
         HcommChannelDesc* hcommDesc, uint32_t listNum, const std::string &commTag, aclrtBinHandle binHandle,

@@ -20,7 +20,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "ccu_task_arg_v1.h"
 #include "ccu_task_param_v1.h"
 
 #include "ccu_kernel_resource.h"

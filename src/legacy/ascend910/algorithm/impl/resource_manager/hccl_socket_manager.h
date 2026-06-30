@@ -113,7 +113,7 @@ public:
 
     HcclResult CreateSingleLinkSocket(const std::string &commTag,
         const HcclNetDevCtx netDevCtx,
-        HcclRankLinkInfo remoteRankInfo,
+        HcclRankLinkInfo rmtRank,
         std::vector<std::shared_ptr<HcclSocket> > &connectSockets,
         bool isWaitEstablished = true,
         bool isSupportReuse = false,

@@ -26,7 +26,7 @@ namespace hcomm {
 using RdmaHandle = void*;
 
 using GetCcuCqeErrInfoCallBackHcomm = void (*)(u32 RemoteLocalId, u32 locDeviceId, uint16_t status, std::string LocalEid, std::string RemoteEid, std::string RemoteInsId); // 获取远端rankId的回调函数类型
-void RegisterGetCcuCqeErrInfoCallBackHcomm(GetCcuCqeErrInfoCallBackHcomm); // 注册获取远端rankId的回调函数
+void RegisterGetCcuCqeErrInfoCallBackHcomm(GetCcuCqeErrInfoCallBackHcomm p1); // 注册获取远端rankId的回调函数
 
 using CcuGetErrStatusVecCallBack = std::vector<std::string> (*)(s32 deviceLogicID);
 void RegisterCcuGetErrStatusVecCallBack(CcuGetErrStatusVecCallBack);

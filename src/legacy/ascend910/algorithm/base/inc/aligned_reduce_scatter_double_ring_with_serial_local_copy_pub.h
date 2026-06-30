@@ -38,11 +38,11 @@ private:
         std::vector<DeviceMem> &subLocalSrcMems, std::vector<DeviceMem> &subLocalDstMems) override;
     HcclResult RunReduceScatter(const u32 rank, const u32 rankSize) override;
     HcclResult GetActiveSubstreamNumWithSerial(u32 &activeSubstreamNum);
-    HcclResult ExecEmptyTasks();
-    HcclResult MainRecordSub();
-    HcclResult SubWaitMain();
-    HcclResult SubRecordMain();
-    HcclResult MainWaitSub();
+    HcclResult ExecEmptyTasks() override;
+    HcclResult MainRecordSub() override;
+    HcclResult SubWaitMain() override;
+    HcclResult SubRecordMain() override;
+    HcclResult MainWaitSub() override;
 };
 } // namespace hccl
 

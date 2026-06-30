@@ -31,7 +31,7 @@ public:
 
     virtual HcclResult Clean() override;
     virtual HcclResult Resume() override;
-    virtual HcclResult GetNotifyNum(uint32_t *notifyNum) const override;
+    HcclResult GetNotifyNum(uint32_t *notifyNum) const override;
     virtual HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     HcclResult BuildChannelEntityToDevice(void **devChannelPtr);
 
