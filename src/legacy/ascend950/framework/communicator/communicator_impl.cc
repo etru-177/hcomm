@@ -3411,7 +3411,8 @@ HcclResult CommunicatorImpl::AllocAndRegKFCWorkSpace(uint64_t size)
         HCCL_ERROR("[HcclCommunicator::%s] aclrtGetLogicDevIdByUserDevId failed, devLogicId: %d, ret: %d", __func__, devLogicId, aclRet);
         return HCCL_E_RUNTIME;
     }
-    CHK_RET(HrtHalGetDeviceInfo(deviceLogicId, MODULE_TYPE_SYSTEM, INFO_TYPE_HD_CONNECT_TYPE, &connectType_));
+    CHK_RET(HrtHalGetDeviceInfo(deviceLogicId, MODULE_TYPE_SYSTEM, INFO_TYPE_HD_CONNECT_TYPE, connectType_));
+    HCCL_INFO("[HcclCommunicator::%s] connectType_: %ld", __func__, connectType_);
     HcclResult ret = HCCL_SUCCESS;
     if (connectType_ == HOST_DEVICE_CONNECT_TYPE_PCIE) {
         va_ = HrtMalloc(size, ACL_MEM_TYPE_HIGH_BAND_WIDTH);

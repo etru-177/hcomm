@@ -3506,7 +3506,7 @@ TEST_F(CommunicatorImplTest, Ut_When_DestroyDpuKernelResource_Expect_ResetDpuDev
 }
 
 namespace Hccl {
-HcclResult HrtHalGetDeviceInfo(uint32_t devId, int32_t moduleType, int32_t infoType, int64_t *value);
+HcclResult HrtHalGetDeviceInfo(uint32_t devId, int32_t moduleType, int32_t infoType, int64_t &value);
 }
 
 TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_CacheHitSizeMatch_Expect_Success)
@@ -3569,7 +3569,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_PciePath_Expect_Success)
 
     int64_t connType = 0;// HOST_DEVICE_CONNECT_TYPE_PCIE
     void* stubRegAddr = reinterpret_cast<void *>(0xBEEF0000);
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connType))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(HrtMalloc).stubs().with(mockcpp::any(), mockcpp::any())
         .will(returnValue(reinterpret_cast<void *>(0x2000)));
@@ -3598,7 +3598,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_PcieHalHostRegisterFail_E
         .will(returnValue(reinterpret_cast<void *>(0x2000)));
     int64_t connType = 0;// HOST_DEVICE_CONNECT_TYPE_PCIE
     void* stubRegAddr = reinterpret_cast<void *>(0xBEEF0000);
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connType))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(halHostRegister).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any())
         .will(returnValue(DRV_ERROR_INNER_ERR));
@@ -3622,7 +3622,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UbPath_Expect_Success)
 
     void* stubRegAddr = reinterpret_cast<void *>(0xBEEF0000);
 
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connType))
         .will(returnValue(HCCL_SUCCESS));
     MOCKER(halHostRegister).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&stubRegAddr))
         .will(returnValue(DRV_ERROR_NONE));
@@ -3648,7 +3648,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UnsupportedConnectType_Ex
     std::string tag = "DPUTAG";
     int64_t connType = 1;// HOST_DEVICE_CONNECT_TYPE_HCCS;// unsupported connect type
 
-    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBoundP(&connType))
+    MOCKER(HrtHalGetDeviceInfo).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(), outBound(connType))
         .will(returnValue(HCCL_SUCCESS));
 
     auto ret = fakeComm.GetKFCWorkSpaceVA(tag, &size, &addr, &newCreated);
