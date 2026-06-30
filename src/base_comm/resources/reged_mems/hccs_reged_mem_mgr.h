@@ -48,7 +48,7 @@ public:
     HcclResult MemoryOpenRemoteIpc();
     HcclResult MemoryCloseRemoteIpc();
     HcclResult GetRemoteIpcRmaBuffer(std::vector<CommMem> &remoteIpcRmaBufferVec);
-    HcclResult GetRemoteIpcRmaBufferEx(std::vector<HcclMemEx> &remoteIpcRmaBufferVec);
+    HcclResult GetRemoteIpcRmaBufferEx(std::vector<HcclMemEx> &remoteIpcRmaBufferVecEx);
     HcclResult GetLocalIpcRmaBufferEx(std::vector<HcclMemEx> &localIpcRmaBufferVec);
 
 private:

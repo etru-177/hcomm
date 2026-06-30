@@ -27,7 +27,7 @@ public:
     // 当前仅支持交换hccl buffer
     CcuUrmaChannel(const EndpointHandle locEndpointHandle,
         const HcommChannelDesc &channelDesc);
-    ~CcuUrmaChannel() = default;
+    ~CcuUrmaChannel() override = default;
 
     HcclResult Init() override;
     ChannelStatus GetStatus() override;
@@ -36,8 +36,8 @@ public:
     HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     HcclResult UpdateMemInfo(HcommMemHandle *memHandles, uint32_t memHandleNum) override;
 
-    virtual HcclResult Clean() override;
-    virtual HcclResult Resume() override;
+    HcclResult Clean() override;
+    HcclResult Resume() override;
 
     HcclResult ChannelFence() override;
     HcclResult NotifyRecord(const uint32_t remoteNotifyIdx) override;

@@ -33,30 +33,30 @@ EndpointMonitor &EndpointMonitor::GetInstance(s32 deviceLogicId)
     return instances[deviceId];
 }
 
-HcclResult EndpointMonitor::RegisterToEndpointMonitor(s32 deviceLogicId, EndpointHandle epHandle)
+HcclResult EndpointMonitor::RegisterToEndpointMonitor(s32 deviceId, EndpointHandle epHandle)
 {
-    if ((deviceLogicId < 0) || (static_cast<u32>(deviceLogicId) >= MAX_MODULE_DEVICE_NUM)) {
-        HCCL_ERROR("[EndpointMonitor][%s] deviceLogicId[%d] not in range [0,%u)", __func__, deviceLogicId,
+    if ((deviceId < 0) || (static_cast<u32>(deviceId) >= MAX_MODULE_DEVICE_NUM)) {
+        HCCL_ERROR("[EndpointMonitor][%s] deviceLogicId[%d] not in range [0,%u)", __func__, deviceId,
             MAX_MODULE_DEVICE_NUM);
         return HCCL_E_PARA;
     }
     CHK_PRT_RET(epHandle == nullptr, HCCL_ERROR("[EndpointMonitor][%s] epHandle is null", __func__), HCCL_E_PTR);
 
-    HCCL_INFO("[EndpointMonitor] deviceLogicId[%d] RegisterToEndpointMonitor begin.", deviceLogicId);
+    HCCL_INFO("[EndpointMonitor] deviceLogicId[%d] RegisterToEndpointMonitor begin.", deviceId);
     u32 devPhyId{0};
-    CHK_RET(hrtGetDevicePhyIdByIndex(static_cast<u32>(deviceLogicId), devPhyId));
+    CHK_RET(hrtGetDevicePhyIdByIndex(static_cast<u32>(deviceId), devPhyId));
 
     {
         std::lock_guard<std::mutex> lock(threadLock_);
         epHandleSet_.emplace(reinterpret_cast<u64>(epHandle));
         if (!initialized_) {
-            deviceLogicId_ = deviceLogicId;
+            deviceLogicId_ = deviceId;
             devPhyId_ = devPhyId;
             CHK_RET(RunMonitorThread());
         }
     }
 
-    HCCL_INFO("[EndpointMonitor] deviceLogicId[%d] RegisterToEndpointMonitor Completed.", deviceLogicId);
+    HCCL_INFO("[EndpointMonitor] deviceLogicId[%d] RegisterToEndpointMonitor Completed.", deviceId);
     return HCCL_SUCCESS;
 }
 

@@ -154,7 +154,7 @@ public:
     CcuResult AddressAssignVar(CcuAddressHandle addr, CcuVariableHandle var);
     CcuResult AddressAssignAddr(CcuAddressHandle dstAddrHandle, CcuAddressHandle srcAddrHandle);
     CcuResult AddressAddVarToAddr(CcuAddressHandle resAddrHandle, CcuAddressHandle lhsAddrHandle, CcuVariableHandle rhsVarHandle);
-    CcuResult AddressAddAddrToAddr(CcuAddressHandle resAddr, CcuAddressHandle addrA, CcuAddressHandle addrB);
+    CcuResult AddressAddAddrToAddr(CcuAddressHandle resAddrHandle, CcuAddressHandle addrAHandle, CcuAddressHandle addrBHandle);
     CcuResult AddressAddAssignVar(CcuAddressHandle addrHandle, CcuVariableHandle varHandle);
     CcuResult AddressAddAssignAddr(CcuAddressHandle addr, CcuAddressHandle otherAddr);
 

@@ -178,7 +178,7 @@ HcclResult TaskExceptionHost::PrintUbRegisters(s32 devLogicId, RdmaHandle rdmaHa
 
     bool isAuxInfoExisted{false};
     for (u32 i = 0; i < auxInfo.auxInfoNum; i++) {
-        if (auxInfo.auxInfoValues[i]) { // 非零进行打印
+        if (auxInfo.auxInfoValues[i] != 0) { // 非零进行打印
             isAuxInfoExisted = true;
             HCCL_ERROR("devLogicId[%d], cqe_aux_info_type[%u], cqe_aux_info_value[0x%x]",
  	  	            devLogicId, auxInfo.auxInfoTypes[i], auxInfo.auxInfoValues[i]);

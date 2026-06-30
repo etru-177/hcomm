@@ -30,7 +30,7 @@ namespace hcomm {
 class HostCpuUrmaChannel : public Channel {
 public:
     HostCpuUrmaChannel(EndpointHandle endpointHandle, const HcommChannelDesc &channelDesc);
-    ~HostCpuUrmaChannel();
+    ~HostCpuUrmaChannel() override;
 
     HcclResult Init() override;
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;

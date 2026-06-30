@@ -87,7 +87,7 @@ private:
     HcclResult BuildComStreamInfo(const HcclStreamInfo &streamInfo, HcclComStreamInfo &comStreamInfo) const;
 #endif
     template <typename Operation, typename ReportOp>
-    HcclResult LocalProcess(void *dst, const void *src, uint64_t size, Operation &&op, ReportOp &&reportOp) const;
+    HcclResult LocalProcess(void *dst, const void *src, uint64_t sizeByte, Operation &&op, ReportOp &&reportOp) const;
 
     // 成员变量（适配 AICPU-TS）
     bool isDeviceSide_ = false;

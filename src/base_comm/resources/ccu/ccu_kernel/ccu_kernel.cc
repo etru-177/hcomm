@@ -1193,13 +1193,13 @@ CcuResult CcuKernel::AddressAssignImm(CcuAddressHandle addrHandle, uint64_t imme
 }
 
 // addr = variable → CcuRepAssign(Address, Variable)
-CcuResult CcuKernel::AddressAssignVar(CcuAddressHandle addrHandle, CcuVariableHandle varHandle)
+CcuResult CcuKernel::AddressAssignVar(CcuAddressHandle addr, CcuVariableHandle var)
 {
     CcuRep::Address *address{nullptr};
-    CCU_CHK_RET(GetAddressByHandle(addrHandle, &address));
+    CCU_CHK_RET(GetAddressByHandle(addr, &address));
 
     CcuRep::Variable *variable{nullptr};
-    CCU_CHK_RET(GetVariableByHandle(varHandle, &variable));
+    CCU_CHK_RET(GetVariableByHandle(var, &variable));
 
     (*address) = (*variable);
     return CcuResult::CCU_SUCCESS;
@@ -1784,7 +1784,7 @@ CcuResult CcuKernel::LoopGroupCreate(CcuLoopGroup *group, uint32_t maxLoopNum,
 }
 
 CcuResult CcuKernel::LoopGroupCreateFromVar(CcuLoopGroup *group, uint32_t maxLoopNum,
-    CcuVariableHandle parallelVarHandle, CcuVariableHandle offsetVarHandle)
+    CcuVariableHandle parallelVar, CcuVariableHandle offsetVar)
 {
     if (group == nullptr) {
         HCCL_ERROR("[CcuKernel::LoopGroupCreateFromVar] null pointer for group");
@@ -1804,8 +1804,8 @@ CcuResult CcuKernel::LoopGroupCreateFromVar(CcuLoopGroup *group, uint32_t maxLoo
 
     CcuRep::Variable *parallelVarPtr = nullptr;
     CcuRep::Variable *offsetVarPtr = nullptr;
-    CCU_CHK_RET(GetVariableByHandle(parallelVarHandle, &parallelVarPtr));
-    CCU_CHK_RET(GetVariableByHandle(offsetVarHandle, &offsetVarPtr));
+    CCU_CHK_RET(GetVariableByHandle(parallelVar, &parallelVarPtr));
+    CCU_CHK_RET(GetVariableByHandle(offsetVar, &offsetVarPtr));
 
     CcuLoopGroup handle = ++loopGroupHandleCounter_;
 
