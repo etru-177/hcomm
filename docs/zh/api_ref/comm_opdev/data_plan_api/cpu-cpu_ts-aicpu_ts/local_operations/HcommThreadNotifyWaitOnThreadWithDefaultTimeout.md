@@ -58,8 +58,8 @@ ThreadHandle threads[2];
 // 申请2条流，每条流2个Notify
 aclrtCreateStream(&streams[0]);
 aclrtCreateStream(&streams[1]);
-HcclResult result = HclThreadAcquireWithStream(comm, engine, streams[0], 2, &threads[0]);
-result = HclThreadAcquireWithStream(comm, engine, streams[1], 2, &threads[1]);
+HcclResult result = HcclThreadAcquireWithStream(comm, engine, streams[0], 2, &threads[0]);
+result = HcclThreadAcquireWithStream(comm, engine, streams[1], 2, &threads[1]);
 
 // 1. 设置默认超时时间（可选，未设置则使用默认值1836秒）
 uint32_t defaultTimeout = 600;  // 10分钟
@@ -79,8 +79,8 @@ HcclComm comm;
 CommEngine engine = COMM_ENGINE_AICPU_TS;
 ThreadHandle threads[2];
 uint32_t notifyNumPerThread = 2;
-HclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[0]);
-HclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[1]);
+HcclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[0]);
+HcclThreadAcquire(comm, engine, 1, notifyNumPerThread, &threads[1]);
 
 // 其余资源申请
 // 拷贝参数并Launch Kernel

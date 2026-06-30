@@ -54,15 +54,15 @@ CommEngine engine = COMM_ENGINE_AICPU_TS;  // Ascend 950PR/Ascend 950DT时配置
 uint32_t threadNum = 1;
 uint32_t notifyNumPerThread = 1;
 ThreadHandle thread;
-HcommThreadAcquire(engine, threadNum, notifyNumPerThread, &thread);
+HcclComm comm;
+HcclThreadAcquire(comm, engine, threadNum, notifyNumPerThread, &thread);
 
 // 3. 申请通信通道资源
 uint32_t channelNum = 1;
 HcclChannelDesc channelDesc;
-HcommChannelDescInit(&channelDesc, channelNum);
-HcclComm comm;
+HcclChannelDescInit(&channelDesc, channelNum);
 ChannelHandle channel;
-HcommChannelAcquire(comm, engine, &channelDesc, channelNum, &channel);
+HcclChannelAcquire(comm, engine, &channelDesc, channelNum, &channel);
 
 // 4. 在Device侧记录通知
 HcommChannelNotifyRecordOnThread(thread, channel, 0);

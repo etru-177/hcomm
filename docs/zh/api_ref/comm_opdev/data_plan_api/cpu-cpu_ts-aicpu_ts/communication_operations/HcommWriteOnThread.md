@@ -43,12 +43,12 @@ CommEngine engine = CommEngine::COMM_ENGINE_AICPU_TS; // Ascend 950PR/Ascend 950
 uint32_t threadNum = 1;
 uint32_t notifyNumPerThread = 1;
 ThreadHandle thread;
-HcclThreadAcquire(engine, threadNum, notifyNumPerThread, &thread);
+HcclComm comm;
+HcclThreadAcquire(comm, engine, threadNum, notifyNumPerThread, &thread);
 
 // 申请通信通道资源
 HcclChannelDesc channelDesc;
 HcclChannelDescInit(&channelDesc, channelNum);
-HcclComm comm;
 uint32_t channelNum = 1;
 ChannelHandle channel;
 HcclChannelAcquire(comm, engine, &channelDesc, channelNum, &channel);

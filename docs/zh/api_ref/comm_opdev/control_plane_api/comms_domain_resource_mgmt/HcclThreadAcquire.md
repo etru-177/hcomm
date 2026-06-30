@@ -68,7 +68,7 @@ aclrtStream stream;
 aclrtCreateStream(&stream);
 // 根据申请的流创建CPU_TS类型thread
 ThreadHandle cpuThread;
-HcclThreadAcquireWithStream(comm, COMM_ENGINE_CPU_TS, streams, 1, &cpuThread);
+HcclThreadAcquireWithStream(comm, COMM_ENGINE_CPU_TS, stream, 1, &cpuThread);
 // 任务编排
 // ...
 // 流同步
@@ -84,7 +84,7 @@ aclrtStream stream;
 aclrtCreateStream(&stream);
 // 根据申请的流创建CPU_TS类型thread
 ThreadHandle cpuThread;
-HcclThreadAcquireWithStream(comm, COMM_ENGINE_CPU_TS, streams, 1, &cpuThread);
+HcclThreadAcquireWithStream(comm, COMM_ENGINE_CPU_TS, stream, 1, &cpuThread);
 
 // 创建一个AICPU_TS类型的thread
 ThreadHandle aicpuThread;

@@ -71,7 +71,8 @@ CommEngine engine = COMM_ENGINE_AICPU_TS;
 uint32_t threadNum = 1;
 uint32_t notifyNumPerThread = 1;
 ThreadHandle thread;
-HcommThreadAcquire(engine, threadNum, notifyNumPerThread, &thread);
+HcclComm comm;
+HcclThreadAcquire(comm, engine, threadNum, notifyNumPerThread, &thread);
 
 // 3. 数据面操作（RTSQ满时会等待可用空间或超时）
 // ... 执行数据发送操作 ...

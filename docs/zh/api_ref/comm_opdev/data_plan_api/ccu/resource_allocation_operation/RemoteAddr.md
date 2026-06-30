@@ -14,7 +14,7 @@
 
 ## 功能说明
 
-`ccu::RemoteAddr`是CCU kernel内对端HBM地址的C++包装类，是"地址（`Address`）+ token（`Variable`）"的复合对象，结构与[LocalAddr](LocalAddr.md)镜像。
+`ccu::RemoteAddr`是CCU kernel内对端片上内存地址的C++包装类，是"地址（`Address`）+ token（`Variable`）"的复合对象，结构与[LocalAddr](LocalAddr.md)镜像。
 
 - 构造即分配：默认构造函数一次性申请1个GSA（用于`addr`）和1个XN（用于`token`）。
 - 析构不释放：析构函数不释放硬件资源；虚拟句柄在翻译完成后失效，物理资源随CCU 实例生命周期统一管理、回收。
@@ -29,7 +29,7 @@ namespace ccu {
 class RemoteAddr final {
 public:
     RemoteAddr();                        // 构造即Alloc（同时申请GSA + XN）
-    Address addr;                        // 对端HBM地址字段（GSA寄存器）
+    Address addr;                        // 对端片上内存地址字段（GSA寄存器）
     Variable token;                      // 对端安全token字段（XN寄存器）
     CcuRemoteAddrHandle handle{0};      // 复合句柄
 };
@@ -52,7 +52,7 @@ C++构造只申请虚拟句柄：在kernel注册阶段内调用时恒成功；�
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `addr` | `Address` | 对端HBM目标地址。须由对端rank的VA与token（对端`HcommCcuGetMemToken`结果）来填充。运算符语义见[Address](Address.md)。 |
+| `addr` | `Address` | 对端片上内存目标地址。须由对端rank的VA与token（对端`HcommCcuGetMemToken`结果）来填充。运算符语义见[Address](Address.md)。 |
 | `token` | `Variable` | 对端安全token值。须与`addr`配对，来自对端rank，不可与本端token混用。运算符语义见[Variable](Variable.md)。 |
 
 ## 约束说明
@@ -90,7 +90,7 @@ CcuResult MyKernel(CcuKernelArg arg) {
     Event evt;
     len = 1024;
 
-    Read(ch, local, remote, len, evt);   // 从对端HBM读取到本端HBM
+    Read(ch, local, remote, len, evt);   // 从对端片上内存读取到本端片上内存
     EventWait(evt);
 
     return CCU_SUCCESS;

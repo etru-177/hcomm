@@ -7,7 +7,7 @@
 - **Thread**：用于表达单个rank内的并发关系，相同Thread上的task严格顺序执行，不同Thread上的task可以并发执行。无论何种展开模式，Thread均可分为1个主Thread和若干个从Thread，由该主Thread来控制这些从Thread上的任务的开始和结束，其中主Thread必须申请，从Thread的申请数量由每个通信算法单独计算。
 - **Notify**：用于实现同步机制，包括rank内Thread间同步和rank间同步。
 - **Channel**：用于跨rank传输数据的通道。
-- **Kernel**：在CCU硬件上执行的算法，每个Kernel都包含了CCU的各种资源，包括CCU指令空间、寄存器、片上缓存、并发引擎和channel表项等。Kernel所需的资源数量和CCU指令内容，在使用HcommCcuKenelRegister接口注册kernel时翻译产生，并完成申请。
+- **Kernel**：在CCU硬件上执行的算法，每个Kernel都包含了CCU的各种资源，包括CCU指令空间、寄存器、片上缓存、并发引擎和channel表项等。Kernel所需的资源数量和CCU指令内容，在使用HcommCcuKernelRegister接口注册kernel时翻译产生，并完成申请。
 
 不同的通信算法所需的通信资源数量往往不相同。下面以单机4卡的拓扑组网、使用CCU通信引擎为例，讲解Mesh全连接通信算法所需的通信资源数量计算逻辑。
 

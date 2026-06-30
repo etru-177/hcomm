@@ -19,7 +19,7 @@
 - 构造即分配：默认构造函数自动申请1块MS虚拟句柄。
 - 析构不释放：析构函数不释放硬件资源；虚拟句柄在翻译完成后失效，物理资源随CCU实例生命周期统一管理、回收。
 
-MS切片是CCU die内的片上高速暂存区，用于在HBM与对端之间中转数据，或作为多Buffer归约（一次最多8 路MS）的操作数。
+MS切片是CCU die内的片上高速暂存区，用于在片上内存与对端之间中转数据，或作为多Buffer归约（一次最多8 路MS）的操作数。
 
 > [!NOTE]说明
 > C++类名保留`Ccu`前缀（类名为`CcuBuffer`而非`Buffer`），与命名空间合写为`ccu::CcuBuffer`。
@@ -68,7 +68,7 @@ CcuResult MyKernel(CcuKernelArg arg) {
     Variable len;
     Event evt;
 
-    // 将HBM数据拷贝到MS Buffer
+    // 将片上内存数据拷贝到MS Buffer
     LocalCopy(buf, src, len, evt);
     EventWait(evt);
 

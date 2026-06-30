@@ -94,13 +94,13 @@ typedef struct HcclCommConfigDef {
     - 该配置仅支持对称组网、推理特性。
     - 该配置项支持的算子及约束限制参见配置“3”。
 
-  - 5：通信算子在CCU（Collective Communication Unit，集合通信加速单元）展开，使用MS（Memory Slice）模式。Ascend 950PR不支持此配置。
+  - 5：通信算子在CCU（Collective Communication Unit，集合通信加速单元）展开，使用CcuBuffer进行内存读写。Ascend 950PR不支持此配置。
 
-    MS模式为与多个远端通信时，使用CCU片上Memory Slice作为中转，用于节省内存读写带宽，Memory Slice的特点是大小较小，但速度较快。当CCU资源不足时，系统会自动切换为“2：AI CPU模式”。
+    此模式下，当CCU与多个远端通信时，使用CcuBuffer作为中转，用于节省内存读写带宽，CcuBuffer的特点是大小较小，但速度较快。当CCU资源不足时，系统会自动切换为“2：AI CPU模式”。
 
   - 6：通信算子在CCU展开，使用调度模式。
 
-    调度模式指使用CCU作为调度器，向UB引擎调度UB WQE任务。调度模式下不使用CCU的片上MS，直接在两个rank间进行HBM到HBM的数据传输。
+    调度模式指使用CCU作为调度器，向UB引擎调度UB WQE任务。调度模式下不使用CcuBuffer，直接在两个rank间进行片上内存到片上内存的数据传输。
 
     针对单机通信场景的AllReduce、ReduceScatter、Reduce算子，当数据量超过一定值时，为防止性能下降，系统会自动切换为“2：AI_CPU模式”（该阈值并非固定，会根据算子运行模式及网络规模等因素有所调整）。
 
@@ -168,7 +168,7 @@ typedef struct HcclCommConfigDef {
     - 该配置项下，集合通信支持控核能力，不同算子的Vector Core核数要求与配置“3”相同。
 
     > [!NOTE]说明
-    > - 多通信域并行场景下，不支持多个通信域同时配置为“3”或“4”（AIV Only模式）。
+    > - 通信算子展开模式设置为“3”（AIV）或“4”（AIV Only）时，不支持多个通信域并行的场景，否则可能出现不可预期行为。
     > - 针对Atlas A2 训练系列产品/Atlas A2 推理系列产品，通信算子展开模式设置为“3”或“4”时，同时设置hcclDeterministic配置为“1”（开启确定性计算），在单机的单算子和图模式场景下，当数据量≤8MB时，仅AllReduce和ReduceScatter算子的确定性计算生效，其他场景和算子则以hcclDeterministic配置为准。
     > - 针对Atlas A2 训练系列产品/Atlas A2 推理系列产品，若hcclDeterministic配置为“2”（开启保序功能），hcclOpExpansionMode不支持配置为“3”或“4”，以保序功能为准。
     > - 针对Atlas A3 训练系列产品/Atlas A3 推理系列产品，通信算子展开模式设置为“3”或“4”时，若同时设置hcclDeterministic为“1”（开启确定性计算）或“2”（开启保序功能），当数据量＜8MB时，仅AllReduce和ReduceScatter算子的确定性计算生效，其他场景和算子则以hcclDeterministic配置为准。

@@ -14,12 +14,12 @@
 
 ## 功能说明
 
-`ccu::LocalAddr`是CCU kernel内本端HBM地址的C++包装类，是"地址（`Address`）+ token（`Variable`）"的复合对象。
+`ccu::LocalAddr`是CCU kernel内本端片上内存地址的C++包装类，是"地址（`Address`）+ token（`Variable`）"的复合对象。
 
 - 构造即分配：默认构造函数一次性申请1个GSA（用于`addr`）和1个XN（用于`token`）。
 - 析构不释放：析构函数不释放硬件资源；虚拟句柄在翻译完成后失效，物理资源随CCU实例生命周期统一管理、回收。
 
-CCU硬件不接受进程虚拟地址，访问HBM必须使用由`HcommCcuGetMemToken`（host端调用）换算后的token。`LocalAddr`的`addr`字段存储物理地址（或token化后的VA），`token`字段存储配套的安全token值。
+CCU硬件不接受进程虚拟地址，访问片上内存必须使用由`HcommCcuGetMemToken`（host端调用）换算后的token。`LocalAddr`的`addr`字段存储物理地址（或token化后的VA），`token`字段存储配套的安全token值。
 
 ## 类声明
 
@@ -29,7 +29,7 @@ namespace ccu {
 class LocalAddr final {
 public:
     LocalAddr();                         // 构造即Alloc（同时申请GSA + XN）
-    Address addr;                        // 本端HBM地址字段（GSA寄存器）
+    Address addr;                        // 本端片上内存地址字段（GSA寄存器）
     Variable token;                      // 安全token字段（XN寄存器）
     CcuLocalAddrHandle handle{0};       // 复合句柄
 };
@@ -52,7 +52,7 @@ C++ 构造只申请虚拟句柄：在kernel 注册阶段内调用时恒成功；
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `addr` | `Address` | 本端HBM地址。通过`la.addr = imm`（立即数）或`la.addr = var`（Variable）赋值，运算符语义见[Address](Address.md)。 |
+| `addr` | `Address` | 本端片上内存地址。通过`la.addr = imm`（立即数）或`la.addr = var`（Variable）赋值，运算符语义见[Address](Address.md)。 |
 | `token` | `Variable` | 安全token值。由host端调用`HcommCcuGetMemToken`获取后，通过`kernelArg`或`taskArgs`+`LoadArg`传入kernel，再赋值给`la.token`。运算符语义见[Variable](Variable.md)。 |
 
 ## 约束说明
