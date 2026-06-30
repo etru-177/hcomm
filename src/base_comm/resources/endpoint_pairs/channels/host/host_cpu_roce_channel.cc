@@ -169,7 +169,8 @@ HcclResult HostCpuRoceChannel::BuildSocket()
         port = DEFAULT_LISTENING_PORT;
         HCCL_INFO("[HostCpuRoceChannel::%s] channelDesc port is 0, use default port [%u]", __func__, port);
     }
-    std::string socketTag = "AUTOMATIC_SOCKET_TAG";
+    std::string socketTag = (channelDesc_.channelName != nullptr)
+        ? std::string(channelDesc_.channelName) : "AUTOMATIC_SOCKET_TAG";
     Hccl::SocketConfig socketConfig = (channelDesc_.role != HCOMM_SOCKET_ROLE_RESERVED)
         ? Hccl::SocketConfig(linkData, port, socketTag, channelDesc_.role == HCOMM_SOCKET_ROLE_SERVER)
         : Hccl::SocketConfig(linkData, port, socketTag);
@@ -263,9 +264,6 @@ HcclResult HostCpuRoceChannel::ProcessStatus()
 {
     switch (channelStatus_) {
         case ChannelStatus::READY:
-            if (channelDesc_.socket == nullptr && socket_ != nullptr) {
-                SocketMgr::GetInstance(devicePhyId_).PutSocket(socketConfig_, socket_);
-            }
             return HCCL_SUCCESS;
         case ChannelStatus::SOCKET_TIMEOUT:
             HCCL_ERROR("[HostCpuRoceChannel::ProcessStatus] get socket timeout");

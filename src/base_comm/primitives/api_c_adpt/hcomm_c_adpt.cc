@@ -133,6 +133,22 @@ HcommResult CheckRoceAttr(HcommChannelDesc &channelDesc)
 }
 
 namespace {
+void ApplyHcommChannelDescV1Fields(const HcommChannelDesc &channelDesc, HcommChannelDesc &channelDescFinal)
+{
+    if (channelDesc.header.version < HCOMM_CHANNEL_VERSION_ONE) {
+        return;
+    }
+
+    channelDescFinal.remoteEndpoint = channelDesc.remoteEndpoint;
+    channelDescFinal.notifyNum = channelDesc.notifyNum;
+    channelDescFinal.exchangeAllMems = channelDesc.exchangeAllMems;
+    channelDescFinal.memHandles = channelDesc.memHandles;
+    channelDescFinal.memHandleNum = channelDesc.memHandleNum;
+    channelDescFinal.socket = channelDesc.socket;
+    channelDescFinal.role = channelDesc.role;
+    channelDescFinal.port = channelDesc.port;
+}
+
 HcommResult ProcessHcommChannelDescs(const HcommChannelDesc &channelDesc, HcommChannelDesc &channelDescFinal)
 {
     if (channelDesc.header.size < sizeof(CommAbiHeader)) {
@@ -150,18 +166,7 @@ HcommResult ProcessHcommChannelDescs(const HcommChannelDesc &channelDesc, HcommC
         channelDescFinal.header.size : channelDesc.header.size) - sizeof(CommAbiHeader);
     CHK_SAFETY_FUNC_RET(memcpy_s(reinterpret_cast<uint8_t *>(&channelDescFinal) + sizeof(CommAbiHeader), copySize,
         reinterpret_cast<const uint8_t *>(&channelDesc) + sizeof(CommAbiHeader), copySize));
-
-    if (channelDesc.header.version >= HCOMM_CHANNEL_VERSION_ONE) {
-        channelDescFinal.remoteEndpoint = channelDesc.remoteEndpoint;
-        channelDescFinal.notifyNum = channelDesc.notifyNum;
-        channelDescFinal.exchangeAllMems = channelDesc.exchangeAllMems;
-        channelDescFinal.memHandles = channelDesc.memHandles;
-        channelDescFinal.memHandleNum = channelDesc.memHandleNum;
-        channelDescFinal.socket = channelDesc.socket;
-        channelDescFinal.role = channelDesc.role;
-        channelDescFinal.port = channelDesc.port;
-    }
-
+    ApplyHcommChannelDescV1Fields(channelDesc, channelDescFinal);
     if (channelDesc.header.version > HCOMM_CHANNEL_VERSION) {
         HCCL_RUN_WARNING("The version of provided [%u] is higher than the current version[%u], "
             "unsupported configuration will be ignored.",
@@ -172,10 +177,30 @@ HcommResult ProcessHcommChannelDescs(const HcommChannelDesc &channelDesc, HcommC
             channelDesc.header.version, HCOMM_CHANNEL_VERSION);
     }
 
-    // v1：无 union 之后的通信域 qos；或 header.size 未覆盖当前结构体时，不解析传入的 qos 字节
-    if (channelDesc.header.version <= HCOMM_CHANNEL_VERSION_ONE ||
-        channelDesc.header.size < sizeof(HcommChannelDesc)) {
+    // qos：低版本时置默认值
+    if (channelDesc.header.version <= HCOMM_CHANNEL_VERSION_ONE) {
         channelDescFinal.qos = 0xFFFFFFFFU;
+    } else {
+        channelDescFinal.qos = channelDesc.qos;
+    }
+
+    // v3：channelName，低版本时置 NULL
+    if (channelDesc.header.version < HCOMM_CHANNEL_VERSION) {
+        channelDescFinal.channelName = nullptr;
+    } else {
+        channelDescFinal.channelName = channelDesc.channelName;
+        if (channelDescFinal.channelName != nullptr &&
+            reinterpret_cast<uintptr_t>(channelDescFinal.channelName) == static_cast<uintptr_t>(-1)) {
+            channelDescFinal.channelName = nullptr;
+        }
+    }
+
+    if (channelDescFinal.channelName != nullptr) {
+        size_t nameLen = strnlen(channelDescFinal.channelName, HCOMM_CHANNEL_NAME_MAX_LEN + 1);
+        if (nameLen > HCOMM_CHANNEL_NAME_MAX_LEN) {
+            HCCL_ERROR("[%s] channelName too long, max len[%u].", __func__, HCOMM_CHANNEL_NAME_MAX_LEN);
+            return HCCL_E_PARA;
+        }
     }
 
     return HCOMM_SUCCESS;
