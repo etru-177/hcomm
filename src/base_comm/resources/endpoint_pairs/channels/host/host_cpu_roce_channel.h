@@ -52,7 +52,7 @@ public:
     HcclResult NotifyRecord(const uint32_t remoteNotifyIdx) override;
     HcclResult NotifyWait(const uint32_t localNotifyIdx, const uint32_t timeout) override;
     HcclResult WriteWithNotify(void *dst, const void *src, const uint64_t len, uint32_t remoteNotifyIdx) override;
-    HcclResult Write(void *dst, const void *src, uint64_t len) override;
+    HcclResult Write(void *dst, const void *src, const uint64_t len) override;
     HcclResult Read(void *dst, const void *src, uint64_t len) override;
     HcclResult ChannelFence() override;
     HcclResult GetHcclBuffer(void*& addr, uint64_t& size);
@@ -60,8 +60,8 @@ public:
 private:
     HcclResult WaitForFenceCompletion();
 
-    virtual HcclResult Clean() override;
-    virtual HcclResult Resume() override;
+    HcclResult Clean() override;
+    HcclResult Resume() override;
     HcclResult ExchangeCapability();
     HcclResult ExchangeDataHybird();
     HcclResult GetRemoteAddrHybird(hccl::MemType memType, u8 *&data, u64 &size);

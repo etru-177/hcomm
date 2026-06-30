@@ -832,15 +832,15 @@ HcclResult MyRank::ChannelGetHcclBuffer(ChannelHandle channel, void **buffer, ui
     return HCCL_E_INTERNAL;
 }
 
-HcclResult MyRank::ChannelGetRemoteMems(ChannelHandle channel, uint32_t *memNum, CommMem **remoteMem, char ***memTags)
+HcclResult MyRank::ChannelGetRemoteMems(ChannelHandle channel, uint32_t *memNum, CommMem **remoteMems, char ***memTags)
 {
-    CHK_PTR_NULL(remoteMem);
+    CHK_PTR_NULL(remoteMems);
     CHK_PTR_NULL(memTags);
     CHK_PTR_NULL(memNum);
-    CHK_RET(static_cast<HcclResult>(HcommChannelGetRemoteMems(channel, memNum, remoteMem, memTags)));
+    CHK_RET(static_cast<HcclResult>(HcommChannelGetRemoteMems(channel, memNum, remoteMems, memTags)));
     // 添加空指针检查，防止返回的指针为空
     if (*memNum > 0) {
-        CHK_PTR_NULL(*remoteMem);
+        CHK_PTR_NULL(*remoteMems);
         CHK_PTR_NULL(*memTags);
     }
     HCCL_INFO("[%s] success. memNum[%u]", __func__, *memNum);

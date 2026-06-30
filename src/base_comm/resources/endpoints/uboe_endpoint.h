@@ -24,7 +24,7 @@ namespace hcomm {
 class UboeEndpoint : public Endpoint {
 public:
     explicit UboeEndpoint(const EndpointDesc &endpointDesc);
-    ~UboeEndpoint() = default;
+    ~UboeEndpoint() override = default;
 
     HcclResult Init() override;
 

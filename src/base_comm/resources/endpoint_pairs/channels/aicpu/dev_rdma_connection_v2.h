@@ -44,7 +44,7 @@ public:
 
     HcclResult Init();
     HcclResult CreateQp();
-    HcclResult GetExchangeDto(std::unique_ptr<Hccl::Serializable> &serial);
+    HcclResult GetExchangeDto(std::unique_ptr<Hccl::Serializable> &locQpAttrserial);
     HcclResult ParseRmtExchangeDto(const Hccl::Serializable &rmtQpAttrSerial);
     HcclResult ModifyQp();
 

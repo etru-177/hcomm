@@ -202,7 +202,7 @@ public:
     CcuResult LoopGroupAddLoop(CcuLoopGroup group,
         CcuLoop loop, const CcuLoopConfig *config);
     CcuResult LoopGroupAddLoopFromVar(CcuLoopGroup group,
-        CcuLoop loop, CcuVariableHandle loopParamVar);
+        CcuLoop loop, CcuVariableHandle loopParamVarHandle);
 
     CcuResult FuncBlockLookup(const void *funcPtr, uint64_t *outHandle);
     CcuResult FuncBlockBegin(const void *funcPtr, uint64_t *outHandle);

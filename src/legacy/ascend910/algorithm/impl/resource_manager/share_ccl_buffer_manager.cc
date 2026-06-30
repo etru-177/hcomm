@@ -27,7 +27,7 @@ ShareCCLbufferMgr& ShareCCLbufferMgr::GetInstance()
 
 HcclResult ShareCCLbufferMgr::CreateDevMem(u64 size, DeviceMem &buffer)
 {
-    CHK_PRT_RET(!size, HCCL_INFO("[ShareCCLbufferMgr][CreateDevMem]buffer size is zero. not need to malloc memory"),
+    CHK_PRT_RET(size == 0, HCCL_INFO("[ShareCCLbufferMgr][CreateDevMem]buffer size is zero. not need to malloc memory"),
         HCCL_SUCCESS);
 
     CHK_PRT_RET((size > ULONG_MAX),
