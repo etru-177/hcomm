@@ -10,6 +10,8 @@
 #include "profiling_reporter.h"
 #include "dlprof_function.h"
 #include "communicator_impl.h"
+#include "comm_engine_utils.h"
+
 namespace Hccl {
 std::array<ProfilingReporter::lastPosesMap, MAX_MODULE_DEVICE_NUM> ProfilingReporter::allLastPoses_{};
 ProfilingReporter::ProfilingReporter(MirrorTaskManager *mirrorTaskMgr, ProfilingHandler* profilingHandler) 
@@ -46,7 +48,7 @@ void ProfilingReporter::ReportOp(uint64_t beginTime, bool cachedReq, bool opbase
     // 新老流程判断
     if (opInfo->isIndop_ == true) {
         if (opInfo->engine == COMM_ENGINE_AICPU_TS || opInfo->engine == COMM_ENGINE_AICPU) {
-            HCCL_INFO("[ProfilingReporter][ReportOp] ReportOp Aicpu,opInfo->engine:[%d]", opInfo->engine);
+            HCCL_INFO("[ProfilingReporter][ReportOp] ReportOp Aicpu,opInfo->engine:[%s]", GetEnumToString(GetCommEngineStatusStrMap(), opInfo->engine).c_str());
             isAiCpu = true;
         }
     } else {

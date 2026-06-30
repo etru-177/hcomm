@@ -18,6 +18,7 @@
 #include "executor_tracer.h"
 #include "profiling_manager_device.h"
 #include "utils/aicpu_hdc_utils.h"
+#include "comm_engine_utils.h"
 #include "utils/hccl_aicpu_utils.h"
 #include "framework/aicpu_hdc.h"
 #include "common/aicpu_sqe_context.h"
@@ -5423,7 +5424,7 @@ HcclResult HcclCommAicpu::AllocChannelResource(HcclIndOpChannelRemoteResV3 *comm
     CHK_PTR_NULL(commParam);
     if (commParam->engine != COMM_ENGINE_AICPU &&
         commParam->engine != COMM_ENGINE_AICPU_TS) {
-        HCCL_ERROR("[HcclCommAicpu][%s] engine type[%d] is not supported", __func__, commParam->engine);
+        HCCL_ERROR("[HcclCommAicpu][%s] engine type[%s] is not supported", __func__, GetEnumToString(GetCommEngineStatusStrMap(), commParam->engine).c_str());
         return HCCL_E_PARA;
     }
 
