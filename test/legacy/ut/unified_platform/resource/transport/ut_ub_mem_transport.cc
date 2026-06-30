@@ -131,7 +131,12 @@ public:
 
     RmaConnStatus GetStatus() override
     {
-        return RmaConnStatus::READY;
+        return status;
+    }
+
+    void SetStatus(RmaConnStatus s)
+    {
+        status = s;
     }
 
 private:
@@ -247,6 +252,18 @@ TEST_F(UbMemTransportTest, UbMemTransport_describe)
     transport.Describe();
 }
 
+static HcclResult RecvDataProcessNeedFinishStub(UbMemTransport *, bool &needSendFinish)
+{
+    needSendFinish = true;
+    return HCCL_SUCCESS;
+}
+
+static HcclResult RecvDataProcessNoFinishStub(UbMemTransport *, bool &needSendFinish)
+{
+    needSendFinish = false;
+    return HCCL_SUCCESS;
+}
+
 TEST_F(UbMemTransportTest, UbMemTransport_get_status)
 {
     BaseMemTransport::CommonLocRes    locRes;
@@ -259,24 +276,18 @@ TEST_F(UbMemTransportTest, UbMemTransport_get_status)
 
     UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
 
-    MOCKER_CPP(&UbMemTransport::SendDataSize).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs();
-    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs();
-    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(returnValue(true));
-    MOCKER_CPP(&UbMemTransport::SendFinish).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(ignoreReturnValue());
-
-    SocketStatus socketStatusInit = SocketStatus::INIT;
-    SocketStatus socketStatusOK   = SocketStatus::OK;
+    MOCKER_CPP(&UbMemTransport::SendDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(invoke(RecvDataProcessNeedFinishStub));
+    MOCKER_CPP(&UbMemTransport::SendFinish).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(returnValue(HCCL_SUCCESS));
 
     StubSocket stubSocket;
     transport.socket = &stubSocket;
 
-    // 需要发送 finish
-    TransportStatus transStatus = transport.GetStatus();
-    EXPECT_EQ(transStatus, TransportStatus::SOCKET_OK);
-    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_SIZE);
+    MOCKER_CPP(&Socket::GetAsyncStatus).stubs().will(returnValue(SocketStatus(SocketStatus::OK)));
 
     int fakeFdStatus = SOCKET_CONNECTED;
     FdHandle fakeFdHandle = (void *)100;
@@ -285,6 +296,10 @@ TEST_F(UbMemTransportTest, UbMemTransport_get_status)
     MOCKER(RaGetOneSocket).stubs()
         .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeParam));
+
+    TransportStatus transStatus = transport.GetStatus();
+    EXPECT_EQ(transStatus, TransportStatus::SOCKET_OK);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_SIZE);
 
     transStatus = transport.GetStatus();
     EXPECT_EQ(transStatus, TransportStatus::SOCKET_OK);
@@ -318,25 +333,24 @@ TEST_F(UbMemTransportTest, UbMemTransport_get_status)
     EXPECT_EQ(transStatus, TransportStatus::READY);
     EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::READY);
 
-    // 复位并重新打桩
     transport.baseStatus = TransportStatus::INIT;
     transport.ubStatus = UbMemTransport::UbStatus::INIT;
     transport.socket = &fakeSocket;
     GlobalMockObject::verify();
 
-    MOCKER_CPP(&UbMemTransport::SendDataSize).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs();
-    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs();
-    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(returnValue(false));
-    MOCKER_CPP(&UbMemTransport::SendFinish).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(ignoreReturnValue());
+    MOCKER_CPP(&UbMemTransport::SendDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(invoke(RecvDataProcessNoFinishStub));
+    MOCKER_CPP(&UbMemTransport::SendFinish).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(returnValue(HCCL_SUCCESS));
     
+    MOCKER_CPP(&Socket::GetAsyncStatus).stubs().will(returnValue(SocketStatus(SocketStatus::OK)));
     MOCKER(RaGetOneSocket).stubs()
         .with(mockcpp::any(), mockcpp::any())
         .will(returnValue(fakeParam));
 
-    // 不需要发送finish
     transStatus = transport.GetStatus();
     EXPECT_EQ(transStatus, TransportStatus::SOCKET_OK);
     EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_SIZE);
@@ -683,7 +697,8 @@ TEST_F(UbMemTransportTest, UbMemTransport_ConnVecUnpackProc)
 
     ExchangeUbConnDto dto;
     dto.Serialize(binaryStream);
-    EXPECT_NO_THROW(transport.ConnVecUnpackProc(binaryStream));
+    bool temp = false;
+    EXPECT_NO_THROW(transport.ConnVecUnpackProc(binaryStream, temp));
 }
 
 TEST_F(UbMemTransportTest, ut_UbMemTransport_GetRemoteMems_When_Normal_Expect_ReturnIsHCCL_SUCCESS)
@@ -785,8 +800,8 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_Normal_Expect_Re
     SocketStatus fakeSocketStatus = SocketStatus::OK;
     MOCKER_CPP(&Socket::GetAsyncStatus).stubs().will(returnValue(fakeSocketStatus));
     MOCKER_CPP(&Socket::SendAsync).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs();
-    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs();
+    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
 
     HcclResult ret = transport.UpdateMemInfo(bufferVecTemp);
     EXPECT_EQ(ret, HCCL_SUCCESS);
@@ -845,4 +860,468 @@ TEST_F(UbMemTransportTest, ut_UbMemTransport_UpdateMemInfo_When_bufferNumIs0_Exp
 
     HcclResult ret = transport.UpdateMemInfo(bufferVecTemp);
     EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(UbMemTransportTest, HandleInitStatus_SetToSendSizeAndSocketOk)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::INIT;
+
+    HcclResult ret = transport.HandleInitStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_SIZE);
+    EXPECT_EQ(transport.baseStatus, TransportStatus::SOCKET_OK);
+}
+
+TEST_F(UbMemTransportTest, HandleSendSizeStatus_WhenResReady_SetToRecvSize)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    StubUbRmaConnection stubRmaConnection(link);
+    locRes.connVec.push_back(&stubRmaConnection);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_SIZE;
+
+    MOCKER_CPP(&UbMemTransport::SendDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleSendSizeStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::RECV_SIZE);
+}
+
+ TEST_F(UbMemTransportTest, HandleSendSizeStatus_WhenResNotReady_StaySendSize)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    StubUbRmaConnection stubRmaConnection(link);
+    RmaConnection *conn = &stubRmaConnection;
+    conn->status = RmaConnStatus::INIT;
+    locRes.connVec.push_back(conn);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_SIZE;
+
+    HcclResult ret = transport.HandleSendSizeStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_SIZE);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvSizeStatus_WhenNotRecvFirst_SetToSendData)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, false);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_SIZE;
+
+    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleRecvSizeStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_DATA);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvSizeStatus_WhenRecvFirst_SetToRecvData)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, true);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_SIZE;
+
+    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleRecvSizeStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::RECV_DATA);
+}
+
+TEST_F(UbMemTransportTest, HandleSendDataStatus_WhenNotRecvFirst_SetToRecvData)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, false);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_DATA;
+
+    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleSendDataStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::RECV_DATA);
+}
+
+TEST_F(UbMemTransportTest, HandleSendDataStatus_WhenRecvFirst_SetToProcessData)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, true);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_DATA;
+
+    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleSendDataStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::PROCESS_DATA);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvDataStatus_WhenNotRecvFirst_SetToProcessData)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, false);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_DATA;
+
+    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleRecvDataStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::PROCESS_DATA);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvDataStatus_WhenRecvFirst_SetToSendData)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, true);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_DATA;
+
+    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleRecvDataStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_DATA);
+}
+
+TEST_F(UbMemTransportTest, HandleProcessDataStatus_WhenNeedSendFinish_SetToSendFin)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::PROCESS_DATA;
+
+    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(invoke(RecvDataProcessNeedFinishStub));
+
+    HcclResult ret = transport.HandleProcessDataStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_FIN);
+}
+
+TEST_F(UbMemTransportTest, HandleProcessDataStatus_WhenNoSendFinish_SetToReady)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::PROCESS_DATA;
+
+    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(invoke(RecvDataProcessNoFinishStub));
+
+    HcclResult ret = transport.HandleProcessDataStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::READY);
+    EXPECT_EQ(transport.baseStatus, TransportStatus::READY);
+}
+
+TEST_F(UbMemTransportTest, HandleSendFinStatus_WhenConnsReady_SetToRecvFin)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    StubUbRmaConnection stubRmaConnection(link);
+    locRes.connVec.push_back(&stubRmaConnection);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_FIN;
+
+    MOCKER_CPP(&UbMemTransport::SendFinish).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleSendFinStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::RECV_FIN);
+}
+
+TEST_F(UbMemTransportTest, HandleSendFinStatus_WhenConnsNotReady_StaySendFin)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_FIN;
+
+    StubUbRmaConnection stubRmaConnection(link);
+    stubRmaConnection.SetStatus(RmaConnStatus::INIT);
+    RmaConnection *conn = &stubRmaConnection;
+    transport.commonLocRes.connVec.push_back(conn);
+    transport.connNum = 1;
+
+    HcclResult ret = transport.HandleSendFinStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SEND_FIN);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvFinStatus_SetToSetReady)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_FIN;
+
+    MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = transport.HandleRecvFinStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::SET_READY);
+}
+
+TEST_F(UbMemTransportTest, HandleSetReadyStatus_SetToReady)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SET_READY;
+
+    HcclResult ret = transport.HandleSetReadyStatus();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(transport.ubStatus, UbMemTransport::UbStatus::READY);
+    EXPECT_EQ(transport.baseStatus, TransportStatus::READY);
+}
+
+TEST_F(UbMemTransportTest, StatusMachine_WhenAlreadyReady_ReturnSuccess)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.baseStatus = TransportStatus::READY;
+
+    HcclResult ret = transport.StatusMachine();
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(UbMemTransportTest, StatusMachine_WhenSocketNotReady_ReturnInternalError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.baseStatus = TransportStatus::INIT;
+    transport.socket = nullptr;
+
+    HcclResult ret = transport.StatusMachine();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvSizeStatus_WhenRecvDataSizeFail_ReturnError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_SIZE;
+
+    MOCKER_CPP(&UbMemTransport::RecvDataSize).stubs().will(returnValue(HCCL_E_INTERNAL));
+
+    HcclResult ret = transport.HandleRecvSizeStatus();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(UbMemTransportTest, HandleSendDataStatus_WhenSendExchangeDataFail_ReturnError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_DATA;
+
+    MOCKER_CPP(&UbMemTransport::SendExchangeData).stubs().will(returnValue(HCCL_E_INTERNAL));
+
+    HcclResult ret = transport.HandleSendDataStatus();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvDataStatus_WhenRecvExchangeDataFail_ReturnError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_DATA;
+
+    MOCKER_CPP(&UbMemTransport::RecvExchangeData).stubs().will(returnValue(HCCL_E_INTERNAL));
+
+    HcclResult ret = transport.HandleRecvDataStatus();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(UbMemTransportTest, HandleProcessDataStatus_WhenRecvDataProcessFail_ReturnError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::PROCESS_DATA;
+
+    MOCKER_CPP(&UbMemTransport::RecvDataProcess).stubs().will(returnValue(HCCL_E_INTERNAL));
+
+    HcclResult ret = transport.HandleProcessDataStatus();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(UbMemTransportTest, HandleSendFinStatus_WhenSendFinishFail_ReturnError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    StubUbRmaConnection stubRmaConnection(link);
+    locRes.connVec.push_back(&stubRmaConnection);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::SEND_FIN;
+
+    MOCKER_CPP(&UbMemTransport::SendFinish).stubs().will(returnValue(HCCL_E_INTERNAL));
+
+    HcclResult ret = transport.HandleSendFinStatus();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
+}
+
+TEST_F(UbMemTransportTest, HandleRecvFinStatus_WhenRecvFinishFail_ReturnError)
+{
+    BaseMemTransport::CommonLocRes    locRes;
+    BaseMemTransport::Attribution     attr;
+    BaseMemTransport::LocCntNotifyRes locCntRes;
+    LinkData                          link(BasePortType(PortDeploymentType::P2P), 0, 1, 0, 1);
+    void                             *rdmaHandle = (void *)0x100;
+    IpAddress                         ipAddress("1.0.0.0");
+    Socket                            fakeSocket(nullptr, ipAddress, 100, ipAddress, "tag", SocketRole::SERVER, NicType::DEVICE_NIC_TYPE);
+
+    UbMemTransport transport(locRes, attr, link, fakeSocket, rdmaHandle, locCntRes, isRecvFirst);
+    transport.ubStatus = UbMemTransport::UbStatus::RECV_FIN;
+
+    MOCKER_CPP(&UbMemTransport::RecvFinish).stubs().will(returnValue(HCCL_E_INTERNAL));
+
+    HcclResult ret = transport.HandleRecvFinStatus();
+    EXPECT_EQ(ret, HCCL_E_INTERNAL);
 }

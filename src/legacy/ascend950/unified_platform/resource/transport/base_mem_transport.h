@@ -246,16 +246,16 @@ protected:
 
     void HandshakeMsgPack(BinaryStream &binaryStream);
 
-    void HandshakeMsgUnpack(BinaryStream &binaryStream);
+    HcclResult HandshakeMsgUnpack(BinaryStream &binaryStream);
 
 private:
-    void CheckLocNotify(CommonLocRes &res);
+    HcclResult CheckLocNotify(CommonLocRes &res);
 
     void CheckLocBuffer(CommonLocRes &res);
 
-    void CheckLocConn(CommonLocRes &res);
+    HcclResult CheckLocConn(CommonLocRes &res);
 
-    void CheckCommonLocRes(CommonLocRes &res);
+    HcclResult CheckCommonLocRes(CommonLocRes &res);
 };
 
 } // namespace Hccl

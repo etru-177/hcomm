@@ -72,6 +72,7 @@ target_include_directories(hccl_v2_utest PRIVATE
 
         ${HCOMM_DIR}/src/legacy/ascend910/pub_inc/new
         ${HCOMM_DIR}/src/legacy/ascend910/common/error_manager
+        ${HCOMM_DIR}/src/legacy/ascend910/framework/common/src/exception
     )
 
 target_link_libraries(hccl_v2_utest PRIVATE

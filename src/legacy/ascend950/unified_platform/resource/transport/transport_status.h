@@ -26,6 +26,7 @@ public:
         INIT,
         SOCKET_OK,
         SOCKET_TIMEOUT,
+        CONNECT_FAILED,
         READY,
         __COUNT__, // 宏自动生成的计数器
         INVALID    // 宏自动生成的无效值
@@ -80,6 +81,7 @@ public:
             "TransportStatus::INIT",
             "TransportStatus::SOCKET_OK",
             "TransportStatus::SOCKET_TIMEOUT",
+            "TransportStatus::CONNECT_FAILED",
             "TransportStatus::READY"
         };
  

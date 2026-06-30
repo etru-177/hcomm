@@ -29,6 +29,7 @@ public:
     std::string Describe() const override;
     HcclResult Describe(std::string &dfxMsg);
 
+    HcclResult StatusMachine();
     TransportStatus GetStatus() override;
 
     std::vector<char> GetUniqueId() override;
@@ -116,22 +117,22 @@ private:
     std::vector<std::string>     memInfoCopies_;          // 储存 Tag 字符串副本
     std::vector<char*>           memInfoPointers_;        // Tag 缓存
 
-    void SendDataSize();
-    void RecvDataSize();
-    void SendExchangeData();
-    void RecvExchangeData();
+    HcclResult SendDataSize();
+    HcclResult RecvDataSize();
+    HcclResult SendExchangeData();
+    HcclResult RecvExchangeData();
 
-    void SendFinish();
-    void RecvFinish();
+    HcclResult SendFinish();
+    HcclResult RecvFinish();
 
     void BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec);
     void CntNotifyVecPack(BinaryStream &binaryStream);
 
     void CntNotifyDescPack(BinaryStream &binaryStream);
-    void CntNotifyDescUnpack(BinaryStream &binaryStream);
+    HcclResult CntNotifyDescUnpack(BinaryStream &binaryStream);
 
-    void RmtBufferVecUnpackProc(u32 locNum, BinaryStream &binaryStream, RemoteBufferVec &bufferVec, UbRmtBufType type);
-    bool ConnVecUnpackProc(BinaryStream &binaryStream);
+    HcclResult RmtBufferVecUnpackProc(u32 locNum, BinaryStream &binaryStream, RemoteBufferVec &bufferVec, UbRmtBufType type);
+    HcclResult ConnVecUnpackProc(BinaryStream &binaryStream, bool &needSendFinish);
 
     void FillRmtRmaBufferVec(RemoteRmaBuffer *rmaBuffer, UbRmtBufType type);
 
@@ -153,7 +154,17 @@ private:
 
     bool IsResReady();
     bool IsConnsReady();
-    bool RecvDataProcess();
+    HcclResult RecvDataProcess(bool &needSendFinish);
+
+    HcclResult HandleInitStatus();
+    HcclResult HandleSendSizeStatus();
+    HcclResult HandleRecvSizeStatus();
+    HcclResult HandleSendDataStatus();
+    HcclResult HandleRecvDataStatus();
+    HcclResult HandleProcessDataStatus();
+    HcclResult HandleSendFinStatus();
+    HcclResult HandleRecvFinStatus();
+    HcclResult HandleSetReadyStatus();
     vector<char> recvData{};
     vector<char> recvFinishMsg{};
     vector<char> sendData{};

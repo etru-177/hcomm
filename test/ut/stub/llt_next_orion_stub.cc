@@ -1064,24 +1064,71 @@ bool UbMemTransport::IsConnsReady()
     return true;
 }
 
+HcclResult UbMemTransport::HandleInitStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSendSizeStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleRecvSizeStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSendDataStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleRecvDataStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleProcessDataStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSendFinStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleRecvFinStatus()
+{
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSetReadyStatus()
+{
+    return HCCL_SUCCESS;
+}
+
 TransportStatus UbMemTransport::GetStatus()
 {
     return TransportStatus::READY;
 }
 
-void UbMemTransport::SendExchangeData()
+HcclResult UbMemTransport::SendExchangeData()
 {
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RecvExchangeData()
+HcclResult UbMemTransport::RecvExchangeData()
 {
+    return HCCL_SUCCESS;
 }
 
-bool UbMemTransport::RecvDataProcess()
+HcclResult UbMemTransport::RecvDataProcess(bool &needSendFinish)
 {
     BinaryStream binaryStream(recvData);
-
-    return ConnVecUnpackProc(binaryStream);
+    bool temp = false;
+    return ConnVecUnpackProc(binaryStream, temp);
 }
 
 void UbMemTransport::BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec)
@@ -1095,32 +1142,35 @@ void UbMemTransport::CntNotifyVecPack(BinaryStream &binaryStream)
 void UbMemTransport::CntNotifyDescPack(BinaryStream &binaryStream)
 {
 }
-void UbMemTransport::CntNotifyDescUnpack(BinaryStream &binaryStream)
+HcclResult UbMemTransport::CntNotifyDescUnpack(BinaryStream &binaryStream)
 {
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RmtBufferVecUnpackProc(
+HcclResult UbMemTransport::RmtBufferVecUnpackProc(
     u32 locNum, BinaryStream &binaryStream, RemoteBufferVec &bufferVec, UbRmtBufType type)
 {
+    return HCCL_SUCCESS;
 }
 
-bool UbMemTransport::ConnVecUnpackProc(BinaryStream &binaryStream)
+HcclResult UbMemTransport::ConnVecUnpackProc(BinaryStream &binaryStream, bool &needSendFinish)
 {
-    bool result = true; // 不需要发送 finish
-
-    return result;
+    needSendFinish = false;
+    return HCCL_SUCCESS;
 }
 
 void UbMemTransport::FillRmtRmaBufferVec(RemoteRmaBuffer *rmaBuffer, UbRmtBufType type)
 {
 }
 
-void UbMemTransport::SendFinish()
+HcclResult UbMemTransport::SendFinish()
 {
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RecvFinish()
+HcclResult UbMemTransport::RecvFinish()
 {
+    return HCCL_SUCCESS;
 }
 
 std::vector<char> UbMemTransport::GetUniqueId()
@@ -1299,8 +1349,9 @@ void BaseMemTransport::HandshakeMsgPack(BinaryStream &binaryStream)
 {
 }
 
-void BaseMemTransport::HandshakeMsgUnpack(BinaryStream &binaryStream)
+HcclResult BaseMemTransport::HandshakeMsgUnpack(BinaryStream &binaryStream)
 {
+    return HCCL_SUCCESS;
 }
 
 string BaseMemTransport::GetLinkDescInfo()
@@ -1313,20 +1364,23 @@ string BaseMemTransport::DescribeSocket() const
     return "hello";
 }
 
-void BaseMemTransport::CheckLocNotify(CommonLocRes &res)
+HcclResult BaseMemTransport::CheckLocNotify(CommonLocRes &res)
 {
+    return HCCL_SUCCESS;
 }
 
 void BaseMemTransport::CheckLocBuffer(CommonLocRes &res)
 {
 }
 
-void BaseMemTransport::CheckLocConn(CommonLocRes &res)
+HcclResult BaseMemTransport::CheckLocConn(CommonLocRes &res)
 {
+    return HCCL_SUCCESS;
 }
 
-void BaseMemTransport::CheckCommonLocRes(CommonLocRes &res)
+HcclResult BaseMemTransport::CheckCommonLocRes(CommonLocRes &res)
 {
+    return HCCL_SUCCESS;
 }
 HcclResult HrtRaCreateQpWithCq(
     RdmaHandle rdmaHandle, s32 sqEvent, s32 rqEvent, void *sendChannel, void *recvChannel, QpInfo &info, bool isHdcMode)

@@ -412,70 +412,147 @@ bool UbMemTransport::IsConnsReady()
     return true;
 }
 
+HcclResult UbMemTransport::StatusMachine()
+{
+    TRY_CATCH_RETURN(
+        if (socket == nullptr) {
+            HCCL_ERROR("[UbMemTransport][StatusMachine]socket is nullptr, please check");
+            return HcclResult::HCCL_E_INTERNAL;
+        }
+        SocketStatus socketStatus = isHost_ ? socket->GetStatus() : socket->GetAsyncStatus();
+        if (socketStatus == Hccl::SocketStatus::INIT || socketStatus == Hccl::SocketStatus::TIMEOUT) {
+            HCCL_ERROR("[UbMemTransport][StatusMachine]socket timeout or no link, please check");
+            return HcclResult::HCCL_E_INTERNAL;
+        }
+        
+        if (socketStatus != Hccl::SocketStatus::OK) {
+            return HcclResult::HCCL_SUCCESS; // 操作成功，保持当前状态
+        }
+        switch (ubStatus) {
+            case UbStatus::INIT:
+                CHK_RET(HandleInitStatus());
+                break;
+            case UbStatus::SEND_SIZE:
+                CHK_RET(HandleSendSizeStatus());
+                break;
+            case UbStatus::RECV_SIZE:
+                CHK_RET(HandleRecvSizeStatus());
+                break;
+            case UbStatus::SEND_DATA:
+                CHK_RET(HandleSendDataStatus());
+                break;
+            case UbStatus::RECV_DATA:
+                CHK_RET(HandleRecvDataStatus());
+                break;
+            case UbStatus::PROCESS_DATA:
+                CHK_RET(HandleProcessDataStatus());
+                break;
+            case UbStatus::SEND_FIN:
+                CHK_RET(HandleSendFinStatus());
+                break;
+            case UbStatus::RECV_FIN:
+                CHK_RET(HandleRecvFinStatus());
+                break;
+            case UbStatus::SET_READY:
+                CHK_RET(HandleSetReadyStatus());
+                break;
+            default:
+                break;
+        }
+    );
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleInitStatus()
+{
+    ubStatus = UbStatus::SEND_SIZE;
+    baseStatus = TransportStatus::SOCKET_OK;
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSendSizeStatus()
+{
+    if (IsResReady()) {
+        CHK_RET(SendDataSize());
+        ubStatus = UbStatus::RECV_SIZE;
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleRecvSizeStatus()
+{
+    CHK_RET(RecvDataSize());
+    ubStatus = isRecvFirst_ ? UbStatus::RECV_DATA : UbStatus::SEND_DATA;
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSendDataStatus()
+{
+    CHK_RET(SendExchangeData());
+    ubStatus = isRecvFirst_ ? UbStatus::PROCESS_DATA : UbStatus::RECV_DATA;
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleRecvDataStatus()
+{
+    CHK_RET(RecvExchangeData());
+    ubStatus = isRecvFirst_ ? UbStatus::SEND_DATA : UbStatus::PROCESS_DATA;
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleProcessDataStatus()
+{
+    bool needSendFinish = false;
+    CHK_RET(RecvDataProcess(needSendFinish));
+    if (needSendFinish) {
+        ubStatus = UbStatus::SEND_FIN;
+    } else {
+        SetBaseStatusReady();
+        ubStatus = UbStatus::READY;
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSendFinStatus()
+{
+    if (IsConnsReady()) {
+        CHK_RET(SendFinish());
+        ubStatus = UbStatus::RECV_FIN;
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleRecvFinStatus()
+{
+    CHK_RET(RecvFinish());
+    ubStatus = UbStatus::SET_READY;
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbMemTransport::HandleSetReadyStatus()
+{
+    SetBaseStatusReady();
+    ubStatus = UbStatus::READY;
+    return HCCL_SUCCESS;
+}
+
 TransportStatus UbMemTransport::GetStatus()
 {
-    if (baseStatus == TransportStatus::READY) {
-        return baseStatus;
-    } else if (baseStatus == TransportStatus::INIT) {
-        ubStatus = UbStatus::INIT;
-    }
-
-    if (!IsSocketReady()) {
+    if (baseStatus == TransportStatus::READY
+        || baseStatus == TransportStatus::CONNECT_FAILED
+        || baseStatus == TransportStatus::SOCKET_TIMEOUT) {
         return baseStatus;
     }
 
-    switch (ubStatus) {
-        case UbStatus::INIT:
-            ubStatus = UbStatus::SEND_SIZE;
-            baseStatus = TransportStatus::SOCKET_OK;
-            break;
-        case UbStatus::SEND_SIZE:
-            if (IsResReady()) {
-                SendDataSize();
-                ubStatus = UbStatus::RECV_SIZE;
-            }
-            break;
-        case UbStatus::RECV_SIZE:
-            RecvDataSize();
-            ubStatus = isRecvFirst_ ? UbStatus::RECV_DATA : UbStatus::SEND_DATA;
-            break;
-        case UbStatus::SEND_DATA:
-            SendExchangeData();
-            ubStatus = isRecvFirst_ ? UbStatus::PROCESS_DATA : UbStatus::RECV_DATA;
-            break;
-        case UbStatus::RECV_DATA:
-            RecvExchangeData();
-            ubStatus = isRecvFirst_ ? UbStatus::SEND_DATA : UbStatus::PROCESS_DATA;
-            break;
-        case UbStatus::PROCESS_DATA:
-            if (RecvDataProcess()) { // 收消息中，如果设置到connection的建链，则需要发送 finish
-                ubStatus = UbStatus::SEND_FIN;
-            } else { // 不需要发送finish，则将transport状态调整为 ready
-                SetBaseStatusReady();
-                ubStatus = UbStatus::READY;
-            }
-            break;
-        case UbStatus::SEND_FIN:
-            if (IsConnsReady()) {
-                SendFinish();
-                ubStatus = UbStatus::RECV_FIN;
-            }
-            break;
-        case UbStatus::RECV_FIN:
-            RecvFinish();
-            ubStatus = UbStatus::SET_READY;
-            break;
-        case UbStatus::SET_READY:
-            SetBaseStatusReady();
-            ubStatus = UbStatus::READY;
-            break;
-        default:
-            break;
+    HcclResult ret = StatusMachine();
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::GetStatus] StatusMachine failed, ret=%d", ret);
+        baseStatus = TransportStatus::CONNECT_FAILED;
     }
     return baseStatus;
 }
 
-void UbMemTransport::SendDataSize()
+HcclResult UbMemTransport::SendDataSize()
 {
     notifyNum    = commonLocRes.notifyVec.size(); // 需要交换的notify数量
     bufferNum    = commonLocRes.bufferVec.size(); // 需要交换的buffer数量
@@ -499,60 +576,119 @@ void UbMemTransport::SendDataSize()
     u32 sendSize = sendData.size();
 
     // 发送数据包尺寸
+    bool ret = false;
     if (isHost_) {
-        socket->Send(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+        ret = socket->Send(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
     } else {
         socket->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+        ret = true;
+    }
+    if (!ret) {
+        HCCL_ERROR("[UbMemTransport::SendDataSize] Send size failed");
+        return HCCL_E_INTERNAL;
     }
     HCCL_INFO("[UbMemTransport::%s] Send size[%u] of data success. [%zu] bytes sent.",
         __func__, sendSize, sizeof(sendSize));
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RecvDataSize()
+HcclResult UbMemTransport::RecvDataSize()
 {
     // 接收数据包尺寸
+    bool ret = false;
     if (isHost_) {
-        socket->Recv(reinterpret_cast<u8 *>(&exchangeDataSize), sizeof(exchangeDataSize));
+        ret = socket->Recv(reinterpret_cast<u8 *>(&exchangeDataSize), sizeof(exchangeDataSize));
     } else {
         socket->RecvAsync(reinterpret_cast<u8 *>(&exchangeDataSize), sizeof(exchangeDataSize));
+        ret = true;
+    }
+    if (!ret) {
+        HCCL_ERROR("[UbMemTransport::RecvDataSize] Recv size failed");
+        return HCCL_E_INTERNAL;
     }
     HCCL_INFO("[UbMemTransport::%s] Receive size[%u] of data success. [%zu] bytes received.",
         __func__, exchangeDataSize, sizeof(exchangeDataSize));
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::SendExchangeData()
+HcclResult UbMemTransport::SendExchangeData()
 {
+    bool ret = false;
     if (isHost_) {
-        socket->Send(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
+        ret = socket->Send(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
     } else {
         socket->SendAsync(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
+        ret = true;
+    }
+    if (!ret) {
+        HCCL_ERROR("[UbMemTransport::SendExchangeData] Send data failed");
+        return HCCL_E_INTERNAL;
     }
     HCCL_INFO("send data %s, size=%llu", GetLinkDescInfo().c_str(), sendData.size());
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RecvExchangeData()
+HcclResult UbMemTransport::RecvExchangeData()
 {
     recvData.resize(exchangeDataSize);
+    bool ret = false;
     if (isHost_) {
-        socket->Recv(reinterpret_cast<u8 *>(recvData.data()), recvData.size());
+        ret = socket->Recv(reinterpret_cast<u8 *>(recvData.data()), recvData.size());
     } else {
         socket->RecvAsync(reinterpret_cast<u8 *>(recvData.data()), recvData.size());
+        ret = true;
+    }
+    if (!ret) {
+        HCCL_ERROR("[UbMemTransport::RecvExchangeData] Recv data failed");
+        return HCCL_E_INTERNAL;
     }
 
     HCCL_INFO("recv data %s, size=%llu", GetLinkDescInfo().c_str(), recvData.size());
+    return HCCL_SUCCESS;
 }
 
-bool UbMemTransport::RecvDataProcess()
+HcclResult UbMemTransport::RecvDataProcess(bool &needSendFinish)
 {
     HCCL_INFO("RecvDataProcess: link=%s, size=%llu, exchangeDataSize=%u", GetLinkDescInfo().c_str(), recvData.size(),
                exchangeDataSize);
     BinaryStream binaryStream(recvData);
-    HandshakeMsgUnpack(binaryStream);
-    RmtBufferVecUnpackProc(notifyNum, binaryStream, rmtNotifyVec, UbRmtBufType::NOTIFY);
-    RmtBufferVecUnpackProc(bufferNum, binaryStream, rmtBufferVec, UbRmtBufType::BUFFER);
-    RmtBufferVecUnpackProc(cntNotifyNum, binaryStream, rmtCntNotifyVec, UbRmtBufType::CNT_NOTIFY);
-    CntNotifyDescUnpack(binaryStream);
-    return ConnVecUnpackProc(binaryStream);
+    HcclResult ret = HandshakeMsgUnpack(binaryStream);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::RecvDataProcess] HandshakeMsgUnpack failed, ret=%d", ret);
+        return ret;
+    }
+    
+    ret = RmtBufferVecUnpackProc(notifyNum, binaryStream, rmtNotifyVec, UbRmtBufType::NOTIFY);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::RecvDataProcess] RmtBufferVecUnpackProc notify failed, ret=%d", ret);
+        return ret;
+    }
+    
+    ret = RmtBufferVecUnpackProc(bufferNum, binaryStream, rmtBufferVec, UbRmtBufType::BUFFER);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::RecvDataProcess] RmtBufferVecUnpackProc buffer failed, ret=%d", ret);
+        return ret;
+    }
+    
+    ret = RmtBufferVecUnpackProc(cntNotifyNum, binaryStream, rmtCntNotifyVec, UbRmtBufType::CNT_NOTIFY);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::RecvDataProcess] RmtBufferVecUnpackProc cntNotify failed, ret=%d", ret);
+        return ret;
+    }
+    
+    ret = CntNotifyDescUnpack(binaryStream);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::RecvDataProcess] CntNotifyDescUnpack failed, ret=%d", ret);
+        return ret;
+    }
+    
+    ret = ConnVecUnpackProc(binaryStream, needSendFinish);
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[UbMemTransport::RecvDataProcess] ConnVecUnpackProc failed, ret=%d", ret);
+        return ret;
+    }
+    
+    return HCCL_SUCCESS;
 }
 
 void UbMemTransport::BufferVecPack(BinaryStream &binaryStream, std::vector<LocalRmaBuffer *> &bufferVec)
@@ -598,13 +734,13 @@ void UbMemTransport::CntNotifyDescPack(BinaryStream &binaryStream)
         binaryStream << it;
     }
 }
-void UbMemTransport::CntNotifyDescUnpack(BinaryStream &binaryStream)
+HcclResult UbMemTransport::CntNotifyDescUnpack(BinaryStream &binaryStream)
 {
     u32 descSize;
     binaryStream >> descSize;
     if (descSize != cntNotifyDescSize) {
-        MACRO_THROW(InvalidParamsException,
-                    StringFormat("CntNotifyDescUnpack size=%u is not equal to rmtNum=%u", descSize, cntNotifyDescSize));
+        HCCL_ERROR("[UbMemTransport::CntNotifyDescUnpack] size=%u is not equal to rmtNum=%u", descSize, cntNotifyDescSize);
+        return HCCL_E_PARA;
     }
     rmtCntNotifyDesc.clear();
     u32 pos = 0;
@@ -614,17 +750,18 @@ void UbMemTransport::CntNotifyDescUnpack(BinaryStream &binaryStream)
         rmtCntNotifyDesc.push_back(c);
     }
     HCCL_INFO("unpack cntNotify Desc=%s", Bytes2hex(rmtCntNotifyDesc.data(), rmtCntNotifyDesc.size()).c_str());
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RmtBufferVecUnpackProc(u32 locNum, BinaryStream &binaryStream, RemoteBufferVec &bufferVec,
+HcclResult UbMemTransport::RmtBufferVecUnpackProc(u32 locNum, BinaryStream &binaryStream, RemoteBufferVec &bufferVec,
                                             UbRmtBufType type)
 {
     u32 rmtNum;
     binaryStream >> rmtNum;
     if (UNLIKELY(type == UbRmtBufType::BUFFER && rmtNum > MAX_BUFFER_NUM)) {
-        MACRO_THROW(InvalidParamsException,
-            StringFormat("[UbMemTransport][RmtBufferVecUnpackProc] rmtNum[%u] exceeds limit[%u]",
-            rmtNum, MAX_BUFFER_NUM));
+        HCCL_ERROR("[UbMemTransport][RmtBufferVecUnpackProc] rmtNum[%u] exceeds limit[%u]",
+            rmtNum, MAX_BUFFER_NUM);
+        return HCCL_E_PARA;
     }
 
     // 允许本端和远端交换内存数量不一致
@@ -652,19 +789,20 @@ void UbMemTransport::RmtBufferVecUnpackProc(u32 locNum, BinaryStream &binaryStre
             HCCL_INFO("unpack buffer pos=%u, rmtRmaBuffer=%s", pos, bufferVec.back()->Describe().c_str());
         }
     }
+    return HCCL_SUCCESS;
 }
 
-bool UbMemTransport::ConnVecUnpackProc(BinaryStream &binaryStream)
+HcclResult UbMemTransport::ConnVecUnpackProc(BinaryStream &binaryStream, bool &needSendFinish)
 {
     u32 rmtConnNum;
     binaryStream >> rmtConnNum;
     HCCL_INFO("start unpack conn %s connNum=%u, rmtConnNum=%u", GetLinkDescInfo().c_str(), connNum, rmtConnNum);
     if (connNum != rmtConnNum) {
-        MACRO_THROW(InvalidParamsException,
-                    StringFormat("connNum=%u is not equal to rmtConnNum=%u", connNum, rmtConnNum));
+        HCCL_ERROR("[UbMemTransport::ConnVecUnpackProc] connNum=%u is not equal to rmtConnNum=%u", connNum, rmtConnNum);
+        return HCCL_E_PARA;
     }
 
-    bool result = false; // 不需要发送 finish
+    needSendFinish = false; // 不需要发送 finish
     for (u32 i = 0; i < rmtConnNum; i++) {
         u32 pos;
         binaryStream >> pos;
@@ -676,10 +814,10 @@ bool UbMemTransport::ConnVecUnpackProc(BinaryStream &binaryStream)
                        commonLocRes.connVec[i]->Describe().c_str());
             commonLocRes.connVec[i]->ParseRmtExchangeDto(rmtDto);
             commonLocRes.connVec[i]->ImportRmtDto();
-            result = true; // connection 建链，需要发送finish
+            needSendFinish = true; // connection 建链，需要发送finish
         }
     }
-    return result;
+    return HCCL_SUCCESS;
 }
 
 void UbMemTransport::FillRmtRmaBufferVec(RemoteRmaBuffer *rmaBuffer, UbRmtBufType type)
@@ -689,28 +827,42 @@ void UbMemTransport::FillRmtRmaBufferVec(RemoteRmaBuffer *rmaBuffer, UbRmtBufTyp
     }
 }
 
-void UbMemTransport::SendFinish()
+HcclResult UbMemTransport::SendFinish()
 {
     HCCL_INFO("start send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
     sendFinishMsg = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
+    bool ret = false;
     if (isHost_) {
-        socket->Send(reinterpret_cast<u8 *>(sendFinishMsg.data()), FINISH_MSG_SIZE);
+        ret = socket->Send(reinterpret_cast<u8 *>(sendFinishMsg.data()), FINISH_MSG_SIZE);
     } else {
         socket->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg.data()), FINISH_MSG_SIZE);
+        ret = true;
+    }
+    if (!ret) {
+        HCCL_ERROR("[UbMemTransport::SendFinish] Send finish msg failed");
+        return HCCL_E_INTERNAL;
     }
     HCCL_INFO("end send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
+    return HCCL_SUCCESS;
 }
 
-void UbMemTransport::RecvFinish()
+HcclResult UbMemTransport::RecvFinish()
 {
     recvFinishMsg.resize(FINISH_MSG_SIZE);
     HCCL_INFO("start recv Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
+    bool ret = false;
     if (isHost_) {
-        socket->Recv(reinterpret_cast<u8 *>(recvFinishMsg.data()), FINISH_MSG_SIZE);
+        ret = socket->Recv(reinterpret_cast<u8 *>(recvFinishMsg.data()), FINISH_MSG_SIZE);
     } else {
         socket->RecvAsync(reinterpret_cast<u8 *>(recvFinishMsg.data()), FINISH_MSG_SIZE);
+        ret = true;
+    }
+    if (!ret) {
+        HCCL_ERROR("[UbMemTransport::RecvFinish] Recv finish msg failed");
+        return HCCL_E_INTERNAL;
     }
     HCCL_INFO("end recv Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
+    return HCCL_SUCCESS;
 }
 
 std::vector<char> UbMemTransport::GetUniqueId()

@@ -762,7 +762,7 @@ HcclResult MyRank::CreateChannels(CommEngine engine, const std::string &commTag,
                 channelDescs[i].remoteEndpoint.loc.device.devPhyId, MyRankUtils::GetCommEngineEnumStr(engine).c_str());
         } else {
             HCCL_CONFIG_DEBUG(HCCL_RES, "create channel info:channel handle[%s] comm tag[%s] protocol[%s]"
-                " local rank[%u]  remote rank[%u]  engine[%s]",
+                " local rank[%u] remote rank[%u] engine[%s]",
                 std::to_string(reinterpret_cast<uint64_t>(hostChannelHandleList[i])).c_str(), commTag.c_str(),
                 MyRankUtils::GetCommProtocolEnumStr(channelDescs[i].localEndpoint.protocol).c_str(), rankId_,
                 remoteRank, MyRankUtils::GetCommEngineEnumStr(engine).c_str());
