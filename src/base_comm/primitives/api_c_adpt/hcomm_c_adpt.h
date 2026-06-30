@@ -100,6 +100,9 @@ HcommResult HcommChannelKernelLaunch(ChannelHandle *channelHandles, ChannelHandl
 
 HcommResult HcommThreadAllocWithStream(CommEngine engine, rtStream_t stream, uint32_t notifyNum, ThreadHandle *thread);
 
+HcommResult HcommThreadAllocWithConfig(CommEngine engine, uint32_t threadNum,
+    ThreadType type, const ThreadConfig *config, ThreadHandle *threads);
+
 HcommResult HcommEngineCtxCreate(CommEngine engine, uint64_t size, void **ctx);
 
 HcommResult HcommEngineCtxDestroy(CommEngine engine, void *ctx);

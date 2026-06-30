@@ -61,10 +61,11 @@ TEST_F(HcclIndependentOpEngineTest, Ut_HcclThreadAcquire_When_Param_Is_Invalid_E
     EXPECT_EQ(ret, HCCL_E_PARA);
     ret = HcclThreadAcquire(comm, CommEngine::COMM_ENGINE_CPU_TS , 2, 1, threads);
     EXPECT_EQ(ret, HCCL_SUCCESS);
+    MOCKER_CPP(&CommEngineResMgr::HcclThreadAcquire).stubs().will(returnValue(HCCL_E_UNAVAIL));
     ret = HcclThreadAcquire(comm, CommEngine::COMM_ENGINE_CPU_TS , 199, 1, threads);
     EXPECT_EQ(ret, HCCL_E_UNAVAIL);
-    ret = HcclThreadAcquire(comm, CommEngine::COMM_ENGINE_CPU_TS , 1, 65536, threads);
-    EXPECT_EQ(ret, HCCL_E_UNAVAIL);
+    ret = HcclThreadAcquire(comm, CommEngine::COMM_ENGINE_CPU_TS , 1, 65537, threads);
+    EXPECT_EQ(ret, HCCL_E_PARA);
 }
 
 // -----HcclThreadAcquire接口host侧用例-------
@@ -160,7 +161,7 @@ TEST_F(HcclIndependentOpEngineTest, Ut_HcclThreadAcquire_When_Alloced_Notify_Mor
 {
     ThreadHandle thread1[2] = {0};
     HcclResult ret = HcclThreadAcquire(comm, g_hostEngine, 2, 100000, thread1);
-    EXPECT_EQ(ret, HCCL_E_UNAVAIL);
+    EXPECT_EQ(ret, HCCL_E_PARA);
 }
 
 // -----CommGetNotifyNumInThread接口host侧用例-------

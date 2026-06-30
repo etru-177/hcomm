@@ -150,6 +150,21 @@ extern HcclResult HcclThreadAcquire(HcclComm comm, CommEngine engine, uint32_t t
     uint32_t notifyNumPerThread, ThreadHandle *threads);
 
 /**
+ * @brief 获取通信线程资源
+ *
+ * @param[in] comm 通信域句柄
+ * @param[in] engine 通信引擎类型
+ * @param[in] threadNum 线程数量
+ * @param[in] type 线程类型
+ * @param[in] config 每线程的config
+ * @param[out] threads 返回的线程句柄
+ * @return HcclResult 执行结果状态码
+ * @note config 的大小需要保证与 threadNum 长度一致
+ */
+extern HcclResult HcclThreadAcquireWithConfig(HcclComm comm, CommEngine engine, uint32_t threadNum,
+    ThreadType type, const ThreadConfig *config, ThreadHandle *threads);
+
+/**
  * @brief 基于已有rts stream获取指定notifyNum的通信线程资源
  * @param[in] comm 通信域句柄
  * @param[in] engine 通信引擎类型

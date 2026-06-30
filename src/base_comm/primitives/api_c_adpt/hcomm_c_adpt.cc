@@ -613,6 +613,60 @@ HcommResult HcommThreadAlloc(CommEngine engine, uint32_t threadNum, uint32_t not
     return ::HcommThreadAlloc(engine, threadNum, &notifyNumPerThread, threads);
 }
 
+HcommResult HcommThreadAllocWithConfig(CommEngine engine, uint32_t threadNum,
+    ThreadType type, const ThreadConfig *config, ThreadHandle *threads)
+{
+    CHK_PTR_NULL(threads);
+    CHK_PTR_NULL(config);
+    CHK_PRT_RET(type == THREAD_TYPE_INVALID, HCCL_ERROR("[%s] thread type[%d] is invalid",
+        __func__, static_cast<int32_t>(type)), (HcommResult)HCCL_E_PARA);
+    CHK_PRT_RET(engine == COMM_ENGINE_AICPU_TS || engine == COMM_ENGINE_CPU_TS,
+        HCCL_ERROR("[%s] commEngine[%d] CPU_TS/AICPU_TS not supported, use engine with ThreadType instead",
+        __func__, static_cast<int32_t>(engine)), (HcommResult)HCCL_E_PARA);
+    CHK_PRT_RET(engine == COMM_ENGINE_AIV || engine == COMM_ENGINE_CCU,
+        HCCL_ERROR("[%s] commEngine[%d] AIV/CCU not supported, supported engines: CPU/AICPU",
+        __func__, static_cast<int32_t>(engine)), (HcommResult)HCCL_E_PARA);
+    CHK_PRT_RET(threadNum == 0,
+        HCCL_ERROR("[%s] threadNum[%u] is invalid", __func__, threadNum), (HcommResult)HCCL_E_PARA);
+    HcommResult hcommRet = HcommResMgrInit();
+    CHK_PRT_RET(hcommRet != HCCL_SUCCESS,
+        HCCL_ERROR("[%s] HcommResMgrInit failed, ret[%d]", __func__, static_cast<int32_t>(hcommRet)), hcommRet);
+    CHK_RET(RefreshCommEngineContext(engine));
+
+    HCCL_INFO("[%s] begin. engine[%d], threadType[%d], threadNum[%u], threads[%p]",
+        __func__, engine, static_cast<int32_t>(type), threadNum, threads);
+
+    hccl::NotifyLoadType notifyLoadType;
+    hccl::StreamType streamType;
+    CHK_RET(hccl::GetNotifyLoadType(engine, type, notifyLoadType));
+    CHK_RET(hccl::GetStreamType(engine, type, streamType));
+
+    std::vector<std::shared_ptr<hccl::Thread>> newThreads;
+    newThreads.reserve(threadNum);
+    for (uint32_t i = 0; i < threadNum; ++i) {
+        CHK_PRT_RET(config[i].header.magicWord != HCOMM_THREAD_CONFIG_MAGIC_WORD,
+            HCCL_ERROR("[%s] config[%u] magicWord[0x%x] mismatch, expected[0x%x], call ThreadConfigInit first",
+                __func__, i, config[i].header.magicWord, HCOMM_THREAD_CONFIG_MAGIC_WORD), (HcommResult)HCCL_E_PARA);
+        CHK_RET(hccl::ValidateThreadParams(1, config[i].notifyNumPerThread));
+        std::shared_ptr<hccl::Thread> threadPtr;
+        HcclResult ret = hccl::CreateThread(engine, streamType, config[i].notifyNumPerThread, notifyLoadType, threadPtr);
+        CHK_PRT_RET(ret != HCCL_SUCCESS,
+            HCCL_ERROR("[%s] Failed to create thread at index[%u], ret[%d]", __func__, i, ret), (HcommResult)ret);
+        ret = threadPtr->Init();
+        CHK_PRT_RET(ret != HCCL_SUCCESS,
+            HCCL_ERROR("[%s] Failed to init thread at index[%u], ret[%d]", __func__, i, ret), (HcommResult)ret);
+        newThreads.emplace_back(std::move(threadPtr));
+    }
+
+    CHK_RET(hccl::SaveThreads(newThreads));
+    CHK_RET(EnsureKernelBinLoaded(engine));
+    CHK_RET(hccl::StoreThreadHandles(newThreads, threads, engine, g_BinHandle));
+
+    HCCL_INFO("[%s] done: engine[%d] threadType[%d] threadNum[%u]",
+        __func__, engine, static_cast<int32_t>(type), threadNum);
+    return HCCL_SUCCESS;
+}
+
 HcommResult HcommThreadFree(const ThreadHandle *threads, uint32_t threadNum)
 {
     CHK_PTR_NULL(threads);

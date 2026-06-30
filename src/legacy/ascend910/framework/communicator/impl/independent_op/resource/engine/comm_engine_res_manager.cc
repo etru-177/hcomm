@@ -30,30 +30,24 @@ HcclResult CommEngineResMgr::Init(uint32_t threadNum, uint32_t notifyNumPerThrea
     return HCCL_SUCCESS;
 }
 
-HcclResult CommEngineResMgr::HcclThreadAcquireV2(CommEngine engine, uint32_t threadNum,
-    uint32_t notifyNumPerThread, ThreadHandle *threads, std::vector<uint32_t> &threadId)
+HcclResult CommEngineResMgr::HcclThreadAcquireV2(CommEngine engine, uint32_t threadNum, ThreadType type,
+    const ThreadConfig *config, ThreadHandle *threads, std::vector<uint32_t> &threadId)
 {
     CHK_SMART_PTR_NULL(threadMgr_);
     uint32_t setThreadNum = threadMgr_->GetThreadNum();
-    uint32_t setNotifyNumPerThread = threadMgr_->GetNotifyNumPerThread();
-    CHK_PRT_RET(threadNum > setThreadNum,  HCCL_ERROR("[%s] Alloced thread num[%u] more than num[%u] in config", 
-        __func__, threadNum, setThreadNum), HCCL_E_PARA);
-    CHK_PRT_RET(notifyNumPerThread > setNotifyNumPerThread,  HCCL_ERROR("[%s] Alloced preNotify num[%u] more than "
-        "num[%u] in config", __func__, notifyNumPerThread, setNotifyNumPerThread), HCCL_E_PARA);
-    return threadMgr_->HcclThreadAcquireV2(engine, threadNum, notifyNumPerThread, threads, threadId);
+    CHK_PRT_RET(threadNum > setThreadNum, HCCL_ERROR("[%s]Alloced thread num[%u] more than num[%u] in config type[%d]",
+        __func__, threadNum, setThreadNum, static_cast<int32_t>(type)), HCCL_E_PARA);
+    return threadMgr_->HcclThreadAcquireV2(engine, threadNum, type, config, threads, threadId);
 }
 
-HcclResult CommEngineResMgr::HcclThreadAcquire(CommEngine engine, uint32_t threadNum,
-    uint32_t notifyNumPerThread, ThreadHandle *threads, std::vector<uint32_t> &threadId)
+HcclResult CommEngineResMgr::HcclThreadAcquire(CommEngine engine, uint32_t threadNum, ThreadType type,
+    const ThreadConfig *config, ThreadHandle *threads, std::vector<uint32_t> &threadId)
 {
     CHK_SMART_PTR_NULL(threadMgr_);
     uint32_t setThreadNum = threadMgr_->GetThreadNum();
-    uint32_t setNotifyNumPerThread = threadMgr_->GetNotifyNumPerThread();
-    CHK_PRT_RET(threadNum > setThreadNum,  HCCL_ERROR("[%s] Alloced thread num[%u] more than num[%u] in config", 
-        __func__, threadNum, setThreadNum), HCCL_E_PARA);
-    CHK_PRT_RET(notifyNumPerThread > setNotifyNumPerThread,  HCCL_ERROR("[%s] Alloced preNotify num[%u] more than "
-        "num[%u] in config", __func__, notifyNumPerThread, setNotifyNumPerThread), HCCL_E_PARA);
-    return threadMgr_->HcclThreadAcquire(engine, threadNum, notifyNumPerThread, threads, threadId);
+    CHK_PRT_RET(threadNum > setThreadNum,  HCCL_ERROR("[%s] Alloced thread num[%u] more than num[%u] in config type[%d]", 
+        __func__, threadNum, setThreadNum, static_cast<int32_t>(type)), HCCL_E_PARA);
+    return threadMgr_->HcclThreadAcquire(engine, threadNum, type, config, threads, threadId);
 }
 
 HcclResult CommEngineResMgr::HcclThreadAcquireWithStream(CommEngine engine,
@@ -93,6 +87,4 @@ HcclResult CommEngineResMgr::HcclThreadResGetInfo(ThreadHandle thread, ThreadRes
     CHK_SMART_PTR_NULL(threadMgr_);
     return threadMgr_->HcclThreadResGetInfo(thread, resType, infoLen, info);
 }
-
-
 }

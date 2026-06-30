@@ -56,6 +56,55 @@ typedef uint64_t ThreadHandle;
 #endif
 
 /**
+ * @brief 线程类型枚举
+ */
+typedef enum {
+    THREAD_TYPE_INVALID = -1,
+    THREAD_TYPE_TS = 0,
+} ThreadType;
+
+static const uint32_t HCOMM_THREAD_CONFIG_MAGIC_WORD = 0x0f0f0f2f;
+static const uint32_t HCOMM_THREAD_CONFIG_VERSION = 1;
+
+typedef struct {
+    uint32_t version;
+    uint32_t magicWord;
+    uint32_t size;
+    uint32_t reserved;
+} CommAbiHeader;
+
+typedef struct {
+    CommAbiHeader header;
+    uint16_t notifyNumPerThread;
+    uint8_t reserved[14];
+} ThreadConfig;
+
+static inline HcommResult ThreadConfigInit(ThreadConfig *config, uint32_t num)
+{
+    const HcommResult nullPointerErr = (HcommResult)2; // 对齐HCCL_E_PTR
+    const HcommResult internalErr = (HcommResult)4; // 对齐HCCL_E_INTERNAL
+
+    if (config == NULL) {
+        return nullPointerErr;
+    }
+
+    for (uint32_t idx = 0; idx < num; ++idx) {
+        errno_t memRet = memset_s(config, sizeof(ThreadConfig), 0, sizeof(ThreadConfig));
+        if (memRet != EOK) {
+            return internalErr;
+        }
+        config->header.version = HCOMM_THREAD_CONFIG_VERSION;
+        config->header.magicWord = HCOMM_THREAD_CONFIG_MAGIC_WORD;
+        config->header.size = sizeof(ThreadConfig);
+        config->header.reserved = 0;
+        config->notifyNumPerThread = 0;
+        ++config;
+    }
+
+    return 0;
+}
+
+/**
  * @brief 通信引擎类型枚举
  */
 typedef enum {
@@ -169,16 +218,6 @@ typedef struct {
     void *addr;       ///< 内存地址
     uint64_t size;    ///< 内存区域字节数
 } CommMem;
-
-/**
- * @brief 兼容Abi字段结构体
- */
-typedef struct {
-    uint32_t version;
-    uint32_t magicWord;
-    uint32_t size;
-    uint32_t reserved;
-} CommAbiHeader;
 
 /**
  * @brief 套接字角色

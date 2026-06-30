@@ -21,6 +21,7 @@ set(src_to_test_list
     comms/comm_engine_res/threads/test_cpu_ts_thread_class.cc
     comms/comm_engine_res/threads/test_iaicpu_ts_thread_interface.cc
     comms/comm_engine_res/threads/test_thread_api.cc
+    comms/comm_engine_res/threads/test_thread_acquire_with_config.cc
     comms/comm_engine_res/kernel_launch/test_kernel_launch_aicpu.cc
     comms/endpoint_pairs/socket/ut_socket_process.cc
     comms/endpoint_pairs/ut_endpoint_pair.cc

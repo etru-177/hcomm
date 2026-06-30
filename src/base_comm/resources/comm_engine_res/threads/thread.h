@@ -147,6 +147,8 @@ HcclResult CreateThread(CommEngine engine, StreamType streamType, uint32_t notif
 HcclResult CommEngineToNotifyLoadType(CommEngine engine, NotifyLoadType &type);
 HcclResult CommHostEngineToNotifyLoadType(CommEngine engine, NotifyLoadType &type);
 HcclResult CommEngineToStreamType(CommEngine engine, StreamType &type);
+HcclResult GetNotifyLoadType(CommEngine engine, ThreadType threadType, NotifyLoadType &type);
+HcclResult GetStreamType(CommEngine engine, ThreadType threadType, StreamType &type);
 HcclResult ValidateThreadParams(uint32_t threadNum, uint32_t notifyNumPerThread);
 HcclResult SaveThreads(const std::vector<std::shared_ptr<hccl::Thread>> &newThreads);
 HcclResult CreateAndInitThreads(const ThreadCreateParams& params,
