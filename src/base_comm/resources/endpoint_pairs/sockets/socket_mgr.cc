@@ -249,6 +249,7 @@ HcclResult SocketMgr::GetHostSocket(const Hccl::SocketConfig &socketConfig, Hccl
 
     if (it != socketMap_.end()) {
         if (socketConfig.hostNic2DeviceNicMode_) {
+            socket = it->second.get();
             HCCL_INFO("[SocketMgr][%s] destroy a socket[%p] in hostNic2DeviceNicMode", __func__, static_cast<void*>(socket));
             socket->Destroy();
             socketMap_.erase(it);

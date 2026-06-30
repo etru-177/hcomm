@@ -556,13 +556,12 @@ HcclResult MyRank::BatchCreateChannels(CommEngine engine, const HcclChannelDesc*
         }
 
         u32& reuseIdx = reuseChannelIdxMap[rankPair][engine][endpointPair];
-        bool isNewChannel = endpointPair->IsChannelNotExist(engine, reuseIdx);
-
         u32 idx = reuseIdx;
         /* hostNIC -- DeviceNic（transport不复用link/Channel） */
         if (localEndpointDesc.loc.locType != remoteEndpointDesc.loc.locType) {
             idx = UNREUSE_CHANNEL_IDX;
         }
+        bool isNewChannel = (endpointPair->IsChannelNotExist(engine, reuseIdx) || (idx == UNREUSE_CHANNEL_IDX));
 
         // CreateChannel 返回 HCCL_E_UNAVAIL 表示资源不足创建失败
         ret = endpointPair->CreateChannel(epHandle, engine, idx, &hcommDescs[i], channelHandles + i);
@@ -742,7 +741,12 @@ HcclResult MyRank::CreateChannels(CommEngine engine, const std::string &commTag,
     }
 
     // 借用hcommDescs.socket，完成一致性校验必要的数据交换
-    CHK_RET(exchangeInfoMgr_.BatchExchangeAndCheckConsistency(channelDescs, hcommDescs, channelNum, collCommConfigConsistency_, commTag));
+    DevType devType;
+    CHK_RET(hrtGetDeviceType(devType));
+    if (devType != DevType::DEV_TYPE_910B) {
+        CHK_RET(exchangeInfoMgr_.BatchExchangeAndCheckConsistency(channelDescs, hcommDescs, channelNum,
+            collCommConfigConsistency_, commTag));
+    }
     // 添加初始化时进行填表
     for (u32 i = 0; i < channelNum; ++i) {
         u32 remoteRank = channelDescs[i].remoteRank;

@@ -26,6 +26,9 @@ HcclResult HcclCommGetStatus(const char * commId, HcclCommStatus *status)
         CollCommAicpu* collCommAicpu = hcclComm->GetCollCommAicpu();
         CHK_PRT_RET(!collCommAicpu, HCCL_ERROR("%s GetCollCommAicpu is null, commId[%s]", __func__, commId), HCCL_E_PTR);
         *status = collCommAicpu->GetCommmStatus();
+    } else if (deviceType == DevType::DEV_TYPE_910B) {
+        HCCL_INFO("[%s] deviceType[%d] comm status ready", __func__, deviceType);
+        *status = HcclCommStatus::HCCL_COMM_STATUS_READY;
     } else {
         HCCL_ERROR("[%s] deviceType[%d] is not support", __func__, deviceType);
         return HCCL_E_NOT_SUPPORT;

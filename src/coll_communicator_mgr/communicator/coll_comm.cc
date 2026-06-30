@@ -150,6 +150,8 @@ HcclResult CollComm::InitSimpleMode(void* rankGraph, aclrtBinHandle binHandle, H
     CHK_RET(ValidateConfig(config));
     CHK_RET(myRank_->Init(cclBuffer, opExpansionMode, rankNum));
 
+    commStatus_ = HcclCommStatus::HCCL_COMM_STATUS_READY;
+
     EXCEPTION_HANDLE_END
     return HCCL_SUCCESS;
 }

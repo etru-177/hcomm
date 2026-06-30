@@ -154,7 +154,10 @@ TEST_F(TestEndpointPair, Ut_SocketConfig_ConnectMode_1_Expect_Success)
     EXPECT_EQ(socketConfig.hostNic2DeviceNicMode_, hostNic2DeviceNicMode);
     EXPECT_EQ(socketConfig.GetRole(), Hccl::SocketRole::CLIENT);
 
-    std::string expectedTag = tag + "_" + remoteIp.GetIpStr() + "_" + localIp.GetIpStr();
+    // When hostNic2DeviceNicMode=1 and myRank=1 > rmtRank=0, role=CLIENT
+    // CLIENT tag format: commTag_rmtRank_myRank_remoteIp_localIp
+    std::string expectedTag = tag + "_" + std::to_string(rmtRank) + "_" + std::to_string(myRank) + "_" +
+                              remoteIp.GetIpStr() + "_" + localIp.GetIpStr();
     EXPECT_EQ(socketConfig.GetHccpTag(), expectedTag);
 }
 
