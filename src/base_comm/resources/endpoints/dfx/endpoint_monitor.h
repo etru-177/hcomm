@@ -29,7 +29,7 @@ public:
     EndpointMonitor &operator=(EndpointMonitor &&) = delete;
     ~EndpointMonitor();
 
-    static EndpointMonitor &GetInstance(s32 deviceId);
+    static EndpointMonitor &GetInstance(s32 deviceLogicId);
     HcclResult RegisterToEndpointMonitor(s32 deviceId, EndpointHandle epHandle);
     HcclResult UnRegisterToEndpointMonitor();  
     void RemoveEpHandleFromEndpointMonitor(EndpointHandle epHandle);

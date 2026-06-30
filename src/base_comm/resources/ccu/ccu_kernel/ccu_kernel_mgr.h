@@ -38,7 +38,7 @@ public:
     CcuResult Translate(const std::vector<CcuKernelHandle> &kernelHandles);
 
     CcuKernel *GetKernel(CcuKernelHandle kernelHandle);
-    CcuResult UnRegister(CcuKernelHandle kernelHandle);
+    CcuResult UnRegister(const CcuKernelHandle kernelHandle);
 
     CcuKernel *GetCurrentKernel();
 

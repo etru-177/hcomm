@@ -149,14 +149,14 @@ public:
 
     //运算重载 相关接口
     CcuResult VariableAssignImm(CcuVariableHandle var, uint64_t immediate);
-    CcuResult VariableAssignVar(CcuVariableHandle var, CcuVariableHandle varA);
+    CcuResult VariableAssignVar(CcuVariableHandle varHandle, CcuVariableHandle varA);
     CcuResult VariableAddVarToVar(CcuVariableHandle resVar,CcuVariableHandle varA, CcuVariableHandle varB);
-    CcuResult AddressAssignImm(CcuAddressHandle addr, uint64_t immediate);
+    CcuResult AddressAssignImm(CcuAddressHandle addrHandle, uint64_t immediate);
     CcuResult AddressAssignVar(CcuAddressHandle addr, CcuVariableHandle var);
     CcuResult AddressAssignAddr(CcuAddressHandle dstAddrHandle, CcuAddressHandle srcAddrHandle);
-    CcuResult AddressAddVarToAddr(CcuAddressHandle resAddr, CcuAddressHandle lhsAddr, CcuVariableHandle rhsVar);
+    CcuResult AddressAddVarToAddr(CcuAddressHandle resAddrHandle, CcuAddressHandle lhsAddrHandle, CcuVariableHandle rhsVarHandle);
     CcuResult AddressAddAddrToAddr(CcuAddressHandle resAddr, CcuAddressHandle addrA, CcuAddressHandle addrB);
-    CcuResult AddressAddAssignVar(CcuAddressHandle addr, CcuVariableHandle var);
+    CcuResult AddressAddAssignVar(CcuAddressHandle addrHandle, CcuVariableHandle varHandle);
     CcuResult AddressAddAssignAddr(CcuAddressHandle addr, CcuAddressHandle otherAddr);
 
     // 远端数据传输操作

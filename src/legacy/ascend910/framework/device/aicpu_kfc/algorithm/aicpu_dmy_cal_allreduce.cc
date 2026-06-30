@@ -17,8 +17,10 @@ constexpr u64 ALL_REDUCE_THRESHOLD_UT = 1024; // allreduce确定性计算ut测�
 }
 
 HcclResult AicpuDmyCalAllreduce::RunAlgorithm(HcclReduceOp opType, void *sendBuffer, void *recvBuffer,
-    u64 dataCount, HcclDataType dataType, u64 strideLen, AivAicpuOpParam *)
+    u64 dataCount, HcclDataType dataType, u64 strideLen, AivAicpuOpParam *nextTask)
 {
+    (void)strideLen;
+    (void)nextTask;
     CHK_PTR_NULL(ctx_);
     HcclResult ret = HCCL_SUCCESS;
 #ifdef RUN_TEST

@@ -517,7 +517,7 @@ void ClusterMonitor::DelErrorSocket()
         uid2FrameStatusMap_.erase(rem);
         if (uid2SocketRefMap_.has(rem)) {
             SocketDestroy(uid2SocketRefMap_[rem].socketHandler);
-            while (uid2SocketRefMap_.erase(rem)) {
+            while (uid2SocketRefMap_.erase(rem) != 0) {
             };
         }
     }

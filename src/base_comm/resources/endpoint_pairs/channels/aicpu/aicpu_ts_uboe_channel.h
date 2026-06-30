@@ -39,8 +39,8 @@ public:
 
     HcclResult H2DResPack(std::vector<char>& buffer);
 
-    virtual HcclResult Clean() override;
-    virtual HcclResult Resume() override;
+    HcclResult Clean() override;
+    HcclResult Resume() override;
     
     HcommChannelKind GetChannelKind() const override
     {

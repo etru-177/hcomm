@@ -141,9 +141,9 @@ CcuResult CcuDrvHandle::Deinit()
      */
 
     (void)CcuLegacyMgrDeinit(devLogicId_);
-    if (tlvHandle_ != 0) {
+    if (tlvHandle_ != nullptr) {
         (void)HccpRaTlvRequest(tlvHandle_, TLV_MODULE_TYPE_CCU, MSG_TYPE_CCU_UNINIT);
-        tlvHandle_ = 0;
+        tlvHandle_ = nullptr;
     }
 
     return CcuResult::CCU_SUCCESS;

@@ -32,7 +32,7 @@ public:
         hccl::RmaBufferMgr<hccl::BufferKey<uintptr_t, u64>, std::shared_ptr<hccl::RemoteIpcRmaBuffer>>;
 
     HccsRegedMemMgr(HcclNetDevCtx netDevCtx);
-    ~HccsRegedMemMgr();
+    ~HccsRegedMemMgr() override;
  
     HcclResult RegisterMemory(HcommMem mem, const char *memTag, void **memHandle) override;
     HcclResult UnregisterMemory(void* memHandle) override;
@@ -42,7 +42,7 @@ public:
     HcclResult MemoryUnimport(const void *memDesc, uint32_t descLen) override;
     HcclResult GetAllMemHandles(void **memHandles, uint32_t *memHandleNum) override;
 
-    HcclResult MemoryGrant(const HcommMemGrantInfo *remoteGrantInfo);
+    HcclResult MemoryGrant(const HcommMemGrantInfo *remoteGrantInfo) override;
     HcclResult MemoryEnableP2P(const EndpointDesc &localEndpointDesc, const EndpointDesc &remoteEndpointDesc);
     HcclResult MemoryDisableP2P(const EndpointDesc &localEndpointDesc, const EndpointDesc &remoteEndpointDesc);
     HcclResult MemoryOpenRemoteIpc();

@@ -117,10 +117,10 @@ public:
     static ChannelStatus TransportStatusToChannelStatus(Hccl::TransportStatus ts);
 
     // ------------------ 工厂 ------------------
-    static HcclResult CreateChannel(EndpointHandle endpointHandle, 
-                                    CommEngine engine, 
+    static HcclResult CreateChannel(EndpointHandle endpointHandle,
+                                    CommEngine engine,
                                     HcommChannelDesc channelDesc,
-                                    std::shared_ptr<Channel>& out);
+                                    std::shared_ptr<Channel>& channelPtr);
 
 protected:
     void ReleasePtrArrayDevMems();
