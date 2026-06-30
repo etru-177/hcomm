@@ -349,35 +349,7 @@ HcclResult TopoinfoRanktableConcise::GetDeviceList(const nlohmann::json &serverL
 HcclResult TopoinfoRanktableConcise::GetSingleNicInfo(const nlohmann::json &serverListObj, u32 objIndex,
     RankInfo_t &rankinfo)
 {
-    std::string netPosition;
     rankinfo.deviceInfo.nicDeploy = NICDeployment::NIC_DEPLOYMENT_DEVICE;
-    HcclResult ret = GetJsonArrayMemberProperty(serverListObj, objIndex, "net_position", netPosition, true);
-    CHK_PRT_RET(ret != HCCL_SUCCESS && ret != HCCL_E_NOT_FOUND,
-        HCCL_ERROR("[Get][GetSingleNicInfo]get net position error"), ret);
-    HCCL_DEBUG("[%s.json] -> net_position: [%s]. ret[%u]", fileName_.c_str(), netPosition.c_str(), ret);
-    if (ret != HCCL_E_NOT_FOUND) {
-        if (netPosition == "host") { // 默认值为Device模式
-            rankinfo.deviceInfo.nicDeploy = NICDeployment::NIC_DEPLOYMENT_HOST;
-        } else {
-            rankinfo.deviceInfo.nicDeploy = NICDeployment::NIC_DEPLOYMENT_DEVICE;
-        }
-    }
-
-    std::string netProto;
-    ret = GetJsonArrayMemberProperty(serverListObj, objIndex, "net_protocol", netProto, true);
-    CHK_PRT_RET(ret != HCCL_SUCCESS && ret != HCCL_E_NOT_FOUND,
-        HCCL_ERROR("[Get][GetSingleNicInfo]get net protocol error"), ret);
-    HCCL_DEBUG("[%s.json] -> net_protocol: [%s]. ret[%u]", fileName_.c_str(), netProto.c_str(), ret);
-    if (ret != HCCL_E_NOT_FOUND) {
-        if (netProto == "rdma") { // 未配置则使用默认值，不处理，使用原有逻辑
-            SetExternalInputProtocolType(ProtocolType::RDMA);
-            rankinfo.deviceInfo.proto = u32(ProtocolType::RDMA);
-        } else if (netProto == "tcp") {
-            SetExternalInputProtocolType(ProtocolType::TCP);
-            rankinfo.deviceInfo.proto = u32(ProtocolType::TCP);
-        }
-    }
-
     return HCCL_SUCCESS;
 }
 
