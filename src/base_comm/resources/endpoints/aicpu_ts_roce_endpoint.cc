@@ -66,9 +66,6 @@ void AicpuTsRoceEndpoint::ReleaseListenSocketRefs()
             (void)sockMap.erase(it);
         }
     }
-    HCCL_INFO("[ReleaseListenSocketRefs] serverSocket_ use_count[%ld] before reset",
-        serverSocket_.use_count());
-    serverSocket_.reset();
 }
 
 std::mutex &AicpuTsRoceEndpoint::NetDevMapMutex()
@@ -238,40 +235,31 @@ HcclResult AicpuTsRoceEndpoint::ServerSocketListen(const uint32_t port)
 {
     const uint32_t listenPort = (port != 0U) ? port : kDefaultRocePort;
     const SocketMapKey key{netDevRefPhyId_, listenPort};
-
-    {
-        std::lock_guard<std::mutex> lk(ListenSocketMapMutex());
-        if (ReuseListenSocketIfExist(key, "reuse serverSocket")) {
-            return HCCL_SUCCESS;
-        }
-    }
-
-    EXCEPTION_CATCH(
-        serverSocket_ = std::make_shared<hccl::HcclSocket>(static_cast<HcclNetDevCtx>(netDev_), listenPort),
-        return HCCL_E_PTR);
-    CHK_PTR_NULL(serverSocket_);
-
-    HcclResult ret = serverSocket_->Init();
-    if (ret != HCCL_SUCCESS) {
-        HCCL_ERROR("[AicpuTsRoceEndpoint][%s] HcclSocket Init failed, ret[%d]", __func__, ret);
-        serverSocket_.reset();
-        return ret;
-    }
-
-    ret = serverSocket_->Listen();
-    if (ret != HCCL_SUCCESS) {
-        HCCL_ERROR("[AicpuTsRoceEndpoint][%s] HcclSocket Listen failed, ret[%d]", __func__, ret);
-        serverSocket_.reset();
-        return ret;
-    }
-
     std::lock_guard<std::mutex> lk(ListenSocketMapMutex());
-    if (ReuseListenSocketIfExist(key, "concurrent reuse")) {
+    if (ReuseListenSocketIfExist(key, "reuse serverSocket")) {
         return HCCL_SUCCESS;
     }
 
+    std::shared_ptr<hccl::HcclSocket> newServerSocket = nullptr;
+    EXCEPTION_CATCH(newServerSocket = std::make_shared<hccl::HcclSocket>(static_cast<HcclNetDevCtx>(netDev_),
+                        listenPort),
+        return HCCL_E_PTR);
+    CHK_SMART_PTR_NULL(newServerSocket);
+
+    HcclResult ret = newServerSocket->Init();
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[AicpuTsRoceEndpoint][%s] HcclSocket Init failed, ret[%d]", __func__, ret);
+        return ret;
+    }
+
+    ret = newServerSocket->Listen();
+    if (ret != HCCL_SUCCESS) {
+        HCCL_ERROR("[AicpuTsRoceEndpoint][%s] HcclSocket Listen failed, ret[%d]", __func__, ret);
+        return ret;
+    }
+
     auto &serverSocketMap = GetServerSocketMap();
-    serverSocketMap[key] = AicpuTsListenSocketSlot{serverSocket_, 1U};
+    serverSocketMap[key] = AicpuTsListenSocketSlot{newServerSocket, 1U};
     listenRefKeys_.push_back(key);
     hasListenSocketRef_ = true;
     HCCL_INFO("[AicpuTsRoceEndpoint][%s] listen on key[dev=%u,port=%u] success",
@@ -289,7 +277,6 @@ bool AicpuTsRoceEndpoint::ReuseListenSocketIfExist(const SocketMapKey &key, cons
     it->second.refCount++;
     listenRefKeys_.push_back(key);
     hasListenSocketRef_ = true;
-    serverSocket_ = it->second.socket;
     HCCL_INFO("[AicpuTsRoceEndpoint::%s] %s key[dev=%u,port=%u], ref[%u]",
         __func__, logPrefix, key.devicePhyId, key.port, it->second.refCount);
     return true;

@@ -86,7 +86,6 @@ private:
 
     HcclNetDev netDev_{nullptr};
     uint32_t netDevRefPhyId_{UINT32_MAX};
-    std::shared_ptr<hccl::HcclSocket> serverSocket_{nullptr};
     std::vector<SocketMapKey> listenRefKeys_{};
     bool hasListenSocketRef_{false};
 };

@@ -375,6 +375,34 @@ TEST_F(AicpuTsRoceEndpointTest, Ut_ServerSocketListen_WhenReuse_Returns_SUCCESS)
     ASSERT_EQ(ep.ServerSocketListen(16666U), HCCL_SUCCESS);
 }
 
+TEST_F(AicpuTsRoceEndpointTest, Ut_ServerSocketListen_WhenNoExistingSocket_InsertMapSuccess) {
+    MOCKER(hrtGetDevice).stubs().with(any()).will(invoke(StubHrtGetDeviceWriteZeroEp));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs().with(any(), outBound(0U)).will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcclNetDevOpen).stubs().will(invoke(StubHcclNetDevOpenForEp));
+    MOCKER(HcclNetDevClose).stubs().will(invoke(StubHcclNetDevCloseForEp));
+    MOCKER_CPP(&hccl::NetworkManager::GetRdmaHandleByIpAddr).stubs().will(invoke(StubGetRdmaHandleByIpAddrEp));
+    MOCKER_CPP(&hccl::HcclSocket::Listen, HcclResult (hccl::HcclSocket::*)())
+        .stubs()
+        .will(returnValue(HCCL_SUCCESS));
+
+    EndpointDesc desc{};
+    desc.protocol = COMM_PROTOCOL_ROCE;
+    desc.loc.locType = ENDPOINT_LOC_TYPE_DEVICE;
+    desc.commAddr.type = COMM_ADDR_TYPE_IP_V4;
+    AicpuTsRoceEndpoint ep(desc);
+    ASSERT_EQ(ep.Init(), HCCL_SUCCESS);
+
+    ASSERT_EQ(ep.ServerSocketListen(16666U), HCCL_SUCCESS);
+
+    auto &sockMap = AicpuTsRoceEndpoint::GetServerSocketMap();
+    const SocketMapKey key{0U, 16666U};
+    ASSERT_EQ(sockMap.size(), 1U);
+    ASSERT_NE(sockMap.at(key).socket, nullptr);
+    ASSERT_EQ(sockMap.at(key).refCount, 1U);
+    ASSERT_TRUE(ep.hasListenSocketRef_);
+    ASSERT_EQ(ep.listenRefKeys_.size(), 1U);
+}
+
 TEST_F(AicpuTsRoceEndpointTest, Ut_AddListenSocketWhiteList_WhenListenPresent_Returns_SUCCESS) {
     MOCKER_CPP(&hccl::HcclSocket::AddWhiteList).stubs().will(returnValue(HCCL_SUCCESS));
     EndpointDesc desc{};
