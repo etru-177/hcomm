@@ -46,7 +46,7 @@ namespace {
 constexpr u32 RDMA_QP_MAX_NUM = 32U;
 constexpr u32 HCCL_MULTI_QP_THRESHOLD_DEFAULT = 0U;
 
-constexpr u32 DEFAULT_TIMEOUT_MS = 120000;
+constexpr u32 DEFAULT_TIMEOUT_MS = 10000;
 
 HcclResult FillIbverbsDataFromRes(const HcommRoceChannelRes *res, TransportDeviceIbverbsData &ibd)
 {
