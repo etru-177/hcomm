@@ -29,7 +29,7 @@ public:
 
 private:
     HcclCommTaskExceptionLite() = default;
-    ~HcclCommTaskExceptionLite() = default;
+    ~HcclCommTaskExceptionLite() override = default;
 
     // 检测流上的异常cqe并进行打印和上报
     HcclResult HandleExceptionCqe();

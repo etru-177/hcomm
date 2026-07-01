@@ -83,7 +83,7 @@ public:
     uint32_t    GetInstrCount();
     void        SetCcuInstrInfo(const CcuRep::CcuInstrInfo &instrInfo);
 
-    CcuResult GeneTaskParams(const uint64_t *taskArgs, uint32_t argNum,
+    CcuResult GeneTaskParams(const uint64_t *taskArgs, uint32_t argsNum,
         std::vector<CcuTaskParam> &taskParams);
 
     // 该友元函数用于在context类外创建Variable并被context内的资源管理器管理
@@ -156,7 +156,7 @@ public:
     CcuResult AddressAddVarToAddr(CcuAddressHandle resAddrHandle, CcuAddressHandle lhsAddrHandle, CcuVariableHandle rhsVarHandle);
     CcuResult AddressAddAddrToAddr(CcuAddressHandle resAddrHandle, CcuAddressHandle addrAHandle, CcuAddressHandle addrBHandle);
     CcuResult AddressAddAssignVar(CcuAddressHandle addrHandle, CcuVariableHandle varHandle);
-    CcuResult AddressAddAssignAddr(CcuAddressHandle addr, CcuAddressHandle otherAddr);
+    CcuResult AddressAddAssignAddr(CcuAddressHandle addrHandle, CcuAddressHandle otherHandle);
 
     // 远端数据传输操作
         
@@ -168,7 +168,7 @@ public:
     CcuResult WriteMemToMemReduce(ChannelHandle channel, CcuRemoteAddrHandle remoteHandle, CcuLocalAddrHandle localHandle, CcuVariableHandle lenHandle, HcclDataType dataType, HcclReduceOp opType, CcuEventHandle eventHandle, uint32_t mask);
 
 
-    CcuResult IfBegin(CcuVariableHandle var, uint64_t immediate,
+    CcuResult IfBegin(CcuVariableHandle varHandle, uint64_t immediate,
         CcuConditionType condType, const char *label);
     CcuResult IfElse(const char *label);
     CcuResult IfEnd(const char *label);
@@ -185,7 +185,7 @@ public:
 
     void FlushClosablePendingIfs();
     void Append(std::shared_ptr<CcuRep::CcuRepBase> rep) override;
-    CcuResult WhileBegin(CcuVariableHandle var, uint64_t immediate,
+    CcuResult WhileBegin(CcuVariableHandle varHandle, uint64_t immediate,
         CcuConditionType condType, const char *label);
     CcuResult WhileEnd(const char *label);
     CcuResult DoWhileBegin(const char *label);
