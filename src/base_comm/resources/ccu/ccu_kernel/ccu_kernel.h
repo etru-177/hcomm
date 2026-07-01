@@ -149,7 +149,7 @@ public:
     //运算重载 相关接口
     CcuResult VariableAssignImm(CcuVariableHandle var, uint64_t immediate);
     CcuResult VariableAssignVar(CcuVariableHandle varHandle, CcuVariableHandle varA);
-    CcuResult VariableAddVarToVar(CcuVariableHandle resVar,CcuVariableHandle varA, CcuVariableHandle varB);
+    CcuResult VariableAddVarToVar(CcuVariableHandle varHandle,CcuVariableHandle varAHandle, CcuVariableHandle varBHandle);
     CcuResult AddressAssignImm(CcuAddressHandle addrHandle, uint64_t immediate);
     CcuResult AddressAssignVar(CcuAddressHandle addr, CcuVariableHandle var);
     CcuResult AddressAssignAddr(CcuAddressHandle dstAddrHandle, CcuAddressHandle srcAddrHandle);
@@ -189,7 +189,7 @@ public:
         CcuConditionType condType, const char *label);
     CcuResult WhileEnd(const char *label);
     CcuResult DoWhileBegin(const char *label);
-    CcuResult DoWhileEnd(CcuVariableHandle var, uint64_t immediate,
+    CcuResult DoWhileEnd(CcuVariableHandle varHandle, uint64_t immediate,
         CcuConditionType condType, const char *label);
 
     CcuResult LoopCreate(CcuLoop *loop);

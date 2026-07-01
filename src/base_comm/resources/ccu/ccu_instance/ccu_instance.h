@@ -31,7 +31,7 @@ public:
     CcuResult Init();
     CcuResult Reset();
     CcuResPack *GetResPack();
-    CcuResult SaveKernel(CcuKernelHandle kernelHandle);
+    CcuResult SaveKernel(const CcuKernelHandle kernelHandle);
     const std::vector<CcuKernelHandle> &GetUntranslatedKernels();
 
 private:

@@ -26,7 +26,7 @@ using RdmaHandle = void*;
 using GetAicpuTaskExceptionCallBackHcomm = std::function<Hccl::ErrorMessageReport()>; 
 
 using GetAicpuCqeErrInfoCallBackHcomm = void (*)(u32 RemoteLocalId, u32 LocDeviceId, uint16_t status, std::string LocalEid, std::string RemoteEid, std::string RemoteInsId); // 获取远端rankId的回调函数类型
-void RegisterGetAicpuCqeErrInfoCallBackHcomm(GetAicpuCqeErrInfoCallBackHcomm); // 注册获取远端rankId的回调函数   
+void RegisterGetAicpuCqeErrInfoCallBackHcomm(GetAicpuCqeErrInfoCallBackHcomm p1); // 注册获取远端rankId的回调函数   
 
 using AicpuGetErrStatusVecCallBack = std::vector<std::string> (*)(s32 deviceLogicID);
 void RegisterAicpuGetErrStatusVecCallBack(AicpuGetErrStatusVecCallBack p1);

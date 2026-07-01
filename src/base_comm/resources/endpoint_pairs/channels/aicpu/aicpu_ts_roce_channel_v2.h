@@ -39,7 +39,7 @@ public:
     MAKE_ENUM(RdmaStatus, INIT, SOCKET_OK, QP_CREATED,  DATA_EXCHANGE, QP_MODIFIED, CONN_OK)
 
     AicpuTsRoceChannelV2(EndpointHandle endpointHandle, HcommChannelDesc channelDesc, CommEngine engine);
-    ~AicpuTsRoceChannelV2();
+    ~AicpuTsRoceChannelV2() override;
 
     HcclResult Init() override;
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;

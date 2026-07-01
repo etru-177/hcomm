@@ -28,7 +28,7 @@ namespace hcomm {
 class AicpuTsUrmaChannel : public Channel {
 public:
     AicpuTsUrmaChannel(EndpointHandle endpointHandle, const HcommChannelDesc &channelDesc);
-    ~AicpuTsUrmaChannel();
+    ~AicpuTsUrmaChannel() override;
 
     HcclResult Init() override;
     HcclResult GetNotifyNum(uint32_t *notifyNum) const override;

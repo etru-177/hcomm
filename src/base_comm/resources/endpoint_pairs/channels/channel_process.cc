@@ -775,11 +775,11 @@ HcclResult ChannelProcess::ChannelDestroy(const ChannelHandle *channels, uint32_
     return HCCL_SUCCESS;
 }
 
-HcclResult ChannelProcess::ChannelClean(const ChannelHandle *channelList, uint32_t listNum)
+HcclResult ChannelProcess::ChannelClean(const ChannelHandle *channelList, uint32_t channelNum)
 {
     CHK_PTR_NULL(channelList);
 
-    for (uint32_t i = 0; i < listNum; ++i) {
+    for (uint32_t i = 0; i < channelNum; ++i) {
         const ChannelHandle inHandle = channelList[i];
         // 单锁：D2H 映射 + 查 map + 锁内调用 Clean()
         HcclResult ret = WithChannelByHandleLocked(inHandle, [&](Channel &channel) -> HcclResult {

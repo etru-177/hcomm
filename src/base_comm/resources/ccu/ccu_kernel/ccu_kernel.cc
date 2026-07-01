@@ -488,12 +488,12 @@ CcuResult CcuKernel::VariableAssignVar(CcuVariableHandle varHandle, CcuVariableH
     return CcuResult::CCU_SUCCESS;
 }
 
-CcuResult CcuKernel::VariableAddVarToVar(CcuVariableHandle varHandle, CcuVariableHandle varA, CcuVariableHandle varB)
+CcuResult CcuKernel::VariableAddVarToVar(CcuVariableHandle varHandle, CcuVariableHandle varAHandle, CcuVariableHandle varBHandle)
 {
     CcuRep::Variable *resVar{nullptr}, *leftVar{nullptr}, *rightVar{nullptr};
     CCU_CHK_RET(GetVariableByHandle(varHandle, &resVar));
-    CCU_CHK_RET(GetVariableByHandle(varA, &leftVar));
-    CCU_CHK_RET(GetVariableByHandle(varB, &rightVar));
+    CCU_CHK_RET(GetVariableByHandle(varAHandle, &leftVar));
+    CCU_CHK_RET(GetVariableByHandle(varBHandle, &rightVar));
 
     // 通过符号重载实现，内部记录rep；异常由入口统一 catch。
     *resVar = *leftVar + *rightVar;

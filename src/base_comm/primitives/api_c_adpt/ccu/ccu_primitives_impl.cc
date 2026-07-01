@@ -405,13 +405,13 @@ CcuResult CcuReadMemToMemReduce(
 }
 
 CcuResult CcuWriteMemToMem(
-    ChannelHandle channel, CcuRemoteAddrHandle remote, CcuLocalAddrHandle local, 
+    ChannelHandle channel, CcuRemoteAddrHandle remoteHandle, CcuLocalAddrHandle localHandle, 
     CcuVariableHandle len, CcuEventHandle event, uint16_t mask)
 {
     const uint32_t devLogicId = HcclGetThreadDeviceId();
     auto kernel = hcomm::CcuKernelMgr::GetInstance(devLogicId).GetCurrentKernel();
     CCU_CHK_PTR_NULL(kernel);
-    CCU_CHK_RET(kernel->WriteMemToMem(channel, remote, local, len, event, mask));
+    CCU_CHK_RET(kernel->WriteMemToMem(channel, remoteHandle, localHandle, len, event, mask));
     return CcuResult::CCU_SUCCESS;
 }
 
