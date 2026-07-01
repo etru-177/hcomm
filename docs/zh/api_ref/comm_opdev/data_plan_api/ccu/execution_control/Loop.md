@@ -14,9 +14,9 @@
 
 ## 功能说明
 
-CCU kernel内的硬件Loop类，将循环body交由CCU LoopEngine硬件单元自动迭代。构造`ccu::Loop`对象时立即记录body（构造时body lambda执行一次），运行期由硬件自动推进迭代，无需在body内手写地址自增或计数器更新逻辑。
+CCU kernel内的硬件Loop类，将循环body交由CCU Loop执行引擎自动迭代。构造`ccu::Loop`对象时立即记录body（构造时body lambda执行一次），运行期由硬件自动推进迭代，无需在body内手写地址自增或计数器更新逻辑。
 
-与软件循环（[CCU_WHILE](CCU_WHILE.md)）相比，硬件Loop每轮迭代不重新执行body指令，而是由LoopEngine硬件单元按offset自动递进地址/buffer/event——适用于大量同结构迭代、body内只有本地搬运类操作的场景，指令开销极小。
+与软件循环（[CCU_WHILE](CCU_WHILE.md)）相比，硬件Loop每轮迭代不重新执行body指令，而是由Loop执行引擎按offset自动递进地址/buffer/event——适用于大量同结构迭代、body内只有本地搬运类操作的场景，指令开销极小。
 
 > [!CAUTION]注意
 > `ccu::Loop` 单独构造只完成body录制，并不会真正下发硬件循环指令。必须把`Loop`加入[`ccu::LoopGroup`](LoopGroup.md)，由 `LoopGroup` 在注册阶段将`iterNum / addrOffset`等参数写入并合成硬件循环指令，硬件才真正按配置迭代。直接`Loop l(cfg, body);`然后不加入任何LoopGroup的写法，body只会被执行一次（注册期录制时），运行期不产生循环效果。
@@ -53,7 +53,7 @@ public:
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| loopCfg | 输入 | Loop配置，类型为`ccu::Variable`，迭代次数等参数在运行期由Variable值决定。该参数包含64bit，其中[12:0]表示该Loop的循环次数，[44:13]表示Loop各次循环中数据传输类指令使用到的地址偏移量，数据地址=Address寄存器的值+[44:13]*循环次数，[52:45]表示该Loop使用的EngineID，用户需填0，运行时框架来填该值。 |
+| loopCfg | 输入 | Loop配置，类型为`ccu::Variable`，迭代次数等参数在运行期由Variable值决定。该参数包含64bit，其中[12:0]表示该Loop的循环次数，[44:13]表示Loop各次循环中数据传输类指令使用到的地址偏移量，数据地址=`Address`对象的值+[44:13]*循环次数，[52:45]表示该Loop使用的EngineID，用户需填0，运行时框架来填该值。 |
 | func | 输入 | 同构造方式1。 |
 
 ### CcuLoopConfig

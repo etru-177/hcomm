@@ -14,7 +14,7 @@
 
 ## 功能说明
 
-CCU kernel内的硬件LoopGroup类，将多个`ccu::Loop`对象组织为一组，共享同一份LoopEngine资源池，避免多个独立`Loop`各自独占LoopEngine导致资源耗尽。
+CCU kernel内的硬件LoopGroup类，将多个`ccu::Loop`对象组织为一组，共享同一份Loop执行引擎资源池，避免多个独立`Loop`各自独占Loop执行引擎资源导致资源耗尽。
 
 构造`ccu::LoopGroup`时，自动将传入的`loops`列表中的每个`Loop`加入该Group。
 
@@ -46,14 +46,14 @@ public:
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | loopGroupCfg | 输入 | LoopGroup配置，类型为`CcuLoopGroupConfig`，字段含义见下表。 |
-| maxLoopNum | 输入 | 本Group最多容纳的Loop数量，框架据此预留LoopEngine资源池容量。 |
+| maxLoopNum | 输入 | 本Group最多容纳的Loop数量，框架据此预留Loop执行引擎资源池容量。 |
 | loops | 输入 | 要加入本Group的`ccu::Loop`对象列表。列表中每个Loop会在`LoopGroup`构造函数内自动被注册到Group。 |
 
 ### 构造方式2：var-based
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| parallelCfg | 输入 | 并行配置Variable，运行期决定并行参数。该参数包含64bit，其中[47:41]表示loopgroup内包含的Loop指令个数，其中[54:48]表似乎Loopgroup中包含的Loop指令需要完成Loop自动展开的Loop偏移，其中[61:55]表示Loop需要展开的次数。举例：X[47:41]=4表示程序中包含4个Loop指令，Xn[54:48]=1表示从编号为1的Loop开始展开，Xn[61:55]=3表示loop1，loop2，loop3分别复制展开3次，loop0不进行复制，经过展开后总Loop个数为4 + (4-1) * 3 = 13 |
+| parallelCfg | 输入 | 并行配置Variable，运行期决定并行参数。该参数包含64bit，其中[47:41]表示loopgroup内包含的Loop指令个数，其中[54:48]表示Loopgroup中包含的Loop指令需要完成Loop自动展开的Loop偏移，其中[61:55]表示Loop需要展开的次数。举例：parallelCfg[47:41]=4表示程序中包含4个Loop指令，parallelCfg[54:48]=1表示从编号为1的Loop开始展开，parallelCfg[61:55]=3表示loop1，loop2，loop3分别复制展开3次，loop0不进行复制，经过展开后总Loop个数为4 + (4-1) * 3 = 13 |
 | offsetCfg | 输入 | 偏移配置Variable，运行期决定偏移参数。 该参数包含64bit，其中[9:0]表示Loop进行展开后使用的Event资源偏移量，[20:10]表示Loop进行展开后使用的CcuBuffer资源偏移量，[52:21]表示Loop进行展开后各个数据传输类指令使用的Address累加的偏移量。|
 | maxLoopNum | 输入 | 同构造方式1。 |
 | loops | 输入 | 同构造方式1。 |
@@ -77,8 +77,8 @@ config-based构造使用的参数结构，字段如下：
 | 原因 | 错误码 |
 | --- | --- |
 | `maxLoopNum`为0，或var-based构造的运行期配置Variable为空 | `CCU_E_PARA` |
-| 实际加入的Loop数超过`maxLoopNum`（LoopEngine池容量不足） | `CCU_E_PARA` |
-| 物理资源（XN/GSA/CKE/MS等）不足 | `CCU_E_UNAVAIL` 等 |
+| 实际加入的Loop数超过`maxLoopNum`（Loop执行引擎资源池容量不足） | `CCU_E_PARA` |
+| 物理资源（`Variable`/`Address`/`Event`/`CcuBuffer`等）不足 | `CCU_E_UNAVAIL` 等 |
 
 ## 约束说明
 
@@ -87,14 +87,14 @@ config-based构造使用的参数结构，字段如下：
 - 同一个`ccu::Loop`对象不应被加入多个`ccu::LoopGroup`。
 - Group内各Loop的body约束与独立`ccu::Loop`相同（参见[Loop](Loop.md)的约束说明）。
 - `maxLoopNum`必须大于0，为0时构造直接失败（`CCU_E_PARA`）。
-- `maxLoopNum`应 ≥ `loops`列表实际大小（即真正会加入Group的Loop数，含展开复用）；偏小会导致后续加入Loop时因LoopEngine池容量不足而失败（`CCU_E_PARA`）。
+- `maxLoopNum`应 ≥ `loops`列表实际大小（即真正会加入Group的Loop数，含展开复用）；偏小会导致后续加入Loop时因Loop执行引擎资源池容量不足而失败（`CCU_E_PARA`）。
 
 ## 调用示例
 
 ```cpp
 using namespace AscendC::ccu;
 
-// 场景：两个Loop共享LoopEngine资源池
+// 场景：两个Loop共享Loop执行引擎资源池
 CcuResult MyKernel(CcuKernelArg arg) {
     Variable r1, r2, numA, numB;
     numA = 10; numB = 20;
@@ -112,7 +112,7 @@ CcuResult MyKernel(CcuKernelArg arg) {
     cfg2.iterNum = 3;
     Loop l2(cfg2, body2);
 
-    // 将l1, l2 组织成LoopGroup，共享LoopEngine 资源池
+    // 将l1, l2 组织成LoopGroup，共享Loop执行引擎资源池
     CcuLoopGroupConfig grpCfg;
     grpCfg.cloneNum = 0;
     grpCfg.cloneLoopOffset = 0;

@@ -16,7 +16,7 @@
 
 `ccu::LocalAddr`是CCU kernel内本端片上内存地址的C++包装类，是"地址（`Address`）+ token（`Variable`）"的复合对象。
 
-- 构造即分配：默认构造函数一次性申请1个GSA（用于`addr`）和1个XN（用于`token`）。
+- 构造即分配：默认构造函数一次性申请1个`Address`（用于`addr`）和1个`Variable`（用于`token`）。
 - 析构不释放：析构函数不释放硬件资源；虚拟句柄在翻译完成后失效，物理资源随CCU实例生命周期统一管理、回收。
 
 CCU硬件不接受进程虚拟地址，访问片上内存必须使用由`HcommCcuGetMemToken`（host端调用）换算后的token。`LocalAddr`的`addr`字段存储物理地址（或token化后的VA），`token`字段存储配套的安全token值。
@@ -28,9 +28,9 @@ namespace AscendC {
 namespace ccu {
 class LocalAddr final {
 public:
-    LocalAddr();                         // 构造即Alloc（同时申请GSA + XN）
-    Address addr;                        // 本端片上内存地址字段（GSA寄存器）
-    Variable token;                      // 安全token字段（XN寄存器）
+    LocalAddr();                         // 构造即Alloc（同时申请Address + Variable）
+    Address addr;                        // 本端片上内存地址字段（Address对象）
+    Variable token;                      // 安全token字段（Variable对象）
     CcuLocalAddrHandle handle{0};       // 复合句柄
 };
 } // namespace ccu
@@ -41,12 +41,12 @@ public:
 
 | 构造形式 | 说明 |
 | --- | --- |
-| `LocalAddr la;` | 一次性申请1个GSA和1个XN虚拟句柄，回填`la.handle`/`la.addr.handle`/`la.token.handle`三个句柄。 |
+| `LocalAddr la;` | 一次性申请1个`Address`和1个`Variable`虚拟句柄，回填`la.handle`/`la.addr.handle`/`la.token.handle`三个句柄。 |
 
-C++ 构造只申请虚拟句柄：在kernel 注册阶段内调用时恒成功；若不在kernel 注册阶段调用，则构造时抛出异常（携带错误码 `CCU_E_PTR`）。GSA/XN 物理资源不足时，在 `HcommCcuKernelRegister` 阶段返回 `CCU_E_UNAVAIL`，不是在构造时抛出。
+C++ 构造只申请虚拟句柄：在kernel 注册阶段内调用时恒成功；若不在kernel 注册阶段调用，则构造时抛出异常（携带错误码 `CCU_E_PTR`）。`Address`/`Variable` 物理资源不足时，在 `HcommCcuKernelRegister` 阶段返回 `CCU_E_UNAVAIL`，不是在构造时抛出。
 
 > [!CAUTION]注意
-> `LocalAddr` 类有copy / move 构造函数，它们只拷贝 `handle` / `addr.handle` / `token.handle` 三个字段、不申请新GSA/XN——`LocalAddr l2 = l1;` 后 `l1` 和 `l2` 指向同一组寄存器。但 `operator=(const LocalAddr& other)`（赋值，不是构造）不是handle 拷贝：它会执行 `this->addr = other.addr; this->token = other.token;`，即发出两条device 端寄存器赋值指令（参见 `Address::operator=` / `Variable::operator=`），操作的是两组独立寄存器之间的值搬移。两者语义不对称，使用时需特别留意。
+> `LocalAddr` 类有copy / move 构造函数，它们只拷贝 `handle` / `addr.handle` / `token.handle` 三个字段、不申请新`Address`/`Variable`——`LocalAddr l2 = l1;` 后 `l1` 和 `l2` 指向同一组`Address`/`Variable`对象。但 `operator=(const LocalAddr& other)`（赋值，不是构造）不是handle 拷贝：它会执行 `this->addr = other.addr; this->token = other.token;`，即发出两条device 端赋值指令（参见 `Address::operator=` / `Variable::operator=`），操作的是两组独立`Address`/`Variable`对象之间的值搬移。两者语义不对称，使用时需特别留意。
 
 ## 字段说明
 

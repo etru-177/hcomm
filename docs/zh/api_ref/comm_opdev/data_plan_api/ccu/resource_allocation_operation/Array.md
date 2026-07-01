@@ -24,11 +24,11 @@
 
 当前仅支持以下三种特化类型：
 
-| 特化类型 | 对应硬件资源 |
+| 特化类型 | 资源含义 |
 | --- | --- |
-| `Array<Variable>` | N个物理连续XN寄存器 |
-| `Array<Event>` | N个物理连续CKE完成事件位 |
-| `Array<CcuBuffer>` | N个物理连续MS切片 |
+| `Array<Variable>` | N个物理连续`Variable` |
+| `Array<Event>` | N个物理连续`Event` |
+| `Array<CcuBuffer>` | N个物理连续`CcuBuffer`切片 |
 
 对其他类型实例化`Array<T>`将在编译期报错（仅支持上述三种特化类型）。
 
@@ -60,9 +60,9 @@ public:
 
 | 构造形式 | 说明 |
 | --- | --- |
-| `Array<Variable> vars(n);` | 申请`n`个物理连续XN句柄。 |
-| `Array<Event> evts(n);` | 申请`n`个物理连续CKE句柄。 |
-| `Array<CcuBuffer> bufs(n);` | 申请`n`个物理连续MS句柄。 |
+| `Array<Variable> vars(n);` | 申请`n`个物理连续`Variable`句柄。 |
+| `Array<Event> evts(n);` | 申请`n`个物理连续`Event`句柄。 |
+| `Array<CcuBuffer> bufs(n);` | 申请`n`个物理连续`CcuBuffer`句柄。 |
 
 `count`可以为0（`size() == 0`），此时不分配硬件资源。构造失败时抛出异常（携带[CcuResult](../../../datatype_definition/CcuResult.md)错误码）。
 

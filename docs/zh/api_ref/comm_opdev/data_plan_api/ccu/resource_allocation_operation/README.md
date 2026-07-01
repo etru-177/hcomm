@@ -6,16 +6,16 @@ CCU资源分配采用"先虚后实"两阶段模型：用户在kernel注册阶段
 
 按资源类型分为以下几类：
 
-| 资源类型 | 对应硬件 | 单元分配 | 批量分配 | 通道引用 |
-| --- | --- | --- | --- | --- |
-| 标量寄存器 | XN | [Variable](Variable.md) | [Array\<Variable\>](Array.md) | [GetResByChannel](GetResByChannel.md) |
-| 地址寄存器 | GSA | [Address](Address.md) | — | — |
-| 完成事件位 | CKE | [Event](Event.md) | [Array\<Event\>](Array.md) | — |
-| 片上MS切片 | MS（4KB） | [CcuBuffer](CcuBuffer.md) | [Array\<CcuBuffer\>](Array.md) | — |
-| 本端片上内存复合地址 | GSA + XN | [LocalAddr](LocalAddr.md) | — | — |
-| 对端片上内存复合地址 | GSA + XN | [RemoteAddr](RemoteAddr.md) | — | — |
+| 资源类型 | 单元分配 | 批量分配 | 通道引用 |
+| --- | --- | --- | --- |
+| 标量值（`Variable`） | [Variable](Variable.md) | [Array\<Variable\>](Array.md) | [GetResByChannel](GetResByChannel.md) |
+| 地址（`Address`） | [Address](Address.md) | — | — |
+| 完成事件（`Event`） | [Event](Event.md) | [Array\<Event\>](Array.md) | — |
+| 片上Buffer（`CcuBuffer`，4KB） | [CcuBuffer](CcuBuffer.md) | [Array\<CcuBuffer\>](Array.md) | — |
+| 本端片上内存复合地址（`Address` + `Variable`） | [LocalAddr](LocalAddr.md) | — | — |
+| 对端片上内存复合地址（`Address` + `Variable`） | [RemoteAddr](RemoteAddr.md) | — | — |
 
-[Variable](Variable.md)和[Address](Address.md)除资源分配外，还提供赋值与算术运算符；这些运算符描述的是device端执行的操作，在硬件执行时操作对应的寄存器，而非host端立即计算。
+[Variable](Variable.md)和[Address](Address.md)除资源分配外，还提供赋值与算术运算符；这些运算符描述的是device端执行的操作，在硬件执行时操作对应的`Variable`/`Address`对象，而非host端立即计算。
 
 ## 接口列表
 

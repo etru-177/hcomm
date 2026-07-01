@@ -91,7 +91,7 @@ CcuResult MyKernel(CcuKernelArg arg) {
     return CCU_SUCCESS;
 }
 
-// 场景2：本端MS Buffer→对端片上内存
+// 场景2：本端CcuBuffer→对端片上内存
 CcuResult MyKernel2(CcuKernelArg arg) {
     auto *params = static_cast<MyKernelArg *>(arg);  // CcuKernelArg 为void*，先转型为用户入参结构体
     ChannelHandle ch = params->channelHandle;
