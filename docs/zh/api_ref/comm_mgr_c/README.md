@@ -43,3 +43,5 @@
 - [组调用](group_call.md)
   - [HcclGroupStart](HcclGroupStart.md)
   - [HcclGroupEnd](HcclGroupEnd.md)
+  - [HcclGroupStatusGet](HcclGroupStatusGet.md)
+  - [HcclAicpuKernelLaunch](HcclAicpuKernelLaunch.md)

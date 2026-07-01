@@ -3,7 +3,7 @@
 ## 产品支持情况
 
 <!-- npu="950" id1 -->
-- Ascend 950PR/Ascend 950DT：不支持
+- Ascend 950PR/Ascend 950DT：支持
 <!-- end id1 -->
 <!-- npu="A3" id2 -->
 - Atlas A3 训练系列产品/Atlas A3 推理系列产品：支持
@@ -25,7 +25,7 @@
 在HcclGroupStart和HcclGroupEnd之间调用多个函数，作为一个整体执行，组调用支持以下三种场景：
 
 - 单进程多线程管理NPU：支持调用通信域管理接口[HcclCommInitClusterInfo](HcclCommInitClusterInfo.md)、[HcclCommInitClusterInfoConfig](HcclCommInitClusterInfoConfig.md)、[HcclCommInitRootInfo](HcclCommInitRootInfo.md)、[HcclCommInitRootInfoConfig](HcclCommInitRootInfoConfig.md)  、[HcclCommDestroy](HcclCommDestroy.md)。
-- 合并多个集合通信。
+- 合并多个集合通信（Ascend 950PR/Ascend 950DT暂不支持）。
 - 合并多个点对点通信。
 
 ## 函数原型

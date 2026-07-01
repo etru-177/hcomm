@@ -15,3 +15,6 @@
 - [HcclCommConfigCapability](HcclCommConfigCapability.md)
 - [HcclCommSymWindow](HcclCommSymWindow.md)
 - [HcclCommStatus](HcclCommStatus.md)
+- [HcclKernelFuncInfo](HcclKernelFuncInfo.md)
+- [HcclKernelLaunchCfg](HcclKernelLaunchCfg.md)
+- [HcclOpDesc](HcclOpDesc.md)
