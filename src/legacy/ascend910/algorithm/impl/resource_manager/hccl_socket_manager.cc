@@ -139,7 +139,7 @@ HcclResult HcclSocketManager::ConstructWhiteList(const std::string &commTag,
         for (u32 i = 0; i < dstRankLinkInfo.socketsPerLink; i++) {
             // 使用Client Rank作为确定标识,保证Client和Server的Tag一致
             std::string tag;
-            if (connectMode) {
+            if (connectMode != 0) {
                 tag = commTag;
             } else {
                 tag = MakeUniqueConnTag(commTag, isInterLink, userRank, i);

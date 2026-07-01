@@ -65,7 +65,7 @@ public:
         uint32_t hostNic2DeviceNicMode, const uint32_t myRank, const uint32_t rmtRank):
         SocketConfig(link, listenPort, tag)
     {
-        if (!hostNic2DeviceNicMode) {
+        if (hostNic2DeviceNicMode == 0) {
             return;
         }
         // Parse commTag from tag prefix: tag format is "commTag_engine_X" or "commTag_engine_X_protocol_Y"

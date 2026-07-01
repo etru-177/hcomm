@@ -1069,7 +1069,7 @@ HcclResult TopoInfoExtractor::GetIsUsedRdmaMap(std::unordered_map<u32, bool> &is
     for (const RankInfo &dstRank : rankVector_) {
         bool isInterSuperPod = false;
         bool isInterServer = false;
-        bool isConnectedWithPcie = false;
+        uint32_t isConnectedWithPcie = 0;
         if (rankData_.superPodId != dstRank.superPodId) { // 跨超节点场景
             isInterSuperPod = true;
         } else if (rankData_.serverIdx != dstRank.serverIdx) { // 不跨超节点, 跨server场景
