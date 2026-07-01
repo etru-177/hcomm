@@ -47,6 +47,12 @@ CollComm::~CollComm()
         return;
     }
 
+    // 先注销TaskException，再销毁通信域资源，防止通信域资源销毁后rts回调TaskException
+    hcomm::TaskExceptionHost* handler = hcomm::TaskExceptionHostManager::GetHandler(static_cast<size_t>(deviceLogicId_));
+    if (handler != nullptr) {
+        (void)handler->UnRegister(reinterpret_cast<u64>(this));
+    }
+
     // fullMode collComm正常析构，rankgraph_在fullMode下是自己new的，需要释放
     if (rankgraph_ != nullptr) {
         delete rankgraph_;
@@ -59,10 +65,6 @@ CollComm::~CollComm()
         // 析构属于最终阶段，不再存储数据，直接上报
         DECTOR_TRY_CATCH("CollComm", hcclCommDfx_->ReportAllTasks(false));
     }
-    for (auto streamId : aicpuStreamIds_) {
-        hcomm::TaskExceptionHostManager::UnregisterGetAicpuTaskExceptionCallBack(streamId, deviceLogicId_);
-    }
-    aicpuStreamIds_.clear();
     (void)DestroyAicpuComm();
 }
 
@@ -510,18 +512,8 @@ HcclResult CollComm::InitTaskExceptionHandler()
 {
     hcomm::TaskExceptionHost* handler = hcomm::TaskExceptionHostManager::GetHandler(static_cast<size_t>(deviceLogicId_));
     CHK_PTR_NULL(handler);
-    CHK_RET(handler->Register());
+    CHK_RET(handler->Register(reinterpret_cast<u64>(this)));
     return HCCL_SUCCESS;
-}
-
-void CollComm::RegisterAicpuTaskExceptionCallback(u32 streamId)
-{
-    HCCL_INFO("[%s] start, commId[%s], streamId[%u]", __func__, commId_.c_str(), streamId);
-    auto getAicpuTaskExceptionCallBack = [this]() {return this->GetAicpuTaskException();};
-    hcomm::TaskExceptionHostManager::RegisterGetAicpuTaskExceptionCallBack(streamId, deviceLogicId_,
-        getAicpuTaskExceptionCallBack);
-    aicpuStreamIds_.insert(static_cast<s32>(streamId));
-    return ;
 }
 
 Hccl::ErrorMessageReport CollComm::GetAicpuTaskException()

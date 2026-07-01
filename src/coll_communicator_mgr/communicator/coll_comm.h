@@ -95,7 +95,6 @@ public:
     const std::string& GetCommId() const {return commId_;}
     HcclResult GetHDCommunicate(
         HDCommunicateParams &kfcControlTransferH2DParams, HDCommunicateParams &kfcStatusTransferD2HParams);
-    void RegisterAicpuTaskExceptionCallback(u32 streamId);
     Hccl::ErrorMessageReport GetAicpuTaskException();
     HcclResult GetParentRankId(u32& parentRankId);
     uint32_t UpdateIndex();
@@ -146,7 +145,6 @@ private:
     ManagerCallbacks callbacks_; 
     s32 deviceLogicId_{0};
     uint32_t index_{0};
-    std::unordered_set<s32> aicpuStreamIds_;
 
     RankGraph* rankgraph_{nullptr};
     std::unique_ptr<CommEngineResMgr> commEngineResMgr_{nullptr};

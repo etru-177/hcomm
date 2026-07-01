@@ -756,22 +756,6 @@ HcclResult HcclDfxRegOpInfo(HcclComm comm, void* hcclDfxOpInfo) // 兼容性接�
     return HCCL_SUCCESS;
 }
 
-static HcclResult RegAicpuTaskException(HcclDfxOpInfo* dfxOpInfo, hccl::CollComm* collComm)
-{
-    if (dfxOpInfo->engine != COMM_ENGINE_AICPU_TS) {
-        return HCCL_SUCCESS;
-    }
-    LocalNotify *notify = GetNotify(dfxOpInfo->cpuTsThread, dfxOpInfo->cpuWaitAicpuNotifyIdx);
-    CHK_PRT_RET(!notify, HCCL_ERROR("[%s]GetNotify null, thread[%llu], notifyIdx[%u]",
-        __func__, dfxOpInfo->cpuTsThread, dfxOpInfo->cpuWaitAicpuNotifyIdx), HCCL_E_PTR);
-    dfxOpInfo->cpuWaitAicpuNotifyId = notify->notifyId_;
-
-    Stream *cpuTsStream = GetStream(dfxOpInfo->cpuTsThread);
-    CHK_PTR_NULL(cpuTsStream);
-    collComm->RegisterAicpuTaskExceptionCallback(cpuTsStream->id());
-    return HCCL_SUCCESS;
-}
-
 HcclResult HcclDfxRegOpInfoByCommId(char* commId, void* hcclDfxOpInfo)
 {
     EXCEPTION_HANDLE_BEGIN
@@ -800,7 +784,6 @@ HcclResult HcclDfxRegOpInfoByCommId(char* commId, void* hcclDfxOpInfo)
     CHK_PTR_NULL(collComm);
 
     dfxOpInfo->beginTime = hrtMsprofSysCycleTime();
-    CHK_RET(RegAicpuTaskException(dfxOpInfo, collComm));
 
     //HcclDfxOpInfo转为DfxOpInfo
     auto dfxOpInfoOnce = ConvertToDfxOpInfo(*dfxOpInfo);

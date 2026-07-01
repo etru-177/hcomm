@@ -41,7 +41,6 @@ class TaskErrMsgTest : public testing::Test {
 protected:
     void SetUp() override
     {
-        g_communicatorCallbackMapV2.fill({});
         MOCKER(::getpid)
             .stubs()
             .will(returnValue(12345));
@@ -55,7 +54,6 @@ protected:
     }
     void TearDown() override
     {
-        g_communicatorCallbackMapV2.fill({});
         GlobalMockObject::verify();
     }
 };
