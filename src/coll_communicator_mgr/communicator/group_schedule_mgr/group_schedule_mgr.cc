@@ -35,14 +35,21 @@ uint32_t pow2Up(uint32_t n)
 
 namespace hccl {
 
+void ClearHcclGroupCommList()
+{
+    hcclGroupCommListV2.clear();
+}
+
 std::vector<HcclComm> &GetHcclGroupCommList()
 {
     return hcclGroupCommListV2;
 }
+
 int32_t GetHcclP2pTaskNums()
 {
     return hcclP2pTaskNums;
 }
+
 void SetHcclP2pTaskNums(int32_t targetP2pTaskNums)
 {
     hcclP2pTaskNums = targetP2pTaskNums;

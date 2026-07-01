@@ -575,9 +575,11 @@ HcclResult HcclGroupEnd()
     if (--hcclGroupDepth > 0) {
         return HCCL_SUCCESS;
     }
+
     HCCL_INFO("[HcclGroupEnd] hcclGroupDepth=[%d]", hcclGroupDepth);
     /*遇到最后一个HcclGroupEnd才处理group内的所有任务*/
     HCCLV2_FUNC_RUN([&]() -> HcclResult {
+        CHK_RET(HcclLegacyAsyncJobLaunch());
         return HcclGroupEndV2();
     }());
     return HcclLegacyGroupEnd();

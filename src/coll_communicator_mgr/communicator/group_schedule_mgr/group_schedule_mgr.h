@@ -43,6 +43,7 @@ struct HcclP2pSendRecvQueue {
     std::deque<HcclP2pTask> recvQue;
 };
 
+void ClearHcclGroupCommList();
 std::vector<HcclComm> &GetHcclGroupCommList();
 int32_t GetHcclP2pTaskNums();
 void SetHcclP2pTaskNums(int32_t targetP2pTaskNums);

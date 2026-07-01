@@ -356,6 +356,7 @@ HcclResult groupLaunchA5()
     }
 
     SetHcclP2pTaskNums(0);
+    ClearHcclGroupCommList();
 
     return HCCL_SUCCESS;
 }

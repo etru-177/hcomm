@@ -20,6 +20,7 @@ extern "C" {
 
 HcclResult HcclLegacyGroupStart();
 HcclResult HcclLegacyGroupEnd();
+HcclResult HcclLegacyAsyncJobLaunch();
 
 #ifdef __cplusplus
 }
