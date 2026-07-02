@@ -270,10 +270,17 @@ out:
 STATIC int RaHdcAsyncSessionConnect(struct RaInitConfig *cfg)
 {
     union OpAsyncHdcConnectData asyncData = {0};
+    unsigned int interfaceVersion = 0;
     int ret;
 
+    ret = RaHdcGetInterfaceVersion(cfg->phyId, RA_RS_ASYNC_HDC_SESSION_CONNECT, &interfaceVersion);
+    // compatibility issue: ignore return value and set base version queue size to MAX_POOL_QUEUE_SIZE_V1
+    if (ret != 0 || interfaceVersion <= RA_RS_OPCODE_BASE_VERSION) {
+        asyncData.txData.queueSize = MAX_POOL_QUEUE_SIZE_V1;
+    } else {
+        asyncData.txData.queueSize = MAX_POOL_QUEUE_SIZE;
+    }
     asyncData.txData.phyId = cfg->phyId;
-    asyncData.txData.queueSize = MAX_POOL_QUEUE_SIZE;
     asyncData.txData.threadNum = RA_POOL_THREAD_NUM;
     ret = RaHdcProcessMsg(RA_RS_ASYNC_HDC_SESSION_CONNECT, cfg->phyId, (char *)&asyncData,
         sizeof(union OpAsyncHdcConnectData));

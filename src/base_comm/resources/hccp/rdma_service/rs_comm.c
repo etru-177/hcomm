@@ -135,7 +135,7 @@ struct OpcodeInterfaceInfo gInterfaceInfoList[] = {
     {RA_RS_NOTIFY_CFG_SET, 1},
     {RA_RS_NOTIFY_CFG_GET, 1},
     {RA_RS_SET_PID, 1},
-    {RA_RS_ASYNC_HDC_SESSION_CONNECT, 1},
+    {RA_RS_ASYNC_HDC_SESSION_CONNECT, 2},
     {RA_RS_ASYNC_HDC_SESSION_CLOSE, 1},
 };
 
