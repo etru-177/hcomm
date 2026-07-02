@@ -14,6 +14,7 @@
 #include "log.h"
 #include <thread>
 #include <chrono>
+#include <atomic>
 
 namespace Hccl {
 constexpr uint32_t CTRL_HDR_FLAG_LENGTH    = 1;
@@ -185,13 +186,11 @@ HcclResult TaskService::SynchronizeControlInfo(uint8_t *ctrlHdr, uint64_t hdrLen
         return HCCL_E_INTERNAL;
     }
 
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+
     uint8_t newFlag = 1;
     HCCL_INFO("[TaskService::TaskRun] Send response: Set dpu2npu flag -> 1");
-    ret = memcpy_s(dpu2npuMem_, sizeof(newFlag), &newFlag, sizeof(newFlag));
-    if (ret != EOK) {
-        HCCL_ERROR("[TaskService::TaskRun] set flag failed: %d", ret);
-        return HCCL_E_INTERNAL;
-    }
+    reinterpret_cast<std::atomic<uint8_t> *>(dpu2npuMem_)->store(newFlag, std::memory_order_release);
     return HCCL_SUCCESS;
 }
 

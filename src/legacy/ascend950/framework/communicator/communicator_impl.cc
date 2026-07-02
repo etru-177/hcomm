@@ -74,6 +74,7 @@ constexpr u64 HCCL_CCL_AIV_TAG_BUFFER_SIZE = 2; // 指定存放aiv tag的大小�
 constexpr u32 HCCL_CCL_AIV_CLEAR_STEP_MAX = 1000; // aiv tag算子下发时++，大于1000置位
 constexpr u32      BASE_BIT             = 1; // 用于左移设置二进制数的特定位
 constexpr u64 SHARE_HBM_MEMORY_SIZE = (100 * 1024 * 1024);
+constexpr u64 ALIGN_4K = 4096U;
 constexpr const char* DPUTAG = "DPUTAG";
 constexpr u64 INDEPENDENT_OP_BUFFER_SIZE_TIMES = 2; //自定义算子buffer倍数
 constexpr uint8_t DEVICE_SIGNAL_SECOND = 2;
@@ -2499,18 +2500,19 @@ HcclResult CommunicatorImpl::WaitDpuKernelThreadTerminate()
     if (!isDpuKernelLaunched) {
         return HCCL_SUCCESS;
     }
-    if (accessVA_ == nullptr) {
-        HCCL_ERROR("[CommunicatorImpl::%s] accessVA_ is nullptr", __func__);
+    if (va_ == nullptr ||accessVA_ == nullptr) {
+        HCCL_ERROR("[CommunicatorImpl::%s] va_[%p] or accessVA_[%p] is nullptr", __func__, va_, accessVA_);
         return HCCL_E_MEMORY;
     }
+    void* hostPtr = connectType_ == HOST_DEVICE_CONNECT_TYPE_UB ? va_ : accessVA_;
     uint8_t  flag   = DEVICE_SIGNAL_SECOND;
-    errno_t ret = memcpy_s(accessVA_, sizeof(flag), &flag, sizeof(flag));
+    errno_t ret = memcpy_s(hostPtr, sizeof(flag), &flag, sizeof(flag));
     if (ret != EOK) {
         HCCL_ERROR("Terminate TaskRun Fail, return[%d]", ret);
         return HCCL_E_INTERNAL;
     }
     do {
-        ret = memcpy_s(&flag, sizeof(flag), accessVA_, sizeof(flag));
+        ret = memcpy_s(&flag, sizeof(flag), hostPtr, sizeof(flag));
         if (ret != EOK) {
             HCCL_ERROR("Read Terminate TaskRun Signal Fail, return[%d]", ret);
             return HCCL_E_INTERNAL;
@@ -3241,12 +3243,12 @@ HcclResult CommunicatorImpl::LaunchDpuKernel(aclrtFuncHandle &funcHandle)
                                 std::numeric_limits<uint16_t>::max() : NOTIFY_DEFAULT_WAIT_TIME;
     cfg.numAttrs             = 1;
     cfg.attrs                = &kernelAttr;
-    constexpr u32 numBlocks   = 1;
+    constexpr u32 numBlocks  = 1;
     hostArgs.commId     = id;
     hostArgs.memorySize = SHARE_HBM_MEMORY_SIZE;
     hostArgs.hostMem    = hostShareBuf;
-    hostArgs.shareHBM = accessVA_;
-    hostArgs.deviceId = devLogicId;
+    hostArgs.shareHBM   = connectType_ == HOST_DEVICE_CONNECT_TYPE_UB ? va_ : accessVA_;
+    hostArgs.deviceId   = devLogicId;
     HCCL_INFO("[CommunicatorImpl::%s] DpuKernelLaunchParam{commId:%s; memorySize:%u; shareHBM:%p; hostMem:%p}",
               __func__, hostArgs.commId.c_str(), hostArgs.memorySize, hostArgs.shareHBM,
               hostArgs.hostMem);
@@ -3418,7 +3420,9 @@ HcclResult CommunicatorImpl::AllocAndRegKFCWorkSpace(uint64_t size)
         va_ = HrtMalloc(size, ACL_MEM_TYPE_HIGH_BAND_WIDTH);
         ret = HrtHalHostRegister(va_, size, DEV_SVM_MAP_HOST, deviceLogicId, &accessVA_);
     } else if (connectType_ == HOST_DEVICE_CONNECT_TYPE_UB) {
-        va_ = HrtMallocHost(size);
+        originVa_ = malloc(size + ALIGN_4K);
+        CHK_PTR_NULL(originVa_);
+        va_ = reinterpret_cast<void *>(ALIGN_UP(reinterpret_cast<uint64_t>(originVa_), ALIGN_4K));
         ret = HrtHalHostRegister(va_, size, HOST_MEM_MAP_DEV_PCIE_TH, deviceLogicId, &accessVA_);
     } else {
         return HCCL_E_NOT_SUPPORT;
@@ -3429,7 +3433,8 @@ HcclResult CommunicatorImpl::AllocAndRegKFCWorkSpace(uint64_t size)
             if (connectType_ == HOST_DEVICE_CONNECT_TYPE_PCIE) {
                 HrtFree(va_);
             } else if (connectType_ == HOST_DEVICE_CONNECT_TYPE_UB) {
-                HrtFreeHost(va_);
+                free(originVa_);
+                originVa_ = nullptr;
             }
             va_ = nullptr;
         }
@@ -3494,7 +3499,8 @@ HcclResult CommunicatorImpl::DestroyKFCWorkSpaceVA()
         if (connectType_ == HOST_DEVICE_CONNECT_TYPE_PCIE) {
             DECTOR_TRY_CATCH("CommunicatorImpl", HrtFree(va_));
         } else if (connectType_ == HOST_DEVICE_CONNECT_TYPE_UB) {
-            DECTOR_TRY_CATCH("CommunicatorImpl", HrtFreeHost(va_));
+            DECTOR_TRY_CATCH("CommunicatorImpl", free(originVa_));
+            originVa_ = nullptr;
         }
     }
 

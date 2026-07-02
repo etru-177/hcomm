@@ -3636,6 +3636,8 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UbPath_Expect_Success)
     EXPECT_TRUE(fakeComm.tagWorkspaceVAMap_.find(tag) != fakeComm.tagWorkspaceVAMap_.end());
     EXPECT_NE(fakeComm.va_, nullptr);
     // free the malloc'd memory allocated by GetKFCWorkSpaceVA in UB path
+    free(fakeComm.originVa_);
+    fakeComm.originVa_ = nullptr;
     fakeComm.va_ = nullptr;
 }
 

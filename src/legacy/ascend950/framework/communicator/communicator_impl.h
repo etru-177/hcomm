@@ -53,7 +53,7 @@
 #include "aicpu/launch_device.h"
 
 namespace Hccl {
-
+#define ALIGN_UP(x, a) (((x) + (a) - 1) & ~((a) - 1))
 using HcclUs = std::chrono::steady_clock::time_point;
 class CommunicatorImpl {
 public:
@@ -493,6 +493,7 @@ private:
     DpuKernelLaunchParam hostArgs;
     // Dpu Kernel Launch 申请的共享内存
     void* hostShareBuf{nullptr};
+    void* originVa_{nullptr};
     void* va_{nullptr};
     void* accessVA_{nullptr};
     int64_t connectType_{0};
