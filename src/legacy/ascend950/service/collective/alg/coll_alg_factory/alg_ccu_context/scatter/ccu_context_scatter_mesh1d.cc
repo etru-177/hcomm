@@ -124,7 +124,7 @@ void CcuContextScatterMesh1D::PostSync()
         RemotePost(*t, CKE_IDX_0, selfBit_);
     }
     GroupWait(*transportGroup, CKE_IDX_0, allBit_);
-    HCCL_INFO("[CcuContextScatterMesh1D] ScatterMesh1D  groupwait end");
+    HCCL_INFO("[CcuContextScatterMesh1D] ScatterMesh1D groupwait end");
 }
 
 void CcuContextScatterMesh1D::PreSync()

@@ -786,7 +786,7 @@ HcclResult HcomGetCcuTaskInfo(const std::string &group, void *tilingData, void *
     CHK_PRT_RET(group.empty(), HCCL_ERROR("[HcomGetCcuTaskInfo] group is null"), HCCL_E_PARA);
 
     /* 接口交互信息日志 */
-    HCCL_RUN_INFO("Entry-HcomDestroyGroup:group[%s]", group.c_str());
+    HCCL_RUN_INFO("HcomGetCcuTaskInfo:group[%s]", group.c_str());
 
     HcclCommInfoV2 &hcomCommInfoV2 = GetCommInfoV2();
 
@@ -794,7 +794,7 @@ HcclResult HcomGetCcuTaskInfo(const std::string &group, void *tilingData, void *
     auto iter = hcomCommInfoV2.hcclGroupMap.find(group);
     if (iter == hcomCommInfoV2.hcclGroupMap.end()) {
         HCCL_ERROR(
-            "[Destroy][Group]errNo[0x%016llx] group[%s] is not exist", HCOM_ERROR_CODE(HCCL_E_PARA), group.c_str());
+             "[HcomGetCcuTaskInfo]errNo[0x%016llx] group[%s] is not exist", HCOM_ERROR_CODE(HCCL_E_PARA), group.c_str());
         return HCCL_E_PARA;
     }
     HcclGroupParamsV2 &groupParam = iter->second;
@@ -806,6 +806,6 @@ HcclResult HcomGetCcuTaskInfo(const std::string &group, void *tilingData, void *
         return HCCL_E_INTERNAL;
     }
 
-    HCCL_RUN_INFO("HcomDestroyGroup success group[%s]", group.c_str());
+    HCCL_RUN_INFO("HcomGetCcuTaskInfo success group[%s]", group.c_str());
     return HCCL_SUCCESS;
 }
