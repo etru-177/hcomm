@@ -61,6 +61,23 @@ int StubRaGetTpInfoListAsyncCaptureUboe(void *ctxHandle, struct GetTpCfg *cfg, s
     return 0;
 }
 
+static uint32_t gCapturedCqDepth = 0U;
+
+int StubRaNdaCqCreateCaptureCqe(void *rdmaHandle, struct NdaCqInitAttr *attr, struct NdaCqInfo *info,
+    void **cqHandle)
+{
+    (void)rdmaHandle;
+    (void)info;
+    if (attr != nullptr) {
+        gCapturedCqDepth = attr->attr.cqe;
+    }
+    static char fakeCqHandle{};
+    if (cqHandle != nullptr) {
+        *cqHandle = &fakeCqHandle;
+    }
+    return 0;
+}
+
 } // namespace
 
 class AdapterHccpTest : public testing::Test {
@@ -1289,4 +1306,34 @@ TEST_F(AdapterHccpTest, ut_RaUbGetTpInfoAsync_When_RaGetTpInfoListAsyncFails_Exp
     uint32_t num = 0U;
 
     EXPECT_THROW(RaUbGetTpInfoAsync(handle, param, out, num), NetworkApiException);
+}
+
+TEST_F(AdapterHccpTest, ut_HrtRaNdaCqCreate_When_IndepUbMode_Expect_UbnacDepth)
+{
+    gCapturedCqDepth = 0U;
+    MOCKER(RaNdaCqCreate).stubs().will(invoke(StubRaNdaCqCreateCaptureCqe));
+
+    RdmaHandle rdmaHandle = reinterpret_cast<RdmaHandle>(0x100);
+    NdaOps ndaOps;
+    (void)memset(&ndaOps, 0, sizeof(ndaOps));
+    NdaCqInfo cqInfo;
+    CqHandle cqHandle = nullptr;
+
+    HcclResult ret = HrtRaNdaCqCreate(rdmaHandle, &ndaOps, QBUF_DMA_MODE_INDEP_UB, &cqInfo, &cqHandle);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(AdapterHccpTest, ut_HrtRaNdaCqCreate_When_DefaultMode_Expect_XscdvDepth)
+{
+    gCapturedCqDepth = 0U;
+    MOCKER(RaNdaCqCreate).stubs().will(invoke(StubRaNdaCqCreateCaptureCqe));
+
+    RdmaHandle rdmaHandle = reinterpret_cast<RdmaHandle>(0x100);
+    NdaOps ndaOps;
+    (void)memset(&ndaOps, 0, sizeof(ndaOps));
+    NdaCqInfo cqInfo;
+    CqHandle cqHandle = nullptr;
+
+    HcclResult ret = HrtRaNdaCqCreate(rdmaHandle, &ndaOps, QBUF_DMA_MODE_DEFAULT, &cqInfo, &cqHandle);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
 }

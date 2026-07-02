@@ -320,19 +320,19 @@ HcclResult DevRdmaConnectionV2::BuildCqContext(CqContext* context)
     }
 
     context->type = CQ_CONTEXT_TYPE_ROCE;
-    context->contextInfo.roceCq.cqn = DEFAULT_CQN;
     context->contextInfo.roceCq.cqVa = ndaCqInfo_.cqInfo.qBuf.base;
     context->contextInfo.roceCq.cqeSize = ndaCqInfo_.cqInfo.qBuf.entrySize;
     context->contextInfo.roceCq.cqDepth = ndaCqInfo_.cqInfo.qBuf.entryCnt;
     context->contextInfo.roceCq.headAddr = reinterpret_cast<uint64_t >(CqPiMem_.ptr());
     context->contextInfo.roceCq.tailAddr = reinterpret_cast<uint64_t >(CqCiMem_.ptr());
-    // 云脉网卡使用硬DB，1825网卡使用软DB
     if (dmaMode_ == QBUF_DMA_MODE_DEFAULT) {
+        context->contextInfo.roceCq.cqn = ndaCqInfo_.resv[0]; // 云脉网卡NDA直驱，协商ndaCqInfo_.resv[0]字段为CQN
         context->contextInfo.roceCq.dbVa = reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbHwVa.iovBase);
-        context->contextInfo.roceCq.dbMode = DB_MODE_HW;
+        context->contextInfo.roceCq.dbMode = DB_MODE_HW; // 云脉网卡NDA直驱，使用硬DB
     } else {
+        context->contextInfo.roceCq.cqn = DEFAULT_CQN;
         context->contextInfo.roceCq.dbVa = reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbrCiVa.iovBase);
-        context->contextInfo.roceCq.dbMode = DB_MODE_SW;
+        context->contextInfo.roceCq.dbMode = DB_MODE_SW; // 1825网卡NDA直驱，使用软DB
     }
 
     HCCL_INFO(
@@ -358,6 +358,7 @@ std::vector<char> DevRdmaConnectionV2::GetSqUniqueId() const
     }
 
     Hccl::BinaryStream binaryStream;
+    // 打包1825网卡NDA直驱资源
     binaryStream << localQpAttr.qpn;
     binaryStream << ndaQpInfo_.sqInfo.qBuf.base;
     binaryStream << ndaQpInfo_.sqInfo.qBuf.entrySize;
@@ -377,20 +378,15 @@ std::vector<char> DevRdmaConnectionV2::GetCqUniqueId() const
 {
     HCCL_DEBUG("start packing cq uniqueId");
     Hccl::BinaryStream binaryStream;
+    // 打包1825网卡NDA直驱资源
     binaryStream << DEFAULT_CQN;
     binaryStream << ndaCqInfo_.cqInfo.qBuf.base;
     binaryStream << ndaCqInfo_.cqInfo.qBuf.entrySize;
     binaryStream << ndaCqInfo_.cqInfo.qBuf.entryCnt;
     binaryStream << reinterpret_cast<uint64_t >(CqPiMem_.ptr());
     binaryStream << reinterpret_cast<uint64_t >(CqCiMem_.ptr());
-    // 云脉网卡使用硬DB，1825网卡使用软DB
-    if (dmaMode_ == QBUF_DMA_MODE_DEFAULT) {
-        binaryStream << reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbHwVa.iovBase);
-        binaryStream << DB_MODE_HW;
-    } else {
-        binaryStream << reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbrCiVa.iovBase);
-        binaryStream << DB_MODE_SW;
-    }
+    binaryStream << reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbrCiVa.iovBase);
+    binaryStream << DB_MODE_SW;
 
     std::vector<char> result;
     binaryStream.Dump(result);
