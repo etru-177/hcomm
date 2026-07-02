@@ -10,7 +10,7 @@
 
 基于已有runtime stream获取指定notifyNum的通信线程资源。
 
-当前适用于通信引擎为HOST CPU+TS、CCU的场景。
+当前适用于通信引擎为HOST CPU+TS的场景。
 
 ## 函数原型
 
@@ -34,7 +34,7 @@ HcclResult HcclThreadAcquireWithStream(HcclComm comm, CommEngine engine, aclrtSt
 
 ## 约束说明
 
-无
+1. 该接口不支持COMM_ENGINE_AIV和COMM_ENGINE_CCU两种通信引擎。
 
 ## 调用示例
 

@@ -8,7 +8,7 @@
 
 ## 功能说明
 
-申请通信线程，当前支持AI CPU+TS、HOST CPU+TS、CCU通信引擎。注意如果通信引擎是AI CPU+TS，需要额外下发一次kernel，AI CPU侧才能使用此通信线程。
+申请通信线程，当前支持AI CPU+TS、HOST CPU+TS通信引擎。注意如果通信引擎是AI CPU+TS，需要额外下发一次kernel，AI CPU侧才能使用此通信线程。
 
 ## 函数原型
 
@@ -31,7 +31,9 @@ HcommResult：接口成功返回0，其他失败。
 
 ## 约束说明
 
-调用此接口申请的thread，后续需要调用[HcommThreadFree](HcommThreadFree.md)接口释放，调用HcommThreadAlloc接口申请AICPU_TS或CPU_TS等通信引擎的线程前，必须先在同一线程上调用aclrtSetdevice接口指定deviceId。
+1. 调用此接口申请的thread，后续需要调用[HcommThreadFree](HcommThreadFree.md)接口释放，调用HcommThreadAlloc接口申请AICPU_TS或CPU_TS等通信引擎的线程前，必须先在同一线程上调用aclrtSetdevice接口指定deviceId。
+
+2. 该接口不支持COMM_ENGINE_AIV和COMM_ENGINE_CCU两种通信引擎。
 
 ## 调用示例
 

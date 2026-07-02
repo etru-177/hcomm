@@ -48,6 +48,8 @@ HcclResult HcclThreadAcquire(HcclComm comm, CommEngine engine, uint32_t threadNu
     - COMM_ENGINE_CPU_TS
     - COMM_ENGINE_AICPU_TS
 
+3. 该接口不支持COMM_ENGINE_AIV和COMM_ENGINE_CCU两种通信引擎。
+
 ## 调用示例
 
 创建线程资源示例如下：
