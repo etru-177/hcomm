@@ -52,7 +52,7 @@ CcuResult NotifyWait(ChannelHandle channel, uint32_t localNotifyIdx, uint16_t ma
 
 - `NotifyWait`可在硬件Loop body内调用。
 - 本kernel内所有channel必须属于同一die；该一致性由`HcommCcuKernelRegister`统一校验，不一致返回`CCU_E_PARA`。
-- `localNotifyIdx`必须与生产侧`NotifyRecord`的`remoteNotifyIdx`使用相同数值，由通信双方在协议层约定，框架不自动配对。
+- `localNotifyIdx`必须与生产侧`NotifyRecord`的`remoteNotifyIdx`使用相同数值，由通信双方在协议层约定，框架不自动配对。单个`ChannelHandle`持有的Notify个数最大为8个，因此该参数的取值范围为0~7。
 - 调用前必须已存在对应的`NotifyRecord`在生产侧的先序位置，否则将永久阻塞导致硬件级死锁。
 
 ## 调用示例

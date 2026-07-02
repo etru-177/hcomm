@@ -51,7 +51,7 @@ CcuResult NotifyRecord(ChannelHandle channel, uint32_t remoteNotifyIdx, uint16_t
 ## 约束说明
 
 - 本kernel内所有channel必须属于同一die；该一致性由`HcommCcuKernelRegister`统一校验，不一致返回`CCU_E_PARA`。
-- `remoteNotifyIdx`与消费侧`NotifyWait`的`localNotifyIdx`必须使用相同数值，由通信双方在协议层约定，框架不自动配对。
+- `remoteNotifyIdx`与消费侧`NotifyWait`的`localNotifyIdx`必须使用相同数值，由通信双方在协议层约定，框架不自动配对。单个`ChannelHandle`持有的Notify个数最大为8个，因此该参数的取值范围为0~7。
 - `NotifyRecord`是生产侧，消费侧`NotifyWait`必须在`NotifyRecord`之后到达（硬件上"先Record 后Wait"，生产先于消费）。若消费侧等不到对应的`NotifyRecord`（未发起、`localNotifyIdx`/`mask`不匹配等），将永久阻塞，导致硬件级死锁。
 
 ## 调用示例

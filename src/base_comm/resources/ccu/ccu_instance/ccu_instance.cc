@@ -92,4 +92,36 @@ const std::vector<CcuKernelHandle> &CcuInstance::GetUntranslatedKernels()
     return untranslatedKernelHandles_;
 }
 
+CcuResult CcuInstance::BeginRegister()
+{
+    if (registerState_ == RegisterState::REGISTERING) {
+        HCCL_ERROR("[CcuInstance][%s] failed, previous register round is not ended, "
+            "HcommCcuKernelRegisterEnd is missing before a new HcommCcuKernelRegisterStart.", __func__);
+        return CcuResult::CCU_E_INTERNAL;
+    }
+    registerState_ = RegisterState::REGISTERING;
+    return CcuResult::CCU_SUCCESS;
+}
+
+CcuResult CcuInstance::CheckRegistering() const
+{
+    if (registerState_ != RegisterState::REGISTERING) {
+        HCCL_ERROR("[CcuInstance][%s] failed, HcommCcuKernelRegister must be called between "
+            "HcommCcuKernelRegisterStart and HcommCcuKernelRegisterEnd.", __func__);
+        return CcuResult::CCU_E_INTERNAL;
+    }
+    return CcuResult::CCU_SUCCESS;
+}
+
+CcuResult CcuInstance::EndRegister()
+{
+    if (registerState_ != RegisterState::REGISTERING) {
+        HCCL_ERROR("[CcuInstance][%s] failed, HcommCcuKernelRegisterEnd is called without a matching "
+            "HcommCcuKernelRegisterStart.", __func__);
+        return CcuResult::CCU_E_INTERNAL;
+    }
+    registerState_ = RegisterState::IDLE;
+    return CcuResult::CCU_SUCCESS;
+}
+
 } // namespace hcomm

@@ -34,7 +34,13 @@ public:
     CcuResult SaveKernel(const CcuKernelHandle kernelHandle);
     const std::vector<CcuKernelHandle> &GetUntranslatedKernels();
 
+    CcuResult BeginRegister();
+    CcuResult CheckRegistering() const;
+    CcuResult EndRegister();
+
 private:
+    enum class RegisterState { IDLE, REGISTERING };
+    RegisterState registerState_{RegisterState::IDLE};
     CcuInstanceType insType_{CcuInstanceType::CCU_UNUSED};
     int32_t devLogicId_{INT32_MAX};
     std::shared_ptr<hcomm::CcuDrvHandle> ccuDrvHandle_{};

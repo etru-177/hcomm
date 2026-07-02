@@ -80,12 +80,18 @@ CcuResult HcommCcuInsDestroy(CcuInsHandle insHandle)
 
 CcuResult HcommCcuKernelRegisterStart(CcuInsHandle insHandle)
 {
-    // todo: 需要考虑怎么拦截start调用之前没有end
     const uint32_t devLogicId = HcclGetThreadDeviceId();
     auto *ccuIns = hcomm::CcuInstanceMgr::GetInstance(devLogicId).Get(insHandle);
     CCU_CHK_PTR_NULL(ccuIns);
 
-    CCU_CHK_RET(ccuIns->Reset());
+    CCU_CHK_RET(ccuIns->BeginRegister());
+
+    CcuResult ret = ccuIns->Reset();
+    if (ret != CcuResult::CCU_SUCCESS) {
+        (void)ccuIns->EndRegister();
+        HCCL_ERROR("[%s] failed, Reset failed[%d], rollback register state.", __func__, ret);
+        return ret;
+    }
     return CcuResult::CCU_SUCCESS;
 }
 
@@ -110,6 +116,8 @@ CcuResult HcommCcuKernelRegister(CcuInsHandle insHandle, uint32_t dieId,
     auto *ccuIns = hcomm::CcuInstanceMgr::GetInstance(devLogicId).Get(insHandle);
     CCU_CHK_PTR_NULL(ccuIns);
 
+    CCU_CHK_RET(ccuIns->CheckRegistering());
+
     auto *resPack = ccuIns->GetResPack();
     CCU_CHK_PTR_NULL(resPack);
 
@@ -129,10 +137,11 @@ CcuResult HcommCcuKernelRegister(CcuInsHandle insHandle, uint32_t dieId,
 
 CcuResult HcommCcuKernelRegisterEnd(CcuInsHandle insHandle)
 {
-    // todo: 需要拦截是否start
     const uint32_t devLogicId = HcclGetThreadDeviceId();
     auto *ccuIns = hcomm::CcuInstanceMgr::GetInstance(devLogicId).Get(insHandle);
     CCU_CHK_PTR_NULL(ccuIns);
+
+    CCU_CHK_RET(ccuIns->EndRegister());
     const auto &newKernels = ccuIns->GetUntranslatedKernels();
 
     auto &kernelMgr = hcomm::CcuKernelMgr::GetInstance(devLogicId);
@@ -287,13 +296,9 @@ CcuResult HcommCcuKernelLaunch(ThreadHandle threadHandle,
 {
     const auto &startus = TIME_NOW();
 
-    CHK_PRT_RET(threadHandle == 0,
-        HCCL_ERROR("[%s] failed, thread handle is empty.", __func__),
-        CcuResult::CCU_E_PARA);
-
-    CHK_PRT_RET(kernelHandle == 0,
-        HCCL_ERROR("[%s] failed, kernel handle is empty.", __func__),
-        CcuResult::CCU_E_PARA);
+    CHK_PRT_RET(threadHandle == 0, HCCL_ERROR("[%s] failed, thread handle is empty.", __func__), CcuResult::CCU_E_PARA);
+    CHK_PRT_RET(kernelHandle == 0, HCCL_ERROR("[%s] failed, kernel handle is empty.", __func__), CcuResult::CCU_E_PARA);
+    CHK_PRT_RET(argNum > 0 && taskArgs == nullptr, HCCL_ERROR("[%s] failed, taskArgs is nullptr while argNum[%u] > 0.", __func__, argNum), CcuResult::CCU_E_PTR);
 
     const auto *rtsThread = reinterpret_cast<hccl::Thread *>(threadHandle);
     const auto *threadStream = rtsThread->GetStream();
