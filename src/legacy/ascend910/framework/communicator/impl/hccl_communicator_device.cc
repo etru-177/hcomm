@@ -1309,7 +1309,7 @@ namespace hccl
     }
 
     HcclResult HcclCommunicator::GetAllReduceScratchSize(
-        const u32 count, const HcclDataType dataType, u64 &scratchSize) const
+        const u64 count, const HcclDataType dataType, u64 &scratchSize) const
     {
         return HCCL_E_NOT_SUPPORT;
     }
