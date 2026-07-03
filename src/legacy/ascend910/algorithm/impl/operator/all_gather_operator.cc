@@ -317,8 +317,8 @@ HcclResult AllGatherOperator::SelectAlgfor91093(const OpParam& param, std::strin
     }  
 
     bool smallCountOptimSinglePod = SmallCountOptimSinglePod(param);
-
-    bool smallCountOptimMultiPod = (superPodNum_ > 1 || (GetExternalInputInterHccsDisable() && serverNum_ > 1)) &&
+    bool is2Pod2ServerTopo = (superPodNum_ == 2 && serverNum_ == 2);// 针对 A3背靠背机型
+ 	bool smallCountOptimMultiPod = (superPodNum_ > 1 || (GetExternalInputInterHccsDisable() && serverNum_ > 1)) && !is2Pod2ServerTopo &&
         (param.DataDes.count * unitSize <= HCCL_SMALL_COUNT_16_KB) && !retryEnable_; // 涉及ROCE平面
     // 多超节点的中等数据量
     bool midCountOptimMultiPod = (superPodNum_ > 1) && isOpbase &&
