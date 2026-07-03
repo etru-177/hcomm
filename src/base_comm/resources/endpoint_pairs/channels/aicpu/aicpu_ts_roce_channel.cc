@@ -41,6 +41,7 @@ namespace {
 constexpr uint32_t kDefaultRocePort = 16666;
 constexpr uint8_t kHcommTrafficClassConfigNotSet = 0xff;
 constexpr uint8_t kHcommServiceLevelConfigNotSet = 0xff;
+constexpr uint32_t kAicpuTsRoceSqCqDepth = 2048U;
 
 HcclResult CommAddrToHcclIp(const CommAddr &ca, hccl::HcclIpAddress &out)
 {
@@ -307,6 +308,8 @@ HcclResult AicpuTsRoceChannel::ConfigureMachineParaForTransport()
     machinePara_.isIndOp = true;
     machinePara_.isAicpuModeEn = true;
     machinePara_.notifyNum = 0;
+    machinePara_.queueDepthAttr.sqDepth = kAicpuTsRoceSqCqDepth;
+    machinePara_.queueDepthAttr.sendCqDepth = kAicpuTsRoceSqCqDepth;
     machinePara_.sockets.clear();
     machinePara_.sockets.push_back(dataSocket_);
     if (channelDesc_.roceAttr.tc != kHcommTrafficClassConfigNotSet) {
