@@ -18,6 +18,7 @@
 #include "ra.h"
 #include "ra_rs_comm.h"
 #include "ra_hdc_rdma.h"
+#include "ra_hdc_rdma_verbs.h"
 
 #define RA_SGLIST_MAX       16
 #define RA_QP_32K_DEPTH         32767

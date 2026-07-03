@@ -15,6 +15,7 @@ set(ra_list
     ra_nda.c
     ra_ctx.c
     ra_host.c
+    ra_host_verbs.c
     ra_common.c
     ra_ping.c
     ra_rdma.c

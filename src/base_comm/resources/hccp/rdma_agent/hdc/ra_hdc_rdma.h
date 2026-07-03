@@ -184,54 +184,11 @@ union OpTypicalQpCreateData {
     } rxData;
 };
 
-union OpQpCreateWithCQWithAttrsData {
-    struct {
-        unsigned int phyId;
-        unsigned int rdevIndex;
-        unsigned int sendCqn;
-        unsigned int recvCqn;
-        struct QpExtAttrs extAttrs;
-    } txData;
-
-    struct {
-        unsigned int qpn;
-        unsigned int psn;
-        unsigned int gidIdx;
-        unsigned int rsvd;
-    } rxData;
-};
-
-union OpTypicalCqCreateData {
-    struct {
-        unsigned int phyId;
-        unsigned int rdevIndex;
-        unsigned int cqDepth;
-        unsigned int rsvd[RA_RSVD_NUM_4];
-    } txData;
-
-    struct {
-        unsigned int cqn;
-        unsigned int rsvd[RA_RSVD_NUM_6];
-    } rxData;
-};
-
 union OpQpDestroyData {
     struct {
         unsigned int phyId;
         unsigned int rdevIndex;
         unsigned int qpn;
-    } txData;
-
-    struct {
-        unsigned int rsvd;
-    } rxData;
-};
-
-union OpTypicalCqDestroyData {
-    struct {
-        unsigned int phyId;
-        unsigned int rdevIndex;
-        unsigned int cqn;
     } txData;
 
     struct {
@@ -551,15 +508,8 @@ int RaHdcAiQpCreateWithAttrs(struct RaRdmaHandle *rdmaHandle, struct QpExtAttrs 
     struct AiQpInfo *info, void **qpHandle);
 int RaHdcTypicalQpCreate(struct RaRdmaHandle *rdmaHandle, int flag, int qpMode, struct TypicalQp *qpInfo,
     void **qpHandle);
-int RaHdcTypicalCqCreate(struct RaRdmaHandle *rdmaHandle, unsigned int cqDepth, unsigned int *cqn,
-    void **cqHandle);
-int RaHdcTypicalCqDestroy(struct RaRdmaHandle *rdmaHandle, unsigned int cqn, void *cqHandle);
-int RaHdcQpCreateWithCQWithAttrs(struct RaRdmaHandle *rdmaHandle, struct QpExtAttrs *extAttrs,
-    unsigned int sendCqn, unsigned int recvCqn, void **qpHandle);
 int RaHdcPollCq(struct RaQpHandle *qpHdc, bool isSendCq, unsigned int numEntries, void *wc);
-int RaHdcPollTypicalCq(struct RaTypicalCqHandle *cqHdc, unsigned int numEntries, void *wc);
 int RaHdcQpDestroy(struct RaQpHandle *qpHdc);
-int RaHdcQpDestroyWithoutCQ(struct RaQpHandle *qpHdc);
 int RaHdcTypicalQpModify(struct RaQpHandle *qpHdc, struct TypicalQp *localQpInfo,
     struct TypicalQp *remoteQpInfo);
 int RaHdcQpConnectAsync(struct RaQpHandle *qpHdc, const void *sockHandle);
@@ -572,8 +522,6 @@ int RaHdcTypicalMrDereg(struct RaRdmaHandle *rdmaHandle, void *mrHandle);
 int RaHdcSendWr(struct RaQpHandle *qpHdc, struct SendWr *wr, struct SendWrRsp *opRsp);
 int RaHdcTypicalSendWr(struct RaQpHandle *qpHdc, struct SendWr *wr, struct SendWrRsp *opRsp);
 int RaHdcSendWrV2(struct RaQpHandle *qpHdc, struct SendWrV2 *wr, struct SendWrRsp *opRsp);
-int RaHdcSendWrVerbs(struct RaQpHandle *qpHdc, struct SendWrVerbs *wr, struct SendWrRsp *opRsp);
-int RaHdcRecvWrVerbs(struct RaQpHandle *qpHdc, struct RecvWrVerbs *wr);
 int RaHdcSendWrlist(struct RaQpHandle *qpHdc, struct SendWrlistData wr[], struct SendWrRsp opRsp[],
     struct WrlistSendCompleteNum wrlistNum);
 int RaHdcSendWrlistExt(struct RaQpHandle *qpHdc, struct SendWrlistDataExt wr[], struct SendWrRsp opRsp[],

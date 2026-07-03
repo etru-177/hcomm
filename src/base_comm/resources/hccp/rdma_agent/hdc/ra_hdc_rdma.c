@@ -25,6 +25,7 @@
 #include "ra_rdma_lite.h"
 #include "ra_hdc_lite.h"
 #include "ra_hdc_rdma_notify.h"
+#include "ra_hdc_rdma_verbs.h"
 #include "ra_hdc_rdma.h"
 
 STATIC int RaHdcNotifyBaseAddrInit(unsigned int notifyType, unsigned int phyId, unsigned long long **notifyVa)

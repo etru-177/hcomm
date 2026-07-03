@@ -31,6 +31,7 @@ set(rdma_agent_utest_list
     tc_ra_nda.c
     ${SRC_DIR}/test/ut/platform/hccp/rdma_agent/stub/dl.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/ra_host.c
+    ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/ra_host_verbs.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/ra_common.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/ra_ping.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/ra_ctx.c
@@ -43,6 +44,7 @@ set(rdma_agent_utest_list
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/async/ra_ctx.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/client/async/ra_socket.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/ra_adp.c
+    ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/ra_adp_verbs.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/ra_adp_ping.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/ra_adp_socket.c
     ${SRC_DIR}/src/base_comm/resources/hccp/rdma_agent/adapter/tlv/ra_adp_tlv.c

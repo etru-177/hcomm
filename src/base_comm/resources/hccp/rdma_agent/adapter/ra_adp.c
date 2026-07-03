@@ -37,6 +37,7 @@
 #include "ra_hdc_async_ctx.h"
 #include "ra_adp_ctx.h"
 #include "ra_adp_async.h"
+#include "ra_adp_verbs.h"
 #include "ra_adp.h"
 
 struct RaHdcServer gHdcServer[RA_MAX_PHY_ID_NUM] = {0};
@@ -53,18 +54,9 @@ struct RsOps {
         struct RsQpResp *qpResp);
     int (*qpCreateWithAttrs)(unsigned int phyId, unsigned int rdevIndex,
         struct RsQpNormWithAttrs *qpNorm, struct RsQpRespWithAttrs *qpResp);
-    int (*qpCreateWithCQWithAttrs)(unsigned int phyId, unsigned int rdevIndex,
-        unsigned int sendCqn, unsigned int recvCqn,
-        struct RsQpNormWithAttrs *qpNorm, struct RsQpRespWithAttrs *qpResp);
     int (*qpDestroy)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn);
-    int (*qpDestroyWithoutCQ)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn);
     int (*typicalQpModify)(unsigned int phyId, unsigned int rdevIndex, struct TypicalQp localQpInfo,
         struct TypicalQp remoteQpInfo, unsigned int *udpSport);
-    int (*typicalCqCreate)(unsigned int phyId, unsigned int rdevIndex, unsigned int cqDepth,
-        unsigned int *cqn);
-    int (*typicalCqDestroy)(unsigned int phyId, unsigned int rdevIndex, unsigned int cqn);
-    int (*getLiteCqAttr)(unsigned int phyId, unsigned int rdevIndex, unsigned int cqn,
-        struct rdma_lite_device_cq_attr *deviceCqAttr);
     int (*qpBatchModify)(unsigned int phyId, unsigned int rdevIndex, int status, int qpn[], int qpnNum);
     int (*qpConnectAsync)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn, int fd);
     int (*getQpStatus)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn,
@@ -98,8 +90,6 @@ struct RsOps {
     int (*getLiteRdevCap)(unsigned int phyId, unsigned int rdevIndex, struct LiteRdevCapResp *resp);
     int (*getLiteQpCqAttr)(
         unsigned int phyId, unsigned int rdevIndex, unsigned int qpn, struct LiteQpCqAttrResp *resp);
-    int (*getLiteQpAttr)(
-        unsigned int phyId, unsigned int rdevIndex, unsigned int qpn, struct LiteQpAttrResp *resp);
     int (*getLiteMemAttr)(
         unsigned int phyId, unsigned int rdevIndex, unsigned int qpn, struct LiteMemAttrResp *resp);
     int (*getLiteConnectedInfo)(
@@ -119,12 +109,8 @@ struct RsOps gRaRsOps = {
     .rdevDeinit = RsRdevDeinit,
     .qpCreate = RsQpCreate,
     .qpCreateWithAttrs = RsQpCreateWithAttrs,
-    .qpCreateWithCQWithAttrs = RsQpCreateWithCQWithAttrs,
     .qpDestroy = RsQpDestroy,
-    .qpDestroyWithoutCQ = RsQpDestroyWithoutCQ,
     .typicalQpModify = RsTypicalQpModify,
-    .typicalCqCreate = RsTypicalCqCreate,
-    .typicalCqDestroy = RsTypicalCqDestroy,
     .qpBatchModify = RsQpBatchModify,
     .qpConnectAsync = RsQpConnectAsync,
     .getQpStatus = RsGetQpStatus,
@@ -149,8 +135,6 @@ struct RsOps gRaRsOps = {
     .getCqeErrInfo = RsGetCqeErrInfo,
     .getLiteRdevCap = RsGetLiteRdevCap,
     .getLiteQpCqAttr = RsGetLiteQpCqAttr,
-    .getLiteQpAttr = RsGetLiteQpAttr,
-    .getLiteCqAttr = RsGetLiteCqAttr,
     .getLiteConnectedInfo = RsGetLiteConnectedInfo,
     .getLiteMemAttr = RsGetLiteMemAttr,
     .getLiteSupport = RsGetLiteSupport,
@@ -413,36 +397,6 @@ STATIC int RaRsQpCreateWithAttrs(char *inBuf, char *outBuf, int *outLen, int *op
     return 0;
 }
 
-STATIC int RaRsQpCreateWithCQWithAttrs(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
-{
-    union OpQpCreateWithCQWithAttrsData *createData = NULL;
-    struct RsQpNormWithAttrs qpNorm = { 0 };
-    struct RsQpRespWithAttrs qpResp = { 0 };
-
-    HCCP_CHECK_PARAM_LEN_RET_HOST(sizeof(union OpQpCreateWithCQWithAttrsData), sizeof(struct MsgHead), rcvBufLen,
-        opResult);
-
-    createData = (union OpQpCreateWithCQWithAttrsData *)(inBuf + sizeof(struct MsgHead));
-
-    qpNorm.isExp = 1;
-    qpNorm.isExt = 1;
-    qpNorm.extAttrs = createData->txData.extAttrs;
-
-    *opResult = gRaRsOps.qpCreateWithCQWithAttrs(createData->txData.phyId, createData->txData.rdevIndex,
-        createData->txData.sendCqn, createData->txData.recvCqn, &qpNorm, &qpResp);
-    if (*opResult != 0) {
-        hccp_err("qp create with cq with attrs failed ret[%d].", *opResult);
-        return 0;
-    }
-
-    createData = (union OpQpCreateWithCQWithAttrsData *)(outBuf + sizeof(struct MsgHead));
-    createData->rxData.qpn = qpResp.qpn;
-    createData->rxData.psn = qpResp.psn;
-    createData->rxData.gidIdx = qpResp.gidIdx;
-
-    return 0;
-}
-
 STATIC int RaRsAiQpCreate(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
 {
     union OpAiQpCreateData *createData = NULL;
@@ -551,69 +505,6 @@ STATIC int RaRsTypicalQpCreate(char *inBuf, char *outBuf, int *outLen, int *opRe
     return 0;
 }
 
-STATIC int RaRsTypicalCqCreate(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
-{
-    union OpTypicalCqCreateData *createData = (union OpTypicalCqCreateData *)(inBuf +
-        sizeof(struct MsgHead));
-    unsigned int cqn = 0;
-
-    HCCP_CHECK_PARAM_LEN_RET_HOST(sizeof(union OpTypicalCqCreateData), sizeof(struct MsgHead), rcvBufLen,
-        opResult);
-
-    *opResult = gRaRsOps.typicalCqCreate(createData->txData.phyId, createData->txData.rdevIndex,
-        createData->txData.cqDepth, &cqn);
-    if (*opResult != 0) {
-        hccp_err("typical cq create failed ret[%d].", *opResult);
-        return 0;
-    }
-
-    createData = (union OpTypicalCqCreateData *)(outBuf + sizeof(struct MsgHead));
-    createData->rxData.cqn = cqn;
-
-    return 0;
-}
-
-STATIC int RaRsTypicalCqDestroy(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
-{
-    union OpTypicalCqDestroyData *destroyData = (union OpTypicalCqDestroyData *)(inBuf +
-        sizeof(struct MsgHead));
-
-    HCCP_CHECK_PARAM_LEN_RET_HOST(sizeof(union OpTypicalCqDestroyData), sizeof(struct MsgHead), rcvBufLen,
-        opResult);
-
-    *opResult = gRaRsOps.typicalCqDestroy(destroyData->txData.phyId, destroyData->txData.rdevIndex,
-        destroyData->txData.cqn);
-    if (*opResult != 0) {
-        hccp_err("typical cq destroy failed ret[%d].", *opResult);
-        return 0;
-    }
-
-    return 0;
-}
-
-STATIC int RaRsGetLiteCqAttr(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
-{
-    union OpGetLiteCqAttrData *getLiteCqAttrData =
-        (union OpGetLiteCqAttrData *)(inBuf + sizeof(struct MsgHead));
-    unsigned int cqn = getLiteCqAttrData->txData.cqn;
-    struct rdma_lite_device_cq_attr deviceCqAttr = {0};
-
-    HCCP_CHECK_PARAM_LEN_RET_HOST(
-        sizeof(union OpGetLiteCqAttrData), sizeof(struct MsgHead), rcvBufLen, opResult);
-
-    *opResult = gRaRsOps.getLiteCqAttr(getLiteCqAttrData->txData.phyId,
-        getLiteCqAttrData->txData.rdevIndex, cqn, &deviceCqAttr);
-    if (*opResult != 0) {
-        hccp_err("get lite cq attr failed ret[%d], cqn[%u].", *opResult, cqn);
-        return 0;
-    }
-
-    getLiteCqAttrData = (union OpGetLiteCqAttrData *)(outBuf + sizeof(struct MsgHead));
-    getLiteCqAttrData->rxData.deviceCqAttr = deviceCqAttr;
-
-    return 0;
-}
-
 STATIC int RaRsQpDestroy(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
 {
     union OpQpDestroyData *qpDestroyData = (union OpQpDestroyData *)(inBuf + sizeof(struct MsgHead));
@@ -624,21 +515,6 @@ STATIC int RaRsQpDestroy(char *inBuf, char *outBuf, int *outLen, int *opResult, 
         qpDestroyData->txData.qpn);
     if (*opResult != 0) {
         hccp_err("qp destroy failed ret[%d].", *opResult);
-    }
-
-    return 0;
-}
-
-STATIC int RaRsQpDestroyWithoutCQ(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
-{
-    union OpQpDestroyData *qpDestroyData = (union OpQpDestroyData *)(inBuf + sizeof(struct MsgHead));
-
-    HCCP_CHECK_PARAM_LEN_RET_HOST(sizeof(union OpQpDestroyData), sizeof(struct MsgHead), rcvBufLen, opResult);
-
-    *opResult = gRaRsOps.qpDestroyWithoutCQ(qpDestroyData->txData.phyId, qpDestroyData->txData.rdevIndex,
-        qpDestroyData->txData.qpn);
-    if (*opResult != 0) {
-        hccp_err("qp destroy without cq failed ret[%d].", *opResult);
     }
 
     return 0;
@@ -1437,27 +1313,6 @@ STATIC int RaRsGetLiteQpCqAttr(char *inBuf, char *outBuf, int *outLen, int *opRe
         (void *)&liteQpCqAttrOut->rxData.resp);
     if (*opResult != 0) {
         hccp_err("get_lite_qp_cq_attr failed ret[%d].", *opResult);
-    }
-
-    return 0;
-}
-
-STATIC int RaRsGetLiteQpAttr(char *inBuf, char *outBuf, int *outLen, int *opResult, int rcvBufLen)
-{
-    union OpLiteQpAttrData *liteQpAttrData =
-        (union OpLiteQpAttrData *)(inBuf + sizeof(struct MsgHead));
-    union OpLiteQpAttrData *liteQpAttrOut =
-        (union OpLiteQpAttrData *)(outBuf + sizeof(struct MsgHead));
-
-    HCCP_CHECK_PARAM_LEN_RET_HOST(
-        sizeof(union OpLiteQpAttrData), sizeof(struct MsgHead), rcvBufLen, opResult);
-
-    *opResult = gRaRsOps.getLiteQpAttr(liteQpAttrData->txData.phyId,
-        liteQpAttrData->txData.rdevIndex,
-        liteQpAttrData->txData.qpn,
-        (void *)&liteQpAttrOut->rxData.resp);
-    if (*opResult != 0) {
-        hccp_err("get_lite_qp_attr failed ret[%d].", *opResult);
     }
 
     return 0;
