@@ -225,6 +225,7 @@ STATIC void *RsNdaDbMmapHostVa(struct RsNdaCb *ndaCb, struct doorbell_map_desc *
 {
     uint64_t alignHva = AlignDown(desc->hva, (uint64_t)RA_RS_4K_PAGE_SIZE);
     uint64_t alignSize = AlignUp(desc->size, (uint64_t)RA_RS_4K_PAGE_SIZE);
+    uint64_t offset = desc->hva - alignHva;
     unsigned int logicId = gRsCb->logicId;
     struct NdaPcieDbCb *ndaDbCb = NULL;
     void *dbDva = NULL;
@@ -233,7 +234,7 @@ STATIC void *RsNdaDbMmapHostVa(struct RsNdaCb *ndaCb, struct doorbell_map_desc *
     ret = RsGetNdaPcieDbCb(ndaCb, alignHva, &ndaDbCb);
     if (ret == 0) {
         ndaDbCb->refCnt++;
-        return (void *)(uintptr_t)ndaDbCb->dva;
+        return (void *)(uintptr_t)(ndaDbCb->dva + offset);
     }
 
     ndaDbCb = (struct NdaPcieDbCb *)calloc(1, sizeof(struct NdaPcieDbCb));
@@ -252,7 +253,7 @@ STATIC void *RsNdaDbMmapHostVa(struct RsNdaCb *ndaCb, struct doorbell_map_desc *
     ndaDbCb->dva = (uint64_t )(uintptr_t)dbDva;
     ndaDbCb->refCnt++;
     RsListAddTail(&ndaDbCb->list, &ndaCb->ndaPcieCb.ndaDbList);
-    return (void *)(uintptr_t)ndaDbCb->dva;
+    return (void *)(uintptr_t)(ndaDbCb->dva + offset);
 }
 
 STATIC void RsNdaMapPrivPrepare(struct doorbell_map_desc *desc, struct NdaUbResMapPrivInfo *resMapIn)
@@ -501,28 +502,19 @@ STATIC void RsNdaCqInitExPrepare(struct NdaCqInitAttr *attr, struct RsNdaCb *nda
     RsNdaInitExOps(ndaCb, attr->dmaMode, attr->ops, &cqInitAttrEx->ops);
 }
 
-STATIC void RsNdaFillQueueInfo(struct queue_info *extendInfo, struct queueInfo *info)
-{
-    info->qBuf.base = extendInfo->qbuf.base;
-    info->qBuf.entryCnt = extendInfo->qbuf.entry_cnt;
-    info->qBuf.entrySize = extendInfo->qbuf.entry_size;
-    info->dbrPiVa.iovBase = extendInfo->dbr_pi_va.iov_base;
-    info->dbrPiVa.iovLen = extendInfo->dbr_pi_va.iov_len;
-    info->dbrCiVa.iovBase = extendInfo->dbr_ci_va.iov_base;
-    info->dbrCiVa.iovLen = extendInfo->dbr_ci_va.iov_len;
-    info->dbHwVa.iovBase = extendInfo->db_hw_va.iov_base;
-    info->dbHwVa.iovLen = extendInfo->db_hw_va.iov_len;
-}
-
 STATIC int RsNdaCqCreateEx(struct RsRdevCb *rdevCb, struct ibv_cq_init_attr_extend *cqInitAttrEx,
     struct NdaCqInfo *info, void **ibvCqExt)
 {
     struct ibv_cq_extend *cqExt = NULL;
+    int ret = 0;
 
     cqExt = RsNdaIbvCreateCqExtend(rdevCb->ibCtxEx, cqInitAttrEx);
     CHK_PRT_RETURN(cqExt == NULL, hccp_err("RsNdaCreateCqExtend failed, errno:%d", errno), -ENOMEM);
 
-    RsNdaFillQueueInfo(&cqExt->cq_info, &info->cqInfo);
+    ret = memcpy_s(&info->cqInfo, sizeof(struct queueInfo), &cqExt->cq_info, sizeof(struct queue_info));
+    CHK_PRT_RETURN(ret != 0, hccp_err("memcpy_s queue_info failed, ret:%d", ret), -ESAFEFUNC);
+    ret = memcpy_s(info->resv, sizeof(info->resv), cqExt->resv, sizeof(cqExt->resv));
+    CHK_PRT_RETURN(ret != 0, hccp_err("memcpy_s resv failed, ret:%d", ret), -ESAFEFUNC);
     info->cq = cqExt->cq;
     *ibvCqExt = cqExt;
     return 0;
@@ -620,6 +612,21 @@ STATIC void RsNdaQpInitExPrepare(struct RsRdevCb *rdevCb, struct NdaQpInitAttr *
     RsNdaInitExOps(ndaCb, attr->dmaMode, attr->ops, &qpInitAttrEx->ops);
 }
 
+STATIC int RsNdaQpGetQpInfo(struct RsQpCb *qpCb, struct NdaQpInfo *info)
+{
+    int ret = 0;
+
+    info->qp = qpCb->ibQp;
+    ret = memcpy_s(&info->sqInfo, sizeof(struct queueInfo), &qpCb->ibQpEx->sq_info, sizeof(struct queue_info));
+    CHK_PRT_RETURN(ret != 0, hccp_err("memcpy_s sq_info failed, ret:%d", ret), -ESAFEFUNC);
+    ret = memcpy_s(&info->rqInfo, sizeof(struct queueInfo), &qpCb->ibQpEx->rq_info, sizeof(struct queue_info));
+    CHK_PRT_RETURN(ret != 0, hccp_err("memcpy_s rq_info failed, ret:%d", ret), -ESAFEFUNC);
+    ret = memcpy_s(info->resv, sizeof(info->resv), qpCb->ibQpEx->resv, sizeof(qpCb->ibQpEx->resv));
+    CHK_PRT_RETURN(ret != 0, hccp_err("memcpy_s resv failed, ret:%d", ret), -ESAFEFUNC);
+
+    return ret;
+}
+
 STATIC int RsNdaQpCreateEx(struct RsQpCb *qpCb, struct ibv_qp_init_attr_extend *qpInitAttrEx, struct NdaQpInfo *info)
 {
     struct ibv_qp_attr qpAttr = {0};
@@ -645,9 +652,12 @@ STATIC int RsNdaQpCreateEx(struct RsQpCb *qpCb, struct ibv_qp_init_attr_extend *
         goto nda_init_qp_err;
     }
 
-    info->qp = qpCb->ibQp;
-    RsNdaFillQueueInfo(&qpCb->ibQpEx->sq_info, &info->sqInfo);
-    RsNdaFillQueueInfo(&qpCb->ibQpEx->rq_info, &info->rqInfo);
+    ret = RsNdaQpGetQpInfo(qpCb, info);
+    if (ret != 0) {
+        hccp_err("RsNdaQpGetQpInfo failed ret:%d", ret);
+        goto nda_init_qp_err;
+    }
+
     hccp_info("chip_id:%u, rdevIndex:%u, qp:%d create succ", rdevCb->rsCb->chipId, rdevCb->rdevIndex,
         qpCb->qpInfoLo.qpn);
     return ret;

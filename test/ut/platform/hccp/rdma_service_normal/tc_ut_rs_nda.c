@@ -299,7 +299,7 @@ void TcRsNdaDbMmapHostVa()
     ptr = RsNdaDbMmap(&desc);
     EXPECT_ADDR_EQ(ptr, NULL);
 
-    desc.type = DB_MAP_MODE_UB_MAX;
+    desc.type = DB_MAP_MODE_UB_RES + 1;
     ptr = RsNdaDbMmap(&desc);
     EXPECT_ADDR_EQ(ptr, NULL);
 
@@ -365,7 +365,7 @@ void TcRsNdaDbMmapUbRes()
     ptr = RsNdaDbMmap(&desc);
     EXPECT_ADDR_EQ(ptr, NULL);
 
-    desc.type = DB_MAP_MODE_UB_MAX;
+    desc.type = DB_MAP_MODE_UB_RES + 1;
     ptr = RsNdaDbMmap(&desc);
     EXPECT_ADDR_EQ(ptr, NULL);
 
