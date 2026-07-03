@@ -235,7 +235,7 @@ typedef struct HcclCommConfigDef {
 
 - **hcclBufferName**：CCLBuffer名称，多通信域使用同一Buffer名称，共享同一片CCLBuffer，不指定时默认不共享，最大长度为128。需注意，传入同一CCLBuffer名称的通信域，需将算子下发到同一条Stream上。
 - **hcclQos**：用于配置超平面QoS的级别，取值范围：0\~7，默认值6。
-- **hcclSymWinMaxMemSizePerRank**：为当前通信域中每个rank预留的对称内存大小，单位GB，取值范围：\[1, 当前环境中允许分配的物理内存最大值\]，默认值16。该参数当前仅支持Atlas A3 训练系列产品/Atlas A3 推理系列产品。
+- **hcclSymWinMaxMemSizePerRank**：Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下，为当前通信域中每个rank预留的对称内存大小，单位GB，取值范围：\[1, 当前环境中允许分配的物理内存最大值\]，默认值16。该参数仅在Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下生效。Ascend 950PR/Ascend 950DT的URMA场景使用已申请的Device内存注册对称内存窗口，不依赖该参数配置预留的对称内存大小。
 
 ## 配置优先级说明
 

@@ -3,7 +3,7 @@
 ## 产品支持情况
 
 <!-- npu="950" id1 -->
-- Ascend 950PR/Ascend 950DT：不支持
+- Ascend 950PR/Ascend 950DT：支持
 <!-- end id1 -->
 <!-- npu="A3" id2 -->
 - Atlas A3 训练系列产品/Atlas A3 推理系列产品：支持
@@ -20,11 +20,16 @@
 
 ## 功能说明
 
-用户在申请虚拟内存和物理内存并完成映射后，可调用此接口将虚拟内存注册为对称内存。
+用户可调用此接口将业务内存注册为对称内存窗口，使HCCL在支持的集合通信算子中直接使用该内存。
 
 对称内存是一种内存管理模型，允许并行处理单元（例如每个rank）以一种“全局可见”但“无需显式地址交换”的方式访问彼此的内存。
 
-对称内存的基本实现模型如下图所示，每个rank通过提前预留相同大小、相同布局的虚拟地址来实现。
+当前对称内存支持如下场景：
+
+- Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景：用户在申请虚拟内存和物理内存并完成映射后，将虚拟内存注册为对称内存。该场景通过提前预留相同大小、相同布局的虚拟地址来实现对称内存。
+- Ascend 950PR/Ascend 950DT的URMA场景：用户将已申请的Device内存注册为对称内存窗口。该场景下，HcclCommSymWinRegister仅完成本端对称内存窗口登记；跨rank的内存注册、memHandle交换和远端内存信息更新在相关UB/URMA通信通道创建时完成。使用集合通信接口时，该流程由集合通信算子内部触发。在远端内存信息更新完成前，不应调用[HcclSymWinGetPeerPointer](HcclSymWinGetPeerPointer.md)获取远端地址。
+
+Atlas A3 训练系列产品/Atlas A3 推理系列产品HCCS场景的对称内存基本实现模型如下图所示。
 
 ![对称内存实现模型](./figures/symmetric_memory.png)
 
@@ -44,9 +49,9 @@ HcclResult HcclCommSymWinRegister(HcclComm comm, void *addr, uint64_t size, Hccl
 
 | 参数名 | 输入/输出 | 说明 |
 | --- | --- | --- |
-| comm | 输入 | HCCL通信域，建议使用超节点内最大的通信域，即覆盖最大卡数的通信域。<br>初始化通信域时可以通过[HcclCommConfig](./data_type_definition/HcclCommConfig.md)的hcclSymWinMaxMemSizePerRank参数设置每个rank预留的对称内存大小，若不设置hcclSymWinMaxMemSizePerRank，使用默认值16GB。<br>当前通信域预留的总虚拟对称内存大小为：rankSize * HcclCommConfig.hcclSymWinMaxMemSizePerRank。 |
-| addr | 输入 | 预留的虚拟内存地址。<br>虚拟内存需要调用aclrtReserveMemAddress接口预留。 |
-| size | 输入 | 对称内存窗口的大小，0 < size <= HcclCommConfig.hcclSymWinMaxMemSizePerRank，并且size不能超过“与addr做映射的物理内存”大小（即调用aclrtMallocPhysical接口申请的Device物理内存）。<br>注：对称内存注册按物理内存的大小对齐，实际注册的对称内存窗口大小等于“与addr做映射的物理内存”的大小。 |
+| comm | 输入 | HCCL通信域。<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下，建议使用超节点内最大的通信域，即覆盖最大卡数的通信域。初始化通信域时可以通过[HcclCommConfig](./data_type_definition/HcclCommConfig.md)的hcclSymWinMaxMemSizePerRank参数设置每个rank预留的对称内存大小，若不设置hcclSymWinMaxMemSizePerRank，使用默认值16GB。当前通信域预留的总虚拟对称内存大小为：rankSize * HcclCommConfig.hcclSymWinMaxMemSizePerRank。<br>Ascend 950PR/Ascend 950DT的URMA场景下，无需通过hcclSymWinMaxMemSizePerRank配置预留的对称内存大小。 |
+| addr | 输入 | 对称内存窗口的起始地址。<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下，该地址为预留的虚拟内存地址，虚拟内存需要调用aclrtReserveMemAddress接口预留。<br>Ascend 950PR/Ascend 950DT的URMA场景下，该地址为已申请的Device内存地址，内存需要在调用[HcclCommSymWinDeregister](HcclCommSymWinDeregister.md)解注册前保持有效。 |
+| size | 输入 | 对称内存窗口的大小。<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下，0 < size <= HcclCommConfig.hcclSymWinMaxMemSizePerRank，并且size不能超过“与addr做映射的物理内存”大小（即调用aclrtMallocPhysical接口申请的Device物理内存）。对称内存注册按物理内存的大小对齐，实际注册的对称内存窗口大小等于“与addr做映射的物理内存”的大小。<br>Ascend 950PR/Ascend 950DT的URMA场景下，size需要大于0，且所有rank调用该接口时输入的size需要保持一致。 |
 | winHandle | 输出 | 存放“对称内存窗口资源句柄“的指针。<br>HcclCommSymWindow类型的定义请参见[HcclCommSymWindow](./data_type_definition/HcclCommSymWindow.md)。 |
 | flag | 输入 | 是否启用对称内存，当前仅支持传入1。 |
 
@@ -56,25 +61,33 @@ HcclResult HcclCommSymWinRegister(HcclComm comm, void *addr, uint64_t size, Hccl
 
 ## 约束说明
 
-- 仅支持Atlas A3 训练系列产品/Atlas A3 推理系列产品的超节点内通信。
-- 仅支持通信算子展开模式为AI CPU的场景。
-- 仅支持超节点内AI Server间使用HCCS链路进行SDMA通信的场景，不支持使用RoCE进行RDMA通信的场景（即不支持设置环境变量HCCL_INTER_HCCS_DISABLE为"TRUE"，单机场景该环境变量无效）。
-- 仅支持对称组网，即每个Server内卡数相同的场景。
-- 该接口仅支持集合通信算子AllGather、ReduceScatter、AllReduce、AllToAll。
+- 针对Atlas A3 训练系列产品/Atlas A3 推理系列产品：
+  - 仅支持HCCS链路通信场景。
+  - 仅支持对称组网，即每个Server内卡数相同的场景。
+  - 仅支持超节点内AI Server间使用HCCS链路进行SDMA通信的场景，不支持使用RoCE进行RDMA通信的场景（即不支持设置环境变量HCCL_INTER_HCCS_DISABLE为"TRUE"，单机场景该环境变量无效）。
+  - 仅支持集合通信算子AllGather、ReduceScatter、AllReduce、AllToAll。
+  - 所有rank的输入地址映射的物理内存大小一致（对称内存注册按物理内存的大小对齐）。
+- 针对Ascend 950PR/Ascend 950DT：
+  - 仅支持URMA场景。
+  - 仅支持集合通信算子AllGather。
+  - 依赖集合通信算子内部创建UB/URMA通信通道完成对称内存资源注册和交换，用户无需显式调用HcclChannelAcquire。
+  - 不要求对称组网。
+- 该接口仅支持通信算子展开模式为AI CPU的场景。
 - 需确保通信域中的所有rank同时调用该注册接口。
-- 所有rank的输入地址映射的物理内存大小一致（对称内存注册按物理内存的大小对齐）。
 - 所有rank调用该接口时，输入的size参数需要保持一致。
 - 使用对称内存功能时，算子的输入、输出内存必须调用此接口注册为对称内存。
 - 调用该接口注册的内存需要使用[HcclCommSymWinDeregister](HcclCommSymWinDeregister.md)接口解注册。
 
 ## 调用示例
 
+### Atlas A3 训练系列产品/Atlas A3 推理系列产品HCCS场景
+
 ```c
 // 创建并初始化通信域配置项
 HcclCommConfig config;
 HcclCommConfigInit(&config);
 // 按需修改通信域配置
-config.hcclSymWinMaxMemSizePerRank = 10; //单位GB,默认值为16。设置对称堆预留的虚拟内存大小 = rankSize * config.hcclSymWinMaxMemSizePerRank;
+config.hcclSymWinMaxMemSizePerRank = 10; //单位GB, 默认值为16。设置当前通信域预留的总虚拟对称内存大小 = rankSize * config.hcclSymWinMaxMemSizePerRank;
 
 // 获取通信域参数
 uint32_t rankSize = 4;
@@ -143,6 +156,64 @@ HCCLCHECK(HcclCommSymWinDeregister(symWin));
 ACLCHECK(aclrtUnmapMem(virPtr));
 ACLCHECK(aclrtFreePhysical(memHandle));
 ACLCHECK(aclrtReleaseMemAddress(virPtr));
+
+// 销毁任务流
+ACLCHECK(aclrtDestroyStream(stream));
+
+// 销毁通信域
+HCCLCHECK(HcclCommDestroy(hcclComm));
+```
+
+### Ascend 950PR/Ascend 950DT URMA场景
+
+```c
+// 创建并初始化通信域配置项
+HcclCommConfig config;
+HcclCommConfigInit(&config);
+
+// 获取通信域参数
+uint32_t rankSize = 4;
+uint32_t rankId = 0;
+HcclRootInfo rootInfo;
+HCCLCHECK(HcclGetRootInfo(&rootInfo));
+
+// 初始化集合通信域
+HcclComm hcclComm;
+HCCLCHECK(HcclCommInitRootInfoConfig(rankSize, &rootInfo, rankId, &config, &hcclComm));
+
+// 创建任务流
+aclrtStream stream;
+ACLCHECK(aclrtCreateStream(&stream));
+
+size_t sendBytes = 1024;
+size_t recvBytes = rankSize * sendBytes;
+size_t memSize = sendBytes + recvBytes;
+
+// 申请Device内存
+void *devPtr = nullptr;
+ACLCHECK(aclrtMalloc(&devPtr, memSize, ACL_MEM_MALLOC_HUGE_FIRST));
+
+HcclCommSymWindow symWin;
+// 注册对称内存
+HCCLCHECK(HcclCommSymWinRegister(hcclComm, devPtr, memSize, &symWin, 1));
+
+// 使用对称内存
+void *sendBuff = devPtr;
+void *recvBuff = static_cast<char*>(sendBuff) + sendBytes;
+
+// 调用集合通信算子。
+// Ascend 950PR/Ascend 950DT的URMA场景下，HcclCommSymWinRegister仅完成对称内存窗口登记；
+// HcclAllGather内部创建UB/URMA通信通道时，会通过HcclChannelAcquire相关流程完成内存注册、memHandle交换和远端内存信息更新。
+HCCLCHECK(HcclAllGather(sendBuff, recvBuff, sendBytes, HCCL_DATA_TYPE_INT8, hcclComm, stream));
+
+// 阻塞等待任务流中的集合通信任务执行完成
+ACLCHECK(aclrtSynchronizeStream(stream));
+
+// 解注册对称内存
+HCCLCHECK(HcclCommSymWinDeregister(symWin));
+
+// 释放内存
+ACLCHECK(aclrtFree(devPtr));
 
 // 销毁任务流
 ACLCHECK(aclrtDestroyStream(stream));
