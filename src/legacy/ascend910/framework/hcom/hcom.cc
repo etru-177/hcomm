@@ -177,7 +177,6 @@ HcclResult HcomInitByString(const char *rankTableM, const char *identify, WorkMo
 
     HCCLV2_FUNC_RUN(
         [&]() -> HcclResult {
-            CheckCcuMc2CompatMode();
             CHK_RET(HcomInitByStringV2(rankTableM, identify));
             s32 myRank = std::atoi(identify);
             Hccl::RankId rank = static_cast<Hccl::RankId>(myRank);

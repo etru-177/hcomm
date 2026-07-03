@@ -101,7 +101,6 @@ HcclResult GetCaptureInfo(aclrtStream stream, aclmdlRICaptureStatus& captureStat
 
 HcclResult HcclGetInitTilingList(const void *mc2Tiling, const void *p[], uint32_t &cnt);
 
-void CheckCcuMc2CompatMode();
 HcclResult HcclCommInitCollComm(uint32_t rank, void **commV2, HcclCommConfig *config, HcclComm *comm);
 HcclResult HcclMc2ComOpResCtx(HcclComm comm, uint8_t opType, HcclDataType srcDataType, HcclDataType dstDataType,
                               HcclReduceOp reduceType, uint64_t count, char *algConfig, uint32_t commEngine, rtStream_t &aicpuStream);

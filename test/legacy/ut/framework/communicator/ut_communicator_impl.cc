@@ -3108,7 +3108,6 @@ TEST_F(CommunicatorImplTest, Ut_GetRanksByTopoInst_When_ErrorNetType_Expect_Retu
     uint32_t rankNum;
     auto ret = comm.GetRanksByTopoInst(netLayer, topoInstId, &ranks, &rankNum);
     EXPECT_EQ(ret, HCCL_E_PARA);
-
 }
 
 TEST_F(CommunicatorImplTest, Ut_TryInitCcuFeature_When_AccStateIsNotCcu_Expect_OK)

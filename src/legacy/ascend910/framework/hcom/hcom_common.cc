@@ -493,7 +493,6 @@ HcclResult HcomCreateGroup(const char *group, u32 rankNum, u32 *rankIds)
 #if (!defined (HCCD)) && (!defined (CCL_KERNEL_AICPU))
     HCCLV2_FUNC_RUN(
         [&]() -> HcclResult {
-            CheckCcuMc2CompatMode();
             CHK_RET(HcomCreateGroupImplV2(group, rankNum, ranks));
             HcclGroupParams groupParams{};
             void *commV2 = nullptr;
@@ -1481,7 +1480,6 @@ HcclResult HcomInitByFile(const char *rankTablePath, const char *identify)
 #if (!defined (HCCD)) && (!defined (CCL_KERNEL_AICPU))
     HCCLV2_FUNC_RUN(
         [&]() -> HcclResult {
-            CheckCcuMc2CompatMode();
             CHK_RET(HcomInitByFileV2(rankTablePath, identify));
             u32 rankNum = 0;
             CHK_RET(HcomGetRankSize(HCCL_WORLD_GROUP, &rankNum));

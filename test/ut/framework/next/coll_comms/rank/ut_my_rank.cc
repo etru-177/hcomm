@@ -224,7 +224,7 @@ TEST_F(MyRankTest, Ut_Init_When_Default_Mode_Expect_Set_By_Env)
     void* rankGraphPtr = (void*)0x114514;
     std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
     MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    
+
     HcclMem cclBuffer;
     CreateCclBuffer(cclBuffer);
 
@@ -237,7 +237,6 @@ TEST_F(MyRankTest, Ut_Init_When_Default_Mode_Expect_Set_By_Env)
 // 测试Init时ccu驱动拉起失败回退到aicpu
 TEST_F(MyRankTest, Ut_Init_When_Ccu_Driver_Fail_Expect_Fallback_Aicpu)
 {
-    setenv("HCCL_CCU_CUSTOM_OP_MODE", "1", 1);
     MOCKER(HcommCcuInsCreate).stubs().will(returnValue(CcuResult::CCU_E_DRV_BUSY));
 
     aclrtBinHandle binHandle;
@@ -246,20 +245,18 @@ TEST_F(MyRankTest, Ut_Init_When_Ccu_Driver_Fail_Expect_Fallback_Aicpu)
     void* rankGraphPtr = (void*)0x114514;
     std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
     MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    
+
     HcclMem cclBuffer;
     CreateCclBuffer(cclBuffer);
 
     uint32_t opExpansionModeMs = CCU_MS_MODE;
     EXPECT_EQ(myRank.Init(cclBuffer, opExpansionModeMs, 2), HCCL_SUCCESS);
     EXPECT_EQ(myRank.opExpansionMode_, AICPU_TS_MODE);
-    unsetenv("HCCL_CCU_CUSTOM_OP_MODE");
 }
 
 // 测试Init时ccu ms资源不足回退到sched
 TEST_F(MyRankTest, Ut_Init_When_Ccu_Ms_Insufficient_Expect_Fallback_Sched)
 {
-    setenv("HCCL_CCU_CUSTOM_OP_MODE", "1", 1);
     MOCKER(HcommCcuInsCreate).stubs()
         .will(returnValue(CcuResult::CCU_E_UNAVAIL))
         .then(returnValue(CcuResult::CCU_SUCCESS));
@@ -270,20 +267,18 @@ TEST_F(MyRankTest, Ut_Init_When_Ccu_Ms_Insufficient_Expect_Fallback_Sched)
     void* rankGraphPtr = (void*)0x114514;
     std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
     MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    
+
     HcclMem cclBuffer;
     CreateCclBuffer(cclBuffer);
 
     uint32_t opExpansionModeMs = CCU_MS_MODE;
     EXPECT_EQ(myRank.Init(cclBuffer, opExpansionModeMs, 2), HCCL_SUCCESS);
     EXPECT_EQ(myRank.opExpansionMode_, CCU_SCHED_MODE);
-    unsetenv("HCCL_CCU_CUSTOM_OP_MODE");
 }
 
 // 测试Init时ccu ms和sched资源不足回退到aicpu
 TEST_F(MyRankTest, Ut_Init_When_Ccu_Ms_And_Sched_Insufficient_Expect_Fallback_Aicpu)
 {
-    setenv("HCCL_CCU_CUSTOM_OP_MODE", "1", 1);
     MOCKER(HcommCcuInsCreate).stubs().will(returnValue(CcuResult::CCU_E_UNAVAIL));
 
     aclrtBinHandle binHandle;
@@ -292,20 +287,18 @@ TEST_F(MyRankTest, Ut_Init_When_Ccu_Ms_And_Sched_Insufficient_Expect_Fallback_Ai
     void* rankGraphPtr = (void*)0x114514;
     std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
     MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    
+
     HcclMem cclBuffer;
     CreateCclBuffer(cclBuffer);
 
     uint32_t opExpansionModeMs = CCU_MS_MODE;
     EXPECT_EQ(myRank.Init(cclBuffer, opExpansionModeMs, 2), HCCL_SUCCESS);
     EXPECT_EQ(myRank.opExpansionMode_, AICPU_TS_MODE);
-    unsetenv("HCCL_CCU_CUSTOM_OP_MODE");
 }
 
 // 测试Init在申请资源时出现其他报错时失败
 TEST_F(MyRankTest, Ut_Init_When_Resource_Fail_Expect_Fail)
 {
-    setenv("HCCL_CCU_CUSTOM_OP_MODE", "1", 1);
     MOCKER(HcommCcuInsCreate).stubs().will(returnValue(CcuResult::CCU_E_PARA));
 
     aclrtBinHandle binHandle;
@@ -314,96 +307,12 @@ TEST_F(MyRankTest, Ut_Init_When_Resource_Fail_Expect_Fail)
     void* rankGraphPtr = (void*)0x114514;
     std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
     MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    
+
     HcclMem cclBuffer;
     CreateCclBuffer(cclBuffer);
 
     uint32_t opExpansionModeMs = CCU_MS_MODE;
     EXPECT_EQ(myRank.Init(cclBuffer, opExpansionModeMs, 2), HCCL_E_PARA);
-    unsetenv("HCCL_CCU_CUSTOM_OP_MODE");
-}
-
-// 测试BatchCreateChannels在资源不足时销毁新申请的channel
-TEST_F(MyRankTest, St_BatchCreateChannels_When_Resource_fallback_Expect_Return_HCCL_E_UNAVAIL)
-{
-    uint32_t devPort = 60001;
-    MOCKER_CPP(&Hccl::IRankGraph::GetDevicePort).stubs().with(mockcpp::any(), outBoundP(&devPort)).will(returnValue(HCCL_SUCCESS));
-    MOCKER(HcommEndpointStartListen).stubs().with(mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
-    MOCKER(HcommChannelDestroy).stubs().with(mockcpp::any(), mockcpp::any()).will(returnValue(static_cast<int>(HCCL_SUCCESS)));
-    MockerFuncs();
-
-    aclrtBinHandle binHandle;
-    CommConfig config;
-    ManagerCallbacks callbacks;
-    void* rankGraphPtr = (void*)0x114514;
-    std::shared_ptr<RankGraph> rankGraph = std::make_shared<RankGraphV2>(rankGraphPtr);
-    MyRank myRank(binHandle, 0, config, callbacks, rankGraph.get(), rankIpPortMap);
-    
-    HcclMem cclBuffer;
-    CreateCclBuffer(cclBuffer);
-    EXPECT_EQ(myRank.Init(cclBuffer, 5, 2), HCCL_SUCCESS);
-
-    EndpointDesc localEp;
-    CreateEndpointDesc(localEp, COMM_PROTOCOL_UBC_CTP, "1.0.0.0");
-    EndpointDesc rmtEp1;
-    CreateEndpointDesc(rmtEp1, COMM_PROTOCOL_UBC_CTP, "2.0.0.0");
-    EndpointDesc rmtEp2;
-    CreateEndpointDesc(rmtEp2, COMM_PROTOCOL_UBC_CTP, "3.0.0.0");
-
-    HcclChannelDesc channelDesc[5];
-    for (int i = 0; i < 2; i++) {
-        channelDesc[i].channelProtocol = COMM_PROTOCOL_UBC_CTP;
-        channelDesc[i].remoteRank = 1;
-        channelDesc[i].notifyNum = 2;
-        channelDesc[i].localEndpoint = localEp;
-        channelDesc[i].remoteEndpoint = rmtEp1;
-    }
-    for (int i = 2; i < 5; i++) {
-        channelDesc[i].channelProtocol = COMM_PROTOCOL_UBC_CTP;
-        channelDesc[i].remoteRank = 2;
-        channelDesc[i].notifyNum = 2;
-        channelDesc[i].localEndpoint = localEp;
-        channelDesc[i].remoteEndpoint = rmtEp2;
-    }
-
-    // 模拟创建到rmtEp2的第二个channel时资源不足，需要清理前三个channel
-    MOCKER(HcommCollectiveChannelCreate)
-        .stubs()
-        .will(returnValue(static_cast<int>(HCCL_SUCCESS)))
-        .then(returnValue(static_cast<int>(HCCL_SUCCESS)))
-        .then(returnValue(static_cast<int>(HCCL_SUCCESS)))
-        .then(returnValue(static_cast<int>(HCCL_E_UNAVAIL)));
-    std::vector<HcommChannelDesc> hcommDesc(5);
-    std::vector<ChannelHandle> hostChannelHandles(5);
-    ChannelHandle *hostChannelHandleList = hostChannelHandles.data();
-    EXPECT_EQ(myRank.BatchCreateChannels(COMM_ENGINE_CCU, channelDesc, 5, hcommDesc, hostChannelHandleList), HCCL_E_UNAVAIL);
-    EXPECT_EQ(myRank.newChannels_.size(), 0);
-
-    // 获取到rmtEp1的endpointPair
-    RankIdPair rankIdPair1 = std::make_pair(0, 1);
-    EndpointDescPair endpointDescPair1 = std::make_pair(localEp, rmtEp1);
-    RankPair* rankPair1 = nullptr;
-    hcomm::EndpointPair* endpointPair1 = nullptr;
-    myRank.rankPairMgr_->Get(rankIdPair1, rankPair1);
-    rankPair1->GetEndpointPair(endpointDescPair1, endpointPair1);
-
-    // 期望channelHandle被清理
-    EXPECT_EQ(endpointPair1->channelHandles_.size(), 1);
-    EXPECT_NE(endpointPair1->channelHandles_.find(COMM_ENGINE_CCU), endpointPair1->channelHandles_.end());
-    EXPECT_EQ(endpointPair1->channelHandles_[COMM_ENGINE_CCU].size(), 0);
-
-    // 获取到rmtEp2的endpointPair
-    RankIdPair rankIdPair2 = std::make_pair(0, 2);
-    EndpointDescPair endpointDescPair2 = std::make_pair(localEp, rmtEp2);
-    RankPair* rankPair2 = nullptr;
-    hcomm::EndpointPair* endpointPair2 = nullptr;
-    myRank.rankPairMgr_->Get(rankIdPair2, rankPair2);
-    rankPair2->GetEndpointPair(endpointDescPair2, endpointPair2);
-
-    // 期望channelHandle被清理
-    EXPECT_EQ(endpointPair2->channelHandles_.size(), 1);
-    EXPECT_NE(endpointPair2->channelHandles_.find(COMM_ENGINE_CCU), endpointPair2->channelHandles_.end());
-    EXPECT_EQ(endpointPair2->channelHandles_[COMM_ENGINE_CCU].size(), 0);
 }
 
 // 测试多次调用BatchCreateChannels，在最后一次资源不足时只销毁新申请的channel

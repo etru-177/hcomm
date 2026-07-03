@@ -1485,37 +1485,10 @@ void CommunicatorImpl::InitHccpHdc() const
 
 void CommunicatorImpl::TryInitCcuFeature()
 {
-    const char *opModeEnv = getenv("HCCL_CCU_CUSTOM_OP_MODE");
-    if (opModeEnv != nullptr && strcmp(opModeEnv, "1") == 0) {
-        TpManager::GetInstance(devLogicId).Init();
-        HCCL_RUN_INFO("[CommunicatorImpl][%s] passed, "
-            "will use open source ccu feature.", __func__);
-        return;
-    }
-
-    if (rankSize == 1) {
-        HCCL_RUN_INFO("[CommunicatorImpl][%s] rank size is 1, init steps passed.", __func__);
-        return;
-    }
-
-    TpManager::GetInstance(devLogicId).Init(); // 感知tp场景依赖，ranksize 1 不调用避免影响单p场景
-    if (commExecuteConfig.accState != AcceleratorState::CCU_MS && commExecuteConfig.accState != AcceleratorState::CCU_SCHED) {
-        HCCL_RUN_INFO("[CommunicatorImpl][%s] communicator accstate[%s] doesn't use ccu, init steps passed.",
-            __func__, commExecuteConfig.accState.Describe().c_str());
-        return;
-    }
-
-    if (ccuDrvHandle) { // 已开启ccu驱动时跳过
-        return;
-    }
-    ccuDrvHandle = CommManager::GetInstance(devLogicId).GetCcuDriver();
-    if (ccuDrvHandle == nullptr) {
-        HCCL_WARNING("CCU not support reuse in single device multi-precess services, accelerator fallback AICPU_TS");
-        OpExecuteConfig opExeCfg{AcceleratorState::AICPU_TS};
-        SetCommExecuteConfig(opExeCfg);
-        SetOpExecuteConfig(opExeCfg);
-        return;
-    }
+    TpManager::GetInstance(devLogicId).Init();
+    HCCL_RUN_INFO("[CommunicatorImpl][%s] passed, "
+        "will use open source ccu feature.", __func__);
+    return;
 }
 
 void CommunicatorImpl::InitCcuSuperFastLoad()
@@ -2759,12 +2732,9 @@ HcclResult CommunicatorImpl::SetAccelerator(HcclAccelerator hcclAccelerator, boo
     CHK_RET(HrtGetMainboardId(devLogicId, hcclMainboardId));
 
     // 开启新流程时，仅mc2场景走回legacy通信域，此时不允许使用ms模式
-    const char *opModeEnv = getenv("HCCL_CCU_CUSTOM_OP_MODE");
-    if (opModeEnv != nullptr && strcmp(opModeEnv, "1") == 0) {
-        HCCL_WARNING("[CommunicatorImpl][%s] legacy communicator not support ccu ms mode for mc2.",
-            __func__);
-        isCcuMsAvailable = false;
-    }
+    HCCL_WARNING("[CommunicatorImpl][%s] legacy communicator not support ccu ms mode for mc2.",
+        __func__);
+    isCcuMsAvailable = false;
 
     switch (hcclAccelerator) {
         case HcclAccelerator::CCU_MS:

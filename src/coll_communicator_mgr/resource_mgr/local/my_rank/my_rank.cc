@@ -247,8 +247,7 @@ HcclResult MyRank::Init(HcclMem cclBuffer, const uint32_t opExpansionMode, uint3
     }
 
     // 仅自定义算子ccu流程初始化资源
-    const char *opModeEnv = getenv("HCCL_CCU_CUSTOM_OP_MODE");
-    if ((opModeEnv != nullptr && strcmp(opModeEnv, "1") == 0) && ccuInsHandle_ == 0 && rankNum != 1 &&
+    if (ccuInsHandle_ == 0 && rankNum != 1 &&
         (opExpansionMode_ == CCU_MS_MODE || opExpansionMode_ == CCU_SCHED_MODE)) {
         const uint32_t originOpExpansionMode = opExpansionMode_; // 记录原始加速模式，避免中间执行修改后丢失
         auto ret = TryInitCcuInstance();
