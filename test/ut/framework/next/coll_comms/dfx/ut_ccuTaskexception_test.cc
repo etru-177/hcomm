@@ -1235,7 +1235,7 @@ TEST_F(CcuTaskExceptionTest, GetGroupRankInfo_WithValidComm) {
 TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_ExceptionInfo_Nullptr)
 {
     rtExceptionInfo_t* exceptionInfo = nullptr;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->ProcessCallback(exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->ProcessCallback(exceptionInfo));
 }
 
 TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_NotFound_DeviceId)
@@ -1248,7 +1248,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_NotFound_Dev
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 0;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 }
 
 TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_NotFound_StreamId)
@@ -1261,7 +1261,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_NotFound_Str
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 1;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1282,7 +1282,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_NotFound_Tas
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 0;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1301,7 +1301,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_Success_DfxO
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 0;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1322,7 +1322,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_Success_IsIn
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 0;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1343,7 +1343,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_Success_Task
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 0;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1364,14 +1364,14 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_Process_FindTaskInfo_Success_Task
     exceptionInfo.deviceid = 0;
     exceptionInfo.streamid = 0;
     exceptionInfo.taskid = 0;
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->Process(&exceptionInfo));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->Process(&exceptionInfo));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
 
 TEST_F(CcuTaskExceptionTest, TaskExceptionHost_PrintTaskContextInfo_Queue_Nullptr)
 {
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->PrintTaskContextInfo(0, 0, 0));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->PrintTaskContextInfo(0, 0, 0));
 }
 
 TEST_F(CcuTaskExceptionTest, TaskExceptionHost_PrintTaskContextInfo_Task_Not_Found)
@@ -1386,7 +1386,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_PrintTaskContextInfo_Task_Not_Fou
     shared_ptr<Hccl::TaskInfo> taskInfo = make_shared<Hccl::TaskInfo>(0, 0, 0, taskParam, dfxOpInfo);
     globalMirrorTasks.GetQueue(0, 0)->Append(taskInfo);
 
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->PrintTaskContextInfo(0, 0, 0));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->PrintTaskContextInfo(0, 0, 0));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1405,7 +1405,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_PrintTaskContextInfo_TaskId_Great
         globalMirrorTasks.GetQueue(0, 0)->Append(taskInfo);
     }
 
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->PrintTaskContextInfo(0, 0, 5));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->PrintTaskContextInfo(0, 0, 5));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }
@@ -1424,7 +1424,7 @@ TEST_F(CcuTaskExceptionTest, TaskExceptionHost_PrintTaskContextInfo_Success)
         globalMirrorTasks.GetQueue(0, 0)->Append(taskInfo);
     }
 
-    EXPECT_NO_THROW(hcomm::TaskExceptionHostManager::GetHandler(0)->PrintTaskContextInfo(0, 0, 4));
+    EXPECT_NO_THROW(hcomm::TaskExceptionHost::GetInstance(0)->PrintTaskContextInfo(0, 0, 4));
 
     globalMirrorTasks.DestroyQueue(0, 0);
 }

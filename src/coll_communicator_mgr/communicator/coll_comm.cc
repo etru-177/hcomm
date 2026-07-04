@@ -48,7 +48,7 @@ CollComm::~CollComm()
     }
 
     // 先注销TaskException，再销毁通信域资源，防止通信域资源销毁后rts回调TaskException
-    hcomm::TaskExceptionHost* handler = hcomm::TaskExceptionHostManager::GetHandler(static_cast<size_t>(deviceLogicId_));
+    hcomm::TaskExceptionHost* handler = hcomm::TaskExceptionHost::GetInstance(deviceLogicId_);
     if (handler != nullptr) {
         (void)handler->UnRegister(reinterpret_cast<u64>(this));
     }
@@ -510,7 +510,7 @@ HcclResult CollComm::Resume()
 
 HcclResult CollComm::InitTaskExceptionHandler()
 {
-    hcomm::TaskExceptionHost* handler = hcomm::TaskExceptionHostManager::GetHandler(static_cast<size_t>(deviceLogicId_));
+    hcomm::TaskExceptionHost* handler = hcomm::TaskExceptionHost::GetInstance(deviceLogicId_);
     CHK_PTR_NULL(handler);
     CHK_RET(handler->Register(reinterpret_cast<u64>(this)));
     return HCCL_SUCCESS;

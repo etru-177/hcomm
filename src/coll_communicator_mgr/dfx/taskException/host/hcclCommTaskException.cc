@@ -27,6 +27,7 @@ constexpr u32 MAX_MODULE_DEVICE_NUM_V2 = 65;
 constexpr uint32_t TASK_CONTEXT_SIZE = 50;
 constexpr uint32_t TASK_CONTEXT_INFO_SIZE = LOG_TMPBUF_SIZE - 50; // task 执行失败时打印前序task信息的长度限制
 
+static TaskExceptionHost handlers_[MAX_MODULE_DEVICE_NUM_V2];
 GetAicpuCqeErrInfoCallBackHcomm g_getAicpuCqeErrInfoCallBack = nullptr;
 AicpuGetErrStatusVecCallBack g_AicpuGetErrStatusVecCallBack = nullptr;
 
@@ -86,6 +87,15 @@ std::string AicpuGetAndPrintClusterMonitorErr(const rtExceptionInfo *exceptionIn
     return errMsg;
 }
 
+TaskExceptionHost *TaskExceptionHost::GetInstance(s32 deviceLogicID)
+{
+    if (deviceLogicID < 0 || static_cast<u32>(deviceLogicID) >= MAX_MODULE_DEVICE_NUM_V2) {
+        HCCL_ERROR("[TaskExceptionHost][GetInstance] deviceLogicID[%d] is invalid", deviceLogicID);
+        return nullptr;
+    }
+    return &handlers_[deviceLogicID];
+}
+
 TaskExceptionHost::~TaskExceptionHost()
 {
     std::unique_lock<std::mutex> lock(taskExceptionMutex_);
@@ -100,7 +110,7 @@ void TaskExceptionHost::ProcessCallback(rtExceptionInfo_t *exceptionInfo)
 {
     CHK_PRT_RET(exceptionInfo == nullptr, HCCL_ERROR("[%s]fail, exceptionInfo is nullptr", __func__),);
 
-    TaskExceptionHost *handler = TaskExceptionHostManager::GetHandler(exceptionInfo->deviceid);
+    TaskExceptionHost *handler = TaskExceptionHost::GetInstance(exceptionInfo->deviceid);
     CHK_PRT_RET(handler == nullptr, HCCL_ERROR("[%s]fail, TaskExceptionHost is nullptr", __func__),);
     handler->Process(exceptionInfo);
 }
@@ -139,21 +149,6 @@ HcclResult TaskExceptionHost::UnRegister(u64 commHandle)
     HCCL_INFO("[%s]success, commHandle[0x%llx]", __func__, commHandle);
     return HCCL_SUCCESS;
 }
-
-TaskExceptionHost *TaskExceptionHostManager::GetHandler(size_t devId)
-{
-    // 检查 devId 是否越界
-    if (devId >= MAX_MODULE_DEVICE_NUM_V2) {
-        HCCL_ERROR("[TaskExceptionHost][GetInstance] deviceLogicID[%lu] is invalid", devId);
-        return nullptr;
-    }
-
-    static TaskExceptionHost handlers_[MAX_MODULE_DEVICE_NUM_V2];
-    return &handlers_[devId];
-}
-TaskExceptionHostManager::TaskExceptionHostManager() {}
-
-TaskExceptionHostManager::~TaskExceptionHostManager() {}
 
 HcclResult TaskExceptionHost::PrintUbRegisters(s32 devLogicId, RdmaHandle rdmaHandle)
 {

@@ -256,9 +256,8 @@ protected:
 
     inline void SetTaskIdBySqeId()
     {
-        if (taskId_ < taskIdEnd_) {
-            taskId_++;
-        } else {
+        taskId_++; // taskId_的范围是aicpu::GetSqeId返回的[start, end), taskId累加到end时重新向aicpu申请, 不会翻转
+        if (UNLIKELY(taskId_ >= taskIdEnd_)) { // taskEnd_视为未申请的taskId，不可使用
             constexpr u32 PER_GET_SQE_ID_NUM = 1024; // 一次性申请sqeId数量
             aicpu::GetSqeId(PER_GET_SQE_ID_NUM, taskId_, taskIdEnd_); // aicpu框架保证 taskId_ < taskIdEnd_
         }

@@ -32,6 +32,7 @@ void RegisterAicpuGetErrStatusVecCallBack(AicpuGetErrStatusVecCallBack p1);
 
 class TaskExceptionHost {
 public:
+    static TaskExceptionHost* GetInstance(s32 deviceLogicID);
     TaskExceptionHost() = default;
     ~TaskExceptionHost();
 
@@ -62,20 +63,6 @@ private:
     std::mutex taskExceptionMutex_;
     std::unordered_set<u64> CommRegisterMap_;
     bool hasAicpuReport_{false};
-};
-
-class TaskExceptionHostManager {
-public:
-    // 获取指定位置的异常处理器
-    static TaskExceptionHost *GetHandler(size_t devId);
-
-private:
-    TaskExceptionHostManager();
-    // 私有析构函数，负责释放数组中所有单例实例的内存
-    ~TaskExceptionHostManager();
-    // 私有拷贝构造函数和赋值运算符，防止对象被拷贝
-    TaskExceptionHostManager(const TaskExceptionHostManager &)            = delete;
-    TaskExceptionHostManager &operator=(const TaskExceptionHostManager &) = delete;
 };
 } // namespace hcomm
 
