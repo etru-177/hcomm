@@ -174,9 +174,9 @@ void ProfilingHandlerLite::DumpTaskDetails(const MsprofAicpuHcclTaskInfo &taskDe
 {
     HCCL_INFO("ProfilingHandlerLite::DumpTaskDetails %s", taskInfo.taskParam_.Describe().c_str());
     HCCL_INFO("[ProfilingHandlerLite]ReporttHcclTaskDetails data is: itemId[%llu], cclTag[%llu], groupName[%llu], "
-              " remoteRank[%u], rankSize[%u], stage[%u], taskType[%s], srcAddr[%llu], dstAddr[%llu], "
-              " dataSize[%llu], notifyID[%llu], dataType[%s],linkType[%u], timeStamp[%llu], durationEstimated[%f], "
-              " taskId[%u], streamId[%u], planeID[%u], opType[%s], transportType[%d], role[%u], workFlowMode[%u] ",
+              "remoteRank[%u], rankSize[%u], stage[%u], taskType[%s], srcAddr[%llu], dstAddr[%llu], "
+              "dataSize[%llu], notifyID[%llu], dataType[%s],linkType[%u], timeStamp[%llu], durationEstimated[%f], "
+              "taskId[%u], streamId[%u], planeID[%u], opType[%s], transportType[%d], role[%u], workFlowMode[%u]",
               taskDetailsInfos.itemId, taskDetailsInfos.cclTag, taskDetailsInfos.groupName, taskDetailsInfos.remoteRank,
               taskDetailsInfos.rankSize, taskDetailsInfos.stage, taskInfo.taskParam_.taskType.Describe().c_str(), taskDetailsInfos.srcAddr,
               taskDetailsInfos.dstAddr, taskDetailsInfos.dataSize, taskDetailsInfos.notifyID, DataTypeToSerialString( taskDetailsInfos.dataType).c_str(),

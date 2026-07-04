@@ -208,7 +208,7 @@ void ProfilingHandler::CallAdditionInfo(HCCLReportData &hcclReportData, void *da
     if (ret != 0) {
         THROW<InternalException>("Call MsprofReportAdditionalInfo failed, return[%d]", ret);
     }
-    HCCL_INFO("[ProfilingHandler]ReportHcclTaskDetails data is: level[%u], type[%u], threadId[%u],  dataLen[%u], "
+    HCCL_INFO("[ProfilingHandler]ReportHcclTaskDetails data is: level[%u], type[%u], threadId[%u], dataLen[%u], "
               "timeStamp[%llu]",
               reporterData.level, reporterData.type, reporterData.threadId, reporterData.dataLen,
               reporterData.timeStamp);
