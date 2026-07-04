@@ -61,6 +61,9 @@ HcclResult TaskService::TaskUnRegister(std::string taskType)
 
 HcclResult TaskService::TaskProfRegister(ProfCallbackTemplate profCallback)
 {
+    if (profCallback_ != nullptr) {
+        return HCCL_SUCCESS;
+    }
     profCallback_ = profCallback;
     return HCCL_SUCCESS;
 }
