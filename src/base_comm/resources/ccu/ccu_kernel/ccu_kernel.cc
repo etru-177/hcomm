@@ -459,6 +459,7 @@ CcuResult CcuKernel::BlockBufferAlloc(CcuBufferHandle *bufHandles, uint32_t coun
 
 CcuResult CcuKernel::VariableCreateByChannel(ChannelHandle channel, uint32_t varIndex, CcuVariableHandle *varHandle)
 {
+    channels_.insert(channel);
     CcuRep::Variable var(this);
     CCU_CHK_RET(CreateVariable(channel, varIndex, &var));
     CcuVariableHandle handle = ccuVarMap_.size();
@@ -574,6 +575,7 @@ CcuResult CcuKernel::NotifyRecord(const ChannelHandle channel,
 
 CcuResult CcuKernel::NotifyWait(const ChannelHandle channel, uint32_t localNotifyIdx, uint32_t mask)
 {
+    channels_.insert(channel);
     bool isProfiling = CurrentBlock()->Type() != CcuRep::CcuRepType::LOOP_BLOCK;
     if (isProfiling) {
         CCU_CHK_RET(static_cast<HcclResult>(AddProfiling(channel, "NotifyWait", localNotifyIdx, mask)));
@@ -758,17 +760,40 @@ CcuResult CcuKernel::ResolveBufRemoteLenEvent(CcuBufferHandle bufHandle, CcuRemo
     return CcuResult::CCU_SUCCESS;
 }
 
+CcuResult CcuKernel::ResolveLocalRemoteLenEvent(CcuLocalAddrHandle localHandle, CcuRemoteAddrHandle remoteHandle,
+    CcuVariableHandle lenHandle, CcuEventHandle eventHandle,
+    CcuRep::LocalAddr **local, CcuRep::RemoteAddr **remote,
+    CcuRep::Variable **len, CcuRep::CompletedEvent **event)
+{
+    CCU_CHK_RET(GetLocalAddrByHandle(localHandle, local));
+    CCU_CHK_RET(GetRemoteAddrByHandle(remoteHandle, remote));
+    CCU_CHK_RET(GetVariableByHandle(lenHandle, len));
+    CCU_CHK_RET(GetEventByHandle(eventHandle, event));
+    return CcuResult::CCU_SUCCESS;
+}
+
+CcuResult CcuKernel::ResolveRemoteLocalLenEvent(CcuRemoteAddrHandle remoteHandle, CcuLocalAddrHandle localHandle,
+    CcuVariableHandle lenHandle, CcuEventHandle eventHandle,
+    CcuRep::RemoteAddr **remote, CcuRep::LocalAddr **local,
+    CcuRep::Variable **len, CcuRep::CompletedEvent **event)
+{
+    CCU_CHK_RET(GetRemoteAddrByHandle(remoteHandle, remote));
+    CCU_CHK_RET(GetLocalAddrByHandle(localHandle, local));
+    CCU_CHK_RET(GetVariableByHandle(lenHandle, len));
+    CCU_CHK_RET(GetEventByHandle(eventHandle, event));
+    return CcuResult::CCU_SUCCESS;
+}
+
 CcuResult CcuKernel::ReadMemToMem(ChannelHandle channel, CcuLocalAddrHandle localHandle, CcuRemoteAddrHandle remoteHandle,
     CcuVariableHandle lenHandle, CcuEventHandle eventHandle, uint32_t mask)
 {
+    channels_.insert(channel);
     CcuRep::LocalAddr *local{nullptr};
-    CCU_CHK_RET(GetLocalAddrByHandle(localHandle, &local));
     CcuRep::RemoteAddr *remote{nullptr};
-    CCU_CHK_RET(GetRemoteAddrByHandle(remoteHandle, &remote));
     CcuRep::Variable *len{nullptr};
-    CCU_CHK_RET(GetVariableByHandle(lenHandle, &len));
     CcuRep::CompletedEvent *event{nullptr};
-    CCU_CHK_RET(GetEventByHandle(eventHandle, &event));
+    CCU_CHK_RET(ResolveLocalRemoteLenEvent(localHandle, remoteHandle, lenHandle, eventHandle,
+        &local, &remote, &len, &event));
     auto ret = ReadNb(channel, *local, *remote, *len, *event, mask);
     return HCCL_TO_CCU_RET(ret);
 }
@@ -776,6 +801,7 @@ CcuResult CcuKernel::ReadMemToMem(ChannelHandle channel, CcuLocalAddrHandle loca
 CcuResult CcuKernel::ReadMemToBuffer(ChannelHandle channel, CcuBufferHandle localHandle, CcuRemoteAddrHandle remoteHandle,
     CcuVariableHandle lenHandle, CcuEventHandle eventHandle, uint32_t mask)
 {
+    channels_.insert(channel);
     CcuRep::CcuBuf *local{nullptr};
     CcuRep::RemoteAddr *remote{nullptr};
     CcuRep::Variable *len{nullptr};
@@ -790,14 +816,13 @@ CcuResult CcuKernel::ReadMemToMemReduce(ChannelHandle channel, CcuLocalAddrHandl
     CcuVariableHandle lenHandle, HcclDataType dataType,
     HcclReduceOp opType, CcuEventHandle eventHandle, uint32_t mask)
 {
+    channels_.insert(channel);
     CcuRep::LocalAddr *local{nullptr};
-    CCU_CHK_RET(GetLocalAddrByHandle(localHandle, &local));
     CcuRep::RemoteAddr *remote{nullptr};
-    CCU_CHK_RET(GetRemoteAddrByHandle(remoteHandle, &remote));
     CcuRep::Variable *len{nullptr};
-    CCU_CHK_RET(GetVariableByHandle(lenHandle, &len));
     CcuRep::CompletedEvent *event{nullptr};
-    CCU_CHK_RET(GetEventByHandle(eventHandle, &event));
+    CCU_CHK_RET(ResolveLocalRemoteLenEvent(localHandle, remoteHandle, lenHandle, eventHandle,
+        &local, &remote, &len, &event));
     auto ret = ReadReduceNb(channel, *local, *remote, *len, dataType, opType, *event, mask);
     return HCCL_TO_CCU_RET(ret);
 }
@@ -805,14 +830,13 @@ CcuResult CcuKernel::ReadMemToMemReduce(ChannelHandle channel, CcuLocalAddrHandl
 CcuResult CcuKernel::WriteMemToMem(ChannelHandle channel, CcuRemoteAddrHandle remoteHandle, CcuLocalAddrHandle localHandle,
     CcuVariableHandle lenHandle, CcuEventHandle eventHandle, uint32_t mask)
 {
+    channels_.insert(channel);
     CcuRep::RemoteAddr *remote{nullptr};
-    CCU_CHK_RET(GetRemoteAddrByHandle(remoteHandle, &remote));
     CcuRep::LocalAddr *local{nullptr};
-    CCU_CHK_RET(GetLocalAddrByHandle(localHandle, &local));
     CcuRep::Variable *len{nullptr};
-    CCU_CHK_RET(GetVariableByHandle(lenHandle, &len));
     CcuRep::CompletedEvent *event{nullptr};
-    CCU_CHK_RET(GetEventByHandle(eventHandle, &event));
+    CCU_CHK_RET(ResolveRemoteLocalLenEvent(remoteHandle, localHandle, lenHandle, eventHandle,
+        &remote, &local, &len, &event));
     auto ret = WriteNb(channel, *remote, *local, *len, *event, mask);
     return HCCL_TO_CCU_RET(ret);
 }
@@ -820,6 +844,7 @@ CcuResult CcuKernel::WriteMemToMem(ChannelHandle channel, CcuRemoteAddrHandle re
 CcuResult CcuKernel::WriteBufferToMem(ChannelHandle channel, CcuRemoteAddrHandle remoteHandle, CcuBufferHandle localHandle,
     CcuVariableHandle lenHandle, CcuEventHandle eventHandle, uint32_t mask)
 {
+    channels_.insert(channel);
     CcuRep::CcuBuf *local{nullptr};
     CcuRep::RemoteAddr *remote{nullptr};
     CcuRep::Variable *len{nullptr};
@@ -834,14 +859,13 @@ CcuResult CcuKernel::WriteMemToMemReduce(ChannelHandle channel, CcuRemoteAddrHan
     CcuVariableHandle lenHandle, HcclDataType dataType,
     HcclReduceOp opType, CcuEventHandle eventHandle, uint32_t mask)
 {
+    channels_.insert(channel);
     CcuRep::RemoteAddr *remote{nullptr};
-    CCU_CHK_RET(GetRemoteAddrByHandle(remoteHandle, &remote));
     CcuRep::LocalAddr *local{nullptr};
-    CCU_CHK_RET(GetLocalAddrByHandle(localHandle, &local));
     CcuRep::Variable *len{nullptr};
-    CCU_CHK_RET(GetVariableByHandle(lenHandle, &len));
     CcuRep::CompletedEvent *event{nullptr};
-    CCU_CHK_RET(GetEventByHandle(eventHandle, &event));
+    CCU_CHK_RET(ResolveRemoteLocalLenEvent(remoteHandle, localHandle, lenHandle, eventHandle,
+        &remote, &local, &len, &event));
     auto ret = WriteReduceNb(channel, *remote, *local, *len, dataType, opType, *event, mask);
     return HCCL_TO_CCU_RET(ret);
 }
