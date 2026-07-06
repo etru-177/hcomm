@@ -207,7 +207,7 @@ int RaHdcQpCreateWithAttrs(struct RaRdmaHandle *rdmaHandle, struct QpExtAttrs *e
     }
 
     qpHdc->sqSigAll = extAttrs->qpAttr.sq_sig_all;
-    qpHdc->udpSport = extAttrs->udpSport;
+    qpHdc->typicalQpAttr.udpSport = extAttrs->udpSport;
     qpHdc->sqDepth = cap.max_send_wr;
     *qpHandle = qpHdc;
     return 0;
@@ -270,7 +270,7 @@ int RaHdcQpCreateWithCQWithAttrs(struct RaRdmaHandle *rdmaHandle, struct QpExtAt
     }
 
     qpHdc->sqDepth = cap.max_send_wr;
-    qpHdc->udpSport = extAttrs->udpSport;
+    qpHdc->typicalQpAttr.udpSport = extAttrs->udpSport;
     qpHdc->sqSigAll = extAttrs->qpAttr.sq_sig_all;
     *qpHandle = qpHdc;
     return 0;
@@ -323,7 +323,7 @@ int RaHdcAiQpCreate(struct RaRdmaHandle *rdmaHandle, struct QpExtAttrs *extAttrs
     info->aiQpAddr = qpCreateData.rxData.aiQpAddr;
     info->sqIndex = qpCreateData.rxData.sqIndex;
     info->dbIndex = qpCreateData.rxData.dbIndex;
-    qpHdc->udpSport = extAttrs->udpSport;
+    qpHdc->typicalQpAttr.udpSport = extAttrs->udpSport;
     *qpHandle = qpHdc;
 
     return 0;
@@ -363,7 +363,7 @@ int RaHdcAiQpCreateWithAttrs(struct RaRdmaHandle *rdmaHandle, struct QpExtAttrs 
         return ret;
     }
 
-    qpHdc->udpSport = extAttrs->udpSport;
+    qpHdc->typicalQpAttr.udpSport = extAttrs->udpSport;
     RaHdcGetQpHdc(rdmaHandle, flag, qpMode, qpCreateData.rxData.qpn, qpHdc);
     qpHdc->gidIdx = qpCreateData.rxData.gidIdx;
     qpHdc->psn = qpCreateData.rxData.psn;
@@ -577,7 +577,7 @@ int RaHdcGetQpStatus(struct RaQpHandle *qpHdc, int *status)
         CHK_PRT_RETURN(ret, hccp_err("[get][ra_hdc_qp_status]ra hdc message process failed ret(%d) phyId(%u)",
             ret, qpHdc->phyId), ret);
         *status = qpInfoData.rxData.status;
-        qpHdc->udpSport = qpInfoData.rxData.udpSport;
+        qpHdc->typicalQpAttr.udpSport = qpInfoData.rxData.udpSport;
     } else {
         qpStatusData.txData.qpn = qpHdc->qpn;
         qpStatusData.txData.phyId = qpHdc->phyId;
@@ -615,7 +615,8 @@ int RaHdcTypicalQpModify(struct RaQpHandle *qpHdc, struct TypicalQp *localQpInfo
     CHK_PRT_RETURN(ret != 0, hccp_err("[modify][modify_qp]ra hdc message process failed ret(%d) phyId(%u)",
         ret, phyId), ret);
 
-    qpHdc->udpSport = qpModifyData.rxData.udpSport;
+    qpHdc->typicalQpAttr.udpSport = qpModifyData.rxData.udpSport;
+    qpHdc->typicalQpAttr.pathMtu = qpModifyData.rxData.pathMtu;
     if (qpHdc->supportLite != LITE_NOT_SUPPORT) {
         ret = RaRdmaLiteSetQpSl(qpHdc->liteQp, localQpInfo->sl);
         CHK_PRT_RETURN(ret != 0, hccp_err("[modify][modify_qp]ra_rdma_lite_set_qp_sl sl(%u) failed ret(%d) phyId(%u)",

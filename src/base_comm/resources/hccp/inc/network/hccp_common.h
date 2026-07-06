@@ -677,6 +677,7 @@ struct QpAttr {
     unsigned int psn;
     unsigned int gidIdx;
     unsigned char gid[HCCP_GID_RAW_LEN];
+    int pathMtu;
 };
 
 struct LoopbackQpPair {

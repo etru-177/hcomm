@@ -27,9 +27,10 @@ struct RdmaSqContextLite {
     uint32_t depth;
     uint64_t headAddr;
     uint64_t tailAddr;
-    uint64_t dbVa;
-    int8_t dbMode;
+    uint64_t dbHwVa;
+    uint64_t dbSwVa;
     uint8_t sl;
+    uint8_t mtuShift;
 };
 
 struct RdmaCqContextLite {
@@ -39,8 +40,8 @@ struct RdmaCqContextLite {
     uint32_t cqDepth;
     uint64_t headAddr;
     uint64_t tailAddr;
-    uint64_t dbVa;
-    int8_t dbMode;
+    uint64_t dbHwVa;
+    uint64_t dbSwVa;
 };
 
 class RdmaBaseOps {

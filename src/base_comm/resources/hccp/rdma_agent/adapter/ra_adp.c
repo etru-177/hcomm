@@ -56,7 +56,7 @@ struct RsOps {
         struct RsQpNormWithAttrs *qpNorm, struct RsQpRespWithAttrs *qpResp);
     int (*qpDestroy)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn);
     int (*typicalQpModify)(unsigned int phyId, unsigned int rdevIndex, struct TypicalQp localQpInfo,
-        struct TypicalQp remoteQpInfo, unsigned int *udpSport);
+        struct TypicalQp remoteQpInfo, struct TypicalQpAttr *qpAttr);
     int (*qpBatchModify)(unsigned int phyId, unsigned int rdevIndex, int status, int qpn[], int qpnNum);
     int (*qpConnectAsync)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn, int fd);
     int (*getQpStatus)(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn,
@@ -524,21 +524,21 @@ STATIC int RaRsTypicalQpModify(char *inBuf, char *outBuf, int *outLen, int *opRe
 {
     union OpTypicalQpModifyData *qpModifyData = (union OpTypicalQpModifyData *)(inBuf +
         sizeof(struct MsgHead));
-    unsigned int udpSport = 0;
+    struct TypicalQpAttr qpAttr = {0};
 
     HCCP_CHECK_PARAM_LEN_RET_HOST(sizeof(union OpTypicalQpModifyData), sizeof(struct MsgHead), rcvBufLen,
         opResult);
 
     *opResult = gRaRsOps.typicalQpModify(qpModifyData->txData.phyId, qpModifyData->txData.rdevIndex,
-        qpModifyData->txData.localQpInfo, qpModifyData->txData.remoteQpInfo,
-        &udpSport);
+        qpModifyData->txData.localQpInfo, qpModifyData->txData.remoteQpInfo, &qpAttr);
     if (*opResult != 0) {
         hccp_err("qp info modify failed ret[%d].", *opResult);
         return 0;
     }
 
     qpModifyData = (union OpTypicalQpModifyData *)(outBuf + sizeof(struct MsgHead));
-    qpModifyData->rxData.udpSport = udpSport;
+    qpModifyData->rxData.udpSport = qpAttr.udpSport;
+    qpModifyData->rxData.pathMtu = qpAttr.pathMtu;
 
     return 0;
 }

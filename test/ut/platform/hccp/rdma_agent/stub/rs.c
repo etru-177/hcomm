@@ -213,7 +213,7 @@ int RsQpDestroy(unsigned int devId, unsigned int rdevIndex, unsigned int qpn)
 }
 
 int RsTypicalQpModify(unsigned int phyId, unsigned int rdevIndex,
-    struct TypicalQp localQpInfo, struct TypicalQp remoteQpInfo, unsigned int *udpSport)
+    struct TypicalQp localQpInfo, struct TypicalQp remoteQpInfo, struct TypicalQpAttr *qpAttr)
 {
 	return 0;
 }

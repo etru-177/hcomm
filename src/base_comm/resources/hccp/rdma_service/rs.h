@@ -102,7 +102,7 @@ RS_ATTRI_VISI_DEF int RsQpCreateWithAttrs(unsigned int phyId, unsigned int rdevI
 RS_ATTRI_VISI_DEF int RsQpDestroy(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn);
 RS_ATTRI_VISI_DEF int RsQpDestroyWithoutCQ(unsigned int phyId, unsigned int rdevIndex, unsigned int qpn);
 RS_ATTRI_VISI_DEF int RsTypicalQpModify(unsigned int phyId, unsigned int rdevIndex,
-    struct TypicalQp localQpInfo, struct TypicalQp remoteQpInfo, unsigned int *udpSport);
+    struct TypicalQp localQpInfo, struct TypicalQp remoteQpInfo, struct TypicalQpAttr *qpAttr);
 RS_ATTRI_VISI_DEF int RsTypicalCqCreate(unsigned int phyId, unsigned int rdevIndex, unsigned int cqDepth,
     unsigned int *cqn);
 RS_ATTRI_VISI_DEF int RsTypicalCqDestroy(unsigned int phyId, unsigned int rdevIndex, unsigned int cqn);

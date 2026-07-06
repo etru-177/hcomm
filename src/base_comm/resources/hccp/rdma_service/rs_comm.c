@@ -29,7 +29,7 @@ struct OpcodeInterfaceInfo gInterfaceInfoList[] = {
     {RA_RS_TYPICAL_QP_CREATE, 1},
     {RA_RS_QP_DESTROY, 1},
     {RA_RS_QP_CONNECT, 2},
-    {RA_RS_TYPICAL_QP_MODIFY, 2},
+    {RA_RS_TYPICAL_QP_MODIFY, 3},
     {RA_RS_QP_BATCH_MODIFY, 2},
     {RA_RS_QP_STATUS, 1},
     {RA_RS_QP_INFO, 1},

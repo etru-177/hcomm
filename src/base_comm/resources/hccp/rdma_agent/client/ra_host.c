@@ -2155,7 +2155,8 @@ HCCP_ATTRI_VISI_DEF int RaGetQpAttr(void *qpHandle, struct QpAttr *attr)
     }
 
     attr->qpn = raQpHandle->qpn;
-    attr->udpSport = raQpHandle->udpSport;
+    attr->udpSport = raQpHandle->typicalQpAttr.udpSport;
+    attr->pathMtu = raQpHandle->typicalQpAttr.pathMtu;
     attr->psn = raQpHandle->psn;
     attr->gidIdx = raQpHandle->gidIdx;
     (void)memcpy_s(attr->gid, HCCP_GID_RAW_LEN, raQpHandle->rdmaHandle->gid, HCCP_GID_RAW_LEN);

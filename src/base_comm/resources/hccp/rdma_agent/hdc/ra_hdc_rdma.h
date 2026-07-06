@@ -234,7 +234,8 @@ union OpTypicalQpModifyData {
 
     struct {
         unsigned int udpSport;
-        unsigned int rsvd[RA_RSVD_NUM_3];
+        int pathMtu;
+        unsigned int rsvd[RA_RSVD_NUM_2];
     } rxData;
 };
 

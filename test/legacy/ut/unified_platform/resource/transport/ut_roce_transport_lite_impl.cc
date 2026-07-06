@@ -119,9 +119,10 @@ static std::vector<char> BuildSqUniqueId(const RdmaSqContextLite &sqCtx)
     bs << sqCtx.depth;
     bs << sqCtx.headAddr;
     bs << sqCtx.tailAddr;
+    bs << sqCtx.dbHwVa;
+    bs << sqCtx.dbSwVa;
     bs << sqCtx.sl;
-    bs << sqCtx.dbVa;
-    bs << sqCtx.dbMode;
+    bs << sqCtx.mtuShift;
     std::vector<char> result;
     bs.Dump(result);
     return result;
@@ -136,8 +137,7 @@ static std::vector<char> BuildCqUniqueId(const RdmaCqContextLite &cqCtx)
     bs << cqCtx.cqDepth;
     bs << cqCtx.headAddr;
     bs << cqCtx.tailAddr;
-    bs << cqCtx.dbVa;
-    bs << cqCtx.dbMode;
+    bs << cqCtx.dbSwVa;
     std::vector<char> result;
     bs.Dump(result);
     return result;
@@ -171,8 +171,9 @@ static std::vector<char> BuildConnUniqueIds(u32 connNum)
         sq.headAddr = 0x20000;
         sq.tailAddr = 0x20008;
         sq.sl = 0;
-        sq.dbVa = 0x30000;
-        sq.dbMode = 0;
+        sq.dbHwVa = 0x30000;
+        sq.dbSwVa = 0x70000;
+        sq.mtuShift = 3;
 
         RdmaCqContextLite cq{};
         cq.cqn = 2 + i;
@@ -181,8 +182,7 @@ static std::vector<char> BuildConnUniqueIds(u32 connNum)
         cq.cqDepth = 256;
         cq.headAddr = 0x50000;
         cq.tailAddr = 0x50008;
-        cq.dbVa = 0x60000;
-        cq.dbMode = 0;
+        cq.dbSwVa = 0x60000;
 
         std::vector<char> singleConn = BuildSingleConnUniqueId(1, sq, cq);
         result.insert(result.end(), singleConn.begin(), singleConn.end());

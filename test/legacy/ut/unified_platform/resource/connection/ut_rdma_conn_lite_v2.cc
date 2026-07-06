@@ -28,9 +28,10 @@ static std::vector<char> BuildSqUniqueId(const RdmaSqContextLite &sqCtx)
     bs << sqCtx.depth;
     bs << sqCtx.headAddr;
     bs << sqCtx.tailAddr;
-    bs << sqCtx.dbVa;
-    bs << sqCtx.dbMode;
+    bs << sqCtx.dbHwVa;
+    bs << sqCtx.dbSwVa;
     bs << sqCtx.sl;
+    bs << sqCtx.mtuShift;
     std::vector<char> result;
     bs.Dump(result);
     return result;
@@ -45,8 +46,7 @@ static std::vector<char> BuildCqUniqueId(const RdmaCqContextLite &cqCtx)
     bs << cqCtx.cqDepth;
     bs << cqCtx.headAddr;
     bs << cqCtx.tailAddr;
-    bs << cqCtx.dbVa;
-    bs << cqCtx.dbMode;
+    bs << cqCtx.dbSwVa;
     std::vector<char> result;
     bs.Dump(result);
     return result;
@@ -78,8 +78,9 @@ static RdmaSqContextLite MakeDefaultSqContext()
     sq.headAddr = 0x20000;
     sq.tailAddr = 0x20008;
     sq.sl = 0;
-    sq.dbVa = 0x30000;
-    sq.dbMode = 0;
+    sq.dbHwVa = 0x30000;
+    sq.dbSwVa = 0x70000;
+    sq.mtuShift = 3;
     return sq;
 }
 
@@ -92,8 +93,7 @@ static RdmaCqContextLite MakeDefaultCqContext()
     cq.cqDepth = 256;
     cq.headAddr = 0x50000;
     cq.tailAddr = 0x50008;
-    cq.dbVa = 0x60000;
-    cq.dbMode = 0;
+    cq.dbSwVa = 0x60000;
     return cq;
 }
 
@@ -163,9 +163,9 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_DmaMode_Expect_Correct)
 TEST_F(RdmaConnLiteV2Test, Ut_When_SqContext_Expect_Valid)
 {
     std::cout << "Start Ut_When_SqContext_Expect_Valid" << std::endl;
-    
+
     RdmaConnLiteV2 connLite(uniqueId_);
-    
+
     EXPECT_EQ(connLite.sqContext.qpn, sqCtx_.qpn);
     EXPECT_EQ(connLite.sqContext.sqVa, sqCtx_.sqVa);
     EXPECT_EQ(connLite.sqContext.wqeSize, sqCtx_.wqeSize);
@@ -173,27 +173,27 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_SqContext_Expect_Valid)
     EXPECT_EQ(connLite.sqContext.headAddr, sqCtx_.headAddr);
     EXPECT_EQ(connLite.sqContext.tailAddr, sqCtx_.tailAddr);
     EXPECT_EQ(connLite.sqContext.sl, sqCtx_.sl);
-    EXPECT_EQ(connLite.sqContext.dbVa, sqCtx_.dbVa);
-    EXPECT_EQ(connLite.sqContext.dbMode, sqCtx_.dbMode);
-    
+    EXPECT_EQ(connLite.sqContext.dbHwVa, sqCtx_.dbHwVa);
+    EXPECT_EQ(connLite.sqContext.dbSwVa, sqCtx_.dbSwVa);
+    EXPECT_EQ(connLite.sqContext.mtuShift, sqCtx_.mtuShift);
+
     std::cout << "End Ut_When_SqContext_Expect_Valid" << std::endl;
 }
 
 TEST_F(RdmaConnLiteV2Test, Ut_When_CqContext_Expect_Valid)
 {
     std::cout << "Start Ut_When_CqContext_Expect_Valid" << std::endl;
-    
+
     RdmaConnLiteV2 connLite(uniqueId_);
-    
+
     EXPECT_EQ(connLite.cqContext.cqn, cqCtx_.cqn);
     EXPECT_EQ(connLite.cqContext.cqVa, cqCtx_.cqVa);
     EXPECT_EQ(connLite.cqContext.cqeSize, cqCtx_.cqeSize);
     EXPECT_EQ(connLite.cqContext.cqDepth, cqCtx_.cqDepth);
     EXPECT_EQ(connLite.cqContext.headAddr, cqCtx_.headAddr);
     EXPECT_EQ(connLite.cqContext.tailAddr, cqCtx_.tailAddr);
-    EXPECT_EQ(connLite.cqContext.dbVa, cqCtx_.dbVa);
-    EXPECT_EQ(connLite.cqContext.dbMode, cqCtx_.dbMode);
-    
+    EXPECT_EQ(connLite.cqContext.dbSwVa, cqCtx_.dbSwVa);
+
     std::cout << "End Ut_When_CqContext_Expect_Valid" << std::endl;
 }
 
@@ -221,8 +221,9 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_LargeValues_Expect_Correct)
     sqMax.headAddr = UINT64_MAX;
     sqMax.tailAddr = UINT64_MAX;
     sqMax.sl = UINT8_MAX;
-    sqMax.dbVa = UINT64_MAX;
-    sqMax.dbMode = INT8_MAX;
+    sqMax.dbHwVa = UINT64_MAX;
+    sqMax.dbSwVa = UINT64_MAX;
+    sqMax.mtuShift = UINT8_MAX;
 
     RdmaCqContextLite cqMax{};
     cqMax.cqn = UINT32_MAX;
@@ -231,8 +232,7 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_LargeValues_Expect_Correct)
     cqMax.cqDepth = UINT32_MAX;
     cqMax.headAddr = UINT64_MAX;
     cqMax.tailAddr = UINT64_MAX;
-    cqMax.dbVa = UINT64_MAX;
-    cqMax.dbMode = INT8_MAX;
+    cqMax.dbSwVa = UINT64_MAX;
 
     std::vector<char> testId = BuildRdmaConnLiteV2UniqueId(2, sqMax, cqMax);
     RdmaConnLiteV2 connLite(testId);
@@ -259,22 +259,22 @@ TEST_F(RdmaConnLiteV2Test, Ut_When_MultipleInstances_Expect_Independent)
     std::cout << "End Ut_When_MultipleInstances_Expect_Independent" << std::endl;
 }
 
-TEST_F(RdmaConnLiteV2Test, Ut_When_DbModeSw_Expect_Correct)
+TEST_F(RdmaConnLiteV2Test, Ut_When_dbSwVa_Expect_Correct)
 {
-    std::cout << "Start Ut_When_DbModeSw_Expect_Correct" << std::endl;
-    
+    std::cout << "Start Ut_When_dbSwVa_Expect_Correct" << std::endl;
+
     RdmaSqContextLite sqSw = MakeDefaultSqContext();
-    sqSw.dbMode = 1;
+    sqSw.dbSwVa = 0xABCD0000;
     RdmaCqContextLite cqSw = MakeDefaultCqContext();
-    cqSw.dbMode = 1;
-    
+    cqSw.dbSwVa = 0xDCBA0000;
+
     std::vector<char> testId = BuildRdmaConnLiteV2UniqueId(0, sqSw, cqSw);
     RdmaConnLiteV2 connLite(testId);
-    
-    EXPECT_EQ(connLite.sqContext.dbMode, 1);
-    EXPECT_EQ(connLite.cqContext.dbMode, 1);
-    
-    std::cout << "End Ut_When_DbModeSw_Expect_Correct" << std::endl;
+
+    EXPECT_EQ(connLite.sqContext.dbSwVa, 0xABCD0000u);
+    EXPECT_EQ(connLite.cqContext.dbSwVa, 0xDCBA0000u);
+
+    std::cout << "End Ut_When_dbSwVa_Expect_Correct" << std::endl;
 }
 
 TEST_F(RdmaConnLiteV2Test, Ut_When_Write_SmallSize_Expect_SingleSlice)

@@ -23,9 +23,10 @@ void RdmaConnLiteV2::ParseSqContext(std::vector<char>& data)
     binaryStream >> sqContext.depth;
     binaryStream >> sqContext.headAddr;
     binaryStream >> sqContext.tailAddr;
-    binaryStream >> sqContext.dbVa;
-    binaryStream >> sqContext.dbMode;
+    binaryStream >> sqContext.dbHwVa;
+    binaryStream >> sqContext.dbSwVa;
     binaryStream >> sqContext.sl;
+    binaryStream >> sqContext.mtuShift;
 }
 
 void RdmaConnLiteV2::ParseCqContext(std::vector<char>& data)
@@ -37,8 +38,7 @@ void RdmaConnLiteV2::ParseCqContext(std::vector<char>& data)
     binaryStream >> cqContext.cqDepth;
     binaryStream >> cqContext.headAddr;
     binaryStream >> cqContext.tailAddr;
-    binaryStream >> cqContext.dbVa;
-    binaryStream >> cqContext.dbMode;
+    binaryStream >> cqContext.dbSwVa;
 }
 
 RdmaConnLiteV2::RdmaConnLiteV2(std::vector<char>& uniqueId) : RmaConnLite()
@@ -68,12 +68,12 @@ std::string RdmaConnLiteV2::Describe()
 {
     return StringFormat(
         "RdmaConnLiteV2[QPN=%u, SQ_VA=0x%llx, WQE_SIZE=%u, SQ_DEPTH=%u, SQ_HEAD_ADDR=0x%llx, SQ_TAIL_ADDR=0x%llx, "
-        "SL=%u, SQ_DB_VA=0x%llx, SQ_DB_MODE=%d, CQN=%u, CQ_VA=0x%llx, CQE_SIZE=%u, CQ_DEPTH=%u, "
-        "CQ_HEAD_ADDR=0x%llx, CQ_TAIL_ADDR=0x%llx, CQ_DB_VA=0x%llx, CQ_DB_MODE=%d]",
+        "SL=%u, DB_HW_VA=0x%llx, DB_SW_VA=0x%llx, MTU_SHIFT=%u, CQN=%u, CQ_VA=0x%llx, CQE_SIZE=%u, CQ_DEPTH=%u, "
+        "CQ_HEAD_ADDR=0x%llx, CQ_TAIL_ADDR=0x%llx, DB_HW_VA=0x%llx, DB_SW_VA=0x%llx]",
         sqContext.qpn, sqContext.sqVa, sqContext.wqeSize, sqContext.depth, sqContext.headAddr, sqContext.tailAddr,
-        sqContext.sl, sqContext.dbVa, sqContext.dbMode,
+        sqContext.sl, sqContext.dbHwVa, sqContext.dbSwVa, sqContext.mtuShift,
         cqContext.cqn, cqContext.cqVa, cqContext.cqeSize, cqContext.cqDepth,
-        cqContext.headAddr, cqContext.tailAddr, cqContext.dbVa, cqContext.dbMode
+        cqContext.headAddr, cqContext.tailAddr, cqContext.dbHwVa, cqContext.dbSwVa
     );
 }
 

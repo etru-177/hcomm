@@ -543,7 +543,7 @@ int RaPeerQpCreateWithAttrs(struct RaRdmaHandle *rdmaHandle, struct QpExtAttrs *
     qpPeer->rdevIndex = rdmaHandle->rdevIndex;
     qpPeer->rdmaHandle = rdmaHandle;
     qpPeer->rdmaOps = rdmaHandle->rdmaOps;
-    qpPeer->udpSport = extAttrs->udpSport;
+    qpPeer->typicalQpAttr.udpSport = extAttrs->udpSport;
 
     *qpHandle = qpPeer;
     return ret;
@@ -627,13 +627,13 @@ int RaPeerTypicalQpModify(struct RaQpHandle *qpPeer, struct TypicalQp *localQpIn
 
     PEER_PTHREAD_MUTEX_LOCK(&gRaPeerMutex[qpPeer->phyId]);
     RsSetCtx(qpPeer->phyId);
-    ret = RsTypicalQpModify(qpPeer->phyId, qpPeer->rdevIndex, *localQpInfo, *remoteQpInfo,
-        &(qpPeer->udpSport));
+    ret = RsTypicalQpModify(qpPeer->phyId, qpPeer->rdevIndex, *localQpInfo, *remoteQpInfo, &(qpPeer->typicalQpAttr));
     if (ret != 0) {
         hccp_err("[modify][ra_peer_qp]rs_typical_qp_modify failed ret(%d) phyId(%u) qpn(%u)",
             ret, qpPeer->phyId, qpPeer->qpn);
     }
     PEER_PTHREAD_MUTEX_UNLOCK(&gRaPeerMutex[qpPeer->phyId]);
+
     return ret;
 }
 

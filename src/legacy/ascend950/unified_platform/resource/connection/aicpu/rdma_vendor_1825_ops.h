@@ -179,10 +179,10 @@ public:
         dbEntry.dw0.bs.pi           = ((sqHead_ >> 8) & 0xff);
         dbEntry.dw0.bs.sgidIndex    = ROCE_INIT_SQ_DB_SGIT_IDX;
         dbEntry.dw0.bs.type         = ROCE_SQ_DOORBELL_TYPE;
-        dbEntry.dw0.bs.mtuShift     = 0;
+        dbEntry.dw0.bs.mtuShift     = sqContext_->mtuShift;
         dbEntry.dw0.bs.cos          = 0x7;
 
-        dbAddr  = sqContext_->dbVa;
+        dbAddr  = sqContext_->dbHwVa;
         dbValue = dbEntry.dw0.db_value;
 
         HCCL_INFO("[Rdma1825Ops::%s] Hcomm RDMA 1825 Build Doorbell OK. ", __func__);

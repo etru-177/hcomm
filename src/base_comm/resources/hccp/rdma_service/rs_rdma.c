@@ -2394,11 +2394,38 @@ STATIC void RsTypicalQpModifyInfoRelated(struct RsQpCb *qpCb, struct TypicalQp *
     (void)memcpy_s(qpCb->qpInfoRem.gid.raw, HCCP_GID_RAW_LEN, remoteQpInfo->gid, HCCP_GID_RAW_LEN);
 }
 
-RS_ATTRI_VISI_DEF int RsTypicalQpModify(unsigned int phyId, unsigned int rdevIndex,
-    struct TypicalQp localQpInfo, struct TypicalQp remoteQpInfo, unsigned int *udpSport)
+STATIC int RsTypicalQueryQpAttr(struct RsQpCb *qpCb, struct TypicalQpAttr *qpAttr)
 {
     unsigned int qpAttrMask = HNS_ROCE_AI_QPC_UDPSPN;
-    struct hns_roce_qpc_attr_val qpAttrVal = { 0 };
+    struct hns_roce_qpc_attr_val qpAttrVal = {0};
+    struct ibv_qp_init_attr initAttr = {0};
+    struct ibv_qp_attr ibvQpAttr = {0};
+    int ret = 0;
+
+    (void)qpAttrMask;
+    (void)qpAttrVal;
+#ifdef CUSTOM_INTERFACE
+    if (RsIsCustomInterfaceSupported()) {
+        ret = RsRoceQueryQpc(qpCb->ibQp, &qpAttrVal, qpAttrMask);
+        if (ret != 0) {
+            hccp_warn("qpn:%d query qpc unsuccessful, ret %d", qpCb->qpInfoLo.qpn, ret);
+        } else {
+            qpCb->udpSport = qpAttrVal.udp_sport;
+        }
+    }
+#endif
+
+    ret = RsIbvQueryQp(qpCb->ibQp, &ibvQpAttr, IBV_QP_PATH_MTU, &initAttr);
+    CHK_PRT_RETURN(ret, hccp_err("RsIbvQueryQp failed, ret:%d errno:%d", ret, errno), -EOPENSRC);
+
+    qpAttr->udpSport = qpCb->udpSport;
+    qpAttr->pathMtu = (int)ibvQpAttr.path_mtu;
+    return 0;
+}
+
+RS_ATTRI_VISI_DEF int RsTypicalQpModify(unsigned int phyId, unsigned int rdevIndex,
+    struct TypicalQp localQpInfo, struct TypicalQp remoteQpInfo, struct TypicalQpAttr *qpAttr)
+{
     struct ibv_qp_init_attr initAttr = { 0 };
     struct ibv_qp_attr attr = { 0 };
     struct RsQpCb *qpCb = NULL;
@@ -2427,17 +2454,9 @@ RS_ATTRI_VISI_DEF int RsTypicalQpModify(unsigned int phyId, unsigned int rdevInd
     CHK_PRT_RETURN(ret != 0, hccp_err("[modify]local_qpn:%u remote_qpn:%u modify to rts failed, ret %d",
         localQpInfo.qpn, remoteQpInfo.qpn, ret), ret);
 
-#ifdef CUSTOM_INTERFACE
-    if (RsIsCustomInterfaceSupported()) {
-        ret = RsRoceQueryQpc(qpCb->ibQp, &qpAttrVal, qpAttrMask);
-        if (ret != 0) {
-            hccp_warn("qpn:%d query qpc unsuccessful, ret %d", localQpInfo.qpn, ret);
-        } else {
-            qpCb->udpSport = qpAttrVal.udp_sport;
-        }
-    }
-#endif
-    *udpSport = qpCb->udpSport;
+    ret = RsTypicalQueryQpAttr(qpCb, qpAttr);
+    CHK_PRT_RETURN(ret != 0, hccp_err("RsTypicalQueryQpAttr failed, ret %d local_qpn:%u", ret, localQpInfo.qpn), ret);
+
     RsTypicalQpModifyInfoRelated(qpCb, &localQpInfo, &remoteQpInfo);
 
     hccp_info("local_qpn:%u remote_qpn:%u modify succ, udpSport:%u",

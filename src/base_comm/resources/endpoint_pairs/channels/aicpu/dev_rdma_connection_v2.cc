@@ -14,8 +14,6 @@
 
 namespace hcomm {
 constexpr uint32_t DEFAULT_CQN = 0;
-constexpr int8_t DB_MODE_HW = 0;
-constexpr int8_t DB_MODE_SW = 1;
 
 DevRdmaConnectionV2::DevRdmaConnectionV2(Hccl::Socket *socket, RdmaHandle rdmaHandle):
     socket_(socket), rdmaHandle_(rdmaHandle) {}
@@ -282,12 +280,17 @@ HcclResult DevRdmaConnectionV2::BuildSqContext(SqContext* context)
         return HCCL_E_PTR;
     }
 
+    // 零初始化roceSq, 确保不同dmaMode下未使用字段有确定值
+    (void)memset_s(&context->contextInfo.roceSq, sizeof(context->contextInfo.roceSq), 0,
+        sizeof(context->contextInfo.roceSq));
+
     struct QpAttr localQpAttr;
     s32 ret = RaGetQpAttr(qpHandle_, &localQpAttr);
     if (ret != 0) {
         HCCL_ERROR("[DevRdmaConnectionV2::%s]RaGetQpAttr failed, ret[%d]", __func__, ret);
         return HCCL_E_ROCE_CONNECT;
     }
+    s32 mtuShift = localQpAttr.pathMtu - 1;
 
     context->type = SQ_CONTEXT_TYPE_ROCE;
     context->contextInfo.roceSq.qpn = localQpAttr.qpn;
@@ -296,19 +299,23 @@ HcclResult DevRdmaConnectionV2::BuildSqContext(SqContext* context)
     context->contextInfo.roceSq.depth = ndaQpInfo_.sqInfo.qBuf.entryCnt;
     context->contextInfo.roceSq.headAddr = reinterpret_cast<uint64_t >(SqPiMem_.ptr());
     context->contextInfo.roceSq.tailAddr = reinterpret_cast<uint64_t >(SqCiMem_.ptr());
-    context->contextInfo.roceSq.dbVa = reinterpret_cast<uint64_t >(ndaQpInfo_.sqInfo.dbHwVa.iovBase);
     context->contextInfo.roceSq.sl = qpInfo_.serviceLevel;
-    context->contextInfo.roceSq.dbMode = DB_MODE_HW;
+    context->contextInfo.roceSq.dbHwVa = reinterpret_cast<uint64_t >(ndaQpInfo_.sqInfo.dbHwVa.iovBase);
+
+    if (dmaMode_ == QBUF_DMA_MODE_INDEP_UB) {
+        context->contextInfo.roceSq.dbSwVa = reinterpret_cast<uint64_t >(ndaQpInfo_.sqInfo.dbrPiVa.iovBase);
+        context->contextInfo.roceSq.mtuShift = static_cast<uint8_t>(mtuShift);
+    }
 
     HCCL_INFO(
         "[DevRdmaConnectionV2][%s] type=%u, QPN=%u, SQ_VA=0x%llx, WQE_SIZE=%u, "
         "SQ_DEPTH=%u, SQ_HEAD_ADDR=0x%llx, SQ_TAIL_ADDR=0x%llx, "
-        "SL=%u, SQ_DB_VA=0x%llx, SQ_DB_MODE=%d", __func__, context->type,
+        "SL=%u, DB_HW_VA=0x%llx, DB_SW_VA=0x%llx, MTU_SHIFT=%u", __func__, context->type,
         context->contextInfo.roceSq.qpn, context->contextInfo.roceSq.sqVa, context->contextInfo.roceSq.wqeSize,
         context->contextInfo.roceSq.depth, context->contextInfo.roceSq.headAddr, context->contextInfo.roceSq.tailAddr,
-        context->contextInfo.roceSq.sl, context->contextInfo.roceSq.dbVa, context->contextInfo.roceSq.dbMode
+        context->contextInfo.roceSq.sl, context->contextInfo.roceSq.dbHwVa,
+        context->contextInfo.roceSq.dbSwVa, context->contextInfo.roceSq.mtuShift
     );
-
     return HCCL_SUCCESS;
 }
 
@@ -319,29 +326,32 @@ HcclResult DevRdmaConnectionV2::BuildCqContext(CqContext* context)
         return HCCL_E_PTR;
     }
 
+    // 零初始化roceCq, 确保不同dmaMode下未使用字段有确定值
+    (void)memset_s(&context->contextInfo.roceCq, sizeof(context->contextInfo.roceCq), 0,
+        sizeof(context->contextInfo.roceCq));
+
     context->type = CQ_CONTEXT_TYPE_ROCE;
     context->contextInfo.roceCq.cqVa = ndaCqInfo_.cqInfo.qBuf.base;
     context->contextInfo.roceCq.cqeSize = ndaCqInfo_.cqInfo.qBuf.entrySize;
     context->contextInfo.roceCq.cqDepth = ndaCqInfo_.cqInfo.qBuf.entryCnt;
     context->contextInfo.roceCq.headAddr = reinterpret_cast<uint64_t >(CqPiMem_.ptr());
     context->contextInfo.roceCq.tailAddr = reinterpret_cast<uint64_t >(CqCiMem_.ptr());
+    // PCIe模式(DEFAULT): 仅使用硬DB; UBNIC模式(INDEP_UB): 仅使用软DB
     if (dmaMode_ == QBUF_DMA_MODE_DEFAULT) {
         context->contextInfo.roceCq.cqn = ndaCqInfo_.resv[0]; // 云脉网卡NDA直驱，协商ndaCqInfo_.resv[0]字段为CQN
-        context->contextInfo.roceCq.dbVa = reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbHwVa.iovBase);
-        context->contextInfo.roceCq.dbMode = DB_MODE_HW; // 云脉网卡NDA直驱，使用硬DB
+        context->contextInfo.roceCq.dbHwVa = reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbHwVa.iovBase);
     } else {
         context->contextInfo.roceCq.cqn = DEFAULT_CQN;
-        context->contextInfo.roceCq.dbVa = reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbrCiVa.iovBase);
-        context->contextInfo.roceCq.dbMode = DB_MODE_SW; // 1825网卡NDA直驱，使用软DB
+        context->contextInfo.roceCq.dbSwVa = reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbrCiVa.iovBase);
     }
 
     HCCL_INFO(
         "[DevRdmaConnectionV2][%s] type=%u, CQN=%u, CQ_VA=0x%llx, CQE_SIZE=%u, CQ_DEPTH=%u, "
-        "CQ_HEAD_ADDR=0x%llx, CQ_TAIL_ADDR=0x%llx, CQ_DB_VA=0x%llx, CQ_DB_MODE=%d]",
+        "CQ_HEAD_ADDR=0x%llx, CQ_TAIL_ADDR=0x%llx, DB_HW_VA=0x%llx, DB_SW_VA=0x%llx]",
         __func__, context->type,
         context->contextInfo.roceCq.cqn, context->contextInfo.roceCq.cqVa, context->contextInfo.roceCq.cqeSize,
         context->contextInfo.roceCq.cqDepth, context->contextInfo.roceCq.headAddr, context->contextInfo.roceCq.tailAddr,
-        context->contextInfo.roceCq.dbVa, context->contextInfo.roceCq.dbMode
+        context->contextInfo.roceCq.dbHwVa, context->contextInfo.roceCq.dbSwVa
     );
 
     return HCCL_SUCCESS;
@@ -356,6 +366,7 @@ std::vector<char> DevRdmaConnectionV2::GetSqUniqueId() const
         HCCL_ERROR("[DevRdmaConnectionV2::%s]RaGetQpAttr failed, ret[%d]", __func__, ret);
         return {};
     }
+    s32 mtuShift = localQpAttr.pathMtu - 1;
 
     Hccl::BinaryStream binaryStream;
     // 打包1825网卡NDA直驱资源
@@ -365,9 +376,10 @@ std::vector<char> DevRdmaConnectionV2::GetSqUniqueId() const
     binaryStream << ndaQpInfo_.sqInfo.qBuf.entryCnt;
     binaryStream << reinterpret_cast<uint64_t >(SqPiMem_.ptr());
     binaryStream << reinterpret_cast<uint64_t >(SqCiMem_.ptr());
-    binaryStream << reinterpret_cast<uint64_t >(ndaQpInfo_.sqInfo.dbHwVa.iovBase);
-    binaryStream << DB_MODE_HW;
-    binaryStream << qpInfo_.serviceLevel;
+    binaryStream << reinterpret_cast<uint64_t >(ndaQpInfo_.sqInfo.dbHwVa.iovBase); 
+    binaryStream << reinterpret_cast<uint64_t >(ndaQpInfo_.sqInfo.dbrPiVa.iovBase);
+    binaryStream << static_cast<uint8_t>(qpInfo_.serviceLevel);
+    binaryStream << static_cast<uint8_t>(mtuShift);
 
     std::vector<char> result;
     binaryStream.Dump(result);
@@ -386,7 +398,6 @@ std::vector<char> DevRdmaConnectionV2::GetCqUniqueId() const
     binaryStream << reinterpret_cast<uint64_t >(CqPiMem_.ptr());
     binaryStream << reinterpret_cast<uint64_t >(CqCiMem_.ptr());
     binaryStream << reinterpret_cast<uint64_t >(ndaCqInfo_.cqInfo.dbrCiVa.iovBase);
-    binaryStream << DB_MODE_SW;
 
     std::vector<char> result;
     binaryStream.Dump(result);

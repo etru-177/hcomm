@@ -204,7 +204,7 @@ struct RaQpHandle {
     struct rdma_lite_wc *liteWc;
     unsigned int memIdx;
     int sqSigAll;
-    unsigned int udpSport;
+    struct TypicalQpAttr typicalQpAttr;
     unsigned int psn;
     unsigned int gidIdx;
     unsigned int sqDepth; // only valid in RDMA Lite scenario

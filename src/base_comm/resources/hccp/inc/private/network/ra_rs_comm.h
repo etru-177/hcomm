@@ -302,6 +302,11 @@ struct RaRsDevInfo {
     unsigned int devIndex;
 };
 
+struct TypicalQpAttr {
+    unsigned int udpSport;
+    int pathMtu;
+};
+
 enum {
     THREAD_HALT  = 0,
     THREAD_RUNNING  = 1,

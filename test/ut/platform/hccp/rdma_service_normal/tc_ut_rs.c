@@ -6126,7 +6126,7 @@ void TcRsTypicalQpModify()
 
 	struct TypicalQp localQpInfo = {0};
 	struct TypicalQp remoteQpInfo = {0};
-	unsigned int udpSport;
+	struct TypicalQpAttr qpAttr = {0};
 
 	struct RsQpNorm qpNorm = {0};
 	struct RsQpResp resp = {0};
@@ -6155,9 +6155,9 @@ void TcRsTypicalQpModify()
 
 	mocker_invoke(RsIbvQueryQp, stub_RsIbvQueryQp_init, 10);
     mocker(RsRoceQueryQpc, 10, 1);
-	ret = RsTypicalQpModify(phyId, rdevIndex, localQpInfo, remoteQpInfo, &udpSport);
+	ret = RsTypicalQpModify(phyId, rdevIndex, localQpInfo, remoteQpInfo, &qpAttr);
 	EXPECT_INT_EQ(ret, 0);
-	ret = RsTypicalQpModify(phyId, rdevIndex, remoteQpInfo, localQpInfo, &udpSport);
+	ret = RsTypicalQpModify(phyId, rdevIndex, remoteQpInfo, localQpInfo, &qpAttr);
 	EXPECT_INT_EQ(ret, 0);
 	mocker_clean();
 
