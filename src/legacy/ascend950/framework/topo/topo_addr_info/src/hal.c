@@ -88,7 +88,9 @@ static int (*dcmiv2_get_eid_list_by_urma_dev_index)(int npu_id,
 
 static int (*dcmiv2_get_device_pcie_info)(int npu_id, struct dcmi_pcie_info_all* pcie_info);
 
-static int (*get_logicid_from_phyid)(const int32_t phy_id, int32_t *const logic_id);
+static int (*aclrtGetUserDevIdByPhyDevId)(const int32_t phyId, int32_t *const userDevId);
+
+static int (*aclrtGetLogicDevIdByUserDevId)(const int32_t userDevId, int32_t *const logicId);
 
 static int (*halGetDeviceInfo)(unsigned int devId, uint32_t moduleType, int32_t infoType, int64_t *value);
 
@@ -126,12 +128,20 @@ int load_dcmi()
     dcmiv2_get_urma_device_cnt = hal_dlsym(dcmi, "dcmiv2_get_urma_device_cnt");
     dcmiv2_get_eid_list_by_urma_dev_index = hal_dlsym(dcmi, "dcmiv2_get_eid_list_by_urma_dev_index");
     dcmiv2_get_device_pcie_info = hal_dlsym(dcmi, "dcmiv2_get_device_pcie_info");
-    get_logicid_from_phyid = hal_dlsym(acl, "aclrtGetLogicDevIdByPhyDevId");
+
+    //兼容性处理 aclrtGetLogicDevIdByPhyDevId接口语义错误,实际返回的是UserDevId，优先使用新接口
+    aclrtGetUserDevIdByPhyDevId = hal_dlsym(acl, "aclrtGetUserDevIdByPhyDevId");
+    if (aclrtGetUserDevIdByPhyDevId == NULL) {
+        aclrtGetUserDevIdByPhyDevId = hal_dlsym(acl, "aclrtGetLogicDevIdByPhyDevId");
+    }
+
     halGetDeviceInfo = hal_dlsym(acl, "halGetDeviceInfo");
+    aclrtGetLogicDevIdByUserDevId = hal_dlsym(acl, "aclrtGetLogicDevIdByUserDevId");
 
     if ((dcmi_init == NULL) || (dcmiv2_get_urma_device_cnt == NULL)
      || (dcmiv2_get_eid_list_by_urma_dev_index == NULL) || (halGetDeviceInfo == NULL)
-     || (dcmiv2_get_device_pcie_info ==NULL) || (get_logicid_from_phyid == NULL)) {
+     || (dcmiv2_get_device_pcie_info ==NULL) || (aclrtGetUserDevIdByPhyDevId == NULL)
+     || (aclrtGetLogicDevIdByUserDevId == NULL)) {
         pthread_mutex_unlock(&mutex);
         return -1;
     }
@@ -299,12 +309,18 @@ int hal_get_logicid_from_phyid(unsigned int phyId, unsigned int* logicId)
     if (load_dcmi() != 0) {
         return -1;
     }
-    int value = -1;
-    int ret = get_logicid_from_phyid((int)phyId, &value);
-    if (ret == 0) {
-        *logicId = (unsigned int)value;
+    int userDevId = -1;
+    int ret = aclrtGetUserDevIdByPhyDevId((int)phyId, &userDevId);
+    if (ret != 0) {
+        return -1;
     }
-    return ret;
+    int value = -1; 
+    ret = aclrtGetLogicDevIdByUserDevId(userDevId, &value);
+    if (ret != 0) {
+        return -1;
+    }
+    *logicId = (unsigned int)value;
+    return 0;
 }
 
 // 去除字符串首尾的空白字符

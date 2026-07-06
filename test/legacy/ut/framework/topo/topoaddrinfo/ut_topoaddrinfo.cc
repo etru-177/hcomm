@@ -283,6 +283,12 @@ int mock_aclrtGetLogicDevIdByPhyDevId(const int phyId, int* const logicId)
    return 0;
 }
 
+int mock_convertId(const int inputId, int* const outputId)
+{
+   *outputId = inputId;
+   return 0;
+}
+
 int mock_halGetDeviceInfo(unsigned int devId, uint32_t moduleType, int32_t infoType, int64_t *value)
 {
     *value = 0x07;
@@ -304,6 +310,14 @@ void *mock_dlsym(void *handle, const char *symbol)
                         
     if (strcmp(symbol, "aclrtGetLogicDevIdByPhyDevId") == 0) {
         return (void*)mock_aclrtGetLogicDevIdByPhyDevId;
+    }
+
+    if (strcmp(symbol, "aclrtGetUserDevIdByPhyDevId") == 0) {
+        return (void*)mock_convertId;
+    }
+
+    if (strcmp(symbol, "aclrtGetLogicDevIdByUserDevId") == 0) {
+        return (void*)mock_convertId;
     }
 
     if (strcmp(symbol, "halGetDeviceInfo") == 0) {
