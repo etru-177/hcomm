@@ -142,9 +142,6 @@ namespace hccl
             HCCL_ERROR("new ZeroCopyAclGraph failed!");
         }
         commConfig_ = CommConfig();
-        if (commConfig_.GetConfigUdi() != "Unspecified") {
-            udi_ = commConfig_.GetConfigUdi();
-        }
         dpuManager_.reset(new (std::nothrow) DpuManager());
         if (dpuManager_ == nullptr) {
             HCCL_ERROR("new DpuManager failed!");
@@ -176,9 +173,6 @@ namespace hccl
             HCCL_ERROR("new ZeroCopyAclGraph failed!");
         }
         commConfig_ = commConfig;
-        if (commConfig_.GetConfigUdi() != "Unspecified") {
-            udi_ = commConfig_.GetConfigUdi();
-        }
         dpuManager_.reset(new (std::nothrow) DpuManager());
         if (dpuManager_ == nullptr) {
             HCCL_ERROR("new DpuManager failed!");
@@ -6211,8 +6205,6 @@ namespace hccl
 
         CHK_SAFETY_FUNC_RET(
             memcpy_s(opResPara_.hcomId, sizeof(opResPara_.hcomId), identifier_.c_str(), identifier_.length() + 1));
-        CHK_SAFETY_FUNC_RET(
-            memcpy_s(opResPara_.udi, sizeof(opResPara_.udi), udi_.c_str(), udi_.length() + 1));
 
         opResPara_.config.deterministic = GetDeterministicConfig();
         opResPara_.config.highPerfEnable = 0;
@@ -6331,8 +6323,7 @@ namespace hccl
 
     HcclResult HcclCommunicator::GetReportHcclMC2Info(const Stream &kfcStream, const std::vector<Stream> &aicpuStreams)
     {
-        std::string identifierWithUdi = udi_ + identifier_; // 若用户自定义了udi，groupname拼接udi
-        hcclMc2Info_.groupName = hrtMsprofGetHashId(identifierWithUdi.c_str(), identifierWithUdi.length());
+        hcclMc2Info_.groupName = hrtMsprofGetHashId(identifier_.c_str(), identifier_.length());
         hcclMc2Info_.rankSize = userRankSize_;
         hcclMc2Info_.rankId = userRank_;
         hcclMc2Info_.usrRankId = realUserRank_;

@@ -112,7 +112,6 @@ HcclResult HcclCommAicpu::Init(const HcclOpResParam *commParam, bool isCustom)
     CHK_PTR_NULL(commParam);
     identifier_ = commParam->hcomId;
     isCustom_ = isCustom;
-    udi_ = commParam->udi;
     HCCL_RUN_INFO("[HcclCommAicpu][Init]Entry-Init group[%s], rankSize[%u], isCustom[%d].",
         identifier_.c_str(), commParam->rankSize, isCustom_);
     CHK_RET(aicpuShareData_.Init(commParam->aicpuCustomParamAddr, commParam->aicpuCustomParamSize));
@@ -174,13 +173,8 @@ HcclResult HcclCommAicpu::InitUtraceInfo(const HcclOpResParam *commParam)
 
 HcclResult HcclCommAicpu::InitProfResource()
 {
-    std::string identifierWithUdi = identifier_; // 若用户自定义了udi，groupname拼接udi
-    if (!udi_.empty() && udi_ != "Unspecified") {
-        identifierWithUdi = udi_ + identifierWithUdi;
-    }
-
-    groupHashId_ = dfx::ProfilingManager::GetProfHashId(identifierWithUdi.c_str(), identifierWithUdi.length());
-    HCCL_RUN_INFO("[Init][ProfResource]group[%s], groupHashId_[%llu].", identifierWithUdi.c_str(), groupHashId_);
+    groupHashId_ = dfx::ProfilingManager::GetProfHashId(identifier_.c_str(), identifier_.length());	 
+    HCCL_RUN_INFO("[Init][ProfResource]group[%s], groupHashId_[%llu].", identifier_.c_str(), groupHashId_);
 
     dfx::ProfCommInfo profInfo{ groupHashId_, topoInfo_.userRankSize, topoInfo_.userRank };
     CHK_RET(dfx::ProfilingManager::AddProfInfoByStreamId(mainStream_.id(), identifier_, profInfo));
@@ -5396,13 +5390,8 @@ HcclResult HcclCommAicpu::InitThreads(ThreadMgrAicpuParam *param)
 }
 
 HcclResult HcclCommAicpu::InitProfthreadResource(u32 threadNum) {
-    std::string identifierWithUdi = identifier_; // 若用户自定义了udi，groupname拼接udi
-    if (!udi_.empty() && udi_ != "Unspecified") {
-        identifierWithUdi = udi_ + identifierWithUdi;
-    }
-
-    groupHashId_ = dfx::ProfilingManager::GetProfHashId(identifierWithUdi.c_str(), identifierWithUdi.length());
-    HCCL_INFO("[%s], group[%s], groupHash[%llu], threadNum[%u] ", __func__, identifierWithUdi.c_str(), groupHashId_, threadNum);
+    groupHashId_ = dfx::ProfilingManager::GetProfHashId(identifier_.c_str(), identifier_.length());	 
+    HCCL_INFO("[%s], group[%s], groupHash[%llu], threadNum[%u] ", __func__, identifier_.c_str(), groupHashId_, threadNum);
     dfx::ProfCommInfo profInfo{ groupHashId_, topoInfo_.userRankSize, topoInfo_.userRank };
     // 添加检查确保 threadNum 不超过线程总数
     if (threadNum > threads_.size()) {

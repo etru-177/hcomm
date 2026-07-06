@@ -941,7 +941,6 @@ HcclResult hcclComm::InitImpl(DevType deviceType, const CommConfig &commConfig)
     communicator_.reset(new (std::nothrow) HcclCommunicator(commConfig));
     CHK_SMART_PTR_NULL(communicator_);
     deviceType_ = deviceType;
-    udi_ = commConfig.GetConfigUdi();
     CHK_RET(RegistTaskAbortHandler());
 
     return HCCL_SUCCESS;
@@ -1532,11 +1531,6 @@ HcclResult hcclComm::GetCommSymWin(void* ptr, size_t size, HcclCommSymWindow *wi
 aclrtBinHandle hcclComm::GetBinHandle()
 {
     return binHandle_;
-}
-
-std::string hcclComm::GetUdi()
-{
-    return udi_;
 }
 
 aclrtBinHandle hcclComm::GetBinHcclHandle()

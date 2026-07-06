@@ -308,7 +308,7 @@ HcclResult CommConfig::SetConfigCommName(const CommConfigHandle &config)
 {
     if (config.commName[0] != '\0') {
         auto commNameLength = strlen(config.commName);
-        commNameLength = commNameLength < COMM_NAME_MAX_LENGTH - 1? commNameLength : COMM_NAME_MAX_LENGTH - 1;
+        commNameLength = commNameLength < COMM_NAME_MAX_LENGTH? commNameLength : COMM_NAME_MAX_LENGTH;
         commName_ = std::string(config.commName, commNameLength);
     }
     return HCCL_SUCCESS;
@@ -321,7 +321,7 @@ HcclResult CommConfig::SetConfigUdi(const CommConfigHandle &config)
         return HCCL_SUCCESS;
     }
     auto udiLength = strlen(config.udi);
-    udiLength = udiLength < COMM_NAME_MAX_LENGTH - 1 ? udiLength : COMM_NAME_MAX_LENGTH - 1;
+    udiLength = udiLength < COMM_NAME_MAX_LENGTH ? udiLength : COMM_NAME_MAX_LENGTH;
     udi_ = std::string(config.udi, udiLength);
     return HCCL_SUCCESS;
 }

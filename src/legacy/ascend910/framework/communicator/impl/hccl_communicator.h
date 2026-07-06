@@ -705,7 +705,6 @@ private:
     bool isSetHDCModeInfo_{ false };
     std::map<std::string, HostMem> tagWorkSpaceMem_;
     std::string identifier_;
-    std::string udi_;
     u32 ranktableCrc_;
     s32 devicePid_;
     bool multiModuleDiffDeviceNumMode_;
