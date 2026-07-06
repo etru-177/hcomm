@@ -47,3 +47,20 @@ HcclResult HcclCommResume(HcclComm comm)
 
 - 调用本接口前，需要调用acl提供的aclrtDeviceTaskAbort接口停止本Device上的任务执行。
 - 调用本接口恢复通信域状态前，需要进行一次集群同步操作。
+
+## 调用示例
+
+```c
+uint32_t rankSize = 8;
+uint32_t deviceId = 0;
+// 生成root节点的rank标识信息
+HcclRootInfo rootInfo;
+HCCLCHECK(HcclGetRootInfo(&rootInfo));
+// 初始化通信域
+HcclComm hcclComm;
+HCCLCHECK(HcclCommInitRootInfo(rankSize, &rootInfo, deviceId, &hcclComm));
+// 假设通信域已通过HcclCommSuspend接口或者acl提供的aclrtDeviceTaskAbort接口被挂起，恢复通信域
+HCCLCHECK(HcclCommResume(hcclComm));
+// 销毁通信域
+HCCLCHECK(HcclCommDestroy(hcclComm));
+```
