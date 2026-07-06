@@ -188,7 +188,7 @@ private:
                              Str2T<u64>, CHK_RANGE_CLOSED<u64>(HCCL_CCL_COMM_BUFFER_MIN, ULLONG_MAX), [](u64 &i) {
                                  i *= HCCL_CCL_COMM_FIXED_CALC_BUFFER_SIZE;
                              }};
-    CfgField<HcclAccelerator> hcclAccelerator_{"HCCL_OP_EXPANSION_MODE", HcclAccelerator::CCU_SCHED,
+    CfgField<HcclAccelerator> hcclAccelerator_{"HCCL_OP_EXPANSION_MODE", HcclAccelerator::AICPU_TS,
                                               CastHcclAccelerator};
 };
 

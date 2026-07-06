@@ -136,8 +136,8 @@ constexpr uint32_t CCU_MS_MODE = 5;
 constexpr uint32_t CCU_SCHED_MODE = 6;
 inline CcuInstanceType OpExpansionModeToCcuInstanceType(uint32_t opExpansionMode)
 {
-    if (opExpansionMode == DEFAULT_MODE ||
-        opExpansionMode == CCU_SCHED_MODE) {
+    // 仅作数据类型转换，不做逻辑处理
+    if (opExpansionMode == CCU_SCHED_MODE) {
         return CcuInstanceType::CCU_SCHED;
     }
 
