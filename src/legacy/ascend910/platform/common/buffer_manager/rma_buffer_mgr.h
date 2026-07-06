@@ -131,7 +131,16 @@ public:
         // 引用计数大于0，不删除
         HCCL_RUN_INFO("Memory reference count is larger than 0, (used by other RemoteRank), do not deregister memory."
              "current memory reference count[%llu], %s.", it->second.ref, key.ToString().c_str());
-        return false; 
+        return false;
+    }
+
+    bool IsInTree(const KeyType& key)
+    {
+        auto it = intervalTree_.find(key);
+        if (it == intervalTree_.end()) {
+            return false;
+        }
+        return true;
     }
 
     ConstIterator Begin()

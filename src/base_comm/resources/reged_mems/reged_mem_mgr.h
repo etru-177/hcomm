@@ -11,7 +11,10 @@
 #define REGED_MEM_MGR_H
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
+#include <utility>
+#include <vector>
 #include "hcomm_c_adpt.h"
 #include "log.h"
 #include "buffer_key.h"
@@ -54,6 +57,9 @@ public:
     RdmaHandle rdmaHandle_{nullptr};
 
 protected:
+    template <typename RmaBuffer>
+    using RegedBufferEntry = std::pair<std::shared_ptr<RmaBuffer>, bool>;
+
     static HcclResult ValidateMemParams(HcommMem mem, void **memHandle)
     {
         CHK_PTR_NULL(memHandle);
@@ -61,6 +67,45 @@ protected:
         CHK_PRT_RET(mem.size == 0, HCCL_ERROR("[%s] mem size is zero", __func__), HCCL_E_PARA);
         CHK_PRT_RET(mem.type == COMM_MEM_TYPE_INVALID,
             HCCL_ERROR("[%s] invalid mem type [%d]", __func__, mem.type), HCCL_E_PARA);
+        return HCCL_SUCCESS;
+    }
+
+    // MemoryExport: 从allBuffers中校验memHandle并获取buffer指针
+    template <typename RmaBuffer>
+    static HcclResult ValidateMemExportHandle(void *memHandle,
+        const std::vector<RegedBufferEntry<RmaBuffer>>& allBuffers, RmaBuffer*& outBuffer)
+    {
+        auto it = std::find_if(allBuffers.begin(), allBuffers.end(),
+            [memHandle](const auto &entry) {
+                return entry.first != nullptr && entry.first.get() == memHandle;
+            });
+        if (it == allBuffers.end()) {
+            HCCL_ERROR("[RegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
+            return HCCL_E_NOT_FOUND;
+        }
+        outBuffer = it->first.get();
+        return HCCL_SUCCESS;
+    }
+
+    // GetAllMemHandles: 收集所有未标记删除的buffer指针
+    template <typename RmaBuffer>
+    static HcclResult GetAllMemHandlesImpl(std::vector<RegedBufferEntry<RmaBuffer>>& allBuffers,
+        std::vector<std::shared_ptr<RmaBuffer>>& activeHandles,
+        void **memHandles, uint32_t *memHandleNum, const char* logTag)
+    {
+        CHK_PTR_NULL(memHandles);
+        CHK_PTR_NULL(memHandleNum);
+
+        activeHandles.clear();
+        for (auto& entry : allBuffers) {
+            if (!entry.second) {
+                activeHandles.push_back(entry.first);
+            }
+        }
+
+        *memHandleNum = static_cast<uint32_t>(activeHandles.size());
+        *memHandles = activeHandles.empty() ? nullptr : reinterpret_cast<void *>(activeHandles.data());
+        HCCL_INFO("[%s][GetAllMemHandles] memHandleNum[%u]", logTag, *memHandleNum);
         return HCCL_SUCCESS;
     }
 
@@ -86,11 +131,12 @@ protected:
         if (findResult.first && tokenEqual(hwHandleGetter(findResult.second.get()), token)) {
             return findResult.second.get();
         }
-        for (auto& ptr : allBuffers) {
+        for (auto& entry : allBuffers) {
+            const auto& ptr = entry.first;
             if (ptr.get() == buffer) {
                 continue;
             }
-            if (tokenEqual(hwHandleGetter(ptr.get()), token)) {
+            if (tokenEqual(hwHandleGetter(ptr.get()), token) && !ptr->IsAlias()) {
                 return ptr.get();
             }
         }
@@ -122,7 +168,7 @@ protected:
     // makeNew(bufPtr)          — 构造新buffer
     template <typename Mgr, typename RmaBuffer, typename MakeAlias, typename MakeNew>
     static HcclResult RegisterMemoryImpl(HcommMem mem, const char *memTag, void **memHandle,
-        Mgr& mgr, std::vector<std::shared_ptr<RmaBuffer>>& allBuffers,
+        Mgr& mgr, std::vector<RegedBufferEntry<RmaBuffer>>& allBuffers,
         const char* logTag, MakeAlias&& makeAlias, MakeNew&& makeNew)
     {
         CHK_RET(ValidateMemParams(mem, memHandle));
@@ -142,7 +188,7 @@ protected:
 
         HCCL_INFO("[%s][RegisterMemory] success, key {%p, %llu}", logTag, mem.addr, mem.size);
         *memHandle = static_cast<void *>(rmaBuffer.get());
-        allBuffers.push_back(rmaBuffer);
+        allBuffers.emplace_back(rmaBuffer, false);
         return HCCL_SUCCESS;
     }
 
@@ -151,7 +197,7 @@ protected:
     // tokenEqual(lhs, rhs)   — 比较两个句柄是否相等
     template <typename Mgr, typename RmaBuffer, typename HwHandleFn, typename EqualFn>
     static HcclResult UnregisterMemoryImpl(void* memHandle, Mgr& mgr,
-        std::vector<std::shared_ptr<RmaBuffer>>& allBuffers, HwHandleFn&& hwHandleGetter, EqualFn&& tokenEqual)
+        std::vector<RegedBufferEntry<RmaBuffer>>& allBuffers, HwHandleFn&& hwHandleGetter, EqualFn&& tokenEqual)
     {
         CHK_PTR_NULL(memHandle);
         RmaBuffer* buffer = static_cast<RmaBuffer*>(memHandle);
@@ -174,11 +220,15 @@ protected:
         // Del returns false when ref remains nonzero; local unregister still succeeds after erasing this handle.
         EXCEPTION_CATCH((void)mgr->Del(tempKey), return HCCL_E_NOT_FOUND);
 
-        // 无论tree中是否删除（ref是否归零），当前handle都要从allBuffers移除
+        // IsInTree判断tree中是否还有该key的引用
         auto it = std::find_if(allBuffers.begin(), allBuffers.end(),
-            [buffer](const std::shared_ptr<RmaBuffer>& ptr) { return ptr.get() == buffer; });
+            [buffer](const RegedBufferEntry<RmaBuffer>& entry) { return entry.first.get() == buffer; });
         if (it != allBuffers.end()) {
-            allBuffers.erase(it);
+            if(!mgr->IsInTree(ownKey)) {
+                allBuffers.erase(it);
+            } else {
+                it->second = true;
+            }
         }
         return HCCL_SUCCESS;
     }

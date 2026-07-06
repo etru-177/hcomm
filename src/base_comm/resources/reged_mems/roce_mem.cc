@@ -88,16 +88,8 @@ HcclResult RoceRegedMemMgr::MemoryExport(const EndpointDesc endpointDesc, void *
     CHK_PTR_NULL(memDesc);
     CHK_PTR_NULL(memDescLen);
 
-    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
-        [memHandle](const std::shared_ptr<Hccl::LocalRdmaRmaBuffer> &buffer) {
-            return buffer != nullptr && buffer.get() == memHandle;
-        });
-    if (it == allRegisteredBuffers_.end()) {
-        HCCL_ERROR("[RoceRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
-        return HCCL_E_NOT_FOUND;
-    }
-
-    Hccl::LocalRdmaRmaBuffer *localRdmaRmaBuffer = it->get();
+    Hccl::LocalRdmaRmaBuffer *localRdmaRmaBuffer = nullptr;
+    CHK_RET(ValidateMemExportHandle(memHandle, allRegisteredBuffers_, localRdmaRmaBuffer));
 
     // 获取序列化信息
     CHK_RET(GetMemDesc(endpointDesc, localRdmaRmaBuffer));
@@ -203,16 +195,7 @@ HcclResult RoceRegedMemMgr::MemoryUnimport(const void *memDesc, uint32_t descLen
 HcclResult RoceRegedMemMgr::GetAllMemHandles(void **memHandles, uint32_t *memHandleNum)
 {
     HCCL_INFO("[%s] Begin", __FUNCTION__);
-    CHK_PTR_NULL(memHandleNum);
-
-    uint32_t bufferCount = static_cast<uint32_t>(allRegisteredBuffers_.size());
-    *memHandleNum = bufferCount;
-
-    HCCL_INFO("[RoceRegedMemMgr][[GetAllMemHandles] memHandleNum is [%d]", bufferCount);
-
-    *memHandles = (bufferCount == 0) ? nullptr : reinterpret_cast<void *>(allRegisteredBuffers_.data());
-
-    return HCCL_SUCCESS;
+    return GetAllMemHandlesImpl(allRegisteredBuffers_, activeHandles_, memHandles, memHandleNum, "RoceRegedMemMgr");
 }
 
 }

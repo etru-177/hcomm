@@ -198,7 +198,7 @@ TEST_F(HccsRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Expect_No
         hccl::RmaMemType::DEVICE);
     void *memHandle = localIpcRmaBuffer.get();
 
-    mgr.allRegisteredBuffers_.push_back(localIpcRmaBuffer);
+    mgr.allRegisteredBuffers_.emplace_back(localIpcRmaBuffer, false);
     mgr.allRegisteredBuffers_.clear();
 
     void *memDesc = nullptr;

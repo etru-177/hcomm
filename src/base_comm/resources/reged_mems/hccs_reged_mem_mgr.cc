@@ -71,7 +71,7 @@ HcclResult HccsRegedMemMgr::RegisterMemory(HcommMem mem, const char *memTag, voi
     }
 
     *memHandle = static_cast<void *>(localIpcRmaBuffer.get());
-    allRegisteredBuffers_.emplace_back(localIpcRmaBuffer);
+    allRegisteredBuffers_.emplace_back(localIpcRmaBuffer, false);
 
     HCCL_INFO("[%s] addr[%p] size[%u] memHandle[%p] allRegisteredBuffers_.size[%d]done",
         __FUNCTION__, mem.addr, mem.size, *memHandle, allRegisteredBuffers_.size());
@@ -112,12 +112,16 @@ HcclResult HccsRegedMemMgr::UnregisterMemory(void* memHandle)
     hccl::BufferKey<uintptr_t, u64> memKey(reinterpret_cast<uintptr_t>(refBufferInfo.first), refBufferInfo.second);
     bool resultPair = false;
     EXCEPTION_CATCH(resultPair = localIpcRmaBufferMgr->Del(memKey), return HCCL_E_NOT_FOUND);
-    // 无论tree中是否删除（ref是否归零），当前handle都要从allBuffers移除
+    // IsInTree判断tree中是否还有该key的引用
     bool found = false;
     for (auto it = allRegisteredBuffers_.begin(); it != allRegisteredBuffers_.end(); it++) {
-        if ((*it).get() == buffer) {
-            HCCL_INFO("[%s] addr[%p] size[%u] memHandle[%p] erase done", __FUNCTION__, addr, size, memHandle);
-            it = allRegisteredBuffers_.erase(it);
+        if (it->first.get() == buffer) {
+            HCCL_INFO("[%s] addr[%p] size[%u] memHandle[%p]", __FUNCTION__, addr, size, memHandle);
+            if (!localIpcRmaBufferMgr->IsInTree(ownKey)) {
+                it = allRegisteredBuffers_.erase(it);
+            } else {
+                it->second = true;
+            }
             found = true;
             break;
         }
@@ -222,16 +226,8 @@ HcclResult HccsRegedMemMgr::MemoryExport(
     CHK_PTR_NULL(memDesc);
     CHK_PTR_NULL(memDescLen);
 
-    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
-        [memHandle](const std::shared_ptr<hccl::LocalIpcRmaBuffer> &buffer) {
-            return buffer != nullptr && buffer.get() == memHandle;
-        });
-    if (it == allRegisteredBuffers_.end()) {
-        HCCL_ERROR("[HccsRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
-        return HCCL_E_NOT_FOUND;
-    }
-
-    hccl::LocalIpcRmaBuffer *localIpcRmaBuffer = it->get();
+    hccl::LocalIpcRmaBuffer *localIpcRmaBuffer = nullptr;
+    CHK_RET(ValidateMemExportHandle(memHandle, allRegisteredBuffers_, localIpcRmaBuffer));
     CHK_RET(SerializeToMemDesc(endpointDesc, localIpcRmaBuffer, memDesc, memDescLen));
     HCCL_INFO("[%s] memDesc[%p] descLen[%u]", __FUNCTION__, *memDesc, *memDescLen);
     return HCCL_SUCCESS;
@@ -348,7 +344,10 @@ HcclResult HccsRegedMemMgr::MemoryGrant(const HcommMemGrantInfo *remoteGrantInfo
     HCCL_INFO("[HccsRegedMemMgr][MemoryGrant]Grant remotePid:%d, remoteSdid:%u",
         remoteGrantInfo->pid, remoteGrantInfo->sdid);
     for (auto it = allRegisteredBuffers_.begin(); it != allRegisteredBuffers_.end(); it++) {
-        std::shared_ptr<hccl::LocalIpcRmaBuffer> localIpcRmaBuffer = *it;
+        if (it->second) {
+            continue;
+        }
+        std::shared_ptr<hccl::LocalIpcRmaBuffer> localIpcRmaBuffer = it->first;
         CHK_PTR_NULL(localIpcRmaBuffer);
 
         HcclResult ret = localIpcRmaBuffer->Grant(remoteGrantInfo->pid, remoteGrantInfo->sdid);
@@ -426,17 +425,7 @@ HcclResult HccsRegedMemMgr::MemoryCloseRemoteIpc()
 HcclResult HccsRegedMemMgr::GetAllMemHandles(void **memHandles, uint32_t *memHandleNum)
 {
     HCCL_INFO("[%s] Begin", __FUNCTION__);
-    CHK_PTR_NULL(memHandles);
-    CHK_PTR_NULL(memHandleNum);
-
-    uint32_t bufferCount = static_cast<uint32_t>(allRegisteredBuffers_.size());
-    *memHandleNum = bufferCount;
-
-    HCCL_INFO("[HccsRegedMemMgr][GetAllMemHandles]memHandleNum is [%d]", bufferCount);
-
-    *memHandles = (bufferCount == 0) ? nullptr : reinterpret_cast<void *>(allRegisteredBuffers_.data());
-
-    return HCCL_SUCCESS;
+    return GetAllMemHandlesImpl(allRegisteredBuffers_, activeHandles_, memHandles, memHandleNum, "HccsRegedMemMgr");
 }
 
 HcclResult HccsRegedMemMgr::GetRemoteIpcRmaBuffer(std::vector<CommMem> &remoteIpcRmaBufferVec)

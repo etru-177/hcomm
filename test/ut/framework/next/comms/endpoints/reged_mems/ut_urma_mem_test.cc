@@ -179,7 +179,7 @@ TEST_F(UrmaRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Expect_No
     auto localUbRmaBuffer = std::make_shared<Hccl::LocalUbRmaBuffer>(buf);
     void *memHandle = localUbRmaBuffer.get();
 
-    ubRegedMemMgr.allRegisteredBuffers_.push_back(localUbRmaBuffer);
+    ubRegedMemMgr.allRegisteredBuffers_.emplace_back(localUbRmaBuffer, false);
     ubRegedMemMgr.allRegisteredBuffers_.clear();
 
     void *memDesc = nullptr;

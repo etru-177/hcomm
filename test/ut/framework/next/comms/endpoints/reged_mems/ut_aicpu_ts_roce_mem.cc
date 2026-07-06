@@ -75,7 +75,7 @@ TEST_F(AicpuTsRoceRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Re
         hccl::RmaMemType::DEVICE);
     void *memHandle = localRdmaRmaBuffer.get();
 
-    mgr.allRegisteredBuffers_.push_back(localRdmaRmaBuffer);
+    mgr.allRegisteredBuffers_.emplace_back(localRdmaRmaBuffer, false);
     mgr.allRegisteredBuffers_.clear();
 
     void *desc = nullptr;

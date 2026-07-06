@@ -58,7 +58,7 @@ private:
 
     HcclNetDev netDev_{nullptr};
     std::shared_ptr<hccl::NetDevContext::LocalRdmaRmaBufferMgr> localRdmaRmaBufferMgr_{nullptr};
-    std::vector<std::shared_ptr<hccl::LocalRdmaRmaBuffer>> allRegisteredBuffers_;
+    std::vector<RegedBufferEntry<hccl::LocalRdmaRmaBuffer>> allRegisteredBuffers_;
     std::vector<HcclBuf> hcclBufRecords_;
     std::unordered_map<hccl::LocalRdmaRmaBuffer *, std::vector<char>> exportDescByBuffer_;
     std::map<EndpointDesc, std::unique_ptr<RemoteRdmaRmaBufferMgr>, EndpointDescLess> remoteRdmaRmaBufferMgrs_;

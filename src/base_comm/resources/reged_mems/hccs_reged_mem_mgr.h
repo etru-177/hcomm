@@ -65,7 +65,8 @@ private:
 
 private:
     HcclNetDevCtx netDevCtx_{};
-    std::vector<std::shared_ptr<hccl::LocalIpcRmaBuffer>> allRegisteredBuffers_;
+    std::vector<RegedBufferEntry<hccl::LocalIpcRmaBuffer>> allRegisteredBuffers_;
+    std::vector<std::shared_ptr<hccl::LocalIpcRmaBuffer>> activeHandles_;
     // for read/write with origin addr and len
     RemoteIpcRmaBufferMgr remoteIpcRmaBufferMgr_;
 };

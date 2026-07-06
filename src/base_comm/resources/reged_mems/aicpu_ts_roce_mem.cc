@@ -69,11 +69,11 @@ void AicpuTsRoceRegedMemMgr::TrackRegisteredBuffer(const std::shared_ptr<hccl::L
 {
     void *const handlePtr = static_cast<void *>(localBuffer.get());
     const bool alreadyListed = std::any_of(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
-        [handlePtr](const std::shared_ptr<hccl::LocalRdmaRmaBuffer> &p) { return static_cast<void *>(p.get()) == handlePtr; });
+        [handlePtr](const auto &entry) { return static_cast<void *>(entry.first.get()) == handlePtr; });
     if (alreadyListed) {
         return;
     }
-    allRegisteredBuffers_.push_back(localBuffer);
+    allRegisteredBuffers_.emplace_back(localBuffer, false);
     HcclBuf rec{};
     rec.addr = localBuffer->GetAddr();
     rec.len = localBuffer->GetSize();
@@ -171,9 +171,17 @@ HcclResult AicpuTsRoceRegedMemMgr::UnregisterMemory(void *memHandle)
     }
 
     exportDescByBuffer_.erase(buffer);
-    allRegisteredBuffers_.erase(std::remove_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
-        [memHandle](const std::shared_ptr<hccl::LocalRdmaRmaBuffer> &p) { return p.get() == memHandle; }),
-        allRegisteredBuffers_.end());
+
+    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
+        [memHandle](const auto &entry) { return entry.first.get() == memHandle; });
+    if (it != allRegisteredBuffers_.end()) {
+        // IsInTree判断tree中是否还有该key的引用
+        if (!localRdmaRmaBufferMgr_->IsInTree(ownKey)) {
+            allRegisteredBuffers_.erase(it);
+        } else {
+            it->second = true;
+        }
+    }
 
     hcclBufRecords_.erase(std::remove_if(hcclBufRecords_.begin(), hcclBufRecords_.end(),
         [memHandle](const HcclBuf &b) { return b.handle == memHandle; }),
@@ -198,16 +206,8 @@ HcclResult AicpuTsRoceRegedMemMgr::MemoryExport(const EndpointDesc endpointDesc,
     CHK_PTR_NULL(ctx);
     std::lock_guard<std::mutex> phyLocalLock(*ctx->mu);
 
-    auto it = std::find_if(allRegisteredBuffers_.begin(), allRegisteredBuffers_.end(),
-        [memHandle](const std::shared_ptr<hccl::LocalRdmaRmaBuffer> &buffer) {
-            return buffer != nullptr && buffer.get() == memHandle;
-        });
-    if (it == allRegisteredBuffers_.end()) {
-        HCCL_ERROR("[AicpuTsRoceRegedMemMgr][MemoryExport] memHandle[%p] is not registered.", memHandle);
-        return HCCL_E_NOT_FOUND;
-    }
-
-    auto *buf = it->get();
+    hccl::LocalRdmaRmaBuffer *buf = nullptr;
+    CHK_RET(ValidateMemExportHandle(memHandle, allRegisteredBuffers_, buf));
     std::string &ser = buf->Serialize();
     if (ser.empty()) {
         HCCL_ERROR("[AicpuTsRoceRegedMemMgr][MemoryExport] Serialize empty");
@@ -342,7 +342,11 @@ HcclResult AicpuTsRoceRegedMemMgr::GetAllMemHandles(void **memHandles, uint32_t 
 HcclResult AicpuTsRoceRegedMemMgr::GatherLocalMemDetails(std::vector<RoceMemDetails> &localOut) const
 {
     localOut.reserve(allRegisteredBuffers_.size());
-    for (const auto &buf : allRegisteredBuffers_) {
+    for (const auto &entry : allRegisteredBuffers_) {
+        if (entry.second) {
+            continue;
+        }
+        const auto &buf = entry.first;
         if (buf == nullptr) {
             continue;
         }

@@ -165,7 +165,7 @@ TEST_F(RoceRegedMemMgrTest, Ut_MemoryExport_When_MemHandleUnregistered_Expect_No
         buf, reinterpret_cast<RdmaHandle>(0x1), 11U, 22U, reinterpret_cast<MrHandle>(0x2));
     void *memHandle = localRdmaRmaBuffer.get();
 
-    roceRegedMemMgr.allRegisteredBuffers_.push_back(localRdmaRmaBuffer);
+    roceRegedMemMgr.allRegisteredBuffers_.emplace_back(localRdmaRmaBuffer, false);
     roceRegedMemMgr.allRegisteredBuffers_.clear();
 
     void *memDesc = nullptr;
