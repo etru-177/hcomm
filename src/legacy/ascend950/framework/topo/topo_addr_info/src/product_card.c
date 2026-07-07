@@ -31,23 +31,6 @@ int GetCardRankInfoLen(size_t *len)
     return 0;
 }
 
-static  int ProcessRoceLayer(int npu_id, NetLayer* layer)
-{
-    char ip_addr[MAX_ADDR_LEN] = {0};
-    GetNpuHostRdmaIp(npu_id, ip_addr, sizeof(ip_addr));
-    if (strlen(ip_addr) == 0) {
-        return -1;
-    }
-    NetLayerInit(layer, PRODUCT_CARD_ROCE_LEVEL, PRODUCT_CARD_ROCE_LEVEL_INSTANCE_ID);
-    Addr addr;
-    memset_s(&addr, sizeof(Addr), 0x00, sizeof(Addr));
-    NetLayerSetNetType(layer, NET_TYPE_CLOS);
-    AddrSetIP(&addr, ip_addr);
-    errno_t ret = strcpy_s(addr.plane_id, MAX_PLANE_ID_LEN, "plane0");
-    AddrAddPort(&addr, "d2h");
-    return ret;
-}
-
 /**
  *
  */
@@ -133,7 +116,6 @@ int GetCardRankInfo(int phyId, unsigned int mainboardId, void *buf, size_t* len)
     RootInfo rootinfo;
     Rank rank;
     NetLayer layer_mesh;
-    NetLayer layer_roce;
     RootInfoInit(&rootinfo);
     RankInit(&rank, phyId, phyId);
     TopoGetFilePath(mainboardId, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
@@ -149,9 +131,6 @@ int GetCardRankInfo(int phyId, unsigned int mainboardId, void *buf, size_t* len)
     }
     if (result == 0) {// 无UB互联的标卡无0层
         RankAddNetLayer(&rank, &layer_mesh);
-    }
-    if (ProcessRoceLayer(phyId, &layer_roce) == 0) {
-        RankAddNetLayer(&rank, &layer_roce);
     }
 
     RootInfoAddRank(&rootinfo, &rank);
