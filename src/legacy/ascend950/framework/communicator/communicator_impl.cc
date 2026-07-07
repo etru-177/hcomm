@@ -1481,7 +1481,7 @@ void CommunicatorImpl::InitHccpHdc() const
     HccpHdcManager::GetInstance().Init(devLogicId);
 }
 
-void CommunicatorImpl::TryInitCcuFeature()
+void CommunicatorImpl::TryInitCcuFeature() const
 {
     TpManager::GetInstance(devLogicId).Init();
     HCCL_RUN_INFO("[CommunicatorImpl][%s] passed, "

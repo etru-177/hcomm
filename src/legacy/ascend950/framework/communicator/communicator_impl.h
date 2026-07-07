@@ -606,7 +606,7 @@ private:
     HcclResult ReLoadOpbasedOp();
     HcclResult ReLoadOffloadOp();
 
-    void TryInitCcuFeature(); // 根据通信域加速模式和rank信息，选择打开ccu功能，依赖hdc通道
+    void TryInitCcuFeature() const; // 根据通信域加速模式和rank信息，选择打开ccu功能，依赖hdc通道
 
     template<typename BufferType>
     static std::shared_ptr<BufferType> BarrierAllocBuffer(std::size_t size);
