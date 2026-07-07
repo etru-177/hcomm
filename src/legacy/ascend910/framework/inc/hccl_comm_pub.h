@@ -425,7 +425,6 @@ public:
     HcclResult DeregisterWindow(HcclCommSymWindow winHandle);
     HcclResult GetCommSymWin(void* ptr, size_t size, HcclCommSymWindow *winHandle, size_t *offset);
     aclrtBinHandle GetBinHandle();
-    aclrtBinHandle GetBinHcclHandle();
 protected:
     /* * 禁止用户对API类的实体做拷贝构造或拷贝赋值的操作，内部有指针成员变量 */
     hcclComm(const hcclComm &) = delete;
@@ -458,7 +457,6 @@ private:
     bool isAicpuCommInit_ = false;
     CommAicpuParam commAicpuParam_;
     aclrtBinHandle binHandle_ = nullptr;
-    aclrtBinHandle binHcclHandle_ = nullptr;
     DevType devType_ = DevType::DEV_TYPE_COUNT;
     u32 hcclQos_;
 #ifndef CCL_KERNEL_AICPU

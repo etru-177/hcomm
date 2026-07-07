@@ -21,6 +21,8 @@
 #include <cstdint>
 #include <exception>
 #include "group_schedule_mgr.h"
+#include "launch_aicpu.h"
+#include "launch_device.h"
 
 constexpr uint32_t MULTIPLE = 4;               // 用于A5判断TC是否为4的倍数
 constexpr uint32_t TC_MAX = 255;               // TC的最大值（不区分芯片类型）
@@ -53,6 +55,8 @@ CollComm::~CollComm()
         (void)handler->UnRegister(reinterpret_cast<u64>(this));
     }
 
+    CHK_PRT(HcclBinaryUnLoad());
+    
     // fullMode collComm正常析构，rankgraph_在fullMode下是自己new的，需要释放
     if (rankgraph_ != nullptr) {
         delete rankgraph_;
@@ -543,6 +547,46 @@ HcclResult CollComm::GetRankIpPortMap()
     CHK_PTR_NULL(rankIpPortMap_);
     // rankIpPortMap_ 在单卡多进程场景下，用于保证端口不冲突
     // 该映射表记录了：Rank ID -> (IP地址 -> 已占用的端口号)
+    return HCCL_SUCCESS;
+}
+
+HcclResult CollComm::GetHcclBinHandle(aclrtBinHandle &binHcclHandle)
+{
+    std::lock_guard<std::mutex> lock(binHcclmutex_);
+    HCCL_DEBUG("[%s] GetHcclBinHandle", __func__);
+    if (binHcclHandle_ == nullptr) {
+        std::string hcclJsonPath;
+        CHK_RET(GetKernelFilePath(hcclJsonPath));
+        hcclJsonPath += "libscatter_aicpu_kernel.json";
+        HcclResult ret
+            = LoadBinaryFromFile(hcclJsonPath.c_str(), ACL_RT_BINARY_LOAD_OPT_CPU_KERNEL_MODE, 0, binHcclHandle_);
+        CHK_PRT_RET(ret != HCCL_SUCCESS,
+            HCCL_ERROR("[%s]errNo[0x%016llx]load aicpu file fail, path[%s] optionType[%u] cpuKernelMode[%u].", __func__,
+                ret, hcclJsonPath.c_str(), ACL_RT_BINARY_LOAD_OPT_CPU_KERNEL_MODE, 0),
+            ret);
+
+        HCCL_INFO("[%s]load aicpu file success, path[%s] optionType[%u] cpuKernelMode[%u].", __func__,
+            hcclJsonPath.c_str(), ACL_RT_BINARY_LOAD_OPT_CPU_KERNEL_MODE, 0);
+    }
+    binHcclHandle = binHcclHandle_;
+    return HCCL_SUCCESS;
+}
+
+HcclResult CollComm::HcclBinaryUnLoad()
+{
+    std::lock_guard<std::mutex> lock(binHcclmutex_);
+    if (binHcclHandle_ == nullptr) {
+        HCCL_RUN_WARNING("[%s] binHcclHandle is nullptr", __func__);
+        return HCCL_SUCCESS;
+    }
+
+    HCCL_DEBUG("[%s]aclrtBinaryUnLoad binHcclHandle", __func__);
+    aclError ret = aclrtBinaryUnLoad(binHcclHandle_);
+    binHcclHandle_ = nullptr;
+    if (ret != 0) {
+        HCCL_RUN_WARNING("[%s]aclrtBinaryUnLoad failed, aclRet[%d]", __func__, ret);
+        return HCCL_E_INTERNAL;
+    }
     return HCCL_SUCCESS;
 }
 

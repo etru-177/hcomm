@@ -19,6 +19,7 @@
 #include "hccl_group.h"
 #include "hccl_res_expt.h"
 #include "hccl_aicpu_interface.h"
+#include "coll_comm_mgr.h"
 
 #include "hccl_independent_common.h"
 #include "group_schedule_mgr.h"
@@ -88,8 +89,11 @@ static HcclResult LaunchP2pExec(HcclComm comm, aclrtStream unfoldStream, const H
     aclrtFuncHandle funcHandle;
     aclrtArgsHandle argsHandle;
     // 1. 获取 function handle
-    hccl::hcclComm* hcclComm = static_cast<hccl::hcclComm *>(comm);
-    auto binKernelHandle = hcclComm->GetBinHcclHandle();
+    aclrtBinHandle binKernelHandle = nullptr;
+    hccl::hcclComm *hcclComm = static_cast<hccl::hcclComm *>(comm);
+    CollComm *collComm = hcclComm->GetCollComm();
+    CHK_PTR_NULL(collComm);
+    CHK_RET(collComm->GetHcclBinHandle(binKernelHandle));
     aclError ret = aclrtBinaryGetFunction(binKernelHandle, funcInfo->kernelFuncName, &funcHandle);
     CHK_PRT_RET(ret != ACL_SUCCESS,
         HCCL_ERROR("[aclrtBinaryGetFunction]errNo[0x%016llx] get func handle failed, kernelName:%s",

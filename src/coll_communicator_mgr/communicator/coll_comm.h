@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <mutex>
 #include "my_rank.h"
 #include "rank_graph.h"
 #include "comm_config_pub.h"
@@ -25,6 +26,7 @@
 #include "error_message_v2.h"
 #include "include/hccl_communicator.h"
 #include "hccl/hccl_res.h"
+#include "acl/acl_rt.h"
 
 namespace hccl {
 class SymmetricMemory;
@@ -109,6 +111,7 @@ public:
     HcclResult GetCommSymWin(void* ptr, size_t size, HcclCommSymWindow *winHandle, size_t *offset);
     HcclResult RegisterPendingSymmetricMemHandles(std::vector<HcclMemHandle> &memHandles);
     HcclResult UpdateSymmetricRemoteMem(uint32_t remoteRank, const CommMem *remoteMems, char **memTags, uint32_t memNum);
+    HcclResult GetHcclBinHandle(aclrtBinHandle &binHcclHandle);
     std::shared_ptr<class GroupScheduleMgr> groupScheduleMgr {nullptr}; //for group
 
 private:
@@ -135,6 +138,7 @@ private:
      * A5&&下一代：使用fullMode全功能collComm模式
      */
     bool IsFullMode() const { return initMode_ == CollCommInitMode::fullMode; }
+    HcclResult HcclBinaryUnLoad();
 
     void* comm_{nullptr};
     uint32_t rankId_{};
@@ -166,6 +170,8 @@ private:
 
     CollCommInitMode initMode_{CollCommInitMode::fullMode};  // 初始化模式
     std::unique_ptr<SymmetricMemory, SymmetricMemoryDeleter> symmetricMemory_{nullptr};
+    aclrtBinHandle binHcclHandle_{nullptr};
+    std::mutex binHcclmutex_;
 };
 }  // namespace hccl
 

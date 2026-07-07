@@ -195,7 +195,6 @@ TEST_F(TestKernelLaunchAicpu, Ut_groupLaunchA5_When_OneSendAndOneRecvTask_Expect
 
     MOCKER_CPP(&hcclComm::GetCollComm).stubs().will(returnValue(&g_mockCollComm));
     MOCKER_CPP(&hcclComm::GetBinHandle).stubs().will(returnValue((aclrtBinHandle)0x1000));
-    MOCKER_CPP(&hcclComm::GetBinHcclHandle).stubs().will(returnValue((aclrtBinHandle)0x2000));
     MOCKER_CPP(&GroupScheduleMgr::GetP2pTaskSchedule,
         HcclResult (GroupScheduleMgr::*)(std::vector<HcclP2pTask> &, std::vector<HcclP2pTask> &))
         .stubs()
