@@ -500,7 +500,6 @@ HcclResult hrtSetlocalDeviceType(DevType devType)
 
 HcclResult __hrtGetDeviceType(DevType &devType)
 {
-    HCCL_DEBUG("[hrtGetDeviceType]g_deviceType = %d.", static_cast<s32>(g_deviceType));
     if (LIKELY((g_deviceType != DevType::DEV_TYPE_COUNT))) {
         devType = g_deviceType;
         return HCCL_SUCCESS;
@@ -511,7 +510,6 @@ HcclResult __hrtGetDeviceType(DevType &devType)
     CHK_RET(hrtGetSocVer(socName));
 #else
     if (g_workModeAicpu) {
-        HCCL_DEBUG("[hrtGetDeviceType]DeviceType = %d.", static_cast<s32>(g_localDeviceType));
         devType = g_localDeviceType;
         return HCCL_SUCCESS;
     }

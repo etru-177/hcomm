@@ -698,17 +698,6 @@ HcclResult HostCpuRoceChannel::PrepareNotifyWrResource(
     taskParam.taskPara.DMA.notifyValue = 1;
     taskParam.taskPara.DMA.linkType    = Hccl::DfxLinkType::ROCE;
     taskParam.taskPara.DMA.dmaOp       = Hccl::DmaOp::HCCL_DMA_WRITE;
-    Hccl::IpAddress locIpAddr{};
-    CHK_RET(CommAddrToIpAddress(localEp_.commAddr, locIpAddr));
-    std::string locAddrStr = locIpAddr.GetIpStr();
-    CHK_SAFETY_FUNC_RET(memcpy_s(taskParam.taskPara.DMA.locAddr, sizeof(taskParam.taskPara.DMA.locAddr),
-        locAddrStr.c_str(), locAddrStr.size()));
-    Hccl::IpAddress rmtIpAddr{};
-    CHK_RET(CommAddrToIpAddress(remoteEp_.commAddr, rmtIpAddr));
-    std::string rmtAddrStr = rmtIpAddr.GetIpStr();
-    CHK_SAFETY_FUNC_RET(memcpy_s(taskParam.taskPara.DMA.rmtAddr, sizeof(taskParam.taskPara.DMA.rmtAddr),
-        rmtAddrStr.c_str(), rmtAddrStr.size()));
-
     return HCCL_SUCCESS;
 }
 
@@ -916,17 +905,6 @@ HcclResult HostCpuRoceChannel::PrepareWriteWrResource(const void *dst, const voi
     taskParam.taskPara.DMA.notifyValue = 1;
     taskParam.taskPara.DMA.linkType = Hccl::DfxLinkType::ROCE;
     taskParam.taskPara.DMA.dmaOp    = Hccl::DmaOp::HCCL_DMA_WRITE;
-    Hccl::IpAddress locIpAddr{};
-    CHK_RET(CommAddrToIpAddress(localEp_.commAddr, locIpAddr));
-    std::string locAddrStr = locIpAddr.GetIpStr();
-    CHK_SAFETY_FUNC_RET(memcpy_s(taskParam.taskPara.DMA.locAddr, sizeof(taskParam.taskPara.DMA.locAddr),
-        locAddrStr.c_str(), locAddrStr.size()));
-    Hccl::IpAddress rmtIpAddr{};
-    CHK_RET(CommAddrToIpAddress(remoteEp_.commAddr, rmtIpAddr));
-    std::string rmtAddrStr = rmtIpAddr.GetIpStr();
-    CHK_SAFETY_FUNC_RET(memcpy_s(taskParam.taskPara.DMA.rmtAddr, sizeof(taskParam.taskPara.DMA.rmtAddr),
-        rmtAddrStr.c_str(), rmtAddrStr.size()));
-
     return HCCL_SUCCESS;
 }
 

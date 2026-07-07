@@ -186,7 +186,6 @@ protected:
         fakeComm.currentCollOperator = std::make_unique<CollOperator>();
         fakeComm.currentCollOperator->opMode = OpMode::OPBASE;
         fakeComm.currentCollOperator->opType = OpType::DEBUGCASE;
-        fakeComm.currentCollOperator->debugCase = 0;
         fakeComm.currentCollOperator->inputMem = DevBuffer::Create(0x100, 10);
         fakeComm.currentCollOperator->outputMem = DevBuffer::Create(0x100, 10);
         fakeComm.queueWaitGroupCntNotifyManager = std::make_unique<QueueWaitGroupCntNotifyManager>();
@@ -278,7 +277,7 @@ void MockCommunicatorImpl()
     MOCKER_CPP(&CommunicatorImpl::InitHostDeviceSyncNotifyManager).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitCollService).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CommunicatorImpl::InitMirrorTaskManager).stubs().will(ignoreReturnValue());
-    MOCKER_CPP(&CommunicatorImpl::InitProfilingReporter).stubs().will(ignoreReturnValue());
+    MOCKER_CPP(&CommunicatorImpl::InitProfilingReporter).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
     MOCKER_CPP(&CcuComponent::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CcuResBatchAllocator::Init).stubs().will(ignoreReturnValue());
     MOCKER_CPP(&CtxMgrImp::Init).stubs().will(ignoreReturnValue());
@@ -1272,7 +1271,6 @@ TEST_F(CommunicatorImplTest, should_no_throw_exception_when_only_ccu_enabled)
     comm.currentCollOperator->opMode = OpMode::OPBASE;
     comm.currentCollOperator->opMode = OpMode::OPBASE;
     comm.currentCollOperator->opType = OpType::DEBUGCASE;
-    comm.currentCollOperator->debugCase = 0;
     comm.currentCollOperator->inputMem = DevBuffer::Create(0x100, 10);
     comm.currentCollOperator->outputMem = DevBuffer::Create(0x100, 10);
     s32 rankId = 0;
@@ -2097,7 +2095,7 @@ TEST_F(CommunicatorImplTest, Ut_CommunicatorImpl_When_EnableSuperFastLoad_Expect
     MOCKER(HrtStreamDestroy).stubs();
     MOCKER_CPP(&CommunicatorImpl::ExecAlgSelect).stubs().will(ignoreReturnValue());
 
-    MOCKER_CPP(&Hccl::MirrorTaskManager::AddTaskInfo).stubs().with(mockcpp::any()).will(ignoreReturnValue());
+    MOCKER_CPP(static_cast<void(MirrorTaskManager::*)(std::unique_ptr<TaskInfo>&&)>(&MirrorTaskManager::AddTaskInfo)).stubs().with(mockcpp::any()).will(ignoreReturnValue());
     CollAlgComponent collAlgComponent(nullptr, DevType::DEV_TYPE_950, 0, 1);
     MOCKER_CPP_VIRTUAL(collAlgComponent, &CollAlgComponent::Orchestrate,
                        HcclResult(CollAlgComponent::*)(const CollAlgOperator &op, const CollAlgParams &params,
