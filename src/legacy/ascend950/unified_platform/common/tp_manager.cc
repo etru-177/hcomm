@@ -52,6 +52,10 @@ static constexpr QosKey QosMapKey(uint32_t qos) noexcept
 // MAINBOARD_PCIE_STD（PCIE 标卡）：跳过 GetTpAttr/SL 策略，固定使用 TP 列表首个 TP；
 // jetty priority（SL）取 2，为标卡 UB 互通方案约定档位，与现网标卡环境对齐。
 static constexpr uint32_t kPcieStdMappedSl = 2U;
+// TpAttr::sip/dip 为 16 字节；IPv4 映射时前 12 字节填 0，后 4 字节填 IPv4 四段地址（网络字节序）。
+static constexpr size_t kMappedIpArrayLen = 16U;
+static constexpr size_t kIpv4OctetCount = 4U;
+static constexpr size_t kIpv4MappedOffset = kMappedIpArrayLen - kIpv4OctetCount;
 
 static HcclResult IsPcieStdMainboard(uint32_t devLogicId, bool &isPcieStd)
 {
@@ -127,10 +131,9 @@ static bool ApplyQosTpSlPolicy(const RaUbGetTpInfoParam &param, uint16_t slMask,
         return ApplyLoopFirstTpLowestSl(param, slMask, slRawCnt, slAvailableCnt, tpListIndexOut, mappedSlOut);
     }
 
-    const uint32_t qos = param.qos & 7U;
+    const uint32_t qos = param.qos;
     const uint32_t numGroups = slAvailableCnt;
-    const uint32_t groupIdx =
-        (numGroups == 3U) ? (qos < 3U ? 0U : (qos < 5U ? 1U : 2U)) : ((qos * numGroups) / 8U);
+    const uint32_t groupIdx = TpQosResolveQosSlGroupIdx(qos, numGroups);
     if (groupIdx >= numGroups) {
         HCCL_ERROR("[TpManager][%s] groupIdx out of range: groupIdx[%u] numGroups[%u] qos[%u] slAvailableCnt[%u].",
             __func__, groupIdx, numGroups, qos, slAvailableCnt);
@@ -138,6 +141,7 @@ static bool ApplyQosTpSlPolicy(const RaUbGetTpInfoParam &param, uint16_t slMask,
     }
 
     tpListIndexOut = 0U;
+    // groupIdx 越大 SL 越低：slRank = (numGroups - 1) - groupIdx，从 slMask 中取对应 jetty priority。
     const uint32_t slRank = (slAvailableCnt - 1U) - groupIdx;
     mappedSlOut = SlValueAtRankInMask16(slMask, slRank);
     return true;
@@ -236,7 +240,9 @@ static RdmaHandle ResolveUbRdmaHandle(const bool isSync, const uint32_t devPhyId
     return RdmaHandleManager::GetInstance().GetByIp(devPhyId, locAddr);
 }
 
-static HcclResult Ipv4ToIpArray(const char *ipv4Str, uint8_t ipArr[16U])
+// 将 IPv4 点分十进制字符串解析为 TpAttr::sip/dip 所需的 16 字节映射格式：
+// 前 12 字节填 0，后 4 字节为 inet_pton 得到的网络字节序 IPv4 地址。
+static HcclResult Ipv4ToIpArray(const char *ipv4Str, uint8_t ipArr[kMappedIpArrayLen])
 {
     if (ipv4Str == nullptr || ipArr == nullptr) {
         return HcclResult::HCCL_E_PARA;
@@ -245,14 +251,15 @@ static HcclResult Ipv4ToIpArray(const char *ipv4Str, uint8_t ipArr[16U])
     if (inet_pton(AF_INET, ipv4Str, &addr) != 1) {
         return HcclResult::HCCL_E_PARA;
     }
-    if (memset_s(ipArr, 16U, 0, 16U) != EOK) {
+    const errno_t memsetRet = memset_s(ipArr, kMappedIpArrayLen, 0, kMappedIpArrayLen);
+    if (memsetRet != EOK) {
         return HcclResult::HCCL_E_INTERNAL;
     }
-    const uint32_t ipNet = addr.s_addr;
-    ipArr[12] = static_cast<uint8_t>(ipNet & 0xFFU);
-    ipArr[13] = static_cast<uint8_t>((ipNet >> 8U) & 0xFFU);
-    ipArr[14] = static_cast<uint8_t>((ipNet >> 16U) & 0xFFU);
-    ipArr[15] = static_cast<uint8_t>((ipNet >> 24U) & 0xFFU);
+    const errno_t cpyRet = memcpy_s(ipArr + kIpv4MappedOffset, kIpv4OctetCount,
+        &addr.s_addr, kIpv4OctetCount);
+    if (cpyRet != EOK) {
+        return HcclResult::HCCL_E_INTERNAL;
+    }
     return HcclResult::HCCL_SUCCESS;
 }
 
@@ -312,7 +319,7 @@ static HcclResult CommitTpAttrsAfterSlMapping(const uint32_t devLogicId, const u
     const uint8_t dscpBefore = static_cast<uint8_t>(tpAttr.dscp & 0x3FU);
     const uint8_t requestQos = static_cast<uint8_t>(param.qos & 0xFFU);
     const uint8_t dscpLookupQos = ResolveUboeDscpLookupQos(param, nTp, slMask);
-    uint8_t dscp = 33U;
+    uint8_t dscp = kUboeDefaultDscp;
     (void)TpQosGetDscpByQosFromHccnCfg(devPhyId, dscpLookupQos, dscp);
     CHK_RET(CommitUboeNetAttrsToTpAttr(isSync, ctxHandle, tpHandle, tpAttr, param.locIpv4Addr,
         param.rmtIpv4Addr, true, dscp));
@@ -380,14 +387,8 @@ HcclResult CheckTpProtocol(const TpProtocol tpProtocol) {
     return HcclResult::HCCL_SUCCESS;
 }
 
-HcclResult TpManager::FinishGetTpInfoFromReq(RequestCtx completedReqCtx, const RaUbGetTpInfoParam &param,
-    TpInfo &tpInfo, const bool withSlPolicy)
-{
-    return HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo, withSlPolicy);
-}
-
 HcclResult TpManager::AdvanceDeviceWaitListPhase(const RaUbGetTpInfoParam &param, RequestCtx &reqCtx,
-    ReqQosMap &qosReqMap, const ReqQosMap::iterator it, std::unique_lock<std::mutex> &reqCtxLock, TpInfo &tpInfo)
+    ReqQosMap &qosReqMap, ReqQosMap::iterator it, std::unique_lock<std::mutex> &reqCtxLock, TpInfo &tpInfo)
 {
     if (reqCtx.tpInfoNum == 0U) {
         qosReqMap.erase(it);
@@ -398,7 +399,7 @@ HcclResult TpManager::AdvanceDeviceWaitListPhase(const RaUbGetTpInfoParam &param
     bool isPcieStd = false;
     CHK_RET(IsPcieStdMainboard(devLogicId, isPcieStd));
     if (isPcieStd) {
-        const struct HccpTpInfo *list = reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+        const struct HccpTpInfo *list = static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
         HCCL_INFO("[TpManager][%s] pcie std mainboard: skip GetTpAttr, devPhyId[%u] tpInfoNum[%u] mappedSl[%u] "
                   "tpHandle[%llu] param[%s].",
             __func__, devPhyId, reqCtx.tpInfoNum, kPcieStdMappedSl,
@@ -406,10 +407,11 @@ HcclResult TpManager::AdvanceDeviceWaitListPhase(const RaUbGetTpInfoParam &param
         RequestCtx completedReqCtx = std::move(it->second);
         qosReqMap.erase(it);
         reqCtxLock.unlock();
-        return FinishGetTpInfoFromReq(std::move(completedReqCtx), param, tpInfo, false);
+        CHK_RET(HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo, false));
+        return HcclResult::HCCL_SUCCESS;
     }
     if (DeviceSupportsRaGetTpAttr(devPhyId)) {
-        const struct HccpTpInfo *list = reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+        const struct HccpTpInfo *list = static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
         HCCL_INFO("[TpManager][GetTpInfo] list stage ok, devPhyId[%u] tpInfoNum[%u] firstTpHandle[%llu] param[%s].",
             devPhyId, reqCtx.tpInfoNum, static_cast<unsigned long long>(list[0].tpHandle), param.Describe().c_str());
         try {
@@ -423,7 +425,8 @@ HcclResult TpManager::AdvanceDeviceWaitListPhase(const RaUbGetTpInfoParam &param
     RequestCtx completedReqCtx = std::move(it->second);
     qosReqMap.erase(it);
     reqCtxLock.unlock();
-    return FinishGetTpInfoFromReq(std::move(completedReqCtx), param, tpInfo, false);
+    CHK_RET(HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo, false));
+    return HcclResult::HCCL_SUCCESS;
 }
 
 // GetTpInfo 完成后写入缓存。useCnt 仅在 FindAndGetTpInfo 命中时 +1，此处不做引用计数。
@@ -435,7 +438,6 @@ HcclResult TpManager::StoreTpInfoResult(const RaUbGetTpInfoParam &param, TpInfo 
     auto &infoMap = GetInfoCtxMap(param.tpProtocol);
     auto &qosMap = infoMap[param.locAddr][param.rmtAddr];
     const auto qIt = qosMap.find(qosKey);
-
     if (qIt == qosMap.end()) {
         qosMap[qosKey] = TpInfoCtx{tpInfo, 1U};
         return HcclResult::HCCL_SUCCESS;
@@ -449,7 +451,7 @@ HcclResult TpManager::StoreTpInfoResult(const RaUbGetTpInfoParam &param, TpInfo 
     return HcclResult::HCCL_SUCCESS;
 }
 
-HcclResult TpManager::SyncGetFirstTpAttrForSlPolicy(const RaUbGetTpInfoParam &param, const uint64_t firstTpHandle,
+HcclResult TpManager::SyncGetFirstTpAttrForSlPolicy(const RaUbGetTpInfoParam &param, uint64_t firstTpHandle,
     TpAttr &tpAttr, uint32_t &attrBitmap) const
 {
     (void)memset_s(&tpAttr, sizeof(tpAttr), 0, sizeof(tpAttr));
@@ -482,7 +484,7 @@ HcclResult TpManager::RunSyncGetTpInfo(const RaUbGetTpInfoParam &param, TpInfo &
         return HcclResult::HCCL_E_NOT_FOUND;
     }
 
-    const struct HccpTpInfo *list = reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+    const struct HccpTpInfo *list = static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
     HCCL_INFO("[TpManager][%s] sync GetTpList ok, devPhyId[%u] tpInfoNum[%u] firstTpHandle[%llu] param[%s].", __func__,
         devPhyId, reqCtx.tpInfoNum, static_cast<unsigned long long>(list[0].tpHandle), param.Describe().c_str());
 
@@ -506,45 +508,51 @@ HcclResult TpManager::RunSyncGetTpInfo(const RaUbGetTpInfoParam &param, TpInfo &
 
 HcclResult TpManager::RunAsyncGetTpInfo(const RaUbGetTpInfoParam &param, TpInfo &tpInfo)
 {
-    std::unique_lock<std::mutex> reqCtxLock(GetReqCtxMutex(param.tpProtocol));
-    auto &reqCtxMap = GetReqCtxMap(param.tpProtocol);
-    const auto &locAddr = param.locAddr;
-    const auto &rmtAddr = param.rmtAddr;
-    const QosKey qosKey = QosMapKey(param.qos);
+    RequestCtx completedReqCtx{};
+    bool withSlPolicy = false;
 
-    auto &rmtReqMap = reqCtxMap[locAddr];
-    auto &qosReqMap = rmtReqMap[rmtAddr];
-    auto it = qosReqMap.find(qosKey);
-    if (it == qosReqMap.end()) {
-        HCCL_INFO("[TpManager][%s] get new tpInfo, param[%s].", __func__, param.Describe().c_str());
+    {
+        std::unique_lock<std::mutex> reqCtxLock(GetReqCtxMutex(param.tpProtocol));
+        auto &reqCtxMap = GetReqCtxMap(param.tpProtocol);
+        const auto &locAddr = param.locAddr;
+        const auto &rmtAddr = param.rmtAddr;
+        const QosKey qosKey = QosMapKey(param.qos);
 
-        RequestCtx &reqCtx = qosReqMap[qosKey];
-        StartGetTpInfoListRequest(param, reqCtx, false);
-        return HcclResult::HCCL_E_AGAIN;
-    }
+        auto &rmtReqMap = reqCtxMap[locAddr];
+        auto &qosReqMap = rmtReqMap[rmtAddr];
+        auto it = qosReqMap.find(qosKey);
+        if (it == qosReqMap.end()) {
+            HCCL_INFO("[TpManager][%s] get new tpInfo, param[%s].", __func__, param.Describe().c_str());
 
-    RequestCtx &reqCtx = it->second;
-
-    if (reqCtx.handle != 0U && !CheckRequestResult(reqCtx.handle)) {
-        return HcclResult::HCCL_E_AGAIN;
-    }
-
-    switch (reqCtx.phase) {
-        case RequestCtx::ReqPhase::WAIT_LIST:
-            return AdvanceDeviceWaitListPhase(param, reqCtx, qosReqMap, it, reqCtxLock, tpInfo);
-        case RequestCtx::ReqPhase::WAIT_TP_ATTR: {
-            RequestCtx completedReqCtx = std::move(it->second);
-            qosReqMap.erase(it);
-            reqCtxLock.unlock();
-            return FinishGetTpInfoFromReq(std::move(completedReqCtx), param, tpInfo, true);
+            RequestCtx &reqCtx = qosReqMap[qosKey];
+            StartGetTpInfoListRequest(param, reqCtx, false);
+            return HcclResult::HCCL_E_AGAIN;
         }
-        default: {
-            RequestCtx completedReqCtx = std::move(it->second);
-            qosReqMap.erase(it);
-            reqCtxLock.unlock();
-            return FinishGetTpInfoFromReq(std::move(completedReqCtx), param, tpInfo, false);
+
+        RequestCtx &reqCtx = it->second;
+
+        if (reqCtx.handle != 0U && !CheckRequestResult(reqCtx.handle)) {
+            return HcclResult::HCCL_E_AGAIN;
+        }
+
+        switch (reqCtx.phase) {
+            case RequestCtx::ReqPhase::WAIT_LIST:
+                return AdvanceDeviceWaitListPhase(param, reqCtx, qosReqMap, it, reqCtxLock, tpInfo);
+            case RequestCtx::ReqPhase::WAIT_TP_ATTR:
+                completedReqCtx = std::move(it->second);
+                qosReqMap.erase(it);
+                withSlPolicy = true;
+                break;
+            default:
+                completedReqCtx = std::move(it->second);
+                qosReqMap.erase(it);
+                withSlPolicy = false;
+                break;
         }
     }
+
+    CHK_RET(HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo, withSlPolicy));
+    return HcclResult::HCCL_SUCCESS;
 }
 
 HcclResult TpManager::GetTpInfo(const RaUbGetTpInfoParam &param, TpInfo &tpInfo, bool isSync)
@@ -599,8 +607,8 @@ HcclResult TpManager::GetTpAttr(const GetTpAttrParam &param, TpAttrInfo &tpAttrI
     TpAttrRequestCtx completedReqCtx = reqCtxIter->second;
     tpAttrReqCtxMap.erase(reqCtxIter);
     reqCtxLock.unlock();
-
-    return HandleCompletedTpAttrRequest(std::move(completedReqCtx), tpHandle, tpAttrInfo);
+    CHK_RET(HandleCompletedTpAttrRequest(std::move(completedReqCtx), tpHandle, tpAttrInfo));
+    return HcclResult::HCCL_SUCCESS;
 }
 
 HcclResult TpManager::StartGetTpAttrRequest(const GetTpAttrParam &param,
@@ -815,7 +823,7 @@ void TpManager::StartGetTpAttrForFirstTpDevice(const RaUbGetTpInfoParam &param, 
 {
     (void)memset_s(&reqCtx.tpAttr, sizeof(reqCtx.tpAttr), 0, sizeof(reqCtx.tpAttr));
     reqCtx.tpAttrBitmap = BuildGetTpAttrBitmapForSlPolicy(param.tpProtocol);
-    const struct HccpTpInfo *list = reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+    const struct HccpTpInfo *list = static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
     const uint64_t firstTpHandle = list[0].tpHandle;
     const RdmaHandle rdmaHandle = ResolveUbRdmaHandle(false, devPhyId, param.locAddr);
     if (!rdmaHandle) {
@@ -835,11 +843,11 @@ void TpManager::StartGetTpAttrForFirstTpDevice(const RaUbGetTpInfoParam &param, 
 }
 
 HcclResult TpManager::MapTpInfoFromTpAttr(const RaUbGetTpInfoParam &param, const RequestCtx &reqCtx, TpInfo &outTpInfo,
-    const bool isSync)
+    bool isSync)
 {
     const uint32_t tpInfoNum = reqCtx.tpInfoNum;
     const struct HccpTpInfo *baseInfoPtr =
-        reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+        static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
     const uint16_t slMask = ReadSlAvailableMask16(reqCtx.tpAttr);
     const uint32_t slAvailableCnt = CalSlAvailableCnt(slMask);
     HCCL_INFO("[TpManager][%s] after get_tp_attr: slMask[0x%04x] slAvailableCnt[%u] slBitmap[0x%x] dscp[%u] "
@@ -898,7 +906,7 @@ HcclResult TpManager::HandleCompletedRequest(const TpManager::RequestCtx reqCtx,
     CHK_RET(IsPcieStdMainboard(devLogicId, isPcieStd));
     if (isPcieStd) {
         const struct HccpTpInfo *baseInfoPtr =
-            reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+            static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
         tpInfo.tpHandle = baseInfoPtr[0].tpHandle;
         tpInfo.mappedJettyPriority = kPcieStdMappedSl;
         tpInfo.hasMappedJettyPriority = true;
@@ -909,7 +917,7 @@ HcclResult TpManager::HandleCompletedRequest(const TpManager::RequestCtx reqCtx,
         CHK_RET(MapTpInfoFromTpAttr(param, reqCtx, tpInfo, false));
     } else {
         const struct HccpTpInfo *baseInfoPtr =
-            reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
+            static_cast<const struct HccpTpInfo *>(static_cast<const void *>(reqCtx.dataBuffer.data()));
         tpInfo.tpHandle = baseInfoPtr[0].tpHandle;
         tpInfo.hasMappedJettyPriority = false;
     }
@@ -973,8 +981,8 @@ std::mutex& TpManager::GetReqCtxMutex(const TpProtocol tpProtocol)
     }
 }
 
-void ReleaseUbConnectionTp(const int32_t devLogicId, const IpAddress &locAddr, const IpAddress &rmtAddr,
-    const TpProtocol tpProtocol, TpInfo &tpInfo, const uint32_t requestQos)
+void ReleaseUbConnectionTp(int32_t devLogicId, const IpAddress &locAddr, const IpAddress &rmtAddr,
+    TpProtocol tpProtocol, TpInfo &tpInfo, uint32_t requestQos)
 {
     if (tpInfo.tpHandle == 0) {
         HCCL_WARNING("[TpManager][%s] skip release, tpHandle is 0, devLogicId[%d] loc[%s] rmt[%s] tpProtocol[%s] "

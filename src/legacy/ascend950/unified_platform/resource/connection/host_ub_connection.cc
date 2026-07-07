@@ -27,7 +27,7 @@ constexpr u32 UB_MAX_TRANS_SIZE       = 256 * 1024 * 1024; // UB单次最大传�
 constexpr u32 WQE_NUM_PER_SQE         = 4; // URMA约束每个SQE包含4个WQEBB
 
 HostUbConnection::HostUbConnection(const RdmaHandle rdmaHandle, const IpAddress &locAddr, const IpAddress &rmtAddr,
-                                const OpMode opMode, const HrtUbJfcMode jfcMode, const u8 qos)
+                                const OpMode opMode, const HrtUbJfcMode jfcMode, u8 qos)
     : RmaConnection(nullptr, RmaConnType::UB), rdmaHandle(rdmaHandle), locAddr(locAddr), rmtAddr(rmtAddr),
     opMode(opMode), jfcMode(jfcMode), rmtEid(rmtAddr.GetReverseEid()), locEid(locAddr.GetReverseEid()), qos_(qos)
 {
@@ -52,14 +52,14 @@ HostUbConnection::HostUbConnection(const RdmaHandle rdmaHandle, const IpAddress 
 }
 
 HostUbTpConnection::HostUbTpConnection(const RdmaHandle rdmaHandle, const IpAddress &locAddr, const IpAddress &rmtAddr,
-                                    const OpMode opMode, const HrtUbJfcMode jfcMode, const u8 qos)
+                                    const OpMode opMode, const HrtUbJfcMode jfcMode, u8 qos)
     : HostUbConnection(rdmaHandle, locAddr, rmtAddr, opMode, jfcMode, qos)
 {
     tpProtocol = TpProtocol::TP;
 }
 
 HostUbCtpConnection::HostUbCtpConnection(const RdmaHandle rdmaHandle, const IpAddress &locAddr, const IpAddress &rmtAddr,
-                                    const OpMode opMode, const HrtUbJfcMode jfcMode, const u8 qos)
+                                    const OpMode opMode, const HrtUbJfcMode jfcMode, u8 qos)
     : HostUbConnection(rdmaHandle, locAddr, rmtAddr, opMode, jfcMode, qos)
 {
     tpProtocol = TpProtocol::CTP;

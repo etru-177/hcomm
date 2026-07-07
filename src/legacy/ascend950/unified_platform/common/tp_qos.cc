@@ -21,6 +21,16 @@ namespace Hccl {
 
 namespace {
 
+static constexpr uint32_t slPolicy2 = 2U;
+static constexpr uint32_t slPolicy3 = 3U;
+static constexpr uint32_t slPolicy4 = 4U;
+static constexpr uint32_t slPolicy5 = 5U;
+static constexpr uint32_t slPolicy7 = 7U;
+static constexpr uint32_t slPolicy8 = 8U;
+static constexpr uint32_t slGroupIdx0 = 0U;
+static constexpr uint32_t slGroupIdx1 = 1U;
+static constexpr uint32_t slGroupIdx2 = 2U;
+
 constexpr size_t kMaxQosDscpPairs = 8U;
 constexpr uint32_t kDecimalBase = 10U;
 constexpr unsigned int kHccnCfgValueBufLen = 2048U;
@@ -74,6 +84,23 @@ static bool ParseDscpFromCfgByQos(const std::string &cfg, uint8_t qos, uint8_t &
 }
 
 } // namespace
+
+uint32_t TpQosResolveQosSlGroupIdx(const uint32_t qos, const uint32_t numGroups)
+{
+    if (numGroups == slPolicy3) {
+        if (qos < slPolicy3) {
+            return slGroupIdx0;
+        }
+        if (qos < slPolicy5) {
+            return slGroupIdx1;
+        }
+        return slGroupIdx2;
+    }
+    if (numGroups >= slPolicy4 && numGroups <= slPolicy7) {
+        return qos / slPolicy2;
+    }
+    return (qos * numGroups) / slPolicy8;
+}
 
 bool TpQosGetDscpByQosFromHccnCfg(const uint32_t devPhyId, uint8_t qos, uint8_t &dscpOut)
 {

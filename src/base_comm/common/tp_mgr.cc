@@ -122,10 +122,9 @@ static bool ApplyQosTpSlPolicy(const GetTpInfoParam &param, uint16_t slMask,
         return true;
     }
 
-    const uint32_t qos = param.qos & 7U;
+    const uint32_t qos = param.qos;
     const uint32_t numGroups = slAvailableCnt;
-    const uint32_t groupIdx =
-        (numGroups == 3U) ? (qos < 3U ? 0U : (qos < 5U ? 1U : 2U)) : ((qos * numGroups) / 8U);
+    const uint32_t groupIdx = Hccl::TpQosResolveQosSlGroupIdx(qos, numGroups);
     if (groupIdx >= numGroups) {
         HCCL_ERROR("[TpMgr][%s] groupIdx out of range: groupIdx[%u] numGroups[%u] qos[%u] slAvailableCnt[%u].",
             __func__, groupIdx, numGroups, qos, slAvailableCnt);
@@ -331,7 +330,8 @@ HcclResult TpMgr::AdvanceGetTpInfoWaitList(const GetTpInfoParam &param, RequestC
         RequestCtx completedReqCtx = std::move(it->second);
         qosMap.erase(it);
         reqCtxLock.unlock();
-        return HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo);
+        CHK_RET(HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo));
+        return HcclResult::HCCL_SUCCESS;
     }
     const struct HccpTpInfo *list = reinterpret_cast<const struct HccpTpInfo *>(reqCtx.dataBuffer.data());
     HCCL_INFO("[TpMgr][GetTpInfo] list stage ok, devPhyId[%u] tpInfoNum[%u] firstTpHandle[%llu] param[%s].",
@@ -374,9 +374,9 @@ HcclResult TpMgr::PollGetTpInfoReqCtx(std::unique_lock<std::mutex> &reqCtxLock, 
     // 先 move 出槽位再 erase，避免 erase 析构槽内对象后再 move（UB / double free）
     RequestCtx completedReqCtx = std::move(it->second);
     qosMap.erase(it);
-    const HcclResult completeRet = HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo);
     reqCtxLock.unlock();
-    return completeRet;
+    CHK_RET(HandleCompletedRequest(std::move(completedReqCtx), param, tpInfo));
+    return HcclResult::HCCL_SUCCESS;
 }
 
 HcclResult TpMgr::GetTpInfo(const GetTpInfoParam &param, TpInfo &tpInfo)
@@ -562,8 +562,8 @@ HcclResult TpMgr::GetTpAttr(const GetTpAttrParam &param, TpAttrInfo &tpAttrInfo,
     TpAttrRequestCtx completedReqCtx = reqCtxIter->second;
     tpAttrReqCtxMap_.erase(reqCtxIter);
     reqCtxLock.unlock();
-
-    return HandleCompletedTpAttrRequest(std::move(completedReqCtx), tpHandle, tpAttrInfo);
+    CHK_RET(HandleCompletedTpAttrRequest(std::move(completedReqCtx), tpHandle, tpAttrInfo));
+    return HcclResult::HCCL_SUCCESS;
 }
 
 HcclResult TpMgr::StartGetTpAttrRequest(const GetTpAttrParam &param,
@@ -710,7 +710,7 @@ HcclResult TpMgr::BuildTpInfoAndCommitQosAttr(const GetTpInfoParam &param, const
         const uint8_t requestQos = static_cast<uint8_t>(param.qos & 0xFFU);
         const uint16_t slMask = ReadSlAvailableMask16(reqCtx.tpAttr);
         const uint8_t dscpLookupQos = ResolveUboeDscpLookupQos(param, reqCtx.tpInfoNum, slMask);
-        uint8_t dscp = 33U;
+        uint8_t dscp = Hccl::kUboeDefaultDscp;
         (void)Hccl::TpQosGetDscpByQosFromHccnCfg(devPhyId_, dscpLookupQos, dscp);
         CHK_RET(CommitUboeDscpToTpAttr(devPhyId_, param.locAddr, tpInfo.tpHandle, dscp));
         HCCL_INFO("[TpMgr][%s] UBOE dscp updated: tpHandle[%llu] requestQos[%u] dscpLookupQos[%u] dscpBefore[%u] "
@@ -738,7 +738,6 @@ HcclResult TpMgr::CommitTpInfoToCache(const GetTpInfoParam &param, TpInfo &tpInf
     auto &infoMap = GetInfoCtxMap(param.tpProtocol);
     auto &rmtMap = infoMap[locAddr][rmtAddr];
     const auto qIt = rmtMap.find(qosKey);
-
     if (qIt == rmtMap.end()) {
         rmtMap[qosKey] = TpInfoCtx{tpInfo, 1U};
         return HcclResult::HCCL_SUCCESS;
