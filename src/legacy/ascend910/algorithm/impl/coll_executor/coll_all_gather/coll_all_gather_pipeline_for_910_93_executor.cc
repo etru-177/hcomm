@@ -242,6 +242,8 @@ HcclResult CollAllGatherPipelineFor91093Executor::RunLoop(OpParam &param)
     if (bufferSliceNum == 0) {
         return HCCL_SUCCESS;
     }
+    HCCL_INFO("[CollAllGatherPipelineFor91093Executor][%s] maxCountPerLoop[%llu] bufferSliceNum[%llu]",
+        __func__, maxCountPerLoop, bufferSliceNum);
     u64 loopNum = bufferSliceNum + 1;
     u64 countLeft = param.DataDes.count; // 剩余的数据量
 
@@ -301,6 +303,10 @@ HcclResult CollAllGatherPipelineFor91093Executor::KernelRunInterSuperPod(const O
     CHK_RET(level2AGExecutor->Prepare(execMem.outputMem, execMem.outputMem, execMem.inputMem, execMem.count, param.DataDes.dataType,
         mainStreamL2_, HCCL_REDUCE_RESERVED, INVALID_VALUE_RANKID, level2DataSegsSlice, baseOffset));
 
+    CHK_RET(level2AGExecutor->RegisterProfiler((
+        level2CommInfo_.localRankSize << PROF_RANKSIZE_OFFSET_OF_PLANEID) + level2CommInfo_.localRank,
+        PROF_STAGE_0, HCCL_EXEC_STEP_NOT_SET, mainStreamL2_));
+
     CHK_RET(RunTemplate(level2AGExecutor, level2CommInfo_));
     HCCL_INFO("[%s] AllGather level2 AllGather run success, topoType_[%u]", __func__, topoType_);
     return HCCL_SUCCESS;
@@ -335,6 +341,10 @@ HcclResult CollAllGatherPipelineFor91093Executor::KernelRunInterServer(
     CHK_SMART_PTR_NULL(level1AGExecutor);
     CHK_RET(level1AGExecutor->Prepare(execMem.outputMem, execMem.outputMem, execMem.inputMem, execMem.count, param.DataDes.dataType,
         mainStreamL1L0_, HCCL_REDUCE_RESERVED, INVALID_VALUE_RANKID, level1DataSegsSlice, baseOffset));
+
+    CHK_RET(level1AGExecutor->RegisterProfiler((
+            level1CommInfo_.localRankSize << PROF_RANKSIZE_OFFSET_OF_PLANEID) + level1CommInfo_.localRank,
+            PROF_STAGE_1, HCCL_EXEC_STEP_NOT_SET, mainStreamL1L0_));
 
     CHK_RET(RunTemplate(level1AGExecutor, level1CommInfo_));
     HCCL_INFO("[%s] AllGather level1 AllGather run success, topoType_[%u]", __func__, topoType_);

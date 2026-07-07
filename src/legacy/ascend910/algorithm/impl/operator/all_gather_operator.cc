@@ -21,6 +21,8 @@ constexpr u32 MODULE_NUM_FOUR = 4;
 constexpr u32 HCCL_310P_DATA_SIZE_MID_COUNT = 320 * 1024;
 constexpr u32 HCCL_310P_DATA_SIZE_SMALL_COUNT = 1024;
 constexpr u32 HCCL_310P_SLIM_RING_MAX_SIZE = 8;
+constexpr u32 HCCL_91093_TOTAL_DATA_SIZE_FOR_PIPELINE = 637534208; // 608M
+constexpr u64 ALLGATHER_PIPELINE_THRESHOLD = 4194304; // 4MB
 
 namespace hccl {
 AllGatherOperator::AllGatherOperator(AlgConfigurator* algConfigurator, CCLBufferManager &cclBufferManager,
@@ -341,14 +343,8 @@ HcclResult AllGatherOperator::SelectAlgfor91093(const OpParam& param, std::strin
         CHK_RET(SelectAlgforAHC(dataSize, AHCOpType::AHC_OP_TYPE_ALLGATHER));
     }
 
-    constexpr u64 ALLGATHER_PIPELINE_THRESHOLD = 4 * 1024 * 1024; // 4MB
-    constexpr u64 ALLGATHER_PIPELINE_SLICE_THRESHOLD = 2; // 2
-    u64 maxCountPerLoop = cclBufferManager_.GetInCCLbufferSize() / HCCL_DEVICE_NUM_TWO / userRankSize_
-                          / HCCL_MIN_SLICE_ALIGN * HCCL_MIN_SLICE_ALIGN / unitSize;
-    u64 bufferSliceNum = 0;
-    if (maxCountPerLoop != 0) {
-        bufferSliceNum = (param.DataDes.count + maxCountPerLoop - 1) / maxCountPerLoop;
-    }
+    u64 maxSizePerLoop = cclBufferManager_.GetInCCLbufferSize() / HCCL_DEVICE_NUM_TWO / userRankSize_
+                         / HCCL_MIN_SLICE_ALIGN * HCCL_MIN_SLICE_ALIGN;
 
     bool isHccsPlusSio = userRankSize_ == 2 && pairLinkCounter_[static_cast<u32>(LinkTypeInServer::SIO_TYPE)] == 2 &&
                          pairLinkCounter_[static_cast<u32>(LinkTypeInServer::HCCS_TYPE)] == 0;
@@ -387,7 +383,7 @@ HcclResult AllGatherOperator::SelectAlgfor91093(const OpParam& param, std::strin
         } else {
             algName = "AllGatherRingZerocopyExchangeExecutor";      // 连续数据通信+额外的数据交换（AHC不支持）
         }
-    } else if (superPodNum_ > 1 && maxCountPerLoop * unitSize > ALLGATHER_PIPELINE_THRESHOLD && bufferSliceNum > ALLGATHER_PIPELINE_SLICE_THRESHOLD
+    } else if (superPodNum_ > 1 && maxSizePerLoop >= ALLGATHER_PIPELINE_THRESHOLD && dataSize * userRankSize_ > HCCL_91093_TOTAL_DATA_SIZE_FOR_PIPELINE
                && isOpbase && !isAHCAlgo && !multiModuleDiffDeviceNumMode_
                && (topoType_ == TopoType::TOPO_TYPE_NP_DOUBLE_RING
                    || topoType_ == TopoType::TOPO_TYPE_NP_SINGLE_RING)) {
