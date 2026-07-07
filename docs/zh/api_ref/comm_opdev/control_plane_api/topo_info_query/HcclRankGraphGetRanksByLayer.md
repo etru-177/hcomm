@@ -50,7 +50,7 @@ HcclResult HcclRankGraphGetRanksByLayer(HcclComm comm, uint32_t netLayer, uint32
 
 ```c
 HcclComm commTp;
-vector<uint32_t> ranks;
+uint32_t* ranks = nullptr;
 uint32_t rankNum;
 HcclRankGraphGetRanksByLayer(commTp, netLayer=0, &ranks, &rankNum);
 // 对于0级拓扑，ranks=[0,1,2], rankNum=3
@@ -62,7 +62,7 @@ HcclRankGraphGetRanksByLayer(commTp, netLayer=1, &ranks, &rankNum);
 
 ```c
 HcclComm commTp;
-vector<uint32_t> ranks;
+uint32_t* ranks = nullptr;
 uint32_t rankNum;
 HcclRankGraphGetRanksByLayer(commTp, netLayer=0, &ranks, &rankNum);
 // 对于0级拓扑，ranks=[3,4,5], rankNum=3
