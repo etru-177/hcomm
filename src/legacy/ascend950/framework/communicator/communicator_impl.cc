@@ -2741,7 +2741,7 @@ HcclResult CommunicatorImpl::SetAccelerator(HcclAccelerator hcclAccelerator, boo
     }
     AcceleratorState commAccelerator;
     if (hcclAccelerator == HcclAccelerator::DEFAULT) { // 用户没有配，读环境变量
-        hcclAccelerator = EnvConfig::GetInstance().GetAlgoConfig().GetHcclAccelerator(); // 环境变量默认值是CCU_SCHED
+        hcclAccelerator = EnvConfig::GetInstance().GetAlgoConfig().GetHcclAccelerator();
         HCCL_RUN_INFO("[CommunicatorImpl][%s] env OpExpansionMode is [%s]", __func__, hcclAccelerator.Describe().c_str());
     }
     HcclMainboardId hcclMainboardId;

@@ -561,8 +561,8 @@ HcclResult UbMemTransport::SendDataSize()
 
     cntNotifyDescSize = locCntNotifyRes.desc.size(); // 需要交换的cntNotify数量
 
-    HCCL_INFO("notifyNum=%u, bufferNum=%u, connNum=%u, cntNotifyNum=%u, cntNotifyDescSize=%u",
-              notifyNum, bufferNum, connNum, cntNotifyNum, cntNotifyDescSize);
+    HCCL_INFO("notifyNum=%u, bufferNum=%u, connNum=%u, cntNotifyNum=%u, cntNotifyDescSize=%u, isHost_[%d]",
+              notifyNum, bufferNum, connNum, cntNotifyNum, cntNotifyDescSize, isHost_);
 
     BinaryStream binaryStream;
     HandshakeMsgPack(binaryStream);
@@ -577,7 +577,6 @@ HcclResult UbMemTransport::SendDataSize()
 
     // 发送数据包尺寸
     bool ret = false;
-    HCCL_DEBUG("Starting to send Finish message.size: %d bytes", sizeof(sendSize));
     if (isHost_) {
         ret = socket->Send(&sendSize, sizeof(sendSize));
     } else {
@@ -597,7 +596,7 @@ HcclResult UbMemTransport::RecvDataSize()
 {
     // 接收数据包尺寸
     bool ret = false;
-    HCCL_DEBUG("Starting to recv Finish message.size: %d bytes", sizeof(exchangeDataSize));
+    HCCL_DEBUG("Starting to recv Finish message size[%u] bytes, isHost_[%u]", sizeof(exchangeDataSize), isHost_);
     if (isHost_) {
         ret = socket->Recv(&exchangeDataSize, sizeof(exchangeDataSize));
     } else {
@@ -616,7 +615,7 @@ HcclResult UbMemTransport::RecvDataSize()
 HcclResult UbMemTransport::SendExchangeData()
 {
     bool ret = false;
-    HCCL_DEBUG("Starting to send Finish message.size: %d bytes", sendData.size());
+    HCCL_DEBUG("Starting to send Finish message.size[%u] bytes, isHost_[%u]", sendData.size(), isHost_);
     if (isHost_) {
         ret = socket->Send(sendData.data(), sendData.size());
     } else {
@@ -635,7 +634,7 @@ HcclResult UbMemTransport::RecvExchangeData()
 {
     recvData.resize(exchangeDataSize);
     bool ret = false;
-    HCCL_DEBUG("Starting to recv Finish message.size: %d bytes", recvData.size());
+    HCCL_DEBUG("Starting to recv Finish message.size[%u] bytes, isHost_[%u]", recvData.size(), isHost_);
     if (isHost_) {
         ret = socket->Recv(recvData.data(), recvData.size());
     } else {
@@ -833,10 +832,9 @@ void UbMemTransport::FillRmtRmaBufferVec(RemoteRmaBuffer *rmaBuffer, UbRmtBufTyp
 
 HcclResult UbMemTransport::SendFinish()
 {
-    HCCL_INFO("start send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
+    HCCL_INFO("start send Finish Msg %s [%s], isHost_[%d]", GetLinkDescInfo().c_str(), FINISH_MSG, isHost_);
     sendFinishMsg = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
     bool ret = false;
-    HCCL_DEBUG("Starting to send Finish message.size: %d bytes", FINISH_MSG_SIZE);
     if (isHost_) {
         ret = socket->Send(sendFinishMsg.data(), FINISH_MSG_SIZE);
     } else {
@@ -854,9 +852,8 @@ HcclResult UbMemTransport::SendFinish()
 HcclResult UbMemTransport::RecvFinish()
 {
     recvFinishMsg.resize(FINISH_MSG_SIZE);
-    HCCL_INFO("start recv Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
+    HCCL_INFO("start recv Finish Msg %s [%s], isHost_[%d]", GetLinkDescInfo().c_str(), FINISH_MSG, isHost_);
     bool ret = false;
-    HCCL_DEBUG("Starting to recv Finish message.size: %d bytes", FINISH_MSG_SIZE);
     if (isHost_) {
         ret = socket->Recv(recvFinishMsg.data(), FINISH_MSG_SIZE);
     } else {
