@@ -1137,6 +1137,43 @@ TEST_F(AdapterRtsTest, HrtUbDevQueryToken_run_NOK)
     EXPECT_EQ(res.second, 0);
 }
 
+TEST_F(AdapterRtsTest, HrtEnableP2P_return_ok)
+{
+    // Given
+    MOCKER(rtEnableP2P).stubs().will(returnValue(0));
+
+    // then
+    u32 deviceLogicId = 0;
+    u32 devicePhyId = 1;
+
+    EXPECT_EQ(HrtEnableP2P(deviceLogicId, devicePhyId), HCCL_SUCCESS);
+}
+
+TEST_F(AdapterRtsTest, HrtDisableP2P_return_ok)
+{
+    // Given
+    MOCKER(rtDisableP2P).stubs().will(returnValue(0));
+
+    // then
+    u32 deviceLogicId = 0;
+    u32 devicePhyId = 1;
+
+    EXPECT_EQ(HrtDisableP2P(deviceLogicId, devicePhyId), HCCL_SUCCESS);
+}
+
+TEST_F(AdapterRtsTest, HrtGetP2PStatus_return_ok)
+{
+    // Given
+    MOCKER(rtGetP2PStatus).stubs().will(returnValue(0));
+
+    // then
+    u32 deviceLogicId = 0;
+    u32 devicePhyId = 1;
+    uint32_t status;
+
+    EXPECT_EQ(rtGetP2PStatus(deviceLogicId, devicePhyId, &status), HCCL_SUCCESS);
+}
+
 TEST_F(AdapterRtsTest, HrtGetDeviceType_950_return_ok)
 {
     // Given
