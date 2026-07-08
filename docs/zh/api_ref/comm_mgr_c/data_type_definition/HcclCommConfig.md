@@ -72,7 +72,7 @@ typedef struct HcclCommConfigDef {
 
   **针对Ascend 950PR/Ascend 950DT，支持的取值及含义如下：**
 
-  - 0：使用默认算子展开模式，针对**Ascend 950PR/Ascend 950DT**，通信算子默认在CCU展开，使用调度模式。
+  - 0：使用默认算子展开模式，针对**Ascend 950PR/Ascend 950DT**，通信算子默认在AI CPU计算单元展开。
   - 2：通信算子在AI CPU计算单元展开。
 
     该配置项支持Broadcast、Reduce、AllReduce、Scatter、ReduceScatter、ReduceScatterV、AllGather、AllGatherV、AlltoAll、AlltoAllV、AlltoAllVC、Send、Recv、BatchSendRecv算子。
@@ -259,7 +259,7 @@ typedef struct HcclCommConfigDef {
 | --- | --- |
 | hcclBufferSize | 配置项hcclBufferSize（通信域粒度配置）> 环境变量[HCCL_BUFFSIZE](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_BUFFSIZE.md)（全局配置）> 默认值200。 |
 | hcclDeterministic | 配置项hcclDeterministic（通信域粒度配置）> 环境变量[HCCL_DETERMINISTIC](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_DETERMINISTIC.md)（全局配置）> 默认值0（关闭确定性计算）。 |
-| hcclOpExpansionMode | 配置项hcclOpExpansionMode（通信域粒度配置）> 环境变量[HCCL_OP_EXPANSION_MODE](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_OP_EXPANSION_MODE.md)（全局配置）> 默认算子展开模式。<br>Ascend 950PR/Ascend 950DT：CCU_SCHED<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品：AI_CPU<br>Atlas A2 训练系列产品/Atlas A2 推理系列产品：HOST |
+| hcclOpExpansionMode | 配置项hcclOpExpansionMode（通信域粒度配置）> 环境变量[HCCL_OP_EXPANSION_MODE](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_OP_EXPANSION_MODE.md)（全局配置）> 默认算子展开模式。<br>Ascend 950PR/Ascend 950DT：AICPU_TS<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品：AI_CPU<br>Atlas A2 训练系列产品/Atlas A2 推理系列产品：HOST |
 | hcclRdmaTrafficClass | 配置项hcclRdmaTrafficClass（通信域粒度配置） > 环境变量[HCCL_RDMA_TC](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_RDMA_TC.md)（全局配置）> 默认值132。 |
 | hcclRdmaServiceLevel | 配置项hcclRdmaServiceLevel（通信域粒度配置）> 环境变量[HCCL_RDMA_SL](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_RDMA_SL.md)（全局配置）> 默认值4。 |
 | hcclExecTimeOut | 配置项hcclExecTimeOut（通信域粒度配置）> 环境变量[HCCL_EXEC_TIMEOUT](https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_env/HCCL_EXEC_TIMEOUT.md)（全局配置）> 默认值1836。 |
