@@ -1057,8 +1057,11 @@ u32 TransportManager::GetHostPort(s32 devicePhyId)
 
 u32 TransportManager::GetRemoteNicPort(s32 devicePhyId, u32 dstUserRank, bool isInterRdma)
 {
+    DevType devType = DevType::DEV_TYPE_COUNT;
+    CHK_RET(hrtGetDeviceType(devType));
     if ((nicDeployment_ == NICDeployment::NIC_DEPLOYMENT_HOST) &&
-        !(dstUserRank < nicRanksPort_.size() && nicRanksPort_[dstUserRank] != HCCL_INVALID_PORT)) {
+        !(dstUserRank < nicRanksPort_.size() && nicRanksPort_[dstUserRank] != HCCL_INVALID_PORT &&
+          devType == DevType::DEV_TYPE_910B)) {
         return GetHostPort(devicePhyId);
     }
     // isUseRankPort_在ranksPort初始化时一同配置：1. 异构场景 2. 开启device侧端口配置
