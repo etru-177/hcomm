@@ -1933,6 +1933,8 @@ HcclResult HcomGetWorkspaceSubStreamNum(const char *group, u64 &streamNum, u64 d
         HCCL_ERROR("[HcomGetWorkspaceSubStreamNum] HcclSelectAlg failed, ret[%d], optype[%d], count[%llu],"
             "dataType[%d], reduceOp[%d]", ret, optype, count, dataType, reduceOp), ret);
     CHK_RET(hcclComm->GetWorkspaceSubStreamNum(count, dataType, reduceOp, algName, streamNum, dataSize, ifAiv, optype));
+    HCCL_INFO("[%s] get streamNum[%llu] for optype[%d], algName[%s], count[%llu], dataType[%d], reduceOp[%d], ifAiv[%d]",
+ 	             __func__, streamNum, optype, algName.c_str(), count, dataType, reduceOp, ifAiv);
     return HCCL_SUCCESS;
 }
 
