@@ -50,6 +50,10 @@ HcclResult CcuJetty::Init()
     CHK_RET(hrtGetDevicePhyIdByIndex(static_cast<uint32_t>(devLogicId_), devPhyId));
     auto &rdmaHandleMgr = Hccl::RdmaHandleManager::GetInstance();
     ctxHandle_ = rdmaHandleMgr.GetByIp(devPhyId, ipAddr_);
+    CHK_PRT_RET(!rdmaHandleMgr.IsHandleValid(ctxHandle_),
+        HCCL_ERROR("[CcuJetty][%s] ctxHandle_[%p] is not valid, "
+                   "RdmaHandleManager may have DeInit this device", __func__, ctxHandle_),
+        HcclResult::HCCL_E_INTERNAL);
     const auto _jfcHandle = rdmaHandleMgr.GetJfcHandle(ctxHandle_, cqInfo, Hccl::HrtUbJfcMode::CCU_POLL);
     const JfcHandle jfcHandle = reinterpret_cast<JfcHandle>(_jfcHandle);
     const auto &tokenInfo = rdmaHandleMgr.GetTokenIdInfo(ctxHandle_);

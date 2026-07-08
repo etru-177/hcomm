@@ -120,6 +120,9 @@ void MockCcuNetworkDeviceDefault(int32_t devPhyId)
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetByIp).stubs()
         .will(returnValue((void*)0x12345678)); // 大部分场景ctxHandle非空即可
 
+    MOCKER_CPP(&Hccl::RdmaHandleManager::IsHandleValid).stubs()
+        .will(returnValue(true));
+
     std::pair<Hccl::TokenIdHandle, uint32_t> fakeTokenInfo = std::make_pair(0x12345678, 1);
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetTokenIdInfo).stubs()
         .will(returnValue(fakeTokenInfo)); // 打桩保证内存注册成功

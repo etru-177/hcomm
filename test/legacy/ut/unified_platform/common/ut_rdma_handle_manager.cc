@@ -31,6 +31,7 @@
 #include "ccu_context_mgr_imp.h"
 #include "ccu_res_batch_allocator.h"
 #include "ccu_component.h"
+#include "socket_handle_manager.h"
 #undef protected
 #undef private
 
@@ -132,4 +133,69 @@ TEST_F(RdmaHandleManagerTest, rdma_handle_manager_get_token_id_handle)
 
     std::pair<TokenIdHandle, uint32_t> expectResult(0, 0);
     EXPECT_EQ(RdmaHandleManager::GetInstance().GetTokenIdInfo(rdmaHandle1), expectResult);
+}
+
+TEST_F(RdmaHandleManagerTest, rdma_handle_manager_is_handle_valid_nullptr)
+{
+    EXPECT_EQ(RdmaHandleManager::GetInstance().IsHandleValid(nullptr), false);
+}
+
+TEST_F(RdmaHandleManagerTest, rdma_handle_manager_is_handle_valid_in_active_set)
+{
+    RdmaHandle fakeHandle = (RdmaHandle)0x5678;
+    RdmaHandleManager::GetInstance().activeHandles_.insert(fakeHandle);
+    EXPECT_EQ(RdmaHandleManager::GetInstance().IsHandleValid(fakeHandle), true);
+    RdmaHandleManager::GetInstance().activeHandles_.erase(fakeHandle);
+}
+
+TEST_F(RdmaHandleManagerTest, rdma_handle_manager_is_handle_valid_not_in_active_set)
+{
+    RdmaHandle fakeHandle = (RdmaHandle)0x9ABC;
+    EXPECT_EQ(RdmaHandleManager::GetInstance().IsHandleValid(fakeHandle), false);
+}
+
+TEST_F(RdmaHandleManagerTest, rdma_handle_manager_is_handle_valid_when_destroyed)
+{
+    RdmaHandle fakeHandle = (RdmaHandle)0xDEF0;
+    RdmaHandleManager::GetInstance().activeHandles_.insert(fakeHandle);
+    RdmaHandleManager::GetInstance().destroyed = true;
+    EXPECT_EQ(RdmaHandleManager::GetInstance().IsHandleValid(fakeHandle), false);
+    RdmaHandleManager::GetInstance().destroyed = false;
+    RdmaHandleManager::GetInstance().activeHandles_.erase(fakeHandle);
+}
+
+TEST_F(RdmaHandleManagerTest, rdma_handle_manager_is_handle_valid_after_deinit)
+{
+    MOCKER(HrtRaUbCtxDestroy).stubs().will(returnValue(static_cast<s32>(0)));
+    auto &mgr = RdmaHandleManager::GetInstance();
+    u32 devPhyId = 0;
+    RdmaHandle fakeUbHandle = (RdmaHandle)0xBBBB;
+    Hccl::IpAddress ipAddr("7.0.0.0");
+    mgr.rdmaHandleMap[devPhyId][3][ipAddr] = fakeUbHandle;
+    mgr.activeHandles_.insert(fakeUbHandle);
+    mgr.tokenInfoMap[fakeUbHandle] = nullptr;
+
+    EXPECT_EQ(mgr.IsHandleValid(fakeUbHandle), true);
+
+    mgr.DeInit(devPhyId);
+    EXPECT_EQ(mgr.IsHandleValid(fakeUbHandle), false);
+}
+
+TEST_F(RdmaHandleManagerTest, rdma_handle_manager_is_handle_valid_after_destroy_all)
+{
+    auto &mgr = RdmaHandleManager::GetInstance();
+    RdmaHandle fakeHandle = (RdmaHandle)0xCAFE;
+    mgr.activeHandles_.insert(fakeHandle);
+
+    EXPECT_EQ(mgr.IsHandleValid(fakeHandle), true);
+
+    mgr.destroyed = false;
+    mgr.DestroyAll();
+    EXPECT_EQ(mgr.IsHandleValid(fakeHandle), false);
+
+    mgr.destroyed = false;
+    mgr.rdmaHandleMap.resize(MAX_DEVICE_NUM);
+    for (u32 i = 0; i < mgr.rdmaHandleMap.size(); ++i) {
+        mgr.rdmaHandleMap[i].resize(LINK_PROTO_TYPE_NUM);
+    }
 }

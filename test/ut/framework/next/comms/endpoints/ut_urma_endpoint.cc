@@ -152,3 +152,45 @@ TEST_F(UrmaEndpointTest, Ut_When_ServerSocketGetListenPort_StartListenFailed_Exp
     uint32_t port = 0;
     EXPECT_EQ(endpoint->ServerSocketGetListenPort(&port), HCCL_E_INTERNAL);
 }
+
+TEST_F(UrmaEndpointTest, Ut_When_IsCtxHandleValid_NullCtxHandle_Expect_False)
+{
+    auto endpoint = std::make_unique<UrmaEndpoint>(endpointDesc);
+    endpoint->ctxHandle_ = nullptr;
+    EXPECT_EQ(endpoint->IsCtxHandleValid(), false);
+}
+
+TEST_F(UrmaEndpointTest, Ut_When_IsCtxHandleValid_ValidHandle_Expect_True)
+{
+    auto endpoint = std::make_unique<UrmaEndpoint>(endpointDesc);
+    void *fakeHandle = (void *)0x1234;
+    endpoint->ctxHandle_ = fakeHandle;
+    auto &mgr = Hccl::RdmaHandleManager::GetInstance();
+    mgr.destroyed = false;
+    mgr.activeHandles_.insert(
+        static_cast<Hccl::RdmaHandle>(fakeHandle));
+    EXPECT_EQ(endpoint->IsCtxHandleValid(), true);
+    mgr.activeHandles_.erase(
+        static_cast<Hccl::RdmaHandle>(fakeHandle));
+}
+
+TEST_F(UrmaEndpointTest, Ut_When_IsCtxHandleValid_HandleDeInited_Expect_False)
+{
+    auto endpoint = std::make_unique<UrmaEndpoint>(endpointDesc);
+    void *fakeHandle = (void *)0x5678;
+    endpoint->ctxHandle_ = fakeHandle;
+    EXPECT_EQ(endpoint->IsCtxHandleValid(), false);
+}
+
+TEST_F(UrmaEndpointTest, Ut_When_GetAsyncEvents_InvalidCtxHandle_Expect_InternalError)
+{
+    auto endpoint = std::make_unique<UrmaEndpoint>(endpointDesc);
+    endpoint->ctxHandle_ = (void *)0x9999;
+    uint32_t interfaceVersion = 2;
+    MOCKER(RaGetInterfaceVersion).stubs()
+        .with(mockcpp::any(), mockcpp::any(), outBoundP(&interfaceVersion, sizeof(interfaceVersion)))
+        .will(returnValue(0));
+    struct AsyncEvent events[1];
+    uint32_t num = 1;
+    EXPECT_EQ(endpoint->GetAsyncEvents(0, events, num), HCCL_E_INTERNAL);
+}

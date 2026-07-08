@@ -59,6 +59,10 @@ HcclResult CcuConnection::Init()
     Hccl::IpAddress ipAddr{};
     CHK_RET(CommAddrToIpAddress(locAddr_, ipAddr));
     ctxHandle_ = rdmaHandleMgr.GetByIp(devPhyId_, ipAddr);
+    CHK_PRT_RET(!rdmaHandleMgr.IsHandleValid(ctxHandle_),
+        HCCL_ERROR("[CcuConnection][%s] ctxHandle_[%p] is not valid, "
+                "RdmaHandleManager may have DeInit this device", __func__, ctxHandle_),
+        HcclResult::HCCL_E_INTERNAL);
 
     DevEidInfo eidInfo{};
     CHK_RET(EidInfoMgr::GetInstance(devPhyId_).GetEidInfoByAddr(locAddr_, eidInfo));

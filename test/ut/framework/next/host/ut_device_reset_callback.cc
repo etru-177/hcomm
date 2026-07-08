@@ -306,3 +306,39 @@ TEST_F(DeviceResetCallbackTest, Ut_When_RdmaHandleManagerDestroyAll_WithDestroye
     mgr.DestroyAll();
     mgr.destroyed = false;
 }
+
+TEST_F(DeviceResetCallbackTest, Ut_When_RdmaHandleManagerDeInit_Expect_ActiveHandlesCleared)
+{
+    MOCKER(Hccl::HrtRaUbCtxDestroy).stubs().will(returnValue(static_cast<s32>(0)));
+    auto &mgr = Hccl::RdmaHandleManager::GetInstance();
+    u32 devPhyId = 0;
+    RdmaHandle fakeHandle = (RdmaHandle)0xAABB;
+    Hccl::IpAddress ipAddr("8.0.0.0");
+    mgr.rdmaHandleMap[devPhyId][3][ipAddr] = fakeHandle;
+    mgr.tokenInfoMap[fakeHandle] = nullptr;
+    mgr.activeHandles_.insert(fakeHandle);
+
+    EXPECT_EQ(mgr.activeHandles_.count(fakeHandle), 1);
+    mgr.DeInit(devPhyId);
+    EXPECT_EQ(mgr.activeHandles_.count(fakeHandle), 0);
+}
+
+TEST_F(DeviceResetCallbackTest, Ut_When_RdmaHandleManagerDestroyAll_Expect_ActiveHandlesCleared)
+{
+    auto &mgr = Hccl::RdmaHandleManager::GetInstance();
+    RdmaHandle fakeHandle1 = (RdmaHandle)0xCCDD;
+    RdmaHandle fakeHandle2 = (RdmaHandle)0xEEFF;
+    mgr.activeHandles_.insert(fakeHandle1);
+    mgr.activeHandles_.insert(fakeHandle2);
+
+    EXPECT_EQ(mgr.activeHandles_.size(), 2);
+    mgr.destroyed = false;
+    mgr.DestroyAll();
+    EXPECT_EQ(mgr.activeHandles_.size(), 0);
+
+    mgr.destroyed = false;
+    mgr.rdmaHandleMap.resize(Hccl::MAX_DEVICE_NUM);
+    for (u32 i = 0; i < mgr.rdmaHandleMap.size(); ++i) {
+        mgr.rdmaHandleMap[i].resize(Hccl::LINK_PROTO_TYPE_NUM);
+    }
+}

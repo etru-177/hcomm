@@ -216,11 +216,15 @@ HcclResult UrmaEndpoint::GetAsyncEvents(uint32_t devPhyId, struct AsyncEvent eve
         return HCCL_E_NOT_SUPPORT;
     }
 
-    CHK_PTR_NULL(ctxHandle_);
+    if (!IsCtxHandleValid()) {
+        HCCL_ERROR("[%s] devPhyId[%u] ctxHandle_[%p] has been invalidated, "
+                   "RdmaHandleManager may have DeInit this device", __func__, devPhyId, ctxHandle_);
+        return HCCL_E_INTERNAL;
+    }
     ret = RaCtxGetAsyncEvents(ctxHandle_, events, &num);
     if (ret != 0) {
         HCCL_ERROR("[%s] devPhyId[%u] RaCtxGetAsyncEvents failed, ctxHandle[%p] ret[%d]", __func__, devPhyId,
-            (void *)ctxHandle_, ret);
+                  (void *)ctxHandle_, ret);
         return HCCL_E_INTERNAL;
     }
     return HCCL_SUCCESS;

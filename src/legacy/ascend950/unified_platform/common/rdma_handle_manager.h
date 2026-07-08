@@ -14,6 +14,7 @@
 #include <atomic>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include "port.h"
 #include "orion_adapter_hccp.h"
 #include "ip_address.h"
@@ -54,6 +55,7 @@ public:
     RdmaHandleManager &operator=(const RdmaHandleManager &rdmaHandleManager) = delete;
     void DestroyAll();
     void DeInit(u32 devPhyId);
+    bool IsHandleValid(RdmaHandle handle);
 
     HcclResult GetEidByIpv4Addr(const IpAddress& addr, IpAddress& eidAddr);
     void UboeIpv4ToEid(const IpAddress& ipV4Address, IpAddress& eidAddress, u32 devPhyId);
@@ -75,6 +77,8 @@ private:
     std::unordered_map<RdmaHandle, HrtNetworkMode> netWorkModeMap;
 
     std::unordered_map<IpAddress, IpAddress> uboeIpv4EidMap;
+
+    std::unordered_set<RdmaHandle> activeHandles_;
 
     RdmaHandleManager();
 

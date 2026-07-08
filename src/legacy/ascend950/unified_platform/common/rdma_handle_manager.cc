@@ -58,6 +58,7 @@ RdmaHandle RdmaHandleManager::Create(u32 devPhyId, const PortData &localPort)
     RdmaHandle rdmaHandle = HrtRaRdmaInit(netMode, intf);
     rdmaHandleMap[devPhyId][localPort.GetProto()][localPort.GetAddr()] = rdmaHandle;
     netWorkModeMap[rdmaHandle] = netMode;
+    activeHandles_.insert(rdmaHandle);
     return rdmaHandle;
 }
 
@@ -79,6 +80,7 @@ RdmaHandle RdmaHandleManager::Create(u32 devPhyId, const LinkProtoType &localPro
     rdmaHandleMap[devPhyId][localProtocolType][localIp] = rdmaHandle;
     netWorkModeMap[rdmaHandle] = netMode;
     tokenInfoMap[rdmaHandle] = std::make_unique<TokenInfoManager>(devPhyId, rdmaHandle);
+    activeHandles_.insert(rdmaHandle);
     return rdmaHandle;
 }
 
@@ -107,6 +109,7 @@ RdmaHandle RdmaHandleManager::Get(u32 devPhyId, const PortData &localPort, LinkP
             res                                          = HrtRaUbCtxInit(in);
             rdmaHandleMap[devPhyId][localProto][localIp] = res;
             tokenInfoMap[res] = std::make_unique<TokenInfoManager>(devPhyId, res);
+            activeHandles_.insert(res);
             HCCL_INFO("Create one rdmahandle [%p], devPhyId [%u], portAddr [%s]",
                 res, devPhyId, localPort.GetAddr().Describe().c_str());
         }
@@ -136,6 +139,7 @@ RdmaHandle RdmaHandleManager::GetByAddr(u32 devPhyId, const LinkProtoType &local
             res                 = HrtRaUbCtxInit(in);
             rdmaHandleMap[devPhyId][localProtocolType][localIp] = res;
             tokenInfoMap[res] = std::make_unique<TokenInfoManager>(devPhyId, res);
+            activeHandles_.insert(res);
             HCCL_INFO("Create one rdmahandle [%p], devPhyId [%u], portAddr [%s]",
                 res, devPhyId, localIp.Describe().c_str());
         }
@@ -162,6 +166,7 @@ RdmaHandle RdmaHandleManager::GetByIp(u32 devPhyId, const IpAddress &localIp)
         res = HrtRaUbCtxInit(in);
         rdmaHandleMap[devPhyId][LinkProtoType::UB][localIp] = res;
         tokenInfoMap[res] = std::make_unique<TokenInfoManager>(devPhyId, res);
+        activeHandles_.insert(res);
         HCCL_INFO("Create one rdmahandle [%p], devPhyId [%u], ipAddr [%s]",
             res, devPhyId, localIp.Describe().c_str());
     }
@@ -276,6 +281,8 @@ void RdmaHandleManager::DestroyAll()
 
     std::lock_guard<std::mutex> lock(managerMutex);
     HCCL_INFO("[RdmaHandleManager::%s] destroy all", __func__);
+
+    activeHandles_.clear();
 
     for (auto &handleIter : jfcHandleMap) {
         for (auto &modeIter : handleIter.second) {
@@ -457,9 +464,25 @@ void RdmaHandleManager::DeInit(u32 devPhyId)
     std::vector<HandleInfo> handlesToCleanup;
     CollectHandlesToCleanup(devPhyId, handlesToCleanup);
 
+    for (auto &info : handlesToCleanup) {
+        activeHandles_.erase(info.handle);
+    }
+
     for(auto &info : handlesToCleanup) {
         CleanupSingleHandle(info);
     }
+}
+
+bool RdmaHandleManager::IsHandleValid(RdmaHandle handle)
+{
+    if (handle == nullptr) {
+        return false;
+    }
+    std::lock_guard<std::mutex> lock(managerMutex);
+    if (destroyed.load()) {
+ 	         return false;
+    }
+    return activeHandles_.find(handle) != activeHandles_.end();
 }
 
 } // namespace Hccl

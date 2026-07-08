@@ -241,6 +241,7 @@ TEST_F(CcuConnTest, Ut_CcuJetty_SetMappedJettyPriority_When_NotCreated_SetsQos)
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<s32>(0)));
     void *rdmaHandle = reinterpret_cast<void *>(0x300);
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetByIp).stubs().will(returnValue(rdmaHandle));
+    MOCKER_CPP(&Hccl::RdmaHandleManager::IsHandleValid).stubs().will(returnValue(true));
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetJfcHandle)
         .stubs()
         .will(returnValue(static_cast<Hccl::JfcHandle>(0x400ULL)));
@@ -269,6 +270,7 @@ TEST_F(CcuConnTest, Ut_CcuJetty_SetMappedJettyPriority_When_Conflict_Expect_Inte
     MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<s32>(0)));
     void *rdmaHandle = reinterpret_cast<void *>(0x300);
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetByIp).stubs().will(returnValue(rdmaHandle));
+    MOCKER_CPP(&Hccl::RdmaHandleManager::IsHandleValid).stubs().will(returnValue(true));
     MOCKER_CPP(&Hccl::RdmaHandleManager::GetJfcHandle)
         .stubs()
         .will(returnValue(static_cast<Hccl::JfcHandle>(0x400ULL)));
@@ -329,6 +331,29 @@ TEST_F(CcuConnTest, Ut_MakeGetTpInfoParam_When_QosAboveSeven_Expect_ClampsToDefa
     HcclResult ret = connection->UpdateInitStatus();
     EXPECT_EQ(ret, HcclResult::HCCL_SUCCESS);
     EXPECT_EQ(gCapturedConnTpParam.qos, static_cast<uint32_t>(::EnvConfig::UB_QOS_DEFAULT));
+
+    GlobalMockObject::verify();
+}
+
+TEST_F(CcuConnTest, Ut_CcuJetty_Init_When_IsHandleValidFalse_Expect_InternalError)
+{
+    constexpr uint64_t fakeMemAddr = 0x12345678;
+    const uint32_t fakeTaJettyId = 1025;
+    const IpAddress locAddrIp{"4.4.4.4"};
+    hcomm::CcuJettyInfo jettyInfo{};
+    jettyInfo.taJettyId = fakeTaJettyId;
+    jettyInfo.sqBufVa = fakeMemAddr;
+    jettyInfo.sqBufSize = 1024;
+    jettyInfo.sqDepth = 4;
+
+    void *rdmaHandle = reinterpret_cast<void *>(0x300);
+    MOCKER(HcclGetThreadDeviceId).stubs().will(returnValue(0));
+    MOCKER(HrtGetDevicePhyIdByIndex).stubs().will(returnValue(static_cast<s32>(0)));
+    MOCKER_CPP(&Hccl::RdmaHandleManager::GetByIp).stubs().will(returnValue(rdmaHandle));
+    MOCKER_CPP(&Hccl::RdmaHandleManager::IsHandleValid).stubs().will(returnValue(false));
+
+    hcomm::CcuJetty jetty(locAddrIp, jettyInfo);
+    EXPECT_EQ(jetty.Init(), HcclResult::HCCL_E_INTERNAL);
 
     GlobalMockObject::verify();
 }

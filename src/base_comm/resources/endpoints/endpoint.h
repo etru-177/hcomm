@@ -50,6 +50,15 @@ public:
         return ctxHandle_;
     }
 
+    bool IsCtxHandleValid() const
+    {
+        if (ctxHandle_ == nullptr) {
+            return false;
+        }
+        return Hccl::RdmaHandleManager::GetInstance().IsHandleValid(
+            static_cast<Hccl::RdmaHandle>(ctxHandle_));
+    }
+
     EndpointDesc GetEndpointDesc()
     {
         return endpointDesc_;
