@@ -106,6 +106,7 @@ HcclResult UbRegedMemMgr::GetParamsFromMemDesc(const void *memDesc, uint32_t des
 {
     const char *description = static_cast<const char *>(memDesc);
 
+    CHK_PRT_RET(descLen < sizeof(EndpointDesc), HCCL_ERROR("[%s] descLen[%u] is too small", __func__, descLen), HCCL_E_PARA);
     // 从memDesc末尾提取EndpointDesc
     if (memcpy_s(&endpointDesc, sizeof(EndpointDesc), description + descLen - sizeof(EndpointDesc), sizeof(EndpointDesc)) != EOK) {
         HCCL_ERROR("[UbRegedMemMgr][GetParamsFromMemDesc] [%s] endpointDesc copy error. aim size:[%llu]", __func__, sizeof(EndpointDesc));
@@ -124,7 +125,6 @@ HcclResult UbRegedMemMgr::GetParamsFromMemDesc(const void *memDesc, uint32_t des
 HcclResult UbRegedMemMgr::MemoryImport(const void *memDesc, uint32_t descLen, HcommMem *outMem)
 {
     HCCL_INFO("[%s] Begin", __FUNCTION__);
-
     EndpointDesc endpointDesc;
     Hccl::ExchangeUbBufferDto dto;
     CHK_RET(GetParamsFromMemDesc(memDesc, descLen, endpointDesc, dto));

@@ -442,6 +442,7 @@ HcommResult HcommMemImport(EndpointHandle endpointHandle, const void *memDesc, u
 {
     CHK_PTR_NULL(memDesc);
     CHK_PTR_NULL(outMem);
+    CHK_PRT_RET(descLen == 0, HCCL_ERROR("[%s] descLen[0] is invalid", __func__), HCCL_E_PARA);
     (void)HcommResMgrInit();
     HCCL_INFO("[%s] START. endpointHandle[0x%llx].",__func__, endpointHandle);
     auto endpoint = g_EndpointMap.GetEndpoint(endpointHandle);
