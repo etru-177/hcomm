@@ -20,8 +20,6 @@
 extern "C" {
 #endif
 
-#define HCCL_GROUP_FEATURE_SUPPORT
-
 const uint32_t P2P_MAX_ARG_SIZE = 8192U;
 typedef struct {
     ThreadHandle sendRecvThread;
