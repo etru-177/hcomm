@@ -252,8 +252,8 @@ void AicpuTsHccsChannel::DisableP2P()
 
 HcclResult AicpuTsHccsChannel::EnableMemAccess()
 {
-    // Should NOT using SalGetBareTgid
-    s32 pid = SalGetPid();
+    s32 pid = 0;
+    CHK_RET(SalGetBareTgid(&pid));
     // switch first
     HcommMemGrantInfo localGrantInfo = {localEp_.loc.device.superDevId, pid};
     HcommMemGrantInfo remoteGrantInfo = {0};
