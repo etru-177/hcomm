@@ -177,9 +177,6 @@ HcclResult CollReduceScatterAivRdmaExecutor::KernelRun(const OpParam &param, Exe
     algArgs.execTimeOutSet = true;
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(flagBuffers, resourceArgs, topoArgs, algArgs));
-    }
 
     CHK_RET(ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo));
     /*  第二步  节点间RS */

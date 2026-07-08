@@ -208,15 +208,9 @@ HcclResult CollAlltoAllMeshAivFor91093Executor::KernelRun(const OpParam &param, 
         if (topoArgs.serverNum == 1) {
             topoArgs.serverNum = TWO_SERVER_NUM;
         }
-        if (aivClearEnable_) {
-            CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-        }
         ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);
     } else {
         algArgs.argsType = KernelArgsType::ARGS_TYPE_SUPERPOD;
-        if (aivClearEnable_) {
-            CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-        }
         ExtraArgsV2 extraArgs;
         if (param.opType == HcclCMDType::HCCL_CMD_ALLTOALLVC) {
             for (u32 i = 0; i < localRankSize; i++) {

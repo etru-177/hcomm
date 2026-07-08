@@ -265,9 +265,6 @@ HcclResult CollAllReduceMeshAivFor91093Executor::KernelRun(const OpParam &param,
         algArgs.deterministic = 1;
     }
     aivProfilingInfo.counter = opCounter_;
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
 
     HcclResult ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);
     CHK_PRT_RET(ret != HCCL_SUCCESS,

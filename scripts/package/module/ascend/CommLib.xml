@@ -175,7 +175,6 @@
         <file value="hccl_aiv_all_to_all_vc_op.o"/>
         <file value="hccl_aiv_reduce_scatter_v_op.o"/>
         <file value="hccl_aiv_all_gather_v_op.o"/>
-        <file value="hccl_aiv_sync_op.o"/>
         <file value="hccl_ag_superkernel_int8.o"/>
         <file value="hccl_ag_superkernel_int16.o"/>
         <file value="hccl_ag_superkernel_int32.o"/>

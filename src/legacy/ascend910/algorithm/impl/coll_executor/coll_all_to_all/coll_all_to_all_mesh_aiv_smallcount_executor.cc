@@ -203,9 +203,6 @@ HcclResult CollAlltoAllMeshAivSmallCountExecutor::KernelRun(const OpParam &param
     algArgs.execTimeOutSet = true;
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
 
     // AllToAll pingpong 图模式走单算子归一流程 或者 单算子模式
     ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);

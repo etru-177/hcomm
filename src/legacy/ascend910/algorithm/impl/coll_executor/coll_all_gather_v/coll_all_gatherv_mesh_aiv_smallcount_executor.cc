@@ -137,9 +137,6 @@ HcclResult CollAllGatherVMeshAivSmallCountExecutor::KernelRun(const OpParam &par
     algArgs.execTimeOutSet = true;
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
 
     HcclResult ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, extraArgs, aivProfilingInfo);
     CHK_PRT_RET(ret != HCCL_SUCCESS,

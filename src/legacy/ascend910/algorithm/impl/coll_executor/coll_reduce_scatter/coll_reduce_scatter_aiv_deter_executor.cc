@@ -191,10 +191,6 @@ HcclResult CollReduceScatterAivDeterExecutor::KernelRun(const OpParam &param, Ex
     aivProfilingInfo.counter = opCounter_;
     HCCL_INFO("[CollReduceScatterAivDeterExecutor][KernelRun]ReduceScatter bufferin[%d] bufferout[%d]",execMem.inputMem.size(), execMem.outputMem.size());
 
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
-
     HcclResult ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);
     
     CHK_PRT_RET(ret != HCCL_SUCCESS,

@@ -157,10 +157,6 @@ HcclResult CollAllReduceAivDeterSmallExecutor::KernelRun(const OpParam &param, E
 
     HCCL_INFO("[CollAllReduceAivDeterSmallExecutor][KernelRun]AllReduce bufferin[%d] bufferout[%d]",execMem.inputMem.size(), execMem.outputMem.size());
 
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
-
     HcclResult ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);
 
     ExtraArgs extraArgs;

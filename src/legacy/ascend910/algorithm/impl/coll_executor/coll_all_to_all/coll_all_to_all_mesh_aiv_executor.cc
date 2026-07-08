@@ -242,9 +242,6 @@ HcclResult CollAlltoAllMeshAivExecutor::KernelRun(const OpParam &param, ExecMem 
             HCCL_E_PARA);
         numBlocks_ = numBlocks;
         resourceArgs.numBlocks = numBlocks_;
-        if (aivClearEnable_) {
-            CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-        }
         ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);
     } else if (param.opType == HcclCMDType::HCCL_CMD_ALLTOALLVC || param.opType == HcclCMDType::HCCL_CMD_ALLTOALL) {
         for (u32 i = 0; i < localRankSize; i++) {
@@ -267,9 +264,6 @@ HcclResult CollAlltoAllMeshAivExecutor::KernelRun(const OpParam &param, ExecMem 
             HCCL_E_PARA);
         numBlocks_ = numBlocks;
         resourceArgs.numBlocks = numBlocks_;
-        if (aivClearEnable_) {
-            CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-        }
         ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, extraArgs, aivProfilingInfo);
     } else {
         for (u32 i = 0; i < localRankSize; i++) {
@@ -286,9 +280,6 @@ HcclResult CollAlltoAllMeshAivExecutor::KernelRun(const OpParam &param, ExecMem 
             HCCL_E_PARA);
         numBlocks_ = numBlocks;
         resourceArgs.numBlocks = numBlocks_;
-        if (aivClearEnable_) {
-            CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-        }
         ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, extraArgs, aivProfilingInfo);
     }
     CHK_PRT_RET(ret != HCCL_SUCCESS,

@@ -33,15 +33,6 @@ HcclResult UnRegisterAivKernel()
     return HCCL_SUCCESS;
 }
 
-HcclResult ClearAivSyncBuf(void** cclBuffersOut, const AivResourceArgs &resourceArgs, const AivTopoArgs &topoArgs, AivAlgArgs algArgs)
-{
-    (void) cclBuffersOut;
-    (void) resourceArgs;
-    (void) topoArgs;
-    (void) algArgs;
-    return HCCL_SUCCESS;
-}
-
 // KernelLaunch内部接口
 HcclResult ExecuteKernelLaunchInner(const AivOpArgs &opArgs, const AivTopoArgs &topoArgs,
     const AivResourceArgs &resourceArgs, const AivAlgArgs &algArgs, void* args, u32 argsSize, 

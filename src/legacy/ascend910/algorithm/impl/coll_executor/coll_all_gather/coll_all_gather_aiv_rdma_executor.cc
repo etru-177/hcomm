@@ -226,9 +226,7 @@ HcclResult CollAllGatherAivRdmaExecutor::KernelRun(const OpParam &param, ExecMem
 
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
+
     CHK_RET(ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo));
     HCCL_INFO("[CollAllGatherAivRdmaExecutor][KernelRun]allGather aiv run success.");
     return HCCL_SUCCESS;

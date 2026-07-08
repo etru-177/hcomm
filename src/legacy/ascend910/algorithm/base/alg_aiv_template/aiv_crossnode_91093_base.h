@@ -203,6 +203,8 @@ public:
 
     __aicore__ inline void IntraSync(int32_t curTag, int32_t offset, int32_t blockIdx, bool ifPingpong = false);
 
+    __aicore__ inline int32_t GetLogLevel();
+
     __aicore__ inline void InitOpCounter(GM_ADDR headCountMem, GM_ADDR tailCountMem, GM_ADDR addOneMem, 
         uint32_t counterMemSize, bool isEnableCounter)
     {
@@ -239,6 +241,7 @@ public:
     uint32_t usedBlockNum_;
     uint32_t blockGroup_;
     bool useDoubleBuffer_;
+    int32_t logLevel_;
     int32_t tag_;
     bool localCopyCores = false;
     int32_t clearEnable_ = 0;
@@ -389,6 +392,8 @@ __aicore__ inline void AivCrossNode91093Base::CalcNumTargetsAndTargetRanksGroup(
 
 __aicore__ inline void AivCrossNode91093Base::InitSetCheckClearArgsTensor() 
 {
+    logLevel_ = GetLogLevel();
+    uint64_t offset = (logLevel_ == 1) ? (tag_ & 1 ? INFO_EVEN_BUFFER_OFFSET : INFO_ODD_BUFFER_OFFSET) : INFO_EVEN_BUFFER_OFFSET;
     pipe.InitBuffer(localFlagBuf, UB_FLAG_SIZE * FLAG_BUF_NUM);
     localSetTensor = localFlagBuf.GetWithOffset<int32_t>(UB_FLAG_PAD_COUNT, 0);
     localCheckTensor = localFlagBuf.GetWithOffset<int32_t>(UB_FLAG_PAD_COUNT, UB_FLAG_SIZE);
@@ -842,6 +847,16 @@ __aicore__ inline void AivCrossNode91093Base::IntraSync(int32_t tag, int32_t off
         }
         WaitSyncFlag(tag, flagAddrSelf_, offset, i, ifPingpong);
     }
+}
+
+__aicore__ inline int32_t AivCrossNode91093Base::GetLogLevel()
+{
+    #ifndef OPEN_HCCL_TEST
+    int32_t tmpLogLevel = *((__gm__ int32_t*)(flagAddrSelf_ + LOG_LEVEL_OFFSET - sizeof(int32_t)));
+    return tmpLogLevel;
+    #else
+    return 0;
+    #endif
 }
 
 __aicore__ inline void AivCrossNode91093Base::SetSyncRecord(int32_t value, GM_ADDR setAddr,

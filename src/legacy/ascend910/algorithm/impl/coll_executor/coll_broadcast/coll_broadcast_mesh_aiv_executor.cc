@@ -147,9 +147,6 @@ HcclResult CollBroadcastMeshAivExecutor::KernelRun(const OpParam &param, ExecMem
     algArgs.execTimeOutSet = true;
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
     ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);  // 执行kernelLaunch
     CHK_PRT_RET(ret != HCCL_SUCCESS,
         HCCL_ERROR("[CollBroadcastMeshAivExecutor][KernelRun]broadcast aiv failed, return[%d]", ret),

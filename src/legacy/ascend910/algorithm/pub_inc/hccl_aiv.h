@@ -317,10 +317,7 @@ HcclResult ExecuteKernelLaunchImpl(const AivOpArgs &opArgs, const AivTopoArgs &t
 
 HcclResult RegisterKernel(DevType deviceType);
 HcclResult UnRegisterAivKernel();
-
-HcclResult ClearAivSyncBuf(void** cclBuffersOut, const AivResourceArgs &resourceArgs,
-    const AivTopoArgs &topoArgs, AivAlgArgs algArgs = AivAlgArgs{});
-
+    
 HcclResult ClearAivSyncBufForMulServer(const AivResourceArgs &resourceArgs, const AivTopoArgs &topoArgs, void* args,
     u32 argsSize);
 

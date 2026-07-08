@@ -136,9 +136,6 @@ HcclResult CollRunAlltoAllStagedAivRdmaExecutor::RunAlltoAllStaged1InAIV(const O
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
     HCCL_DEBUG("[CollRunAlltoAllStagedAivRdmaExecutor]RunAlltoAllStaged1InAIV for numBlocks is %u", numBlocks_);
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(flagBuffers, resourceArgs, topoArgs, algArgs));
-    }
     CHK_RET(ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo));
     return HCCL_SUCCESS;
 }

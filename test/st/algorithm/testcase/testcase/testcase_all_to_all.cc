@@ -574,7 +574,6 @@ TEST_F(AllToAllTest, alltoall_test_91093_opbase_AlltoAllMeshAivExecutor)
 {
     MOCKER(GetExternalInputHcclAivMode).stubs().will(returnValue(true));
     MOCKER(ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER(ClearAivSyncBuf).stubs().will(returnValue(HCCL_SUCCESS));
     RankTable_For_LLT gen;
     TopoMeta topoMeta;
     gen.GenTopoMeta(topoMeta, 1, 1, 16);
@@ -604,7 +603,6 @@ TEST_F(AllToAllTest, alltoall_test_a2_opbase_AlltoAllStagedAIVRdmaExecutor)
 {
     MOCKER(GetExternalInputHcclAivMode).stubs().will(returnValue(true));
     MOCKER(ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER(ClearAivSyncBuf).stubs().will(returnValue(HCCL_SUCCESS));
     RankTable_For_LLT gen;
     TopoMeta topoMeta;
     gen.GenTopoMeta(topoMeta, 1, 2, 8);
@@ -633,7 +631,6 @@ TEST_F(AllToAllTest, alltoall_test_91093_graph_AlltoAllMeshAivExecutor)
 {
     MOCKER(GetExternalInputHcclAivMode).stubs().will(returnValue(true));
     MOCKER(ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER(ClearAivSyncBuf).stubs().will(returnValue(HCCL_SUCCESS));
     RankTable_For_LLT gen;
     TopoMeta topoMeta;
     gen.GenTopoMeta(topoMeta, 1, 1, 16);
@@ -665,7 +662,6 @@ TEST_F(AllToAllTest, alltoall_test_91093_opbase_AlltoAllMeshAivFor91093Executor)
     MOCKER(GetExternalInputHcclAivMode).stubs().will(returnValue(true));
     MOCKER_CPP(&AlltoAllOperator::IsSatisfyAlltoAllAivCondition).stubs().will(returnValue(true));
     MOCKER(ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
-    MOCKER(ClearAivSyncBuf).stubs().will(returnValue(HCCL_SUCCESS));
     RankTable_For_LLT gen;
     TopoMeta topoMeta;
     gen.GenTopoMeta(topoMeta, 1, 2, 16);

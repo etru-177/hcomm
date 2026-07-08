@@ -49,7 +49,6 @@ protected:
         std::string caseName = "analysis_result_" + std::string(test_info->test_case_name()) + "_" + std::string(test_info->name());
         Checker::SetDumpFileName(caseName);
         MOCKER(ExecuteKernelLaunch).stubs().will(returnValue(HCCL_SUCCESS));
-        MOCKER(ClearAivSyncBuf).stubs().will(returnValue(HCCL_SUCCESS));
     }
 
     virtual void TearDown()

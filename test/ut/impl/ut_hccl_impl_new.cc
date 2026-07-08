@@ -385,45 +385,6 @@ TEST_F(HcclImplTest, ut_SelectAlg_when_broadcast_910C_Expect_ReturnIs_BroadcastM
     std::unique_ptr<BroadCastOperator> operation(new (std::nothrow) BroadCastOperator(algConfigurator.get(), cclBufferManager, dispatcher, topoMatcher));
     ret = operation->SelectAlg("", opParam, algName, newTag);
     EXPECT_TRUE(algName == "BroadcastMeshAivExecutor");
-
-    MOCKER_CPP(&HcclCommunicator::HandleAclGraphFirstOpAivBuff)
-    .stubs()
-    .with(mockcpp::any())
-    .will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::RegisterDfxInfo)
-    .stubs()
-    .with(mockcpp::any())
-    .will(returnValue(HCCL_SUCCESS));
-    MOCKER(StarsCounter).stubs().will(returnValue(HCCL_SUCCESS));
-    AivOpArgs opArgs{HcclCMDType::HCCL_CMD_BROADCAST,
-        opParam.inputPtr,
-        opParam.outputPtr,
-        opParam.DataDes.count,
-        opParam.DataDes.dataType,
-        opParam.reduceType,
-        opParam.root,
-        0};
-    AivTopoArgs topoArgs{0, 2};
-    topoArgs.identify = "test";
-    opParam.aivTag = 1;
-    AivResourceArgs resourceArgs {
-        opParam.tag, opParam.stream.ptr(), nullptr, nullptr, 4096, 1, opParam.aivTag
-    };
-    AivAlgArgs algArgs{};
-    algArgs.execTimeOut = 1;
-    algArgs.execTimeOutSet = true;
-    struct AivProfilingInfo aivProfilingInfo;
-    ExtraArgs extraArgs;
-    HcclCacheInfo cacheInfo;
-    cacheInfo.opArgs = opArgs;
-    cacheInfo.topoArgs = topoArgs;
-    cacheInfo.resourceArgs = resourceArgs;
-    cacheInfo.algArgs = algArgs;
-    cacheInfo.profilingInfo = aivProfilingInfo;
-    cacheInfo.extraArgs = extraArgs;
-    cacheInfo.isUseCache = true;
-    implBase->SetClearAivSyncBuf(true);
-    implBase->ExecOpCache(HcclCMDType::HCCL_CMD_BROADCAST, opParam, cacheInfo);
     operation = nullptr;
     GlobalMockObject::verify();
 }

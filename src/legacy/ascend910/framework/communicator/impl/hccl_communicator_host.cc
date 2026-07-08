@@ -4336,9 +4336,6 @@ namespace hccl
         CHK_RET(RegisterDfxInfo(opParam, algType, resMap_[newTag].slaveStreams, selectAivAlg));
         // 头计数
         CHK_RET(StarsCounter(dispatcher_, opParam.stream, HEAD, opParam.aicpuUnfoldMode, retryEnable_, selectAivAlg));
-        if (aivClearEnable_) {
-            CHK_RET(ClearAivSyncBuf(cacheInfo.buffersOut, cacheInfo.resourceArgs, cacheInfo.topoArgs, cacheInfo.algArgs));
-        }
         u64 dataSize = (opParam.opType == HcclCMDType::HCCL_CMD_ALLTOALL ?
             opParam.All2AllDataDes.sendCount * SIZE_TABLE[opParam.All2AllDataDes.sendType] : 0);
         if (opType == HcclCMDType::HCCL_CMD_REDUCE_SCATTER_V || opType == HcclCMDType::HCCL_CMD_ALLGATHER_V ||

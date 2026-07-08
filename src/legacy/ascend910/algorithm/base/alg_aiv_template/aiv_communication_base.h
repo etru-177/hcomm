@@ -168,6 +168,9 @@ hiddenInput, input, output
 hiddenInput
 
 constexpr uint64_t AIV_FLAG_BUFFER_SIZE = 3 * 1024 * 1024; // aiv算子的flag区域大小
+constexpr uint64_t INFO_EVEN_BUFFER_OFFSET = 3 * 1024 * 1024; // aiv算子偶数tag存放AIV_INFO区域偏移
+constexpr uint64_t INFO_ODD_BUFFER_OFFSET = 4 * 1024 * 1024; // aiv算子奇数tag存放AIV_INFO区域偏移
+constexpr uint64_t LOG_LEVEL_OFFSET = 2 * 1024 * 1024; // 存放AIV_INFO日志环境变量的偏移
 constexpr uint64_t CLEAR_BUFFER_OFFSET = 1024 * 1024; // 用于清空的aiv buffer的偏移
 constexpr uint64_t SYNC_BUFFER_OFFSET = 2 * 1024 * 1024; // 用于sync的aiv buffer的偏移
 constexpr uint64_t BUFFER_AREA = 1024 * 1024; // aiv算子的单独功能flag区域大小
@@ -386,6 +389,8 @@ public:
         pingpongOffset = multiOffset + DOUBLE * DOUBLE * NUM_BLOCKS_FOUR_PER_RANK_A3 * ATOMIC_FLAG_SIZE * DOUBLE;
         countOffset = DOUBLE * pingpongOffset;
         seperateOffset = countOffset + NUM_BLOCKS_FOUR_PER_RANK_A3 * rankSize_ * FLAG_SIZE;
+        logLevel_ = GetLogLevel();
+        uint64_t offset = (logLevel_ == 1) ? (tag_ & 1 ? INFO_EVEN_BUFFER_OFFSET : INFO_ODD_BUFFER_OFFSET) : INFO_EVEN_BUFFER_OFFSET;
 
         pipe.InitBuffer(localFlagBuf, UB_FLAG_SIZE_4);
         localSetTensor = localFlagBuf.GetWithOffset<int32_t>(UB_FLAG_PAD_COUNT, FLAG_ONE_OFFSET);
@@ -404,6 +409,10 @@ public:
 
         pipe.InitBuffer(flagInQue, AIV_PING_PONG_FACTOR_TWO, UB_FLAG_SIZE);
         InitOpCounter(headCountMem, tailCountMem, addOneMem, counterMemSize, isEnableCounter);
+        if (tag_ == 1) {
+            ClearSyncBuf();
+            pipe_barrier(PIPE_ALL);
+        }
     }
 
     __aicore__ inline void Init(GM_ADDR hiddenInput, uint64_t threshold, bool useDoubleBuffer = false)
@@ -621,6 +630,8 @@ public:
  
     __aicore__ inline void ClearSyncBuf();
 
+    __aicore__ inline int32_t GetLogLevel();
+
     __aicore__ inline void InitOpCounter(GM_ADDR headCountMem, GM_ADDR tailCountMem, GM_ADDR addOneMem, uint32_t counterMemSize,
         bool isEnableCounter)
     {
@@ -661,6 +672,7 @@ public:
     uint64_t len_;
     int32_t tag_;
     int32_t numBlocks_;
+    int32_t logLevel_;
     uint32_t blockIdx_ = GetBlockIdx(); // 在构造函数中初始化，以免漏初始化
 
     bool useDoubleBuffer_;
@@ -758,6 +770,16 @@ __aicore__ inline void AivCommBase::ClearSyncBuf()
     ClearFlag();
     Barrier(DOUBLE);
     BlockSync();
+}
+
+__aicore__ inline int32_t AivCommBase::GetLogLevel()
+{
+    #ifndef OPEN_HCCL_TEST
+    int32_t tmpLogLevel = *((__gm__ int32_t*)(GM_OUT[rank_] + LOG_LEVEL_OFFSET - sizeof(int32_t)));
+    return tmpLogLevel;
+    #else
+    return 0;
+    #endif
 }
 
 __aicore__ inline uint64_t AivCommBase::CeilDiv(uint64_t a, uint64_t b)

@@ -201,9 +201,6 @@ HcclResult CollAllReduceMeshAivSmallCountExecutor::KernelRun(const OpParam &para
     struct AivProfilingInfo aivProfilingInfo;
     aivProfilingInfo.counter = opCounter_;
     HCCL_DEBUG("[CollAllReduceMeshAivSmallCountExecutor][KernelRun]numBlocks is %u", numBlocks_);
-    if (aivClearEnable_) {
-        CHK_RET(ClearAivSyncBuf(buffersOut, resourceArgs, topoArgs, algArgs));
-    }
 
     HcclResult ret = ExecuteKernelLaunch(opArgs, topoArgs, resourceArgs, algArgs, aivProfilingInfo);
 
