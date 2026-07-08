@@ -37,6 +37,8 @@ public:
     HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override;
     ChannelStatus GetStatus() override;
 
+    HcclResult UpdateMemInfo(HcommMemHandle *memHandles, uint32_t memHandleNum) override;
+
     HcclResult H2DResPack(std::vector<char>& buffer);
 
     HcclResult Clean() override;
@@ -72,6 +74,7 @@ private:
     std::vector<char> GetUniqueIdV2();
     HcclResult PackOpData(std::vector<char> &data);
 
+    HcclResult CheckSocketStatus(const std::string &socketOperator);
     bool IsSocketReady();
     bool IsResReady();
     bool IsConnsReady();
