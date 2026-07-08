@@ -426,6 +426,7 @@ HcclResult UbMemTransport::StatusMachine()
         }
         
         if (socketStatus != Hccl::SocketStatus::OK) {
+            SaluSleep(ONE_MILLISECOND_OF_USLEEP); // 防止get sockets冲高CtrlCPU
             return HcclResult::HCCL_SUCCESS; // 操作成功，保持当前状态
         }
         switch (ubStatus) {

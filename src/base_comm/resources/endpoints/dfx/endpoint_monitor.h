@@ -42,7 +42,7 @@ private:
     void ProcessUbAsyncEvents();
     void PrintUbAsyncEventsContext(u32 devPhyId, const struct AsyncEvent &event);
 
-    static constexpr u32 MONITOR_INTERVAL = 50;     
+    static constexpr u32 MONITOR_INTERVAL = 1000;     
     std::unique_ptr<std::thread> endpointMonitorThread_;
 
     std::atomic<bool> initialized_{false};

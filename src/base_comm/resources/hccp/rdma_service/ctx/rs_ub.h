@@ -41,7 +41,6 @@ enum RsJettyState {
 struct JettyDestroyBatchInfo {
     struct RsCtxJettyCb **jettyCbArr;
     urma_jetty_t **jettyArr;
-    urma_jfr_t **jfrArr;
 };
 
 int RsUbGetDevEidInfoNum(unsigned int phyId, unsigned int *num);

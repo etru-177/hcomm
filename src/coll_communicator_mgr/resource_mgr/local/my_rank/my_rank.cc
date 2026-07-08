@@ -711,21 +711,33 @@ HcclResult MyRank::CreateChannels(CommEngine engine, const std::string &commTag,
     auto start = std::chrono::steady_clock::now();
     std::string socketTag = commTag + "_engine_" + std::to_string(engine);
     CHK_RET(BatchCreateSockets(channelDescs, channelNum, socketTag, hcommDescs));
+    auto endSockets = std::chrono::steady_clock::now();
+    auto durationSockets = std::chrono::duration_cast<std::chrono::microseconds>(endSockets - start).count();
     CHK_RET_UNAVAIL(BatchCreateChannels(engine, channelDescs, channelNum, hcommDescs, hostChannelHandleList));
+    auto endCreate = std::chrono::steady_clock::now();
+    auto durationCreate = std::chrono::duration_cast<std::chrono::microseconds>(endCreate - endSockets).count();
 
     if (!newChannels_.empty()) {
         CHK_RET(BatchConnectChannels(channelDescs, hostChannelHandleList, channelNum));
         auto end = std::chrono::steady_clock::now();
+        auto durationConnect = std::chrono::duration_cast<std::chrono::microseconds>(end - endCreate).count();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-        HCCL_RUN_INFO("[MyRank][CreateChannels] CreateChannels Time Elapsed [%llu]us, channelNum [%u]", duration, channelNum);
+        HCCL_RUN_INFO("[MyRank][CreateChannels] CreateChannels Time Elapsed [%llu]us, channelNum [%u], "
+            "(BatchCreateSockets[%llu]us, BatchCreateChannels[%llu]us, BatchConnectChannels[%llu]us)",
+            duration, channelNum, durationSockets, durationCreate, durationConnect);
     }
 
     // 借用hcommDescs.socket，完成一致性校验必要的数据交换
     DevType devType;
     CHK_RET(hrtGetDeviceType(devType));
     if (devType != DevType::DEV_TYPE_910B) {
+        auto startConsistency = std::chrono::steady_clock::now();
         CHK_RET(exchangeInfoMgr_.BatchExchangeAndCheckConsistency(channelDescs, hcommDescs, channelNum,
             collCommConfigConsistency_, commTag));
+        auto endConsistency = std::chrono::steady_clock::now();
+        auto durationConsistency = std::chrono::duration_cast<std::chrono::microseconds>(endConsistency - startConsistency).count();
+        HCCL_RUN_INFO("[MyRank][CreateChannels] BatchExchangeAndCheckConsistency Time Elapsed [%llu]us, channelNum [%u]",
+            durationConsistency, channelNum);
     }
     // 添加初始化时进行填表
     for (u32 i = 0; i < channelNum; ++i) {
@@ -750,6 +762,7 @@ HcclResult MyRank::CreateChannels(CommEngine engine, const std::string &commTag,
     }
 
     if (engine == COMM_ENGINE_AICPU || engine == COMM_ENGINE_AICPU_TS) {
+        auto startKernelLaunch = std::chrono::steady_clock::now();
         // 新增：添加 kernelLaunchAicpuCommInit 调用
         if (!callbacks_.getAicpuCommState()) {
             HCCL_INFO("MyRank::%s kernelLaunchAicpuCommInit start.", __func__);
@@ -764,6 +777,10 @@ HcclResult MyRank::CreateChannels(CommEngine engine, const std::string &commTag,
         // ns recovery
         nsRecoveryProcessor_->AddNsRecoveryData(engine, channelHandles, hostChannelHandleList, channelNum, commTag);
 
+        auto endKernelLaunch = std::chrono::steady_clock::now();
+        auto durationKernelLaunch = std::chrono::duration_cast<std::chrono::microseconds>(endKernelLaunch - startKernelLaunch).count();
+        HCCL_RUN_INFO("[MyRank][CreateChannels] ChannelKernelLaunchForComm Time Elapsed [%llu]us, channelNum [%u]",
+            durationKernelLaunch, channelNum);
         return HCCL_SUCCESS;
     }
 

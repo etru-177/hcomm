@@ -290,6 +290,52 @@ STATIC int RsUbGetDevAttr(struct RsUbDevCb *devCb, struct DevBaseAttr *devAttr, 
     return 0;
 }
 
+STATIC int RsUbDevShareJfrInit(struct RsUbDevCb *devCb)
+{
+    urma_jfc_cfg_t jfcCfg = {0};
+    urma_jfr_cfg_t jfrCfg = {0};
+    int randNum = 0;
+    int ret;
+
+    jfcCfg.depth = CQ_DEFAULT_MIN_RECV_DEPTH;
+    devCb->shareJfc = RsUrmaCreateJfc(devCb->urmaCtx, &jfcCfg);
+    CHK_PRT_RETURN(devCb->shareJfc == NULL, hccp_err("RsUrmaCreateJfc failed, errno:%d", errno), -ENOMEM);
+
+    jfrCfg.depth = CQ_DEFAULT_MIN_RECV_DEPTH;
+    jfrCfg.flag.bs.tag_matching = URMA_NO_TAG_MATCHING;
+    jfrCfg.trans_mode = URMA_TM_RM;
+    jfrCfg.max_sge = QP_DEFAULT_MIN_CAP_RECV_SGE;
+    jfrCfg.min_rnr_timer = URMA_TYPICAL_MIN_RNR_TIMER;
+    jfrCfg.jfc = devCb->shareJfc;
+    ret = RsDrvGetRandomNum(&randNum);
+    if (ret != 0) {
+        hccp_err("RsDrvGetRandomNum failed, ret:%d", ret);
+        goto delete_jfc;
+    }
+    jfrCfg.token_value.token = (uint32_t)randNum;
+    devCb->shareJfr = RsUrmaCreateJfr(devCb->urmaCtx, &jfrCfg);
+    if (devCb->shareJfr == NULL) {
+        hccp_err("RsUrmaCreateJfr failed, errno:%d", errno);
+        ret = -ENOMEM;
+        goto delete_jfc;
+    }
+
+    return 0;
+
+delete_jfc:
+    RsUrmaDeleteJfc(devCb->shareJfc);
+    devCb->shareJfc = NULL;
+    return ret;
+}
+
+STATIC void RsUbDevShareJfrDeinit(struct RsUbDevCb *devCb)
+{
+    (void)RsUrmaDeleteJfr(devCb->shareJfr);
+    devCb->shareJfr = NULL;
+    (void)RsUrmaDeleteJfc(devCb->shareJfc);
+    devCb->shareJfc = NULL;
+}
+
 STATIC int RsUbDevCbInit(struct CtxInitAttr *attr, struct RsUbDevCb *devCb, struct rs_cb *rscb,
     unsigned int *devIndex, struct DevBaseAttr *devAttr)
 {
@@ -318,10 +364,16 @@ STATIC int RsUbDevCbInit(struct CtxInitAttr *attr, struct RsUbDevCb *devCb, stru
         goto destroy_mutex;
     }
 
+    ret = RsUbDevShareJfrInit(devCb);
+    if (ret != 0) {
+        hccp_err("RsUbDevShareJfrInit failed, ret:%d", ret);
+        goto close_dev;
+    }
+
     ret = RsEpollCtl(devCb->rscb->connCb.epollfd, EPOLL_CTL_ADD, devCb->urmaCtx->async_fd, EPOLLIN | EPOLLRDHUP);
     if (ret != 0) {
         hccp_err("rs_epoll_ctl failed, ret:%d fd:%d", ret, devCb->urmaCtx->async_fd);
-        goto close_dev;
+        goto free_share_jfr;
     }
 
     ret = RsUbGetDevAttr(devCb, devAttr, devIndex);
@@ -334,6 +386,8 @@ STATIC int RsUbDevCbInit(struct CtxInitAttr *attr, struct RsUbDevCb *devCb, stru
 
 epoll_del:
     (void)RsEpollCtl(devCb->rscb->connCb.epollfd, EPOLL_CTL_DEL, devCb->urmaCtx->async_fd, EPOLLIN | EPOLLRDHUP);
+free_share_jfr:
+    RsUbDevShareJfrDeinit(devCb);
 close_dev:
     (void)RsUrmaDeleteContext(devCb->urmaCtx);
 destroy_mutex:
@@ -594,8 +648,6 @@ STATIC void RsUbCtxDrvJettyDelete(struct RsCtxJettyCb *jettyCb)
     if (jettyCb->jettyMode == JETTY_MODE_CCU || jettyCb->jettyMode == JETTY_MODE_CCU_TA_CACHE) {
         (void)RsUbCtxLmemUnreg(jettyCb->devCb, jettyCb->dbSegHandle);
     }
-
-    (void)RsUrmaDeleteJfr(jettyCb->jfr);
 }
 
 STATIC int RsUbFreeRemJettyCb(struct RsUbDevCb *devCb, struct RsCtxRemJettyCb *rjettyCb)
@@ -674,8 +726,6 @@ STATIC int RsUbCallocJettyBatchInfo(struct JettyDestroyBatchInfo *batchInfo, uns
     CHK_PRT_RETURN(batchInfo->jettyCbArr == NULL, hccp_err("calloc jetty_cb_arr failed"), -ENOMEM);
     batchInfo->jettyArr = calloc(num, sizeof(urma_jetty_t *));
     CHK_PRT_RETURN(batchInfo->jettyArr == NULL, hccp_err("calloc jetty_arr failed"), -ENOMEM);
-    batchInfo->jfrArr = calloc(num, sizeof(urma_jfr_t *));
-    CHK_PRT_RETURN(batchInfo->jfrArr == NULL, hccp_err("calloc jfr_arr failed"), -ENOMEM);
 
     return 0;
 }
@@ -690,17 +740,12 @@ STATIC void RsUbFreeJettyBatchInfo(struct JettyDestroyBatchInfo *batchInfo)
         free(batchInfo->jettyArr);
         batchInfo->jettyArr = NULL;
     }
-    if (batchInfo->jfrArr != NULL) {
-        free(batchInfo->jfrArr);
-        batchInfo->jfrArr = NULL;
-    }
 }
 
 STATIC void RsUbFreeJettyCbBatch(struct JettyDestroyBatchInfo *batchInfo, unsigned int *num,
     urma_jetty_t *badJetty, urma_jfr_t *badJfr)
 {
     unsigned int jettyDestroyNum = *num;
-    unsigned int jfrDestroyNum = *num;
     unsigned int i;
 
     for (i = 0; i < *num; ++i) {
@@ -714,11 +759,8 @@ STATIC void RsUbFreeJettyCbBatch(struct JettyDestroyBatchInfo *batchInfo, unsign
         if (batchInfo->jettyArr[i] == badJetty) {
             jettyDestroyNum = i;
         }
-        if (batchInfo->jfrArr[i] == badJfr) {
-            jfrDestroyNum = i;
-        }
     }
-    *num = jettyDestroyNum < jfrDestroyNum ? jettyDestroyNum: jfrDestroyNum;
+    *num = jettyDestroyNum;
 }
 
 STATIC int RsUbDestroyJettyCbBatch(struct JettyDestroyBatchInfo *batchInfo, unsigned int *num)
@@ -726,7 +768,6 @@ STATIC int RsUbDestroyJettyCbBatch(struct JettyDestroyBatchInfo *batchInfo, unsi
     urma_jetty_t *badJetty = NULL;
     urma_jfr_t *badJfr = NULL;
     int jettyDestroyRet = 0;
-    int jfrDestroyRet = 0;
 
     RsUbVaMunmapBatch(batchInfo->jettyCbArr, *num);
     jettyDestroyRet = RsUrmaDeleteJettyBatch(batchInfo->jettyArr, (int)*num, &badJetty);
@@ -734,14 +775,9 @@ STATIC int RsUbDestroyJettyCbBatch(struct JettyDestroyBatchInfo *batchInfo, unsi
         hccp_err("rs_urma_delete_jetty_batch failed, jettyDestroyRet:%d, num:%u", jettyDestroyRet, *num);
     }
 
-    jfrDestroyRet = RsUrmaDeleteJfrBatch(batchInfo->jfrArr, (int)*num, &badJfr);
-    if (jfrDestroyRet != 0) {
-        hccp_err("rs_urma_delete_jfr_batch failed, jfrDestroyRet:%d, num:%u", jfrDestroyRet, *num);
-    }
-
     RsUbFreeJettyIdBatch(batchInfo->jettyCbArr, *num);
     RsUbFreeJettyCbBatch(batchInfo, num, badJetty, badJfr);
-    return jettyDestroyRet + jfrDestroyRet;
+    return jettyDestroyRet;
 }
 
 STATIC void RsUbDestroyJettyCbList(struct RsUbDevCb *devCb, struct RsListHead *jettyList)
@@ -773,7 +809,6 @@ STATIC void RsUbDestroyJettyCbList(struct RsUbDevCb *devCb, struct RsListHead *j
         hccp_info("jetty_id[%u] will be destroyed", jettyCurr->jetty->jetty_id.id);
         batchInfo.jettyCbArr[i] = jettyCurr;
         batchInfo.jettyArr[i] = jettyCurr->jetty;
-        batchInfo.jfrArr[i] = jettyCurr->jfr;
 
         RsListDel(&jettyCurr->list);
         devCb->jettyCnt--;
@@ -1097,6 +1132,10 @@ int RsUbCtxDeinit(struct RsUbDevCb *devCb)
 
     RsUbFreeSegCbList(devCb, &devCb->lsegList, &devCb->rsegList);
     RsUbFreeJettyCbList(devCb, &devCb->jettyList, &devCb->rjettyList);
+
+    /* Destroy shared JFR and JFC after all jettys are freed */
+    RsUbDevShareJfrDeinit(devCb);
+
     RsUbFreeJfcCbList(devCb, &devCb->jfcList);
     RsUbFreeJfceCbList(devCb, &devCb->jfceList);
     RsUbFreeTokenIdCbList(devCb, &devCb->tokenIdList);
@@ -1568,20 +1607,6 @@ STATIC void RsUbCtxFillJfsCfg(struct RsCtxJettyCb *jettyCb, struct RsCtxJfcCb *s
     jfsCfg->user_ctx = (uint64_t)NULL;
 }
 
-STATIC void RsUbCtxFillJfrCfg(struct RsCtxJettyCb *jettyCb, struct RsCtxJfcCb *recvJfcCb,
-    urma_jfr_cfg_t *jfrCfg)
-{
-    jfrCfg->id = 0;  // the system will randomly assign a non-0 value
-    jfrCfg->depth = (uint32_t)jettyCb->rxDepth;
-    jfrCfg->flag.bs.tag_matching = URMA_NO_TAG_MATCHING;
-    jfrCfg->trans_mode = jettyCb->transportMode;
-    jfrCfg->max_sge = (uint8_t)jettyCb->devCb->devAttr.rqMaxSge;
-    jfrCfg->min_rnr_timer = URMA_TYPICAL_MIN_RNR_TIMER;
-    jfrCfg->jfc = (urma_jfc_t *)(uintptr_t)recvJfcCb->jfcAddr;
-    jfrCfg->token_value.token = jettyCb->tokenValue;
-    jfrCfg->user_ctx = (uint64_t)NULL;
-}
-
 int RsUbCtxRegJettyDb(struct RsCtxJettyCb *jettyCb, struct udma_u_jetty_info *jettyInfo)
 {
     struct MemRegAttrT memAttr = { 0 };
@@ -1652,19 +1677,13 @@ STATIC int RsUbCtxDrvJettyCreate(struct RsCtxJettyCb *jettyCb, struct RsCtxJfcCb
 {
     urma_jetty_cfg_t jettyInitCfg = {0};
     urma_jfs_cfg_t jfsCfg = {0};
-    urma_jfr_cfg_t jfrCfg = {0};
-    int ret = 0;
 
     jettyInitCfg.id = jettyCb->jettyId;
     jettyInitCfg.flag = jettyCb->flag;
     RsUbCtxFillJfsCfg(jettyCb, sendJfcCb, &jfsCfg);
     jettyInitCfg.jfs_cfg = jfsCfg;
 
-    RsUbCtxFillJfrCfg(jettyCb, recvJfcCb, &jfrCfg);
-    jettyCb->jfr = RsUrmaCreateJfr(jettyCb->devCb->urmaCtx, &jfrCfg);
-    CHK_PRT_RETURN(jettyCb->jfr == NULL, hccp_err("rs_urma_create_jfr failed, errno=%d", errno), -ENOMEM);
-
-    jettyInitCfg.shared.jfr = jettyCb->jfr;
+    jettyInitCfg.shared.jfr = jettyCb->devCb->shareJfr;
     jettyInitCfg.shared.jfc = (urma_jfc_t *)(uintptr_t)recvJfcCb->jfcAddr;
 
     if (jettyCb->jettyMode == JETTY_MODE_URMA_NORMAL) {
@@ -1678,10 +1697,7 @@ STATIC int RsUbCtxDrvJettyCreate(struct RsCtxJettyCb *jettyCb, struct RsCtxJfcCb
         RsUbCtxExtJettyCreate(jettyCb, &jettyInitCfg);
     }
 
-    // create jetty failed, should delete jfr
     if (jettyCb->jetty == NULL) {
-        ret = RsUrmaDeleteJfr(jettyCb->jfr);
-        CHK_PRT_RETURN(ret != 0, hccp_err("rs_urma_delete_jfr failed, ret:%d", ret), -EOPENSRC);
         return -ENOMEM;
     }
 
@@ -2361,7 +2377,6 @@ STATIC int RsUbGetJettyDestroyBatchInfo(struct RsUbDevCb *devCb, unsigned int je
         RS_PTHREAD_MUTEX_ULOCK(&devCb->mutex);
 
         batchInfo->jettyArr[i] = batchInfo->jettyCbArr[i]->jetty;
-        batchInfo->jfrArr[i] = batchInfo->jettyCbArr[i]->jfr;
     }
 
     return ret;

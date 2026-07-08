@@ -1388,10 +1388,9 @@ void TcRsUbCtxJettyDestroyBatch()
     mocker_invoke(RsUbGetJettyCb, RsUbGetJettyCbStub, 1);
     mocker_invoke(RsUbFreeJettyCbBatch, RsUbFreeJettyCbBatchStub, 1);
     mocker(RsUrmaDeleteJettyBatch, 1, 0);
-    mocker(RsUrmaDeleteJfrBatch, 1, -1);
     mocker(RsUbGetJettyCb, 1, 0);
     ret = RsUbCtxJettyDestroyBatch(&devCb, jettyIds, &num);
-    EXPECT_INT_EQ(-1, ret);
+    EXPECT_INT_EQ(0, ret);
     mocker_clean();
 
     pthread_mutex_destroy(&devCb.mutex);

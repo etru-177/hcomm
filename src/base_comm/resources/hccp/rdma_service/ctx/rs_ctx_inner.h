@@ -55,6 +55,9 @@ struct RsUbDevCb {
     struct RsListHead lsegList;
     struct RsListHead rsegList;
     struct RsListHead list;
+
+    urma_jfc_t *shareJfc;
+    urma_jfr_t *shareJfr;
 };
 
 struct RsCtxAsyncEventCb {
@@ -96,7 +99,6 @@ struct RsCrErrInfo {
 struct RsCtxJettyCb {
     struct RsUbDevCb *devCb;
     urma_jetty_t *jetty;
-    urma_jfr_t *jfr;
     int jettyMode;
     uint32_t jettyId;
     int transportMode;
