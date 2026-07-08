@@ -82,6 +82,12 @@ constexpr uint8_t DEVICE_SIGNAL_THIRD = 3;
 constexpr uint32_t TEMP_DEV_TYPE_DPU = 0; // 临时适配，后续rts接口上库之后使用rts的定义
 static std::atomic<u32> g_commNum(0);     // 一个进程内创建的通信域数量
 
+template<typename T1, typename T2> 
+constexpr T1 AlignUp(T1 addr, T2 alignment)
+{
+    return (T1)(((uintptr_t)addr + (uintptr_t)alignment - 1) & ~((uintptr_t)alignment - 1));
+}
+
 // 支持零拷贝算子的白名单
 std::set<OpType> opWhiteSet = {
     OpType::BROADCAST,
@@ -3406,7 +3412,7 @@ HcclResult CommunicatorImpl::AllocAndRegKFCWorkSpace(uint64_t size)
     } else if (connectType_ == HOST_DEVICE_CONNECT_TYPE_UB) {
         originVa_ = malloc(size + ALIGN_4K);
         CHK_PTR_NULL(originVa_);
-        va_ = reinterpret_cast<void *>(ALIGN_UP(reinterpret_cast<uint64_t>(originVa_), ALIGN_4K));
+        va_ = AlignUp(originVa_, ALIGN_4K);
         ret = HrtHalHostRegister(va_, size, HOST_MEM_MAP_DEV_PCIE_TH, deviceLogicId, &accessVA_);
     } else {
         return HCCL_E_NOT_SUPPORT;

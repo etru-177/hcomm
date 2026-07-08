@@ -193,7 +193,7 @@ HcclResult TaskService::SynchronizeControlInfo(uint8_t *ctrlHdr, uint64_t hdrLen
 
     uint8_t newFlag = 1;
     HCCL_INFO("[TaskService::TaskRun] Send response: Set dpu2npu flag -> 1");
-    reinterpret_cast<std::atomic<uint8_t> *>(dpu2npuMem_)->store(newFlag, std::memory_order_release);
+    static_cast<std::atomic<uint8_t> *>(dpu2npuMem_)->store(newFlag, std::memory_order_release);
     return HCCL_SUCCESS;
 }
 

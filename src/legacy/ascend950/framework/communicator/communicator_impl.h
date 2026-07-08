@@ -53,7 +53,7 @@
 #include "aicpu/launch_device.h"
 
 namespace Hccl {
-#define ALIGN_UP(x, a) (((x) + (a) - 1) & ~((a) - 1))
+
 using HcclUs = std::chrono::steady_clock::time_point;
 class CommunicatorImpl {
 public:

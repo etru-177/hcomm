@@ -3611,6 +3611,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_PcieHalHostRegisterFail_E
 TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UbPath_Expect_Success)
 {
     GlobalMockObject::verify();
+    constexpr u64 ALIGN_4K = 4096U;
     uint64_t size = 1024;
     void *addr = nullptr;
     bool newCreated = false;
@@ -3632,6 +3633,7 @@ TEST_F(CommunicatorImplTest, Ut_GetKFCWorkSpaceVA_When_UbPath_Expect_Success)
     EXPECT_TRUE(newCreated);
     EXPECT_TRUE(fakeComm.tagWorkspaceVAMap_.find(tag) != fakeComm.tagWorkspaceVAMap_.end());
     EXPECT_NE(fakeComm.va_, nullptr);
+    EXPECT_EQ(reinterpret_cast<uintptr_t>(fakeComm.va_) % ALIGN_4K, 0);
     // free the malloc'd memory allocated by GetKFCWorkSpaceVA in UB path
     free(fakeComm.originVa_);
     fakeComm.originVa_ = nullptr;
