@@ -18,6 +18,7 @@ set(src_to_test_list
     ut_HcclCommEngineCtx_API_test.cc
     ut_HcclCommGetHandleWithName_API_test.cc
     ut_HcclCommGetStatus_API_test.cc
+    ut_HcclCommRegCommStateCallback_API_test.cc
     ut_HcclCommInitAll_API_test.cc
     ut_HcclCommInitClusterInfoConfig_API_test.cc
     ut_HcclCommInitClusterInfo_API_test.cc

@@ -242,6 +242,26 @@ static inline void HcclCommConfigInit(HcclCommConfig *config)
 extern HcclResult HcclCommSuspend(HcclComm comm) HCOMM_WEAK_SYMBOL;
 
 /**
+ * @brief Define a callback function type
+ * @param [in] comm A pointer identifying the communication resource based on.
+ * @param [in] state communication status
+ * @param [in] args Parameters required when the callback function is executed
+ * @retval HCCL_SUCCESS success
+ * @retval HCCL_OtherValues fail
+*/
+typedef HcclResult (*HcclCommStateCallback)(HcclComm comm, HcclCommStatePhase state, void *args);
+
+/**
+ * @brief Define a process-grained callback function
+ * @param [in] regName Communication service, such as HCCL or MC2
+ * @param [in] cb Callback function
+ * @param [in] args Pointer to the user data passed to the callback function
+ * @retval HCCL_SUCCESS success
+ * @retval HCCL_OtherValues fail
+*/
+extern HcclResult HcclCommRegCommStateCallback(const char *regName, HcclCommStateCallback cb, void *args);
+
+/**
  * @brief Clear and recover communication.
  * @param comm A pointer identifying the communication resource based on.
 */

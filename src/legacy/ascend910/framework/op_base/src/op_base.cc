@@ -4917,6 +4917,39 @@ HcclResult HcclCommSuspend(HcclComm comm)
     return HCCL_SUCCESS;
 }
 
+static std::unordered_map<std::string, pair<HcclCommStateCallback, void*>> g_resumeCallBack;
+static std::mutex g_callBackMtx; // 保护 g_resumeCallBack
+HcclResult HcclCommRegCommStateCallback(const char *regName, HcclCommStateCallback cb, void *args)
+{
+    CHK_PTR_NULL(regName);
+    CHK_PTR_NULL(cb);
+    CHK_PTR_NULL(args);
+
+    constexpr uint32_t MAX_REG_NAME_LEN = 160;
+    const uint32_t nameLen = strlen(regName);
+    CHK_PRT_RET((nameLen == 0 || nameLen >= MAX_REG_NAME_LEN),
+        HCCL_ERROR("[%s]Invalid regName, valid length is (0, %u)", __func__, MAX_REG_NAME_LEN), HCCL_E_PARA);
+    {
+        std::lock_guard<std::mutex> lock(g_callBackMtx);
+        g_resumeCallBack[regName] = std::make_pair(cb, args);
+    }
+    HCCL_RUN_INFO("[%s]Register commStateCallBack success, regName[%s], args[%p].", __func__, regName, args);
+    return HCCL_SUCCESS;
+}
+
+#if (!defined (HCCD)) && (!defined (CCL_KERNEL_AICPU))
+HcclResult HcclCommResumePostCallback(HcclComm comm) {
+    std::lock_guard<std::mutex> lock(g_callBackMtx);
+    for(const auto& [regName, cbPair] : g_resumeCallBack) {
+        HcclCommStateCallback cb = cbPair.first;
+        void* args = cbPair.second;
+        CHK_RET(cb(comm, HcclCommStatePhase::HCCL_COMM_STATE_PHASE_RESUME_POST, args));
+        HCCL_RUN_INFO("[%s]COMM_STATE_RESUME_POST, regName[%s], args[%p] callback success.", __func__, regName, args);
+    }
+    return HCCL_SUCCESS;
+}
+#endif
+
 HcclResult HcclCommResume(HcclComm comm)
 {
     // 入参校验
@@ -4929,6 +4962,7 @@ HcclResult HcclCommResume(HcclComm comm)
         CHK_RET(HcclCommResumeV2(commV2));
 
         CHK_RET(hcclComm->Resume());
+        CHK_RET(HcclCommResumePostCallback(comm));
 
         return HCCL_SUCCESS;
     }());

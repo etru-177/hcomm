@@ -118,6 +118,8 @@ public:
 
     bool GetOpAiCpuTSFeatureFlag() const;
 
+    bool GetOpAivFeatureFlag() const;
+
     bool GetOpCcuFeatureFlag() const;
 
     bool GetCommAiCpuTSFeatureFlag() const;
@@ -304,6 +306,8 @@ public:
 
     bool IsOpUsingCcuMs() const; // 算子粒度
     bool IsOpUsingCcuSched() const; // 算子粒度
+    bool IsOpUsingAiv() const;  // 算子粒度
+    bool IsOpUsingAivOnly() const;   // 算子粒度
     bool IsCommUsingCcuMs() const; // 通信域粒度
     bool IsCommUsingCcuSched() const; // 通信域粒度
     void RegisterAcceStateCallBack(std::function<HcclResult(const std::string &commId, bool isUsingCcuMs, bool isUsingCcuSched)> inCallback);

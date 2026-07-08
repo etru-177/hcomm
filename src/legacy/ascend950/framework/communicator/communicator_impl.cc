@@ -1757,6 +1757,21 @@ bool CommunicatorImpl::GetCommCcuFeatureFlag() const
     return IsCommUsingCcuMs() || IsCommUsingCcuSched(); // 通信域粒度
 }
 
+bool CommunicatorImpl::IsOpUsingAiv() const
+{
+    return GetOpExecuteConfig().accState == AcceleratorState::AIV;
+}
+
+bool CommunicatorImpl::IsOpUsingAivOnly() const
+{
+    return GetOpExecuteConfig().accState == AcceleratorState::AIV_ONLY;
+}
+
+bool CommunicatorImpl::GetOpAivFeatureFlag() const
+{
+    return IsOpUsingAiv() || IsOpUsingAivOnly();
+}
+
 HcclResult CommunicatorImpl::AllocCommResource(void *mc2Tiling, void **commContext)
 {
     try {
@@ -1988,7 +2003,7 @@ HcclResult CommunicatorImpl::Resume()
             HCCL_WARNING("[NsRecovery][Resume] The current communication is normal, no need to resume.");
             return HcclResult::HCCL_SUCCESS;
         }
-        if (GetOpCcuFeatureFlag() || GetOpAiCpuTSFeatureFlag()) { // CCU和AICPU // 算子粒度加速模式
+        if (GetOpCcuFeatureFlag() || GetOpAiCpuTSFeatureFlag() || GetOpAivFeatureFlag()) { // CCU和AICPU AIV// 算子粒度加速模式
             HCCL_INFO("[NsRecovery][Resume] start to Resume.");
             if (collService != nullptr) {
                 collService->Resume();

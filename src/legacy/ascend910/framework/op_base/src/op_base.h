@@ -112,6 +112,7 @@ extern "C" {
 HcclResult HcclCommInitClusterInfoMemConfig(const char *rankTableString, uint32_t rank,
                                             HcclCommConfig *config, HcclComm *comm);
 
+HcclResult HcclCommResumePostCallback(HcclComm comm);
 #ifdef __cplusplus
 }
 #endif // __cplusplus
