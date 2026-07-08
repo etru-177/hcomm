@@ -51,6 +51,7 @@ TEST_F(OpUnfoldKeyTest, ut_DefaultConstructor_Expect_DefaultValues)
     EXPECT_EQ(key.isInplacePreSync, false);
     EXPECT_EQ(key.workflowMode, HcclWorkflowMode::HCCL_WORKFLOW_MODE_RESERVED);
     EXPECT_EQ(key.isCapture, false);
+    EXPECT_EQ(key.root, 0u);
 }
 
 // 测试拷贝构造函数
@@ -59,7 +60,7 @@ TEST_F(OpUnfoldKeyTest, ut_CopyConstructor_Expect_CopiedValues)
     OpUnfoldKey key1;
     key1.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
 
     OpUnfoldKey key2(key1);
     EXPECT_EQ(key2.opType, HcclCMDType::HCCL_CMD_ALLREDUCE);
@@ -70,6 +71,7 @@ TEST_F(OpUnfoldKeyTest, ut_CopyConstructor_Expect_CopiedValues)
     EXPECT_EQ(key2.isInplacePreSync, false);
     EXPECT_EQ(key2.workflowMode, HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE);
     EXPECT_EQ(key2.isCapture, true);
+    EXPECT_EQ(key2.root, 0u);
 }
 
 // 测试 Init 函数
@@ -78,7 +80,7 @@ TEST_F(OpUnfoldKeyTest, ut_Init_WithValidParams_Expect_Success)
     OpUnfoldKey key;
     HcclResult ret = key.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
                               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-                              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+                              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
     EXPECT_EQ(ret, HCCL_SUCCESS);
     EXPECT_EQ(key.opType, HcclCMDType::HCCL_CMD_ALLREDUCE);
     EXPECT_EQ(key.dataType, HcclDataType::HCCL_DATA_TYPE_FP32);
@@ -88,6 +90,7 @@ TEST_F(OpUnfoldKeyTest, ut_Init_WithValidParams_Expect_Success)
     EXPECT_EQ(key.isInplacePreSync, false);
     EXPECT_EQ(key.workflowMode, HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE);
     EXPECT_EQ(key.isCapture, true);
+    EXPECT_EQ(key.root, 0u);
 }
 
 // 测试 GetKeyString 函数
@@ -96,9 +99,9 @@ TEST_F(OpUnfoldKeyTest, ut_GetKeyString_Expect_ValidStringFormat)
     OpUnfoldKey key;
     key.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
              HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-             HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+             HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
     std::string keyStr = key.GetKeyString();
-    // 验证字符串格式："opType{N}-dataType{N}-...-isCapture{N}"
+    // 验证字符串格式："opType{N}-dataType{N}-...-isCapture{N}-root{N}"
     // 先验证所有字段名存在
     EXPECT_NE(keyStr.find("opType"), std::string::npos);
     EXPECT_NE(keyStr.find("-dataType"), std::string::npos);
@@ -108,9 +111,10 @@ TEST_F(OpUnfoldKeyTest, ut_GetKeyString_Expect_ValidStringFormat)
     EXPECT_NE(keyStr.find("-isInplacePreSync"), std::string::npos);
     EXPECT_NE(keyStr.find("-workflowMode"), std::string::npos);
     EXPECT_NE(keyStr.find("-isCapture"), std::string::npos);
-    // 验证以 opType 开头，以 isCapture 结尾
+    EXPECT_NE(keyStr.find("-root"), std::string::npos);
+    // 验证以 opType 开头，以 -root 结尾
     EXPECT_EQ(keyStr.substr(0, 6), "opType");
-    EXPECT_NE(keyStr.rfind("-isCapture"), std::string::npos);
+    EXPECT_NE(keyStr.rfind("-root"), std::string::npos);
 }
 
 // 测试 operator== - 相同的 key
@@ -119,12 +123,12 @@ TEST_F(OpUnfoldKeyTest, ut_OperatorEqual_WithSameKey_Expect_True)
     OpUnfoldKey key1;
     key1.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
 
     OpUnfoldKey key2;
     key2.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
 
     EXPECT_TRUE(key1 == key2);
 }
@@ -135,7 +139,7 @@ TEST_F(OpUnfoldKeyTest, OperatorAssign_Expect_CopiedValues)
     OpUnfoldKey key1;
     key1.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
 
     OpUnfoldKey key2;
     key2 = key1;
@@ -148,6 +152,7 @@ TEST_F(OpUnfoldKeyTest, OperatorAssign_Expect_CopiedValues)
     EXPECT_EQ(key2.isInplacePreSync, false);
     EXPECT_EQ(key2.workflowMode, HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE);
     EXPECT_EQ(key2.isCapture, true);
+    EXPECT_EQ(key2.root, 0u);
 }
 
 // 测试 operator== - isCapture 不同时返回 false
@@ -156,12 +161,12 @@ TEST_F(OpUnfoldKeyTest, OperatorEqual_DifferentCapture_Expect_False)
     OpUnfoldKey key1;
     key1.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
 
     OpUnfoldKey key2;
     key2.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 0);
 
     EXPECT_FALSE(key1 == key2);
 }
@@ -172,13 +177,93 @@ TEST_F(OpUnfoldKeyTest, Hash_DifferentCapture_Expect_DifferentHash)
     OpUnfoldKey key1;
     key1.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
 
     OpUnfoldKey key2;
     key2.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
               HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
-              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false);
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 0);
 
     std::hash<OpUnfoldKey> hasher;
     EXPECT_NE(hasher(key1), hasher(key2));
+}
+
+// ========== 新增: root 字段相关用例 ==========
+
+// 测试 Init 函数 - root 参数
+TEST_F(OpUnfoldKeyTest, ut_Init_WithRoot_Expect_Success)
+{
+    OpUnfoldKey key;
+    HcclResult ret = key.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+                              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+                              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 3);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(key.opType, HcclCMDType::HCCL_CMD_SCATTER);
+    EXPECT_EQ(key.root, 3u);
+}
+
+// 测试 operator== - root 不同时返回 false
+TEST_F(OpUnfoldKeyTest, OperatorEqual_DifferentRoot_Expect_False)
+{
+    OpUnfoldKey key1;
+    key1.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 0);
+
+    OpUnfoldKey key2;
+    key2.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 1);
+
+    EXPECT_FALSE(key1 == key2);
+}
+
+// 测试 hash - root 不同时 hash 值不同
+TEST_F(OpUnfoldKeyTest, Hash_DifferentRoot_Expect_DifferentHash)
+{
+    OpUnfoldKey key1;
+    key1.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 0);
+
+    OpUnfoldKey key2;
+    key2.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 1);
+
+    std::hash<OpUnfoldKey> hasher;
+    EXPECT_NE(hasher(key1), hasher(key2));
+}
+
+// 测试 root 在 GetKeyString 中的体现
+TEST_F(OpUnfoldKeyTest, GetKeyString_DifferentRoot_Expect_DifferentString)
+{
+    OpUnfoldKey key1;
+    key1.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 0);
+
+    OpUnfoldKey key2;
+    key2.Init(HcclCMDType::HCCL_CMD_SCATTER, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, false, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, false, /*root*/ 1);
+
+    EXPECT_NE(key1.GetKeyString(), key2.GetKeyString());
+}
+
+// 测试兼容性: 不传 root (用默认值 0) 与显式传 root=0 的 key 相等
+TEST_F(OpUnfoldKeyTest, BackwardCompatible_DefaultRootVsExplicitZero_Expect_Equal)
+{
+    OpUnfoldKey key1;
+    key1.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true);  // 不传 root
+
+    OpUnfoldKey key2;
+    key2.Init(HcclCMDType::HCCL_CMD_ALLREDUCE, HcclDataType::HCCL_DATA_TYPE_FP32,
+              HcclReduceOp::HCCL_REDUCE_SUM, true, 1024, false,
+              HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE, true, /*root*/ 0);
+
+    EXPECT_TRUE(key1 == key2);
+    EXPECT_EQ(key1.GetKeyString(), key2.GetKeyString());
 }

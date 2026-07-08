@@ -711,9 +711,18 @@ namespace hccl {
             }
         }
 
+        // 准备root: 仅 scatter / broadcast / reduce 三类算子的SQE模板会随root变化, 必须纳入key
+        // 注意: 其他算子 (allgather/allreduce/alltoall/...) 在不同root下SQE模板相同, 固定为0即可
+        uint32_t root = 0;
+        if (param.opType == HcclCMDType::HCCL_CMD_SCATTER ||
+            param.opType == HcclCMDType::HCCL_CMD_BROADCAST ||
+            param.opType == HcclCMDType::HCCL_CMD_REDUCE) {
+            root = param.root;
+        }
+
         // 设置key for op-unfold cache
         CHK_RET(key.Init(param.opType, sendType, param.reduceType, param.isZeroCopy, inputSize,
-            algContext.opRetryHandler.isInplacePreSync, workflowMode, param.isCapture));
+            algContext.opRetryHandler.isInplacePreSync, workflowMode, param.isCapture, root));
 
         return HCCL_SUCCESS;
     }

@@ -28,7 +28,8 @@ struct OpUnfoldKey{
     explicit OpUnfoldKey(const OpUnfoldKey& other); // 拷贝构造函数 (make_pair需要)
 
     HcclResult Init(const HcclCMDType curOpType, const HcclDataType curDataType, const HcclReduceOp curReduceType, const bool curIsZeroCopy,
-        const uint64_t curInputSize, const bool curIsInplacePreSync, const HcclWorkflowMode curWorkflowMode, const bool curIsCapture);
+        const uint64_t curInputSize, const bool curIsInplacePreSync, const HcclWorkflowMode curWorkflowMode, const bool curIsCapture,
+        const uint32_t curRoot = 0);
 
     // 用于debug
     std::string GetKeyString() const;
@@ -54,6 +55,12 @@ struct OpUnfoldKey{
 
     // 是否为aclgraph (aclgraph资源在graph销毁时释放)
     bool isCapture;
+
+    // 算子的root参数 (仅对 scatter / broadcast / reduce 三类算子生效)
+    // 注意: 这三类算子在不同root下, SQE模板内的远端rank id / link句柄 / notify id不同, 必须把root纳入key
+    //      其他算子root字段无意义, 固定为0即可
+    // 历史兼容性: 默认值0与"root=0"语义重合, 不影响非root算子的cache命中行为
+    uint32_t root;
 };
 
 }; // namespace hccl
@@ -82,7 +89,10 @@ struct hash<hccl::OpUnfoldKey> {
         const size_t workflowModeHashValue = hashUint8(static_cast<uint8_t>(key.workflowMode));
 
         const size_t isCaptureHashValue = hashBool(key.isCapture);
-        
+
+        // 加入root字段的哈希: 避免不同root (scatter/broadcast/reduce) 在同一桶内冲突
+        const size_t rootHashValue = std::hash<uint32_t>{}(key.root);
+
         // 简单的哈希混合
         size_t hashValue = opTypeHashValue;
         hashValue ^= dataTypeHashValue;
@@ -92,6 +102,7 @@ struct hash<hccl::OpUnfoldKey> {
         hashValue ^= isInplacePreSyncHashValue;
         hashValue ^= workflowModeHashValue;
         hashValue ^= isCaptureHashValue;
+        hashValue ^= rootHashValue;
 
         return hashValue;
     }
