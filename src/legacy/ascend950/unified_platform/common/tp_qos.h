@@ -19,7 +19,7 @@ namespace Hccl {
 constexpr uint8_t kUboeDefaultDscp = 33U;
 
 /// 按 hcclQos 与可用 SL 档位数 numGroups 计算 SL 分组下标。
-uint32_t TpQosResolveQosSlGroupIdx(uint32_t qos, uint32_t numGroups);
+uint32_t TpQosResolveQosSlGroupIdx(const uint32_t qos, const uint32_t numGroups);
 
 /// 从 HCCN_CFG_QOS_DSCP 配置中按 qos 解析 DSCP 值。
 /// 配置项 key 为 qos_dscp_{phyId}，value 格式为 "qos:dscp,qos:dscp,..."，最多 8 对，例如 "0:33,1:65"。
