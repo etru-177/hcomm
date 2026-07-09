@@ -10,6 +10,8 @@
 
 #include "hcomm_res_mgr.h"
 
+#include <mutex>
+
 #include "hccl_common.h"
 
 // orion 通用平台层单例
@@ -40,6 +42,9 @@
 #include "adapter_rts_common.h"
 
 namespace hcomm {
+
+static std::mutex g_deviceResetRegMutex;
+static bool g_deviceResetCallbackRegistered = false;
 
 HcommResMgr& HcommResMgr::GetInstance(const uint32_t devicePhyId)
 {
@@ -126,13 +131,18 @@ static void OnDeviceResetPre(int32_t deviceId, aclrtDeviceState state, void *arg
     }
 }
 
-__attribute__((constructor)) void RegisterDeviceResetCallback()
+void HcommResMgr::RegisterDeviceResetCallback()
 {
+    std::lock_guard<std::mutex> lock(g_deviceResetRegMutex);
+    if (g_deviceResetCallbackRegistered) {
+        return;
+    }
     aclError ret = aclrtRegDeviceStateCallback("hcomm_res_mgr", OnDeviceResetPre, nullptr);
     if (ret != ACL_SUCCESS) {
         HCCL_WARNING("[RegisterDeviceResetCallback] aclrtRegDeviceStateCallback failed, ret[%d]", ret);
         return;
     }
+    g_deviceResetCallbackRegistered = true;
     HCCL_INFO("[RegisterDeviceResetCallback] aclrtRegDeviceStateCallback success");
 }
 

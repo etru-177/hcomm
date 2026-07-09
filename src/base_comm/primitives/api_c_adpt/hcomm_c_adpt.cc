@@ -334,6 +334,7 @@ HcommResult HcommEndpointCreate(const EndpointDesc *endpoint, EndpointHandle *en
 
     HCCL_INFO("[%s] endpointDesc.protocol [%d] and endpointDesc.loc.locType [%d] create endpointHandle [%p] done.", 
             __func__, endpoint->protocol, endpoint->loc.locType, handle);
+    HcommResMgr::RegisterDeviceResetCallback();
     EXCEPTION_HANDLE_END
     return HCCL_SUCCESS;
 }

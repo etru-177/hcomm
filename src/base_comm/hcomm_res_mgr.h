@@ -18,6 +18,7 @@ namespace hcomm {
 class HcommResMgr {
 public:
     static HcommResMgr &GetInstance(const uint32_t devicePhyId);
+    static void RegisterDeviceResetCallback();
 
 private:
     HcommResMgr();
