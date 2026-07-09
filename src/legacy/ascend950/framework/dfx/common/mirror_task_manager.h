@@ -52,10 +52,10 @@ private:
     GlobalMirrorTasks             *globalMirrorTasks_{nullptr};
     bool                           devUsed_{false};
     bool                           isStaticGraphMode_{false};
-    OpMode                         opMode_;
-    std::unordered_map<u32, MirrorStreamQueueEntry> streamQueues_;
-    std::shared_ptr<DfxOpInfo>     currDfxOpInfo_;
-    std::function<void()>          fullyCallBack_;
+    OpMode                         opMode_{OpMode::OPBASE};
+    std::unordered_map<u32, MirrorStreamQueueEntry> streamQueues_{};
+    std::shared_ptr<DfxOpInfo>     currDfxOpInfo_{nullptr};
+    std::function<void()>          fullyCallBack_{};
     std::mutex                      profMutex;
 private:
     bool      IsStaticGraphMode(const CollOperator &collOperator) const;

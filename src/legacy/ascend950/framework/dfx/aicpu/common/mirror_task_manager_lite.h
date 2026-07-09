@@ -50,10 +50,10 @@ public:
     ~MirrorTaskManagerLite();
 
 private:
-    std::unordered_map<u32, StreamQueueEntry> streamQueues_;
-    std::shared_ptr<DfxOpInfo>     currDfxOpInfo_;
-    std::function<void()>          fullyCallBack_;
-    std::function<u32(u64)> getRemoteRankCallback_;
+    std::unordered_map<u32, StreamQueueEntry> streamQueues_{};
+    std::shared_ptr<DfxOpInfo>     currDfxOpInfo_{nullptr};
+    std::function<void()>          fullyCallBack_{};
+    std::function<u32(u64)> getRemoteRankCallback_{};
 };
 
 } // namespace Hccl

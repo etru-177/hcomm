@@ -61,7 +61,6 @@ HcclResult HcclCommDfx::IsOpBase(bool &isOpBase) {
     return HCCL_SUCCESS;
 }
 
-
 // 回调注册实现
 void HcclCommDfx::AddTaskInfoCallbackLog(const Hccl::TaskParam &taskParam, const std::unordered_map<u64, u32> &handleMap) const
 {

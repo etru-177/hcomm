@@ -23,6 +23,7 @@ namespace Hccl {
 #define UNUSED(x) (void)(x)
 
 constexpr uint16_t  CCU_TYPE   = 2;
+constexpr uint32_t  DPU_DEV_ID_MASK = (1U << 12);
 
 ProfilingHandler ProfilingHandler::instance_;
 
@@ -139,7 +140,6 @@ void ProfilingHandler::ReportHcclTaskApi(TaskParamType taskType, uint64_t beginT
     }
 }
 
-
 void ProfilingHandler::SetCachedCclTag()
 {
     for (const auto &item : CMD_OP_TYPE_INFO_MAP) {
@@ -151,8 +151,6 @@ void ProfilingHandler::SetCachedCclTag()
         }
     }
 }
-
-
 
 uint32_t ProfilingHandler::GetTaskTypeValue(TaskParamType taskType) const
 {
@@ -411,7 +409,7 @@ void ProfilingHandler::FillDpuProfInfo(const TaskInfo &taskInfo, MsprofAdditiona
     dpuProfInfo->transportType     = static_cast<uint32_t>(SimpleTaskType::ROCE);
     dpuProfInfo->aicpu_task_id     = taskInfo.taskParam_.aicpuTaskId;
     dpuProfInfo->npuDevId          = taskInfo.taskParam_.npuDevId;
-    dpuProfInfo->dpuDevId          = (1U << 12);
+    dpuProfInfo->dpuDevId          = DPU_DEV_ID_MASK;
     const auto &taskPara = taskInfo.taskParam_.taskPara;
     dpuProfInfo->linkType          = static_cast<uint16_t>(taskPara.DMA.linkType);
     if (dpuProfInfo->remoteRank == INVALID_VALUE_RANKID) {
@@ -497,7 +495,7 @@ void ProfilingHandler::GetHCCLReportData(const TaskInfo &taskInfo, HCCLReportDat
             hcclReportData.dpuProfInfo.transportType = static_cast<uint32_t>(SimpleTaskType::ROCE);
             hcclReportData.dpuProfInfo.aicpu_task_id = taskInfo.taskParam_.aicpuTaskId;
             hcclReportData.dpuProfInfo.npuDevId = taskInfo.taskParam_.npuDevId;
-            hcclReportData.dpuProfInfo.dpuDevId = (1U << 12);
+            hcclReportData.dpuProfInfo.dpuDevId = DPU_DEV_ID_MASK;
             hcclReportData.dpuProfInfo.linkType = static_cast<uint16_t>(taskPara.DMA.linkType);
             if (hcclReportData.dpuProfInfo.remoteRank == INVALID_VALUE_RANKID) {
                 hcclReportData.dpuProfInfo.transportType = static_cast<uint32_t>(SimpleTaskType::LOCAL);
@@ -969,7 +967,7 @@ int32_t ProfilingHandler::CommandHandle(uint32_t rtType, void *data, uint32_t le
         HCCL_ERROR("[ProfilingHandler][CommandHandle] data is nullptr or rtType is invalid, rtType[%u]", rtType);
         return HCCL_E_PARA;
     }
-    rtProfCommandHandle_t *profConfigParam = reinterpret_cast<rtProfCommandHandle_t *>(data);
+    rtProfCommandHandle_t *profConfigParam = static_cast<rtProfCommandHandle_t *>(data);
     auto type = profConfigParam->type;
     auto profconfig = profConfigParam->profSwitch;
     HCCL_RUN_INFO("[Profiling][CommandHandle] CommandHandle's rtType is %u. CommandHandle_switch type[%u], " \
@@ -1273,7 +1271,7 @@ uint64_t ProfilingHandler::GetProfHashId(const char *name, uint32_t len) const
     return DlProfFunction::GetInstance().dlMsprofStr2Id(name, len);
 }
 
-void ProfilingHandler::ReportHcclMC2CommInfoLog(const Stream &kfcStream, Stream &stream,
+void ProfilingHandler::ReportHcclMC2CommInfoLog(const Stream &kfcStream, const Stream &stream,
                                              const std::vector<Stream *> &aicpuStreams, const std::string &id,
                                              RankId myRank, u32 rankSize, RankId rankInParentComm) const
 {
@@ -1291,7 +1289,7 @@ void ProfilingHandler::ReportHcclMC2CommInfoLog(const Stream &kfcStream, Stream 
     }
 }
 
-void ProfilingHandler::ReportHcclMC2CommInfo(const Stream &kfcStream, Stream &stream, 
+void ProfilingHandler::ReportHcclMC2CommInfo(const Stream &kfcStream, const Stream &stream, 
                                              const std::vector<Stream *> &aicpuStreams, const std::string &id, 
                                              RankId myRank, u32 rankSize, RankId rankInParentComm)
 {

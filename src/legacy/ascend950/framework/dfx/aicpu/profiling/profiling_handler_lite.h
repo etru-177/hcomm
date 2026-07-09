@@ -79,7 +79,7 @@ private:
     bool FillBatchReporterData(uint32_t batchId, const MsprofAicpuHcclTaskInfo *taskInfos,
                                MsprofAdditionalInfo &addInfo) const;
     void ReportHcclTaskDetailsLog(const std::vector<TaskInfo *> &taskInfo) const;
-    bool ReportBatchAddInfo(uint32_t batchId, MsprofAicpuHcclTaskInfo *taskInfos,
+    bool ReportBatchAddInfo(uint32_t batchId, const MsprofAicpuHcclTaskInfo *taskInfos,
                             MsprofAdditionalInfo *addInfoVec, uint32_t &addInfoIndx,
                             uint32_t maxBatchNum, bool isLastBatch) const;
 

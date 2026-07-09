@@ -10,6 +10,7 @@
  #include "profiling_reporter_lite.h"
  
 namespace Hccl {
+constexpr size_t TASK_INFO_BATCH_RESERVE_SIZE = 8192;
 ProfilingReporterLite::ProfilingReporterLite(MirrorTaskManagerLite *mirrorTaskMgrLite,
                                              ProfilingHandlerLite *profilingHandlerLite, [[maybe_unused]] bool isIndop)
     : mirrorTaskMgrLite_(mirrorTaskMgrLite), profilingHandlerLite_(profilingHandlerLite)
@@ -45,7 +46,7 @@ HcclResult ProfilingReporterLite::Init()
 *  taskInfo.push_back((*(*((*currQueue).Begin())));
 */
 // 所有的迭代器都是make_shared 永不为空  底层修改之后 需求再看下
-void ProfilingReporterLite::ReportAllTasksLog()
+void ProfilingReporterLite::ReportAllTasksLog() const
 {
     if (LIKELY(HcclCheckLogLevel(HCCL_LOG_INFO) == 0)) {
         return;
@@ -61,7 +62,7 @@ void ProfilingReporterLite::ReportAllTasksLog()
             if (*(*logIter) == nullptr) {
                 continue;
             }
-            if (!logAll && *logIter == *lastPoses_[streamId]) { //  找到旧 Tail 位置后设为 logAll=true，continue 跳过该位置，后续全打印
+            if (!logAll && *logIter == *lastPoses_.at(streamId)) { //  找到旧 Tail 位置后设为 logAll=true，continue 跳过该位置，后续全打印
                 logAll = true;
                 continue;
             }
@@ -84,7 +85,7 @@ void ProfilingReporterLite::ReportAllTasks()
     }
 
     std::vector<TaskInfo *> taskInfo;
-    taskInfo.reserve(8192);
+    taskInfo.reserve(TASK_INFO_BATCH_RESERVE_SIZE);
     for (auto it = mirrorTaskMgrLite_->Begin(); it != mirrorTaskMgrLite_->End(); ++it) {
         u32                               streamId  = it->first;
         Queue<std::unique_ptr<TaskInfo>> *currQueue = it->second.queue.get();

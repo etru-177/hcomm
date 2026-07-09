@@ -17,6 +17,7 @@
 #include "rt_external.h"
 #include "profiling_common.h"
 #include "stream_manager.h"
+#include "task_param.h"
 
 namespace Hccl {
 MAKE_ENUM(kernelType, AICPU_KERNEL = 0, CCU_KERNEL);
@@ -63,8 +64,8 @@ struct MsprofCcuGroupInfo {
     uint8_t outputDataType;  // 与HcclDataType类型保持一致
     uint64_t dataSize;  // 输入数据大小
 
-    uint16_t channelId[16];  // LoopGroup所包含的搬运指令使用的ChannelId
-    uint32_t remoteRankId[16];  // LoopGroup所包含的搬运指令的对端
+    uint16_t channelId[CCU_MAX_CHANNEL_NUM];  // LoopGroup所包含的搬运指令使用的ChannelId
+    uint32_t remoteRankId[CCU_MAX_CHANNEL_NUM];  // LoopGroup所包含的搬运指令的对端
 };
 
 struct MsprofCcuWaitSignalInfo {
@@ -83,8 +84,8 @@ struct MsprofCcuWaitSignalInfo {
 
     uint32_t ckeId;
     uint32_t mask;
-    uint16_t channelId[16];  // LoopGroup所包含的搬运指令使用的ChannelId
-    uint32_t remoteRankId[16];  // LoopGroup所包含的搬运指令的对端
+    uint16_t channelId[CCU_MAX_CHANNEL_NUM];  // LoopGroup所包含的搬运指令使用的ChannelId
+    uint32_t remoteRankId[CCU_MAX_CHANNEL_NUM];  // LoopGroup所包含的搬运指令的对端
 };
 
 struct HCCLReportData {
@@ -142,7 +143,7 @@ public:
                                  bool ignoreLevel = false); 
 
     void ReportHcclTaskDetails(const TaskInfo &taskInfo, bool cachedReq);
-    void ReportHcclTaskDetailsBatch(const std::vector<TaskInfo*> &taskInfo, bool cachedReq);
+    void ReportHcclTaskDetailsBatch(const std::vector<TaskInfo*> &taskInfos, bool cachedReq);
 
     bool GetHostApiState() const;
     bool GetHcclNodeState() const;
@@ -152,7 +153,7 @@ public:
     inline bool GetIsOpbase() const { return isOpbase_; }
     int32_t CommandHandle(uint32_t rtType, void *data, uint32_t len) const;
     HcclResult Init();
-    void ReportHcclMC2CommInfo(const Stream &kfcStream, Stream &stream, const std::vector<Stream *> &aicpuStreams,
+    void ReportHcclMC2CommInfo(const Stream &kfcStream, const Stream &stream, const std::vector<Stream *> &aicpuStreams,
                                 const std::string &id, RankId myRank, u32 rankSize, RankId rankInParentComm);
     void ReportHcclMC2CommInfo(const u32 kfcStreamId, const std::vector<u32> &aicpuStreamsId, const std::string &id,
                                  RankId myRank, u32 rankSize, RankId rankInParentComm);
@@ -208,7 +209,7 @@ private:
     void ReportMc2AdditionInfo(uint64_t timeStamp, const void* data, int len);
     void SetCachedCclTag();
     void InitLog() const;
-    void ReportHcclMC2CommInfoLog(const Stream &kfcStream, Stream &stream,
+    void ReportHcclMC2CommInfoLog(const Stream &kfcStream, const Stream &stream,
                                    const std::vector<Stream *> &aicpuStreams, const std::string &id,
                                    RankId myRank, u32 rankSize, RankId rankInParentComm) const;
     void ReportHcclMC2CommInfoLog(const u32 kfcStreamId, const std::vector<u32> &aicpuStreamsId,

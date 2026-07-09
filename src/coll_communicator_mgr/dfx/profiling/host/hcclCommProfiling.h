@@ -52,7 +52,7 @@ public:
     
 private:
     Hccl::MirrorTaskManager* mirrorTaskManager_;
-    std::unique_ptr<Hccl::ProfilingReporter> profilingReporter_;
+    std::unique_ptr<Hccl::ProfilingReporter> profilingReporter_{nullptr};
     bool initializedFlag_{false};
 };
 }// namespace hccl

@@ -48,10 +48,10 @@ public:
     static void AddChannelRemoteRankId(const std::string& commTag, u64 handle, u32 remoteRankId);
     static HcclResult GetChannelRemoteRankId(const std::string& commTag, u64 handle, u32& remoteRankId);
     static u32 GetTaskId(u32 streamId);
-    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> GetCallback() {
+    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> GetCallback() const {
         return setAddTaskCallback_;
     }
-    std::function<HcclResult(const Hccl::TaskParam&, u64)> GetDpuCallback() {
+    std::function<HcclResult(const Hccl::TaskParam&, u64)> GetDpuCallback() const {
         return setAddDpuTaskCallback_;
     }
     HcclResult ReportKernel(uint64_t beginTime, const std::string& commTag, const std::string& kernelName, uint32_t threadId, bool cachedReq);
@@ -63,21 +63,21 @@ public:
         aicpuStreamId_ = streamId;
     }
 private:
-    std::unique_ptr<Hccl::MirrorTaskManager> mirrorTaskManager_;
-    std::unique_ptr<HcclCommProfiling> profiling_;
+    std::unique_ptr<Hccl::MirrorTaskManager> mirrorTaskManager_{nullptr};
+    std::unique_ptr<HcclCommProfiling> profiling_{nullptr};
     static std::unordered_map<std::string,std::unordered_map<u64, u32> > channelRemoteRankId_;
     static std::unordered_map<u32, u32> streamIdToTaskId_;
     static ReadWriteLockBase baseLock_;
     static ReadWriteLock rwLock_;
     static std::mutex taskIdMutex_;
-    std::string commTag_;
+    std::string commTag_{};
     u32 deviceId_{0};
     u32 myRankId_{0};
     u32 dpuStreamId_{0};
     u32 aicpuTaskId_{INVALID_UINT};
     u32 aicpuStreamId_{INVALID_UINT};
-    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> setAddTaskCallback_;
-    std::function<HcclResult(const Hccl::TaskParam&, u64)> setAddDpuTaskCallback_;
+    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> setAddTaskCallback_{};
+    std::function<HcclResult(const Hccl::TaskParam&, u64)> setAddDpuTaskCallback_{};
     bool initializedFlag_{false};
     void AddTaskInfoCallbackLog(const Hccl::TaskParam &taskParam, const std::unordered_map<u64, u32> &handleMap) const;
 };

@@ -23,7 +23,7 @@ public:
     void UpdateProfStat() const;
 
 private:
-    void ReportAllTasksLog();
+    void ReportAllTasksLog() const;
     void UpdateAllLastPos();
     MirrorTaskManagerLite                                                         *mirrorTaskMgrLite_{nullptr};
     ProfilingHandlerLite                                                      *profilingHandlerLite_{nullptr};

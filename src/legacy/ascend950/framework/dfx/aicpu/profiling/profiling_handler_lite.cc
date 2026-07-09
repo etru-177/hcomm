@@ -165,7 +165,7 @@ bool ProfilingHandlerLite::FillBatchReporterData(uint32_t batchId, const MsprofA
     return true;
 }
 
-bool ProfilingHandlerLite::ReportBatchAddInfo(uint32_t batchId, MsprofAicpuHcclTaskInfo *taskInfos,
+bool ProfilingHandlerLite::ReportBatchAddInfo(uint32_t batchId, const MsprofAicpuHcclTaskInfo *taskInfos,
     MsprofAdditionalInfo *addInfoVec, uint32_t &addInfoIndx, uint32_t maxBatchNum, bool isLastBatch) const
 {
     if (!FillBatchReporterData(batchId, taskInfos, addInfoVec[addInfoIndx])) { return false; }

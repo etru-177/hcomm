@@ -13,6 +13,7 @@
 #include "comm_engine_utils.h"
 
 namespace Hccl {
+constexpr size_t TASK_INFO_BATCH_RESERVE_SIZE = 8192;
 std::array<ProfilingReporter::lastPosesMap, MAX_MODULE_DEVICE_NUM> ProfilingReporter::allLastPoses_{};
 ProfilingReporter::ProfilingReporter(MirrorTaskManager *mirrorTaskMgr, ProfilingHandler* profilingHandler) 
     : mirrorTaskMgr_(mirrorTaskMgr), profilingHandler_(profilingHandler)
@@ -41,8 +42,6 @@ HcclResult ProfilingReporter::Init()
     initializedFlag_ = true;
     return HCCL_SUCCESS;
 }
-
-
 
 void ProfilingReporter::SetCurrDfxOpInfo(std::shared_ptr<DfxOpInfo> dfxOpInfo)
 {
@@ -145,7 +144,7 @@ void ProfilingReporter::ReportAllTasks(bool cachedReq)
     ReportAllTasksLog();
     auto& curLastPoses = allLastPoses_[deviceLogicId_];
     std::vector<TaskInfo*> taskInfoBatch;
-    taskInfoBatch.reserve(8192);
+    taskInfoBatch.reserve(TASK_INFO_BATCH_RESERVE_SIZE);
     for (auto it = mirrorTaskMgr_->Begin(); it != mirrorTaskMgr_->End(); ++it) {
         u32  streamId     = it->first;
         Queue<std::unique_ptr<TaskInfo>> *currQueue = it->second.queue;
@@ -202,7 +201,8 @@ void ProfilingReporter::UpdateProfStat(void)
     }
 }
 
-void ProfilingReporter::CallReportMc2CommInfo(const Stream &kfcStream, Stream &stream, const std::vector<Stream *> &aicpuStreams,
+void ProfilingReporter::CallReportMc2CommInfo(const Stream &kfcStream, const Stream &stream,
+                                   const std::vector<Stream *> &aicpuStreams,
                                    const std::string &id, RankId myRank, u32 rankSize, RankId rankInParentComm) const
 {
     profilingHandler_->ReportHcclMC2CommInfo(kfcStream, stream, aicpuStreams, id, myRank, rankSize, rankInParentComm);

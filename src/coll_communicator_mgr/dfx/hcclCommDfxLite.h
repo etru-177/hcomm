@@ -27,7 +27,7 @@ public:
     explicit HcclCommDfxLite();
 
     // 初始化DFX系统 - 修改为返回HcclResult类型
-    HcclResult Init(u32 deviceId, const std::string& comTag, u32 rankSize);
+    HcclResult Init(u32 deviceId, const std::string& commTag, u32 rankSize);
     // 获取MirrorTaskManager
     Hccl::MirrorTaskManagerLite* GetMirrorTaskManagerLite() const;
 
@@ -36,7 +36,7 @@ public:
     HcclResult ReportHcclOpInfo(const Hccl::DfxOpInfo& hcclOpInfo);
     HcclResult UpdateProfStat();
     HcclResult SetCurrDfxOpInfo(std::shared_ptr<Hccl::DfxOpInfo> dfxOpInfo);
-    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> GetCallback() {
+    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> GetCallback() const {
         return addTaskCallback_;
     }
     // 将remoteRankId添加到channelRemoteRankId_表中
@@ -44,13 +44,13 @@ public:
     // 在channelRemoteRankId_表中对remoteRankId进行查找
     u32 GetChannelRemoteRankId(u64 handle);
 private:
-    std::unique_ptr<Hccl::MirrorTaskManagerLite> mirrorTaskManagerLite_;
-    std::unique_ptr<HcclCommProfilingLite> profilingImpl_;
-    std::unordered_map<u64, u32> channelRemoteRankIdLite_;
-    std::string commTag_;
-    u32 deviceId_;
+    std::unique_ptr<Hccl::MirrorTaskManagerLite> mirrorTaskManagerLite_{nullptr};
+    std::unique_ptr<HcclCommProfilingLite> profilingImpl_{nullptr};
+    std::unordered_map<u64, u32> channelRemoteRankIdLite_{};
+    std::string commTag_{};
+    u32 deviceId_{0};
     u32 rankSize_{0};
-    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> addTaskCallback_;
+    std::function<HcclResult(u32, u32, const Hccl::TaskParam&, u64)> addTaskCallback_{};
     bool initializedFlag_{false};
 };
 

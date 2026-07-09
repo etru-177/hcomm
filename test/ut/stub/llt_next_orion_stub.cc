@@ -1926,7 +1926,7 @@ uint64_t ProfilingHandler::GetProfHashId(const char *name, uint32_t len) const
     return 0;
 }
 
-void ProfilingHandler::ReportHcclMC2CommInfo(const Stream &kfcStream, Stream &stream,
+void ProfilingHandler::ReportHcclMC2CommInfo(const Stream &kfcStream, const Stream &stream,
     const std::vector<Stream *> &aicpuStreams, const std::string &id, RankId myRank, u32 rankSize,
     RankId rankInParentComm)
 {
@@ -2057,7 +2057,7 @@ void ProfilingReporter::UpdateProfStat()
 {
 }
 
-void ProfilingReporter::CallReportMc2CommInfo(const Stream &kfcStream, Stream &stream,
+void ProfilingReporter::CallReportMc2CommInfo(const Stream &kfcStream, const Stream &stream,
     const std::vector<Stream *> &aicpuStreams, const std::string &id, RankId myRank, u32 rankSize,
     RankId rankInParentComm) const
 {

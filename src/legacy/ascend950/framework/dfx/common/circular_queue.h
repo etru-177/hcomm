@@ -55,7 +55,12 @@ public:
     public:
         Iterator(typename std::vector<T>::iterator it, CircularQueue *queue) : Queue<T>::Iterator(it), queue_(queue)
         {
-            check();
+            if (queue_ == nullptr) {
+                THROW<InternalException>(StringFormat("CircularQueue::Iterator queue_ is nullptr"));
+            }
+            if ((this->it_) == (queue_->elems_.begin() + queue_->tail_)) {
+                this->it_ = queue_->elems_.end();
+            }
         }
 
         ~Iterator() override = default;
