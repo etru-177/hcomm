@@ -42,7 +42,7 @@ using namespace HcclApi;
 namespace {
 struct hcclCommAicpuInfo {
     ReadWriteLockBase commAicpuMapMutex;  // 读写锁单例，维护全局的读写信息
-    std::unordered_map<std::string, std::pair<std::shared_ptr<hccl::HcclCommAicpu>, bool>> commMap;
+    std::unordered_map<std::string, std::pair<std::shared_ptr<hccl::HcclCommAicpu>, std::atomic_bool>> commMap;
 };
 hcclCommAicpuInfo g_commAicpuInfo;
 AicpuComContext g_comContext[CLUSTER_CNT];
@@ -234,7 +234,9 @@ HcclResult AicpuHcclProcess::AcquireAicpuComm(const std::string &group, HcclComm
     }
 
     // 将新实例加入映射表
-    g_commAicpuInfo.commMap[group] = { aicpuComm, false };
+    auto &entry = g_commAicpuInfo.commMap[group];
+    entry.first = aicpuComm;
+    entry.second.store(false);
     *aicpuCommPtr = aicpuComm.get();
     HCCL_INFO("[%s]Created new comm group [%s]", __func__, group.c_str());
     rwlock.writeUnlock();
@@ -286,6 +288,7 @@ hccl::HcclCommAicpu *AicpuHcclProcess::AicpuGetCommbyGroup(const std::string &gr
     ReadWriteLock rwlock(g_commAicpuInfo.commAicpuMapMutex);
 
     while (true) {
+        bool expectedStatus = false;
         rwlock.readLock();
         auto iter = g_commAicpuInfo.commMap.find(group);
         if (iter == g_commAicpuInfo.commMap.end()) {
@@ -299,7 +302,7 @@ hccl::HcclCommAicpu *AicpuHcclProcess::AicpuGetCommbyGroup(const std::string &gr
             rwlock.readUnlock();
             return nullptr;
         }
-        if (iter->second.second) {
+        if (!iter->second.second.compare_exchange_strong(expectedStatus, true)) {
             if ((std::chrono::steady_clock::now() - startTime) >= waitPollTimeOutMs) {
                 HCCL_ERROR("[AicpuGetCommbyGroup]poll timeout, comm group [%s] has been used, last executed op: %s",
                     group.c_str(), iter->second.first->GetExcuteOp().c_str());
@@ -315,7 +318,6 @@ hccl::HcclCommAicpu *AicpuHcclProcess::AicpuGetCommbyGroup(const std::string &gr
             continue;
         }
         g_hcclComm = iter->second.first.get();
-        iter->second.second = true;
         rwlock.readUnlock();
         return iter->second.first.get();
     }
@@ -326,7 +328,7 @@ bool AicpuHcclProcess::GetCommExecStatus(const std::string &group)
 {
     auto iter = g_commAicpuInfo.commMap.find(group);
     if (iter != g_commAicpuInfo.commMap.end()) {
-        return iter->second.second;
+        return iter->second.second.load();
     }
     return false;
 }
@@ -341,7 +343,7 @@ void AicpuHcclProcess::AicpuReleaseCommbyGroup(const std::string &group)
         return;
     }
     g_hcclComm = nullptr;
-    iter->second.second = false;
+    iter->second.second.store(false);
     rwlock.readUnlock();
 }
 
@@ -416,7 +418,7 @@ void AicpuHcclProcess::AicpuDestoryCommbyGroup(const std::string &group)
         HCCL_ERROR("[AicpuHcclProcess][%s]Group[%s] is not exist", __func__, group.c_str());
         return;
     }
-    if (iter->second.second == true) {
+    if (iter->second.second.load()) {
         HCCL_WARNING("[AicpuHcclProcess][%s]comm group [%s] has been used.", __func__, group.c_str());
         return;
     }
