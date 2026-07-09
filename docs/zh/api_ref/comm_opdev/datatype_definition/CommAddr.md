@@ -7,7 +7,7 @@
 ## 定义原型
 
 ```c
-constexpr uint32_t COMM_ADDR_EID_LEN = 16;
+static const uint32_t COMM_ADDR_EID_LEN = 16U;
 typedef struct {
     CommAddrType type;         /* 通信地址类别 */
     union {

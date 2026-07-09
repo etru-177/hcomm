@@ -44,6 +44,7 @@ int类型，正常返回进程在group中的rank id。
 - 必须在集合通信初始化完成之后调用。
 - 调用该接口的rank必须在当前接口入参group定义的范围内，不在此范围内的rank调用该接口会失败。
 - [create_group](create_group.md)完成之后，调用此API转换world rank id到group rank id。
+- 本接口与[get_world_rank_from_group_rank](get_world_rank_from_group_rank.md)互为逆操作，注意参数顺序差异：本接口参数顺序为(world_rank_id, group)，其逆操作参数顺序为(group, group_rank_id)。
 
 ## 调用示例
 
@@ -51,5 +52,5 @@ int类型，正常返回进程在group中的rank id。
 from hccl.manage.api import create_group
 from hccl.manage.api import get_group_rank_from_world_rank
 create_group("myGroup", 4, [0, 1, 2, 3])
-groupRankId = get_group_rank_from_world_rank(8, "myGroup")
+groupRankId = get_group_rank_from_world_rank(1, "myGroup")
 ```

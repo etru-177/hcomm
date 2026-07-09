@@ -32,7 +32,7 @@ HcclResult HcclCommSymWinDeregister(HcclCommSymWindow winHandle)
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | winHandle | 输入 | 注册过的对称窗口句柄。<br>HcclCommSymWindow类型的定义请参见[HcclCommSymWindow](./data_type_definition/HcclCommSymWindow.md)。 |
 

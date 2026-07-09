@@ -22,7 +22,7 @@ HcommResult HcommEndpointCheckFeature(HcommEndpointFeatureType featureType, cons
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | featureType | 输入 | 待查询的特性类型。<br>HcommEndpointFeatureType类型的定义请参见[HcommEndpointFeatureType](../../datatype_definition/HcommEndpointFeatureType.md)。 |
 | endpointDesc | 输入 | 端点描述信息，用于指定待查询的端点属性（协议、地址、位置等），无需实际创建端点即可查询。<br>EndpointDesc类型的定义请参见[EndpointDesc](../../datatype_definition/EndpointDesc.md)。<br>该参数不能为空指针。 |

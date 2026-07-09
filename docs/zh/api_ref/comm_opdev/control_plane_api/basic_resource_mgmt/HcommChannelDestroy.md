@@ -20,7 +20,7 @@ HcommResult HcommChannelDestroy(const ChannelHandle *channels, uint32_t channelN
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | channels | 输入 | 待销毁的通道句柄数组，每个元素标识一个已创建的通信通道。<br>ChannelHandle类型的定义请参见[ChannelHandle](../../datatype_definition/ChannelHandle.md)。<br>该参数不能为空指针，数组中每个通道句柄必须是通过[HcommChannelCreate](HcommChannelCreate.md)创建的有效句柄（未销毁的句柄）。 |
 | channelNum | 输入 | 待销毁的通道数量。<br>单位为“个”，取值范围：[1, 1048576]。<br>该参数必须大于0，且等于channels数组中有效句柄的数量。 |
@@ -33,8 +33,7 @@ HcommResult：接口成功返回0，其他失败。
 
 - channels数组长度需要与channelNum参数一致。
 - 对于通过不同引擎创建的通道，可批量销毁。
-- 该销毁操作是原子性的，要么全部成功，要么在遇到第一个无效句柄时返回错误。
-- 支持的通信协议包括：RoCE、UBC_TP、UBC_CTP、UBoE。
+- 该销毁操作逐个执行，遇到失败立即返回，已销毁通道不回滚，非原子操作。
 
 ## 调用示例
 

@@ -8,7 +8,7 @@
 
 ## 功能说明
 
-获取通信通道中交换的远端内存信息。
+获取通信通道中交换的远端内存信息。返回的远端内存列表包含所有远端内存（含通信域默认的HcclBuffer），而非仅用户注册的内存。
 
 ## 函数原型
 
@@ -18,12 +18,12 @@ HcclResult HcclChannelGetRemoteMems(HcclComm comm, ChannelHandle channel, uint32
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | comm | 输入 | 通信域句柄。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
 | channel | 输入 | 通信通道句柄。<br>ChannelHandle类型的定义请参见[ChannelHandle](../../datatype_definition/ChannelHandle.md)。 |
 | memNum | 输出 | 内存数量。 |
-| remoteMems | 输出 | 远端内存列表。<br>CommMem类型的定义请参见[CommMem](../../datatype_definition/CommMem.md)。 |
+| remoteMems | 输出 | 远端内存列表，包含所有远端内存（含通信域默认的HcclBuffer）。<br>CommMem类型的定义请参见[CommMem](../../datatype_definition/CommMem.md)。 |
 | memTags | 输出 | 远端内存字符串列表。 |
 
 ## 返回值

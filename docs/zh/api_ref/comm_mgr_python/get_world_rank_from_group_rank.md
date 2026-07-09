@@ -44,6 +44,7 @@ int类型，进程在全局group（hccl_world_group）中的rank id。
 - 必须在集合通信初始化完成之后调用。
 - 调用该接口的rank必须在当前接口入参group定义的范围内，不在此范围内的rank调用该接口会失败。
 - [create_group](create_group.md)完成之后，调用此API转换group rank id到world rank id。
+- 本接口与[get_group_rank_from_world_rank](get_group_rank_from_world_rank.md)互为逆操作，注意参数顺序差异：本接口参数顺序为(group, group_rank_id)，其逆操作参数顺序为(world_rank_id, group)。
 
 ## 调用示例
 

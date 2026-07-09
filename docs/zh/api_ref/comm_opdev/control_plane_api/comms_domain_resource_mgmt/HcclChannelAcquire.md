@@ -66,7 +66,7 @@ for (uint32_t idx = 0; idx < listSize; idx++) {
   channelDesc.remoteEndpoint.commAddr = link.dstEndpointDesc.commAddr;
   channelDesc.remoteEndpoint.loc   = link.dstEndpointDesc.loc;
   channelDesc.channelProtocol     = link.linkAttr.linkProtocol;
-  channelDesc.notifyNum = NORMAL_NOTIFY_NUM;
+  channelDesc.notifyNum = 8; // 由用户按需指定Notify数量
 
   channelDescVec[idx] = channelDesc;
 }

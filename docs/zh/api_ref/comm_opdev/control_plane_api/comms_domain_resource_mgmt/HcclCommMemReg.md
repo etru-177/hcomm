@@ -18,10 +18,10 @@ HcclResult HcclCommMemReg(HcclComm comm, const char *memTag, const CommMem *mem,
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | comm | 输入 | 通信域句柄。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
-| memTag | 输入 | 内存字符串标签，最大字符长度为HCCL_OP_TAG_LEN_MAX。<br>const uint32_t HCCL_OP_TAG_LEN_MAX = 255; |
+| memTag | 输入 | 内存字符串标签，最大字符长度为HCCL_RES_TAG_MAX_LEN。<br>const uint32_t HCCL_RES_TAG_MAX_LEN = 255; |
 | mem | 输入 | 内存信息，CommMem类型的定义可参见[CommMem](../../datatype_definition/CommMem.md)。 |
 | memHandle | 输出 | 内存句柄。<br>HcclMemHandle类型的定义如下：<br>typedef void *HcclMemHandle; |
 
@@ -32,8 +32,8 @@ HcclResult HcclCommMemReg(HcclComm comm, const char *memTag, const CommMem *mem,
 ## 约束说明
 
 - 一个通信域内，同一个memTag，只允许注册一块内存。
-- 一个通信域内，相同memTag和mem重复注册，会复用已有的注册内存句柄。
-- 一个通信域内，内存注册不允许有交集。
+- 一个通信域内，相同memTag重复注册会返回HCCL_E_PARA报错，不会复用已有的注册内存句柄。
+- 一个通信域内，不同memTag可映射到重叠或相同的内存区域。
 
 ## 调用示例
 

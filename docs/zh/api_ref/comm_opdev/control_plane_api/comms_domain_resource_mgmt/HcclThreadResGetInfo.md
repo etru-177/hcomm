@@ -18,7 +18,7 @@ HcclResult HcclThreadResGetInfo(HcclComm comm, ThreadHandle thread, ThreadResTyp
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | comm | 输入 | 通信域句柄。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
 | thread | 输入 | 线程句柄。<br>ThreadHandle类型的定义可参见[ThreadHandle](../../datatype_definition/ThreadHandle.md)。 |
@@ -41,6 +41,6 @@ HcclComm comm;
 ThreadHandle thread;          //HcclThreadAcquire创建出来的thread的句柄
 ThreadResTypeStream stream;   //info缓冲区必须按资源类型对齐且可写
 uint32_t size = sizeof(ThreadResTypeStream);  // 必须等于目标类型大小  
-CHK_RET(HcommThreadResGetInfo(comm, thread, ThreadResType::THREAD_RES_TYPE_STREAM, size, &stream));
+CHK_RET(HcclThreadResGetInfo(comm, thread, ThreadResType::THREAD_RES_TYPE_STREAM, size, &stream));
 //使用stream资源
 ```

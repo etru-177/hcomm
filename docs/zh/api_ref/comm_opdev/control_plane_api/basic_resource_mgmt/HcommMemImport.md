@@ -18,11 +18,11 @@ HcommResult HcommMemImport(EndpointHandle endpointHandle, const void *memDesc, u
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | endpointHandle | 输入 | Endpoint句柄。<br>EndpointHandle类型的定义请参见[EndpointHandle](../../datatype_definition/EndpointHandle.md)。 |
 | memDesc | 输入 | 描述信息指针。 |
-| memDescLen | 输入 | 描述信息长度。 |
+| descLen | 输入 | 描述信息长度。 |
 | outMem | 输出 | 内存段元数据描述符。<br>CommMem类型的定义请参见[CommMem](../../datatype_definition/CommMem.md)。 |
 
 ## 返回值
@@ -31,7 +31,7 @@ HcommResult：接口成功返回0，其他失败。
 
 ## 约束说明
 
-支持的通信协议包括：RoCE、UBC_TP、UBC_CTP、UBoE。
+无
 
 ## 调用示例
 
@@ -65,11 +65,11 @@ CommMem mem = {
 HcommMemHandle memHandle;
 result = HcommMemReg(endpointHandle, memTag, &mem, &memHandle);
 
-uint32_t* memDescLen;
+uint32_t memDescLen = 0;
 void* memDesc = nullptr;
-result = HcommMemExport(endpointHandle, memHandle, memDesc, memDescLen);
+result = HcommMemExport(endpointHandle, memHandle, &memDesc, &memDescLen);
 
 // import端操作
-CommMem mem;
-result = HcommMemImport(endpointHandle, memDesc, memDescLen, &mem);
+CommMem outMem;
+result = HcommMemImport(endpointHandle, memDesc, memDescLen, &outMem);
 ```

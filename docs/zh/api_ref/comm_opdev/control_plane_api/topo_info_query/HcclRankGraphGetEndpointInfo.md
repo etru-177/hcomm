@@ -22,7 +22,7 @@ HcclResult HcclRankGraphGetEndpointInfo(HcclComm comm, uint32_t rankId, const En
 | --- | --- | --- |
 | comm | 输入 | 通信域。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
 | rankId | 输入 | 需要查询的端点的所属的rank ID。 |
-| endpointDesc | 输入 | EndPoint描述符，为通过[HcclRankGraphGetEndpointDesc](HcclRankGraphGetEndpointDesc.md)接口获取到的“endPointDesc”。 |
+| endpointDesc | 输入 | EndPoint描述符，为通过[HcclRankGraphGetEndpointDesc](HcclRankGraphGetEndpointDesc.md)接口获取到的“endpointDesc”。 |
 | endpointAttr | 输入 | 需要查询的EndPoint属性类型。<br>EndpointAttr类型的定义请参见[EndpointAttr](../../datatype_definition/EndpointAttr.md)。 |
 | infoLen | 输入 | 提供的info缓冲区大小（字节）。 |
 | info | 输出 | 存储属性信息的输出缓冲区指针。 |
@@ -44,7 +44,7 @@ uint32_t topoInstId = 0;
 uint32_t num = 0;
 HcclRankGraphGetEndpointNum(comm, netLayer, topoInstId, &num);
 uint32_t descNum = num;
-HcclRankGraphGetEndpointDesc(comm, netLayer, topoInstId, &descNum, endPointDesc);
+HcclRankGraphGetEndpointDesc(comm, netLayer, topoInstId, &descNum, endpointDesc);
 EndpointAttrBwCoeff bwCoeff{};
 uint32_t size = sizeof(EndpointAttrBwCoeff); //必须等于目标类型大小
 HcclRankGraphGetEndpointInfo(comm, rankId, endpointDesc, ENDPOINT_ATTR_BW_COEFF, size, &bwCoeff);

@@ -22,8 +22,8 @@ HcclResult HcclThreadAcquire(HcclComm comm, CommEngine engine, uint32_t threadNu
 | --- | --- | --- |
 | comm | 输入 | 通信域。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
 | engine | 输入 | 通信引擎类型。<br>CommEngine类型的定义可参见[CommEngine](../../datatype_definition/CommEngine.md)。 |
-| threadNum | 输入 | 通信线程数量。一个通信域内最多申请40条流。 |
-| notifyNumPerThread | 输入 | 每个通信线程中的同步资源（Notify）数量。一个通信域内最多申请640个同步资源。 |
+| threadNum | 输入 | 通信线程数量。 |
+| notifyNumPerThread | 输入 | 每个通信线程中的同步资源（Notify）数量。 |
 | threads | 输出 | 返回的通信线程句柄。需传入threadNum大小的ThreadHandle类型数组。<br>ThreadHandle类型的定义可参见[ThreadHandle](../../datatype_definition/ThreadHandle.md)。 |
 
 ## 返回值

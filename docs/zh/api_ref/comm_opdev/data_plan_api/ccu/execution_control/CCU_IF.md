@@ -35,7 +35,7 @@ CCU_IF(condExpr) {
 
 ## 参数说明
 
-| 参数名 | 说明 |
+| 参数名 | 描述 |
 | --- | --- |
 | condExpr | 条件表达式，类型为`AscendC::ccu::CondExpr`。通过`ccu::Variable`的`operator==(uint64_t)`或`operator!=(uint64_t)`产生，例如`v == 0`或`v != limit`。条件在运行期由CCU硬件计算。 |
 

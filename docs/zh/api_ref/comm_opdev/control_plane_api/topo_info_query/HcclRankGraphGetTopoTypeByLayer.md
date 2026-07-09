@@ -60,7 +60,7 @@ HcclRankGraphGetTopoTypeByLayer(comm, 1, &topoType);
 HcclComm comm;
 uint32_t topoType;
 HcclRankGraphGetTopoTypeByLayer(comm, 0, &topoType);  
-// Layer0的topoType=1 (Clos)
+// Layer0的topoType=0 (Clos)
 HcclRankGraphGetTopoTypeByLayer(comm, 1, &topoType);  
-// Layer1的topoType=1 (Clos)
+// Layer1的topoType=0 (Clos)
 ```

@@ -3,8 +3,8 @@
 ## 产品支持情况
 
 - Ascend 950PR/Ascend 950DT：支持
-- Atlas A3 训练系列产品/Atlas A3 推理系列产品：不支持
-- Atlas A2 训练系列产品/Atlas A2 推理系列产品：不支持
+- Atlas A3 训练系列产品/Atlas A3 推理系列产品：支持
+- Atlas A2 训练系列产品/Atlas A2 推理系列产品：支持
 
 ## 功能说明
 
@@ -18,7 +18,7 @@ HcommResult HcommThreadFree(const ThreadHandle* threads, uint32_t threadNum)
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | threads | 输入 | 通信线程句柄<br>ThreadHandle类型的定义可参见[ThreadHandle](../../datatype_definition/ThreadHandle.md)。 |
 | threadNum | 输入 | 通信线程数量。 |

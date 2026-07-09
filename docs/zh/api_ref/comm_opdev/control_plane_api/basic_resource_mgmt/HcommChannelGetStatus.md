@@ -10,7 +10,7 @@
 
 该接口用于查询通信通道的状态，支持批量查询多个通道的连接状态，用于在通道创建后、通信操作前确认通道是否已就绪。
 
-该接口采用轮询机制，调用方需要持续调用直到所有通道都返回READY状态。
+当前为非阻塞式建链，接口直接返回成功并将status置为0，调用方无需持续轮询。
 
 该接口主要用于通道连接建立阶段的同步等待。
 
@@ -22,7 +22,7 @@ HcommResult HcommChannelGetStatus(const ChannelHandle *channelList, uint32_t lis
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | channelList | 输入 | 待查询状态的通道句柄数组，每个元素标识一个已创建的通信通道。<br>ChannelHandle类型的定义请参见[ChannelHandle](../../datatype_definition/ChannelHandle.md)。<br>该参数不能为空指针，数组中每个通道句柄必须是通过[HcommChannelCreate](HcommChannelCreate.md)创建的有效句柄。 |
 | listNum | 输入 | 待查询的通道数量。<br>单位为“个”，取值范围：[1, 1048576]。<br>该参数必须大于0。 |
@@ -36,7 +36,6 @@ HcommResult：接口成功返回0，其他失败。
 
 - channelList数组长度需要与listNum参数一致。
 - statusList\[i\]与channelList\[i\]一一对应，表示第i个通道的状态。
-- 支持的通信协议包括：RoCE、UBC_TP、UBC_CTP、UBoE。
 
 ## 调用示例
 

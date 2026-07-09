@@ -18,7 +18,7 @@ HcommResult HcommChannelCreate(EndpointHandle endpointHandle, CommEngine engine,
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | endpointHandle | 输入 | 网络设备端点句柄，标识一个已创建的本地网络设备端点。<br>EndpointHandle类型的定义请参见[EndpointHandle](../../datatype_definition/EndpointHandle.md)，该句柄必须通过[HcommEndpointCreate](HcommEndpointCreate.md)成功创建，且未销毁。 |
 | engine | 输入 | 通信引擎类型，指定通道的执行位置。<br>CommEngine类型的定义请参见[CommEngine](../../datatype_definition/CommEngine.md)。<br>需要注意：必须是有效的引擎类型。 |
@@ -37,7 +37,6 @@ HcommResult：接口成功返回0，其他失败。
 - 当HcommChannelDesc中exchangeAllMems为false时，必须配置memHandles和memHandleNum。
 - 当前CommEngine配置为CCU时，仅支持交换1份memHandle。
 - 当前CommEngine配置为CCU时，不支持外部配置NotifyNum，默认为8个CCU Notify。
-- 支持的通信协议包括：RoCE、UBC_TP、UBC_CTP、UBoE。
 
 ## 调用示例
 

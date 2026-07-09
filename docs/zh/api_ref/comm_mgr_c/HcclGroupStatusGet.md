@@ -30,7 +30,7 @@ HcclResult HcclGroupStatusGet(bool *isGroupEnabled)
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | isGroupEnabled | 输出 | Group状态，TRUE表示已启用，FALSE表示未启用。 |
 

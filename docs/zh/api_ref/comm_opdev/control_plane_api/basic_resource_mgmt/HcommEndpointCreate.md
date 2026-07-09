@@ -13,19 +13,19 @@
 ## 函数原型
 
 ```c
-HcclResult HcommEndpointCreate(const EndpointDesc *endpoint, EndpointHandle *endpointHandle)
+HcommResult HcommEndpointCreate(const EndpointDesc *endpoint, EndpointHandle *endpointHandle)
 ```
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | endpoint | 输入 | Endpoint初始化配置信息。<br>必填成员：protocol、commAddr、loc。<br>EndpointDesc类型的定义请参见[EndpointDesc](../../datatype_definition/EndpointDesc.md)。 |
 | endpointHandle | 输出 | 返回的Endpoint句柄。<br>EndpointHandle类型的定义请参见[EndpointHandle](../../datatype_definition/EndpointHandle.md)。 |
 
 ## 返回值
 
-HcommResult：接口成功返回HCCL_SUCCESS，其他失败。
+HcommResult：接口返回0表示成功，其他失败。
 
 ## 约束说明
 
@@ -35,11 +35,13 @@ HcommResult：接口成功返回HCCL_SUCCESS，其他失败。
 ## 调用示例
 
 ```c
+struct in_addr ipAddr;
+inet_pton(AF_INET, "192.168.1.100", &ipAddr);
 const EndpointDesc endpointDesc = {
     .protocol = COMM_PROTOCOL_UBC_TP,
     .commAddr = {
         .type = COMM_ADDR_TYPE_IP_V4,
-        .addr = {{192, 168, 1, 100}}
+        .addr = ipAddr
     },
     .loc = {
         .locType = ENDPOINT_LOC_TYPE_DEVICE,

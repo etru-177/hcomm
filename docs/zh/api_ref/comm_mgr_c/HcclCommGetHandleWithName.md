@@ -30,7 +30,7 @@ HcclResult HcclCommGetHandleWithName(const char* commName, HcclComm* comm)
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | commName | 输入 | 通信域名称。<br>const char*类型，最大长度支持128。 |
 | comm | 输出 | 获取到的对应通信域句柄。<br>HcclComm类型的定义可参见[HcclComm](./data_type_definition/HcclComm.md)。 |

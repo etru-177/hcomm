@@ -32,7 +32,8 @@ HcclResult HcclRankGraphGetRanksByTopoInst(HcclComm comm, uint32_t netLayer, uin
 
 ## 约束说明
 
-无
+- 返回的内存由库内管理，调用者严禁释放。
+- 应及时复制返回数据，同一通信域重复调用可能使前次结果失效。
 
 ## 调用示例
 
@@ -43,6 +44,6 @@ uint32_t netlayer = 0;
 uint32_t topoInstId = 0;
 uint32_t *ranks;
 uint32_t rankNum;
-HcclRankGraphGetRanksByLayer( comm, netLayer, topoInstId,  &ranks, &rankNum )
+HcclRankGraphGetRanksByTopoInst( comm, netLayer, topoInstId,  &ranks, &rankNum )
  // ranks = [0,1,2,…,7],  rankNum=8
 ```

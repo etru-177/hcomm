@@ -2,7 +2,7 @@
 
 ## 产品支持情况
 
-- Ascend 950PR/Ascend 950DT：不支持
+- Ascend 950PR/Ascend 950DT：支持
 - Atlas A3 训练系列产品/Atlas A3 推理系列产品：支持
 - Atlas A2 训练系列产品/Atlas A2 推理系列产品：支持
 
@@ -20,7 +20,7 @@ HcclResult HcclChannelDescInit(HcclChannelDesc *channelDesc, uint32_t descNum)
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| channelDesc | 输入 | 通信通道描述列表，列表长度为descNum。<br>HcclChannelDesc类型的定义可参见[HcclChannelDesc](../../datatype_definition/HcclChannelDesc.md)。 |
+| channelDesc | 输出 | 通信通道描述列表，列表长度为descNum，函数会初始化该结构体。<br>HcclChannelDesc类型的定义可参见[HcclChannelDesc](../../datatype_definition/HcclChannelDesc.md)。 |
 | descNum | 输入 | 通信通道描述数量。 |
 
 ## 返回值

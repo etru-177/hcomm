@@ -32,7 +32,7 @@ HcclResult HcclAicpuKernelLaunch(HcclComm comm, const HcclOpDesc *opInfo, const 
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | comm | 输入 | 集合通信操作所在的通信域。 |
 | opInfo | 输入 | 算子描述参数，包含算子类型和名称相关参数。<br>HcclOpDesc类型的定义可参见数据类型[HcclOpDesc](./data_type_definition/HcclOpDesc.md)。 |
@@ -68,7 +68,7 @@ HcclOpDesc opInfo;
 HcclOpDescInit(&opInfo);
 opInfo.opDescType = 1;
 opInfo.p2p.buffer = sendBuffer;
-opInfo.p2p.cmdType = HcclCMDType::HCCL_CMD_SEND;
+opInfo.p2p.cmdType = HCCL_CMD_SEND;
 opInfo.p2p.dataType = HCCL_DATA_TYPE_FP32;
 opInfo.p2p.count = dataSize;
 opInfo.p2p.remoteRank = destRank;
@@ -86,6 +86,7 @@ AicpuTimeout timeout = DeriveAicpuTimeout(param.opConfig.execTimeout);
 u16 kernelLaunchTimeout = IsHcommDefaultTimeoutSupported() ? timeout.kernelLaunchTimeout :
 ToKernelLaunchTimeout(AddAicpuTimeoutOffset(param.opConfig.execTimeout, KERNEL_TIMEOUT_OFFSET));
 HcclKernelLaunchCfg kernelLaunchCfg;
+HcclKernelLaunchCfgInit(&kernelLaunchCfg);
 kernelLaunchCfg.timeOut = kernelLaunchTimeout;
 
 // 运行AICPU核函数

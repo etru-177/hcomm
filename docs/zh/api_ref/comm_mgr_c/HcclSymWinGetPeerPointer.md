@@ -32,7 +32,7 @@ HcclResult HcclSymWinGetPeerPointer(HcclCommSymWindow winHandle, size_t offset, 
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | winHandle | 输入 | 对称内存窗口资源句柄。 |
 | offset | 输入 | 使用[HcclCommSymWinGet](HcclCommSymWinGet.md)获取到的偏移量。 |

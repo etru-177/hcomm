@@ -18,7 +18,7 @@ HcommResult HcommMemExport(EndpointHandle endpointHandle, void* memHandle, void*
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | endpointHandle | 输入 | Endpoint句柄。<br>EndpointHandle类型的定义请参见[EndpointHandle](../../datatype_definition/EndpointHandle.md)。 |
 | memHandle | 输入 | 注册内存句柄。 |
@@ -31,7 +31,7 @@ HcommResult：接口成功返回0，其他失败。
 
 ## 约束说明
 
-支持的通信协议包括：RoCE、UBC_TP、UBC_CTP、UBoE。
+无
 
 ## 调用示例
 
@@ -64,7 +64,7 @@ CommMem mem = {
 HcommMemHandle memHandle;
 result = HcommMemReg(endpointHandle, memTag, &mem, &memHandle);
 
-uint32_t* memDescLen;
+uint32_t memDescLen = 0;
 void* memDesc = nullptr;
-result = HcommMemExport(endpointHandle, memHandle, memDesc, memDescLen);
+result = HcommMemExport(endpointHandle, memHandle, &memDesc, &memDescLen);
 ```

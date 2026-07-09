@@ -12,6 +12,7 @@ import numpy as np
 import time
 import argparse
 from npu_bridge.npu_init import *
+from hccl.manage.api import get_rank_size, get_rank_id
 
 def tensor_type(list1, type):
     tensor1=[]

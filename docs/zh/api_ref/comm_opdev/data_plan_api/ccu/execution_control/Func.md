@@ -46,13 +46,13 @@ CcuResult CallFunc(Args... args);
 
 ## Func构造参数说明
 
-| 参数名 | 说明 |
+| 参数名 | 描述 |
 | --- | --- |
 | body | lambda表达式，形参为零个或多个`ccu::Variable`，返回`void`。形参个数在编译期由lambda签名自动推导。 |
 
 ## CallFunc参数说明
 
-| 参数名 | 说明 |
+| 参数名 | 描述 |
 | --- | --- |
 | Obj | 模板非类型参数（NTTP），必须为`global`或`static`存储的`ccu::Func`对象的引用。 |
 | args... | 实参列表，个数必须与`Obj`的lambda形参个数一致，每个参数类型必须为`ccu::Variable`。 |

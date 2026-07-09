@@ -38,7 +38,8 @@ HcclResult HcclRankGraphGetInstSizeListByLayer(HcclComm comm, uint32_t netLayer,
 
 ## 约束说明
 
-无
+- 返回的内存由库内管理，调用者严禁释放。
+- 应及时复制返回数据，同一通信域重复调用可能使前次结果失效。
 
 ## 调用示例
 

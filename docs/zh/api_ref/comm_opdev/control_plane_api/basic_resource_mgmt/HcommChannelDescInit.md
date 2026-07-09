@@ -20,7 +20,7 @@ HcommResult HcommChannelDescInit(HcommChannelDesc *channelDesc, uint32_t descNum
 
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
-| channelDesc | 输入 | 通信通道描述列表，列表长度为descNum。<br>HcommChannelDesc类型的定义可参见[HcommChannelDesc](../../datatype_definition/HcommChannelDesc.md)。 |
+| channelDesc | 输入/输出 | 通信通道描述列表，列表长度为descNum，函数会初始化该结构体。<br>HcommChannelDesc类型的定义可参见[HcommChannelDesc](../../datatype_definition/HcommChannelDesc.md)。 |
 | descNum | 输入 | 通信通道描述数量。 |
 
 ## 返回值
@@ -30,7 +30,6 @@ HcommResult：接口成功返回0，其他失败。
 ## 约束说明
 
 - HcommChannelDesc结构体必须调用该接口进行初始化。
-- 支持的通信协议包括：RoCE、UBC_TP、UBC_CTP、UBoE。
 
 ## 调用示例
 

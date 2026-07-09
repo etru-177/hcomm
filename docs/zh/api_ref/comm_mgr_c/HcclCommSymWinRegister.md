@@ -47,7 +47,7 @@ HcclResult HcclCommSymWinRegister(HcclComm comm, void *addr, uint64_t size, Hccl
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | comm | 输入 | HCCL通信域。<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下，建议使用超节点内最大的通信域，即覆盖最大卡数的通信域。初始化通信域时可以通过[HcclCommConfig](./data_type_definition/HcclCommConfig.md)的hcclSymWinMaxMemSizePerRank参数设置每个rank预留的对称内存大小，若不设置hcclSymWinMaxMemSizePerRank，使用默认值16GB。当前通信域预留的总虚拟对称内存大小为：rankSize * HcclCommConfig.hcclSymWinMaxMemSizePerRank。<br>Ascend 950PR/Ascend 950DT的URMA场景下，无需通过hcclSymWinMaxMemSizePerRank配置预留的对称内存大小。 |
 | addr | 输入 | 对称内存窗口的起始地址。<br>Atlas A3 训练系列产品/Atlas A3 推理系列产品的HCCS场景下，该地址为预留的虚拟内存地址，虚拟内存需要调用aclrtReserveMemAddress接口预留。<br>Ascend 950PR/Ascend 950DT的URMA场景下，该地址为已申请的Device内存地址，内存需要在调用[HcclCommSymWinDeregister](HcclCommSymWinDeregister.md)解注册前保持有效。 |

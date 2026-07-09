@@ -36,5 +36,6 @@ typedef struct {
             uint32_t sqDepth;         /* UB队列深度，0表示使用默认值 */
         } ubAttr;
     };
+    uint32_t qos;             /* 通信域QoS与协议解耦 */
 } HcommChannelDesc;
 ```

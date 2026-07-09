@@ -35,6 +35,7 @@ HcclResult HcclThreadAcquireWithStream(HcclComm comm, CommEngine engine, aclrtSt
 ## 约束说明
 
 1. 该接口不支持COMM_ENGINE_AIV和COMM_ENGINE_CCU两种通信引擎。
+2. comm、stream、thread不能为NULL，否则返回HCCL_E_PTR。
 
 ## 调用示例
 

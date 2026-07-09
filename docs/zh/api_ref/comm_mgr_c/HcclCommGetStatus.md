@@ -30,7 +30,7 @@ HcclResult HcclCommGetStatus(const char *commId, HcclCommStatus *status)
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | commId | 输入 | 通信域名称。<br>const char*类型，最大长度支持128。 |
 | status | 输出 | 通信域状态，HcclCommStatus类型的定义可参见[HcclCommStatus](./data_type_definition/HcclCommStatus.md)。 |

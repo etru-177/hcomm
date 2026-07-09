@@ -55,8 +55,8 @@ HcclResult HcclCommWorkingDevNicSet(HcclComm comm, uint32_t *ranks, bool *useBac
 - 配置前，请确保当前环境上的通信任务已完成。
 - 属于同一通信域的rank调用该接口时传入的ranks和useBackup数组长度与nRanks数量保持一致。
 - 使用该接口需满足以下两种情况时，才会发生实际的网卡切换。
-- 超节点间通信开启重执行，即环境变量HCCL_OP_RETRY_ENABLE的“L2”配置为1。
-- 拓扑形态存在RDMA链路。
+  - 超节点间通信开启重执行，即环境变量HCCL_OP_RETRY_ENABLE的“L2”配置为1。
+  - 拓扑形态存在RDMA链路。
 
 - 对于不支持的场景，如HCCL_OP_RETRY_ENABLE未开启重执行时，会返回HCCL_SUCCESS并在日志中打印WARNING，但实际未切换网卡。
 - 针对同一个rank，HcclCommWorkingDevNicSet接口需要one by one保序调用，不支持并发下发。

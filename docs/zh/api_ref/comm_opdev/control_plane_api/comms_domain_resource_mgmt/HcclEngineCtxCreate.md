@@ -23,7 +23,7 @@ HcclResult HcclEngineCtxCreate(HcclComm comm, const char *ctxTag, CommEngine eng
 | 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | comm | 输入 | 通信域句柄。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
-| ctxTag | 输入 | 通信引擎上下文标签，最大字符长度为HCCL_OP_TAG_LEN_MAX。<br>const uint32_t HCCL_OP_TAG_LEN_MAX = 255; |
+| ctxTag | 输入 | 通信引擎上下文标签，最大字符长度为HCCL_RES_TAG_MAX_LEN。<br>const uint32_t HCCL_RES_TAG_MAX_LEN = 255; |
 | engine | 输入 | 通信引擎类型。<br>CommEngine的定义可参见[CommEngine](../../datatype_definition/CommEngine.md)。 |
 | size | 输入 | ctx内存大小。 |
 | ctx | 输出 | 通信引擎上下文。 |

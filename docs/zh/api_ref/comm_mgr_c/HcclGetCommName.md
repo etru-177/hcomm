@@ -37,7 +37,7 @@ HcclResult HcclGetCommName(HcclComm comm, char* commName)
 
 ## 返回值
 
-[HcclResult](./data_type_definition/HcclResult.md)：接口成功返回HcclSuccess，其他失败。
+[HcclResult](./data_type_definition/HcclResult.md)：接口成功返回HCCL_SUCCESS，其他失败。
 
 ## 约束说明
 

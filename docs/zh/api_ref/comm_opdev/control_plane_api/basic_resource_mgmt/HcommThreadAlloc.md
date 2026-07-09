@@ -8,17 +8,17 @@
 
 ## 功能说明
 
-申请通信线程，当前支持AI CPU+TS、HOST CPU+TS通信引擎。注意如果通信引擎是AI CPU+TS，需要额外下发一次kernel，AI CPU侧才能使用此通信线程。
+申请通信线程，当前支持AI CPU、AI CPU+TS、HOST CPU、HOST CPU+TS通信引擎。注意如果通信引擎是AI CPU+TS，需要额外下发一次kernel，AI CPU侧才能使用此通信线程。
 
 ## 函数原型
 
 ```c
-HcommResult HcommThreadAlloc(CommEngine engine, uint32_t threadNum, uint32_t notifyNumPerThread, ThreadHandle* threads)
+HcommResult HcommThreadAlloc(CommEngine engine, uint32_t threadNum, const uint32_t *notifyNumPerThread, ThreadHandle* threads)
 ```
 
 ## 参数说明
 
-| 参数名 | 输入/输出 | 说明 |
+| 参数名 | 输入/输出 | 描述 |
 | --- | --- | --- |
 | engine | 输入 | 通信引擎类型。<br>CommEngine类型的定义可参见[CommEngine](../../datatype_definition/CommEngine.md)。 |
 | threadNum | 输入 | 通信线程数量，每次调用该接口申请的最大线程数量为200。 |
@@ -40,5 +40,6 @@ HcommResult：接口成功返回0，其他失败。
 ```c
 ThreadHandle thread[3];
 //申请两条流，每条流Notify数量为3
-HcommResult ret =  HcommThreadAlloc(COMM_ENGINE_AICPU_TS, 2, 3, thread);
+const uint32_t notifyNumPerThread[2] = {3, 3};
+HcommResult ret =  HcommThreadAlloc(COMM_ENGINE_AICPU_TS, 2, notifyNumPerThread, thread);
 ```

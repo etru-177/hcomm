@@ -60,8 +60,8 @@ void* outputMem;
 aclrtMallocWithCfg(&inputMem, memSize, static_cast<aclrtMemMallocPolicy>(policy), &cfg);
 aclrtMallocWithCfg(&outputMem, memSize, static_cast<aclrtMemMallocPolicy>(policy), &cfg);
 // 执行Device侧的Reduce操作
-uint64_t count = memSize / SIZE_TABLE[HCCL_DATA_TYPE_FP32];
-HcommLocalReduceOnThread(thread, outputMem, inputMem, count, HCCL_DATA_TYPE_FP32, HCCL_REDUCE_SUM);
+uint64_t count = memSize / SIZE_TABLE[HCOMM_DATA_TYPE_FP32];
+HcommLocalReduceOnThread(thread, outputMem, inputMem, count, HCOMM_DATA_TYPE_FP32, HCOMM_REDUCE_SUM);
 ```
 
 在Ascend 950PR/Ascend 950DT上，该函数需要编译到Device侧使用：

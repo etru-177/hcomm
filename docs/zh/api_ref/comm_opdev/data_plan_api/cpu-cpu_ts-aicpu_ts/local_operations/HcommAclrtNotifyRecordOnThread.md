@@ -44,7 +44,7 @@ aclrtCreateStream(&streams[1]);
 HcclResult result = HcclThreadAcquireWithStream(comm, engine, streams[0], 2, &threads[0]);
 result = HcclThreadAcquireWithStream(comm, engine, streams[1], 2, &threads[1]);
 aclrtNotify notify;
-uint32_t notifyId;
+uint64_t notifyId;
 aclrtCreateNotify(&(notify), ACL_NOTIFY_DEFAULT);
 aclrtGetNotifyId(notify, &(notifyId));
 // 发送同步信号

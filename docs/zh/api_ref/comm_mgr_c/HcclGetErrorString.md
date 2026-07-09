@@ -25,7 +25,7 @@
 ## 函数原型
 
 ```c
-const char* HcclGetErrorString (HcclResult code)
+const char* HcclGetErrorString(HcclResult code)
 ```
 
 ## 参数说明
