@@ -218,9 +218,11 @@ HcclResult BroadCastOperator::SelectAlgfor91093(const OpParam& param, std::strin
     bool smallCountOptimMultiServer =
         (deviceNumPerAggregation_ > HCCL_DEVICE_NUM_TWO) && (serverNum_ != 1) && (superPodNum_ == 1) &&
         (param.DataDes.count * SIZE_TABLE[param.DataDes.dataType] <= HCCL_SMALL_COUNT_1_MB * deviceNumPerAggregation_);
-    bool smallCountOptimMultiPod = (superPodNum_ > 1 || (GetExternalInputInterHccsDisable() && serverNum_ > 1)) &&
+    bool is2Pod2ServerTopo = (superPodNum_ == 2 && serverNum_ == 2);// 针对 A3背靠背机型
+    bool smallCountOptimMultiPod = (superPodNum_ > 1 || (GetExternalInputInterHccsDisable() && serverNum_ > 1)) && !is2Pod2ServerTopo &&
         (param.DataDes.count * unitSize <= HCCL_SMALL_COUNT_16_KB * deviceNumPerAggregation_) && !retryEnable_; // 涉及ROCE平面
-
+    bool isBack2BackFor91093 = is2Pod2ServerTopo && (workflowMode_ == HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE) &&
+        (param.DataDes.count * unitSize <= HCCL_SMALL_COUNT_16_KB * deviceNumPerAggregation_) && !retryEnable_; 
     if (isAivMode_) {
         algName = "BroadcastMeshAivExecutor";
     } else if (multiModuleDiffDeviceNumMode_ || multiSuperPodDiffServerNumMode_) {
@@ -228,6 +230,8 @@ HcclResult BroadCastOperator::SelectAlgfor91093(const OpParam& param, std::strin
     } else if (smallCountOptimMultiServer || smallCountOptimMultiPod) {
         algName = "BroadCastComm";
         algType_.algoLevel1 = AlgTypeLevel1::ALG_LEVEL1_NHR;
+    } else if (isBack2BackFor91093) {
+        algName = "BroadcastMidCountFor91093Executor";
     } else if (smallCountOptimSingleServer) {
         algName = "BroadCastSmallCountExecutor";
     } else if (param.supportZeroCopy &&

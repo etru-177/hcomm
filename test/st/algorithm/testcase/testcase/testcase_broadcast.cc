@@ -754,3 +754,27 @@ TEST_F(BroadcastTest, broadcast_aivsmallcount)
     HcclResult ret;
     ret = checker.Check(checkerOpParam, topoMeta);
 }
+
+
+TEST_F(BroadcastTest, broadcast_BroadcastMidCountFor91093Executor)
+{
+    setenv("HCCL_ALGO","level1:NHR",1);
+    RankTable_For_LLT gen;
+    TopoMeta topoMeta;
+    gen.GenTopoMeta(topoMeta, 2, 1, 4);
+
+    CheckerOpParam checkerOpParam;
+    checkerOpParam.opType = CheckerOpType::BROADCAST;
+    checkerOpParam.tag = "broadcast";
+    checkerOpParam.opMode = CheckerOpMode::OPBASE;
+    checkerOpParam.DataDes.count = 10;
+    checkerOpParam.root = 0;
+    checkerOpParam.DataDes.dataType = CheckerDataType::DATA_TYPE_FP16;
+    checkerOpParam.devtype = CheckerDevType::DEV_TYPE_910_93;
+    checkerOpParam.algName = "BroadcastMidCountFor91093Executor";  // BroadCastComm BroadcastMidCountFor91093Executor
+
+    Checker checker;
+    HcclResult ret;
+    checker.EnableTaskPrint();
+    ret = checker.Check(checkerOpParam, topoMeta);
+}

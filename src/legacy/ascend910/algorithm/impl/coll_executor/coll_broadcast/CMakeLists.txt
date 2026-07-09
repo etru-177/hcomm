@@ -17,6 +17,7 @@ set(src_list
     ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_mix_executor.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_ring_zerocopy_executor.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_mesh_aiv_executor.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_midcount_for_910_93_executor.cc
 )
 
 if(TARGET hccl_alg)
@@ -35,6 +36,7 @@ if(TARGET ccl_kernel)
         ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_smallcount_executor.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_mix_executor.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_ring_zerocopy_executor.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/coll_broadcast_midcount_for_910_93_executor.cc
     )
     target_include_directories(ccl_kernel PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
