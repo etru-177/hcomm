@@ -34,9 +34,43 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine, const HcclChanne
 
 ## 约束说明
 
-当前CommEngine配置为CCU时，不支持外部配置NotifyNum，默认分配8个CCU Notify。
+1. 当前CommEngine配置为CCU时，不支持外部配置NotifyNum，默认分配8个CCU Notify。
 
-当前CommEngine配置为CCU时，不支持交换额外自定义内存，仅支持交换通信域的HcclBuffer。
+2. 当前CommEngine配置为CCU时，不支持交换额外自定义内存，仅支持交换通信域的HcclBuffer。
+
+3. 当前各CommEngine支持的通信协议与芯片型号有关，具体如下：
+
+  针对Ascend 950PR/Ascend 950DT，各通信引擎支持的通信协议如下：
+
+  - COMM_ENGINE_CPU
+    - COMM_PROTOCOL_ROCE
+  - COMM_ENGINE_AICPU_TS
+    - COMM_PROTOCOL_UBOE
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
+    - COMM_PROTOCOL_ROCE
+  - COMM_ENGINE_AIV
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
+    - COMM_PROTOCOL_UB_MEM
+    - COMM_PROTOCOL_ROCE
+  - COMM_ENGINE_CCU
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
+
+  针对Atlas A3 训练系列产品/Atlas A3 推理系列产品，各通信引擎支持的通信协议如下：
+
+  - COMM_ENGINE_AICPU_TS
+    - COMM_PROTOCOL_ROCE
+    - COMM_PROTOCOL_HCCS
+    - COMM_PROTOCOL_HCCS_ONLY
+
+  针对Atlas A2 训练系列产品/Atlas A2 推理系列产品，各通信引擎支持的通信协议如下：
+
+  - COMM_ENGINE_CPU_TS
+    - COMM_PROTOCOL_ROCE
+    - COMM_PROTOCOL_HCCS
+    - COMM_PROTOCOL_HCCS_ONLY
 
 ## 调用示例
 

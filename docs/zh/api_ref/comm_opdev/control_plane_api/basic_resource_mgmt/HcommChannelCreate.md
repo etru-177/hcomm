@@ -37,6 +37,27 @@ HcommResult：接口成功返回0，其他失败。
 - 当HcommChannelDesc中exchangeAllMems为false时，必须配置memHandles和memHandleNum。
 - 当前CommEngine配置为CCU时，仅支持交换1份memHandle。
 - 当前CommEngine配置为CCU时，不支持外部配置NotifyNum，默认为8个CCU Notify。
+- 当前各CommEngine支持的通信协议与芯片型号有关，具体如下：
+
+  针对Ascend 950PR/Ascend 950DT，各通信引擎支持的通信协议如下：
+
+  - COMM_ENGINE_CPU
+    - COMM_PROTOCOL_ROCE
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
+  - COMM_ENGINE_AICPU_TS
+    - COMM_PROTOCOL_UBOE
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
+    - COMM_PROTOCOL_ROCE
+  - COMM_ENGINE_AIV
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
+    - COMM_PROTOCOL_UB_MEM
+    - COMM_PROTOCOL_ROCE
+  - COMM_ENGINE_CCU
+    - COMM_PROTOCOL_UBC_CTP
+    - COMM_PROTOCOL_UBC_TP
 
 ## 调用示例
 
