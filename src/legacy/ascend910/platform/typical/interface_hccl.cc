@@ -156,8 +156,8 @@ HcclResult hcclCreateAscendQPWithCQWithAttr(AscendCQInfo* ascendSendCQInfo, Asce
     CHK_RET(TypicalQpManager::GetInstance().ValidateCq(ascendSendCQInfo->cqn));
     CHK_RET(TypicalQpManager::GetInstance().ValidateCq(ascendRecvCQInfo->cqn));
 
-    struct TypicalQp qpInfo;
-    QpConfigWithCQInfo qpConfigInfo;
+    struct TypicalQp qpInfo { 0 };
+    QpConfigWithCQInfo qpConfigInfo { 0 };
     qpConfigInfo.sendCqn = ascendSendCQInfo->cqn;
     qpConfigInfo.recvCqn = ascendRecvCQInfo->cqn;
 
