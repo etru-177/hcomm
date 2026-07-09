@@ -103,6 +103,7 @@ private:
     HcclResult WaitForDectect();
     HcclResult ProcessDetectionResults();
     std::string FormatDetectMessage(const std::string &localServerId, s32 localDeviceId, const DetectInfo &detectInfo);
+    std::string BuildGroupedDetectMessage();
     void ThreadDestroy();
     ~DetectConnectionAnomalies() = default;
     DetectConnectionAnomalies() = default;

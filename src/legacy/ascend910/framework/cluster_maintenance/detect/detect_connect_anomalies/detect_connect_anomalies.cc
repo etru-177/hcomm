@@ -122,29 +122,68 @@ HcclResult DetectConnectionAnomalies::WaitForDectect()
     return HCCL_SUCCESS;
 }
 
+std::string DetectConnectionAnomalies::BuildGroupedDetectMessage()
+{
+    std::ostringstream result;
+    // key: <srcServer, srcDevice>  value: <dstServer, dstDeviceList>
+    std::map<std::pair<std::string, s32>, std::map<std::string, std::vector<s32>>> summary;
+    // 聚合deviceID
+    for (const auto &item : recvErrorInfoMap_) {
+        const DetectInfo &info = item.second;
+        summary[{info.localServerId, info.localDeviceId}][info.remoteServerId].push_back(info.remoteDeviceId);
+    }
+    bool firstMsg = true;
+    for (auto &srcGroup : summary) {
+        const std::string &srcServer = srcGroup.first.first;
+        s32 srcDevice = srcGroup.first.second;
+        for (auto &dstGroup : srcGroup.second) {
+            auto &devices = dstGroup.second;
+            std::sort(devices.begin(), devices.end());
+            devices.erase(std::unique(devices.begin(), devices.end()), devices.end());
+            std::ostringstream deviceList;
+            deviceList << "[";
+            for (size_t i = 0; i < devices.size(); ++i) {
+                if (i != 0) {
+                    deviceList << ",";
+                }
+                deviceList << devices[i];
+            }
+            deviceList << "]";
+            if (!firstMsg) {
+                result << "\n";
+            }
+            firstMsg = false;
+            result << "This node (server " << srcServer
+                << ", device ID " << srcDevice
+                << ") detects that srcRank (server " << srcServer
+                << ", device ID " << srcDevice
+                << ") fails to connect to dstRank (server " << dstGroup.first
+                << ", device ID " << deviceList.str()
+                << "). Continue to analyze the fault based on the logs of srcRank and dstRank.";
+        }
+    }
+    return result.str();
+}
+
 HcclResult DetectConnectionAnomalies::ProcessDetectionResults()
 {
     std::string errMsg;
     HCCL_ERROR("-------------------CONNECT TIMEOUT DETECT RESULT-----------------------");
-    if (recvErrorInfoMap_.size() >= 1) {
-        for (const auto& detectInfo : recvErrorInfoMap_) {
-            std::string localServerIdStr(detectInfo.second.localServerId);
-            std::string eventInfo = FormatDetectMessage(localServerIdStr, detectInfo.second.localDeviceId, detectInfo.second);
-            HCCL_ERROR("%s", eventInfo.c_str());
-            errMsg += "\n" + eventInfo;
-        }
+    if (!recvErrorInfoMap_.empty()) {
+        errMsg = BuildGroupedDetectMessage();
+        HCCL_ERROR("%s", errMsg.c_str());
         HCCL_ERROR("%s", GET_SOCKET_TIMEOUT_REASON_WITH_EVENT.c_str());
         errMsg += "\n" + GET_SOCKET_TIMEOUT_REASON_WITH_EVENT;
     } else {
-        errMsg = "This node detects no exception event. The possible cause is that the behaviors of different ranks are inconsistent. The possible causes are as follows:";
+        errMsg ="This node detects no exception event. The possible cause is that the behaviors of different ranks are inconsistent. "
+            "The possible causes are as follows:";
         HCCL_ERROR("%s", errMsg.c_str());
         HCCL_ERROR("%s", GET_SOCKET_TIMEOUT_REASON_WITHOUT_EVENT.c_str());
         errMsg += "\n" + GET_SOCKET_TIMEOUT_REASON_WITHOUT_EVENT;
     }
-    HCCL_ERROR("----------------------------------------------------------------------");
 
-    RPT_INPUT_ERR(true, "EI0006", std::vector<std::string>({"reason"}), \
-    std::vector<std::string>({errMsg}));
+    HCCL_ERROR("----------------------------------------------------------------------");
+    RPT_INPUT_ERR(true, "EI0006", std::vector<std::string>{"reason"}, std::vector<std::string>{errMsg});
     return HCCL_SUCCESS;
 }
 // 检测连接异常

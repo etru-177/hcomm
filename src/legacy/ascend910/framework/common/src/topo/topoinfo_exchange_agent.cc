@@ -1026,6 +1026,7 @@ HcclResult TopoInfoExchangeAgent::VerifyClusterTlsConsistency(const RankTable_t 
     if (!isSupportCheckTlsStatus) {
         GenerateTlsStatusStr(tlsUnknownRankStr, tlsUnknownRank);
     }
+    tlsUnknownRankStr = tlsUnknownRankStr.empty() ? "N/A" : tlsUnknownRankStr;
     // 四种不同情况
     if (isTlsConsistent && isSupportCheckTlsStatus) {
     // 1.通信域所有卡都支持查询TLS开关状态，并且TLS开关状态都是一致的。
@@ -1080,7 +1081,7 @@ void TopoInfoExchangeAgent::ReportTlsConfigurationError(const std::string& tlsIn
         const std::string& tlsInconsistentEnableStr, const std::string& tlsInconsistentDisableStr, const std::string& tlsUnknownRankStr)
 {
     std::string errormessage = "Value " + tlsInconsistentTlsType + " for config \"tls\" is invalid. Expected: \"All ranks are consistent. Current status: "\
-    "rankList for enabled tls: " + tlsInconsistentEnableStr + "; rankList for disabled tls:" + tlsInconsistentDisableStr + " rankList for query failure tls:" + tlsUnknownRankStr + ".\"";
+    "rankList for enabled tls: " + tlsInconsistentEnableStr + " rankList for disabled tls:" + tlsInconsistentDisableStr + " rankList for query failure tls:" + tlsUnknownRankStr + ".\"";
     RPT_INPUT_ERR(true,
     "EI0016",
     std::vector<std::string>({"value", "variable", "expect"}),
