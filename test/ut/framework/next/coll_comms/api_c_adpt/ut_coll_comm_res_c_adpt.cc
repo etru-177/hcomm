@@ -73,6 +73,15 @@ HcclResult StubChannelGetRemoteMems(ChannelHandle channel, uint32_t *memNum, Com
     return HCCL_SUCCESS;
 }
 
+HcclResult StubUpdateSymmetricRemoteMem(uint32_t remoteRank, const CommMem *remoteMems, char **memTags, uint32_t memNum)
+{
+    (void)remoteRank;
+    (void)remoteMems;
+    (void)memTags;
+    (void)memNum;
+    return HCCL_SUCCESS;
+}
+
 class HcclChannelDescTest : public testing::Test {
 public:
     void SetUp() override
@@ -319,5 +328,43 @@ TEST_F(HcclChannelDescTest, Ut_ProcessUbChannelDesc_When_Uboe_QosUnset_UsesCommH
     ASSERT_EQ(HcclChannelDescInit(&out, 1), HCCL_SUCCESS);
     in.channelProtocol = COMM_PROTOCOL_UBOE;
     ret = ProcessUbChannelDesc(in, out, hcclCommPtr.get());
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(HcclChannelDescTest, Ut_HcclChannelAcquire_When_AicpuUrma_AppendSymmetricMemHandle)
+{
+    std::vector<HcclChannelDesc> channelDesc(1);
+    std::vector<ChannelHandle> channels(1);
+    ASSERT_EQ(HcclChannelDescInit(channelDesc.data(), 1), HCCL_SUCCESS);
+    channelDesc[0].remoteRank = 2;
+    channelDesc[0].channelProtocol = COMM_PROTOCOL_UBOE;
+    channelDesc[0].notifyNum = 1;
+    channelDesc[0].memHandles = &g_userMemHandle;
+    channelDesc[0].memHandleNum = 1;
+
+    MOCKER(&hcomm::ClusterMonitor::RegisterToClusterMonitor).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&CollComm::RegisterPendingSymmetricMemHandles).expects(once()).will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&MyRank::CreateChannels).stubs().will(returnValue(HCCL_SUCCESS));
+
+    ret = HcclChannelAcquire(comm, CommEngine::COMM_ENGINE_AICPU, channelDesc.data(), 1, channels.data());
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+}
+
+TEST_F(HcclChannelDescTest, Ut_HcclChannelAcquire_When_CpuUrma_NotAppendSymmetricMemHandle)
+{
+    std::vector<HcclChannelDesc> channelDesc(1);
+    std::vector<ChannelHandle> channels(1);
+    ASSERT_EQ(HcclChannelDescInit(channelDesc.data(), 1), HCCL_SUCCESS);
+    channelDesc[0].remoteRank = 2;
+    channelDesc[0].channelProtocol = COMM_PROTOCOL_UBOE;
+    channelDesc[0].notifyNum = 1;
+    channelDesc[0].memHandles = &g_userMemHandle;
+    channelDesc[0].memHandleNum = 1;
+
+    MOCKER_CPP(&CollComm::RegisterPendingSymmetricMemHandles).expects(never());
+    MOCKER_CPP(&MyRank::CreateChannels).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER(HcommDpuChannelRegisterDfx).stubs().will(returnValue(0));
+
+    ret = HcclChannelAcquire(comm, CommEngine::COMM_ENGINE_CPU, channelDesc.data(), 1, channels.data());
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }

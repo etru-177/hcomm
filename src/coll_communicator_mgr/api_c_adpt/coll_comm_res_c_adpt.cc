@@ -416,6 +416,11 @@ bool CheckCommEngine(const CommEngine engine, const uint32_t opExpansionMode)
     return true;
 }
 
+static bool IsAicpuEngine(CommEngine engine)
+{
+    return engine == COMM_ENGINE_AICPU || engine == COMM_ENGINE_AICPU_TS;
+}
+
 constexpr uint32_t CHANNEL_NUM_MAX = 1024 * 1024;  // channel的默认限制最大为1024 * 1024
 
 HcclResult RegisterToClusterMonitor(HcclComm comm)
@@ -491,7 +496,9 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine,
         }
 
         bool hasSymmetricMemHandles = false;
-        CHK_RET(AppendSymmetricMemHandles(collComm, channelDescFinals, mergedMemHandles, hasSymmetricMemHandles));
+        if (IsAicpuEngine(engine)) {
+            CHK_RET(AppendSymmetricMemHandles(collComm, channelDescFinals, mergedMemHandles, hasSymmetricMemHandles));
+        }
         HCCL_INFO("[HcclChannelAcquire] AppendSymmetricMemHandles done, group[%s], engine[%d], channelNum[%u], "
             "hasSymmetricMemHandles[%d], mergedMemHandleGroups[%zu].",
             commTag.c_str(), engine, channelNum, hasSymmetricMemHandles, mergedMemHandles.size());
@@ -515,7 +522,7 @@ HcclResult HcclChannelAcquire(HcclComm comm, CommEngine engine,
             }
             HCCL_INFO("[HcclChannelAcquire] group[%s] channelNum[%u] Register DFX callback for CPU channels success", commTag.c_str(), channelNum);
         }
-        if (engine == COMM_ENGINE_AICPU || engine == COMM_ENGINE_AICPU_TS) {
+        if (IsAicpuEngine(engine)) {
             HCCL_INFO("[HcclChannelAcquire] ReportChannelAicpuKernel start");
             HcclCommDfx* hcclCommDfx = collComm->GetHcclCommDfx();
             CHK_PTR_NULL(hcclCommDfx);
