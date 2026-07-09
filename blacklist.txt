@@ -27,3 +27,4 @@ src/base_comm/resources/endpoint_pairs/channels/channel.cc
 src/base_comm/common/orion_adpt_utils.cc
 src/coll_communicator_mgr/dfx/taskException/host/hcclCommTaskException.cc
 src/common/launch_aicpu/launch_aicpu.cc
+src/legacy/ascend910/framework/op_base/src/op_base.cc

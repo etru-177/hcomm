@@ -3385,21 +3385,19 @@ static HcclConfigTypeOpExpansionMode OpExpansionModeValueToModeEnum(const uint32
     constexpr uint32_t ccuMsMode = 5;
     constexpr uint32_t ccuSchedMode = 6;
     constexpr uint32_t aicpuMode = 7;
-    constexpr uint32_t opExpansionModeCcuSched = 5;
-    constexpr uint32_t opExpansionModeCcuMs = 4;
 
     switch(value) {
         case defaultMode:
-            return static_cast<HcclConfigTypeOpExpansionMode>(opExpansionModeCcuSched);
+            return HcclOpExpansionMode::HCCL_OP_EXPANSION_MODE_CCU_SCHED;
         case hostTsMode:
             return HcclOpExpansionMode::HCCL_OP_EXPANSION_MODE_HOST_TS;
         case aicpuTsMode:
         case aicpuMode:
             return HcclOpExpansionMode::HCCL_OP_EXPANSION_MODE_AI_CPU;
         case ccuMsMode:
-            return static_cast<HcclConfigTypeOpExpansionMode>(opExpansionModeCcuMs);
+            return HcclOpExpansionMode::HCCL_OP_EXPANSION_MODE_CCU_MS;
         case ccuSchedMode:
-            return static_cast<HcclConfigTypeOpExpansionMode>(opExpansionModeCcuSched);
+            return HcclOpExpansionMode::HCCL_OP_EXPANSION_MODE_CCU_SCHED;
         case aivMode:
             return HcclOpExpansionMode::HCCL_OP_EXPANSION_MODE_AIV;
         case aivOnlyMode:
