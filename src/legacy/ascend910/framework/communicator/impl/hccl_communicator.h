@@ -1058,14 +1058,17 @@ private:
     std::unordered_map<std::string, std::string> newTagToTagMap_;
     // zerocopy hex prefix tag + cnt 副本 _CaptureN tag，跨 iter 累积新 entry
     std::unordered_set<std::string> tagsRequiringHostCleanup_;
+    // 保护 rankTagRemoteRes_ / hostMemVec_ / deviceMemVec_ / tagsRequiringHostCleanup_ /
+    // ibverbsLocalNotify_ / ibverbsRemoteNotify_ / resMap_ 的并发访问
+    std::mutex commResMutex_;
     static std::mutex linkResMapMutex_;
     static std::unordered_map<Transport*, LinkInfo> linkResMap_;
     std::shared_ptr<HostMem> transDevIbverbsDataMem_ = nullptr;
     bool isA2MC2MultiServer_{false};
     bool isA2MC2IntraHie_{false};
     DeviceMem ibverbsDataBuffer_;
-    std::list<DeviceMem> ibverbsLocalNotify_;
-    std::list<DeviceMem> ibverbsRemoteNotify_;
+    std::unordered_map<std::string, std::list<DeviceMem>> ibverbsLocalNotify_;
+    std::unordered_map<std::string, std::list<DeviceMem>> ibverbsRemoteNotify_;
 
     // 按序下发notify的工作区
     DeviceMem aicpuOrderNotifyAddr_;
