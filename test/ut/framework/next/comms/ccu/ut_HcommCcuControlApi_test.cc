@@ -185,7 +185,7 @@ TEST_F(HcommCcuControlApiTest, testName)                                        
         EXPECT_NE(ccuRet, CcuResult::CCU_SUCCESS);                                                          \
     }                                                                                                       \
                                                                                                             \
-    ccuRet = HcommCcuInsDestroy(insHandle);                                                                 \
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);                                                                 \
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);                                                              \
 }
 
@@ -242,7 +242,7 @@ TEST_F(HcommCcuControlApiTest, Ut_LoopObjectApi_Expect_Success)
     ccuRet = HcommCcuKernelRegisterEnd(insHandle);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -326,7 +326,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelRegister_When_AllFine_Expect_Ret
 
     // 清理各种资源，析构有时序要求
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -387,7 +387,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelDoWhile_When_AllFine_Expect_Retu
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -451,7 +451,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelNestedIfOuterElse_When_AllFine_E
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -515,7 +515,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelNestedIfInnerElse_When_AllFine_E
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -576,7 +576,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelDoWhileUnified_When_AllFine_Expe
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -638,7 +638,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelLoopAdd_When_AllFine_Expect_Retu
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -699,7 +699,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelRemoteRead_When_AllFine_Expect_R
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -760,7 +760,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelRemoteWrite_When_AllFine_Expect_
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -821,7 +821,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelAlloc_When_AllFine_Expect_Return
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -908,7 +908,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelReduceScatterMesh1d_When_AllFine
 
     // 清理各种资源，析构有时序要求
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -974,7 +974,7 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelNestedInIfIf_When_AllFine_Expect
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }
 
@@ -1048,6 +1048,45 @@ TEST_F(HcommCcuControlApiTest, Ut_HcommCcuKernelAllGatherMesh1dMem2Mem_When_AllF
         fakeTaskArgs, fakeArgSize), CcuResult::CCU_SUCCESS);
 
     MockChannelDestory(handlePair);
-    ccuRet = HcommCcuInsDestroy(insHandle);
+    ccuRet = HcommCcuInsDestroy(insHandle, fakeDeviceLogicId);
+    EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
+}
+
+// HcommCcuInsDestroy 接口在线程 DeviceId 与要析构的目标 DeviceId 不同时，
+// 内部正确切换 Device 完成销毁并恢复原 Device
+TEST_F(HcommCcuControlApiTest, Ut_HcommCcuInsDestroy_CrossDevice_Expect_Success)
+{
+    CcuResult ccuRet = CcuResult::CCU_E_RESERVED;
+    constexpr int32_t curThreadDevId = 0;   // 当前线程的 DeviceId
+    constexpr int32_t otherDevId = 1;       // 要析构的 DeviceId
+
+    // 在 otherDevId 上创建 CcuInstance
+    MOCKER(HcclGetThreadDeviceId).stubs().will(returnValue(otherDevId));
+    MOCKER(hrtGetDevice).stubs()
+        .with(outBoundP(&otherDevId))
+        .will(returnValue(HcclResult::HCCL_SUCCESS));
+    MOCKER(hrtGetDevicePhyIdByIndex).stubs()
+        .with(mockcpp::any(), outBound(static_cast<uint32_t>(otherDevId)), mockcpp::any())
+        .will(returnValue(HcclResult::HCCL_SUCCESS));
+    constexpr hcomm::CcuVersion fakeCcuVersion = hcomm::CcuVersion::CCU_V1;
+    MockCcuNetworkDeviceDefault(otherDevId);
+    EXPECT_EQ(MockCcuResourcesDefault(otherDevId, fakeCcuVersion), HcclResult::HCCL_SUCCESS);
+    MockCcuChannelGetRes();
+    MOCKER(hrtMemcpy).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
+
+    CcuResDesc resDesc{};
+    resDesc.dieId = hcomm::CCU_MAX_IODIE_NUM;
+    resDesc.insType = CcuInstanceType::CCU_MS;
+    constexpr uint32_t descNum = 1;
+    CcuInsHandle insHandle{0};
+    ccuRet = HcommCcuInsCreate(static_cast<void *>(&resDesc), descNum, &insHandle);
+    EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
+
+    // isDiffDevId=true 场景
+    MOCKER(HcclGetThreadDeviceId).stubs().will(returnValue(curThreadDevId));
+    MOCKER(hrtSetDevice).stubs().will(returnValue(HcclResult::HCCL_SUCCESS));
+
+    // 销毁 CcuInstance
+    ccuRet = HcommCcuInsDestroy(insHandle, otherDevId);
     EXPECT_EQ(ccuRet, CcuResult::CCU_SUCCESS);
 }

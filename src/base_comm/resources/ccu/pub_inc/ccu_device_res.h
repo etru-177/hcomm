@@ -50,7 +50,7 @@ extern CcuResult HcommCcuInsCreate(const void *resDesc, uint32_t descNum, CcuIns
  * @return HcclResult 返回HcclResult类型的结果
  * @note 资源不足时返回HCCL_E_UNAVIL，其余非HCCL_SUCCESS结果属于错误
  */
-extern CcuResult HcommCcuInsDestroy(CcuInsHandle insHandle);
+extern CcuResult HcommCcuInsDestroy(CcuInsHandle insHandle, int32_t curDeviceLogicId);
 
 #ifdef __cplusplus
 }

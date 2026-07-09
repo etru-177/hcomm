@@ -103,12 +103,12 @@ MyRank::MyRank(aclrtBinHandle binHandle, uint32_t rankId, const CommConfig &conf
 
 MyRank::~MyRank()
 {
-    HCCL_INFO("[MyRank][~MyRank] MyRank deinit");
+    HCCL_INFO("[MyRank][~MyRank] MyRank deinit, rankId_[%u], devLogicId_[%d]", rankId_, devLogicId_);
     // 析构有时序要求
     rankPairMgr_ = nullptr; // 内部会销毁channel，可能需要返还endpoint与ccu资源
     endpointMgr_ = nullptr; // 内部会销毁endpoint，可能需要返回ccu资源
     if (ccuInsHandle_ != 0) {  // 内部清理CCU资源，关闭CCU通道
-        (void)HcommCcuInsDestroy(ccuInsHandle_);
+        (void)HcommCcuInsDestroy(ccuInsHandle_, devLogicId_);
         ccuInsHandle_ = 0;
     }
 
@@ -225,7 +225,8 @@ HcclResult MyRank::GetDevicePortInternal(uint32_t rank, uint32_t *devPort, Endpo
 HcclResult MyRank::Init(HcclMem cclBuffer, const uint32_t opExpansionMode, uint32_t rankNum)
 {
     // EXCEPTION_HANDLE_BEGIN
-     // ns recovery processor初始化
+    CHK_RET(hrtGetDevice(&devLogicId_));
+    // ns recovery processor初始化
     EXCEPTION_CATCH(nsRecoveryProcessor_ = std::make_unique<NsRecoveryProcessor>(), return HCCL_E_PTR);
     
     // 创建通信内存管理器

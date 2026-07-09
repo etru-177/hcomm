@@ -9,6 +9,7 @@
  */
 
 #include "ccu_launch.h"
+#include "adapter_rts_common.h"
 #include "ccu_res.h"
 
 #include <vector>
@@ -70,12 +71,30 @@ CcuResult HcommCcuInsCreate(const void *resDesc, uint32_t descNum, CcuInsHandle 
  * @return HcclResult 返回HcclResult类型的结果
  * @note 资源不足时返回HCCL_E_UNAVIL，其余非HCCL_SUCCESS结果属于错误
  */
-CcuResult HcommCcuInsDestroy(CcuInsHandle insHandle)
+CcuResult HcommCcuInsDestroy(CcuInsHandle insHandle, int32_t curDeviceLogicId)
 {
-    const uint32_t devLogicId = HcclGetThreadDeviceId();
-    CCU_CHK_RET(hcomm::CcuInstanceMgr::GetInstance(devLogicId).Destroy(insHandle));
+    // 获取当前线程的 DeviceId（线程变量）
+    const int32_t threadDevId = HcclGetThreadDeviceId();
+    HCCL_INFO("[%s] curDeviceLogicId[%d], threadDevId[%d]", __func__, curDeviceLogicId, threadDevId);
 
-    return CcuResult::CCU_SUCCESS;
+    // 先切换为目标 curDeviceLogicId
+    bool isDiffDevId = false;
+    if (curDeviceLogicId != threadDevId) {
+        CCU_CHK_RET(hrtSetDevice(curDeviceLogicId));
+        isDiffDevId = true;
+    }
+
+    // 销毁 CcuInstance
+    CcuResult ret = hcomm::CcuInstanceMgr::GetInstance(curDeviceLogicId).Destroy(insHandle);
+    if (ret != CCU_SUCCESS) {
+        HCCL_ERROR("[%s] Destroy CcuInstance failed, ret[%d]", __func__, ret);
+    }
+
+    /// 切换回原来的 DeviceId
+    if (isDiffDevId) {
+        CCU_CHK_RET(hrtSetDevice(threadDevId));
+    }
+    return ret;
 }
 
 CcuResult HcommCcuKernelRegisterStart(CcuInsHandle insHandle)

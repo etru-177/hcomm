@@ -96,6 +96,7 @@ private:
 
     aclrtBinHandle binHandle_{nullptr};
     uint32_t rankId_{};
+    int32_t devLogicId_{};
     CommConfig config_{};
 
     // 当前通信域初始化没有处理CommConfig，暂时只使用展开模式
