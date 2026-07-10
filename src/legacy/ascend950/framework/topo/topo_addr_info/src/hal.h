@@ -83,6 +83,12 @@ struct dcmi_spod_info {
 #define MAIN_BOARD_ID_POD         (0x07)
 #define MAIN_BOARD_ID_POD_2D      (0x03)
 
+
+/* 定义拓扑类型 */
+#define TOPO_TYPE_IGNORE (99)      // 忽略该拓扑类型
+#define TOPO_TYPE_SERVER_8P (0)    // 普通服务
+#define TOPO_TYPE_SERVER_16FM (3)  // 两个服务器组16p fullmesh
+
 int hal_get_eid_list_by_phy_id(int phyId, dcmi_urma_eid_info_t* eidList, size_t* eidCnt);
 
 int hal_get_mainboard_id(int phyId, unsigned int* mainboardId);

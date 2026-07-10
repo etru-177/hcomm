@@ -197,7 +197,7 @@ int PodGetRootinfo(int npu_id, unsigned mainboard_id, void *buf, size_t *len)
     NetLayer layerClos;
     RootInfoInit(&rootinfo);
     
-    TopoGetFilePath(mainboard_id, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
+    TopoGetFilePath(mainboard_id, TOPO_TYPE_IGNORE, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
     struct dcmi_spod_info spod_info;
     UEList ueList;
     HalGetUBEntityList(npu_id, &ueList);

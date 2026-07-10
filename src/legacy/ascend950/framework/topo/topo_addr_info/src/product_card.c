@@ -118,7 +118,7 @@ int GetCardRankInfo(int phyId, unsigned int mainboardId, void *buf, size_t* len)
     NetLayer layer_mesh;
     RootInfoInit(&rootinfo);
     RankInit(&rank, phyId, phyId);
-    TopoGetFilePath(mainboardId, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
+    TopoGetFilePath(mainboardId, TOPO_TYPE_IGNORE, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
 
     dcmi_urma_eid_info_t eid_list[MAX_EID_NUM] = {0};
     size_t eid_cnt = MAX_EID_NUM;

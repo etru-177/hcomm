@@ -118,7 +118,12 @@ int TopoAddrInfoGetTopoFilePath(int phyId, char* filePath, size_t bufSize)
     if (ret != 0) {
         return ret;
     }
-    return TopoGetFilePath(mainboard_id, filePath, bufSize);
+    struct dcmi_spod_info spod_info;
+    ret = hal_get_spod_info(phyId, &spod_info);
+    if (ret != 0) {
+        return TopoGetFilePath(mainboard_id, TOPO_TYPE_IGNORE, filePath, bufSize);
+    }
+    return TopoGetFilePath(mainboard_id, spod_info.super_pod_type, filePath, bufSize);
 }
 
 static int PassThrough(char *rankInfo, size_t *bufSize)

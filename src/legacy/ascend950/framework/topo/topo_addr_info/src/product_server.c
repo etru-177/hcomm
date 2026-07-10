@@ -28,6 +28,10 @@
 #define MAX_UE_ID_IN_LEVEL (2)
 #define MAX_LEVEL_NUM (4)
 
+
+
+#define SERVER_NPU_NUM (8)
+
 enum UbEntityType {
     UE_TYPE_MESH = 0,
     UE_TYPE_CLOS = 1,
@@ -54,6 +58,7 @@ typedef struct stLevelInfo {
 
 typedef struct _stUBRule {
     unsigned int mainBoardId;
+    unsigned int spodType;
     int levelNum;
     LevelInfo levelInfos[MAX_LEVEL_NUM];
 }NetInfo;
@@ -79,6 +84,7 @@ int GetNetInstanceIdForCluster(int npu_id, const struct dcmi_spod_info *spodInfo
 static const NetInfo g_netInfoList[] = {
     {
         .mainBoardId = MAIN_BOARD_ID_SERVER_UBX,
+        .spodType = TOPO_TYPE_IGNORE,
         .levelNum = 1, 
         {
             {
@@ -95,6 +101,7 @@ static const NetInfo g_netInfoList[] = {
    },
    {
         .mainBoardId = MAIN_BOARD_ID_SERVER_8PMESH,
+        .spodType = TOPO_TYPE_IGNORE,
         .levelNum = 2, 
         {
             {  // level 0 为OS内通信
@@ -112,13 +119,14 @@ static const NetInfo g_netInfoList[] = {
                 .ueNum = 1,
                 .instanceIdFunc = GetNetInstanceIdForSuperPod,
                 .ueList = { // 8口scaleup
-                    {.dieId = UDIE_0, .feId = 3, .type =UE_TYPE_CLOS},
+                    {.dieId = UDIE_0, .feId = 3, .type = UE_TYPE_CLOS},
                 },
             },
         },
    },
    {
         .mainBoardId = MAIN_BOARD_ID_SERVER_8PMESH_UBOE,
+        .spodType = TOPO_TYPE_IGNORE,
         .levelNum = 3, 
         {
             {
@@ -138,8 +146,28 @@ static const NetInfo g_netInfoList[] = {
             },
         },
    },
+   {// 由两个8 NPU服务器组成一个16NPU的小超节点，共16个NPU组成fullmesh组网
+        .mainBoardId = MAIN_BOARD_ID_SERVER_8PMESH_UBOE,
+        .spodType = TOPO_TYPE_SERVER_16FM,  // 两个服务器组16p fullmesh
+        .levelNum = 2, 
+        {
+            {
+                .level = 0, .netType = NET_TYPE_TOPO_FILE_DESC, .ueNum = 2,
+                .instanceIdFunc = GetNetInstanceIdForPod,
+                .ueList = { 
+                    {.dieId = UDIE_0, .feId = MAX_UE_ID, .type = UE_TYPE_MESH}, 
+                    {.dieId = UDIE_1, .feId = MAX_UE_ID, .type = UE_TYPE_MESH}
+                }
+            },
+            { // 支持UBOE出口
+                .level = 2, .netType = NET_TYPE_CLOS, .ueNum = 1, .instanceIdFunc = GetNetInstanceIdForCluster,
+                .ueList = { {.dieId = UDIE_0, .feId = 0, .type =UE_TYPE_UBOE, .ports = "1/8"} },
+            },
+        },
+   },
    {
         .mainBoardId = MAIN_BOARD_ID_SERVER_8PMESH_NOSP_UBOE, // 这种形态无超平面，但是有UBOE
+        .spodType = TOPO_TYPE_IGNORE,
         .levelNum = 2, 
         {
             {
@@ -160,6 +188,7 @@ static const NetInfo g_netInfoList[] = {
    },
    {
         .mainBoardId = MAIN_BOARD_ID_SERVER_8PMESH_NOSP, // 无超平面，无UBOE
+        .spodType = TOPO_TYPE_IGNORE,
         .levelNum = 1,// 这种形态只有一层网络
         {
             {
@@ -171,6 +200,7 @@ static const NetInfo g_netInfoList[] = {
    },
    {
         .mainBoardId = MAIN_BOARD_ID_SERVER_TYPE1,
+        .spodType = TOPO_TYPE_IGNORE,
         .levelNum = 2, 
         {
             {
@@ -218,8 +248,15 @@ int GetNetInstanceIdForCluster(int npu_id, const struct dcmi_spod_info *spodInfo
     return sprintf_s(netInstanceId, netInstanceIdLen, "cluster");
 }
 
-const NetInfo *GetNetInfo(unsigned int mainBoardId)
+const NetInfo *GetNetInfo(unsigned int mainBoardId, unsigned int spodType)
 {
+    // 优先匹配满足mainboard id和 super pod type的情况
+    for (size_t i = 0; i < sizeof(g_netInfoList) / sizeof(g_netInfoList[0]); ++i) {
+        if (g_netInfoList[i].mainBoardId == mainBoardId && g_netInfoList[i].spodType == spodType) {
+            return &g_netInfoList[i];
+        }
+    }
+    //  忽略spod type，只匹配mainboard id
     for (size_t i = 0; i < sizeof(g_netInfoList) / sizeof(g_netInfoList[0]); ++i) {
         if (g_netInfoList[i].mainBoardId == mainBoardId) {
             return &g_netInfoList[i];
@@ -405,18 +442,23 @@ int ServerGetRootinfo(int npu_id, unsigned mainboard_id, void *buf, size_t *len)
     if (buf == NULL || len == NULL) {
         return RET_NOK;
     }
-    RootInfo rootinfo;
-    Rank rank;
-    RootInfoInit(&rootinfo);
-    RankInit(&rank, npu_id, npu_id);
-    
-    TopoGetFilePath(mainboard_id, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
     struct dcmi_spod_info spod_info;
     UEList ueList;
     HalGetUBEntityList(npu_id, &ueList);
     hal_get_spod_info(npu_id, &spod_info);
 
-    const NetInfo *netInfo = GetNetInfo(mainboard_id);
+    RootInfo rootinfo;
+    Rank rank;
+    RootInfoInit(&rootinfo);
+    int localId = npu_id;
+    if (spod_info.super_pod_type == TOPO_TYPE_SERVER_16FM) {
+        localId = npu_id + (spod_info.server_index * SERVER_NPU_NUM);
+    }
+    RankInit(&rank, npu_id, localId);
+    TopoGetFilePath(mainboard_id, spod_info.super_pod_type, rootinfo.topo_file_path, MAX_TOPO_PATH_LEN);
+    
+
+    const NetInfo *netInfo = GetNetInfo(mainboard_id, spod_info.super_pod_type);
     if (netInfo == NULL) {
         return -1;
     }

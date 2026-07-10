@@ -16,7 +16,7 @@
 #include "securec.h"
 #include "hal.h"
 
-#define MAX_TOPO_FILE_SIZE (10240)
+#define MAX_TOPO_FILE_SIZE (40960)
 
 /**
  * @brief 用正则表达式解析JSON文件中的"topo_file_path"字段值（无goto，纯C实现）
@@ -114,7 +114,7 @@ int TopoGetClosPort(unsigned int mainboardId, int dieId, int *ports, int *portCn
 
 #define MAX_DRIVER_INSTALL_PATH (128)
 
-int TopoGetFilePath(unsigned mainboard_id, char* buf_size, size_t buf_len)
+int TopoGetFilePath(unsigned mainboard_id, unsigned int spod_type, char* buf_size, size_t buf_len)
 {
     char driver_install_path[MAX_DRIVER_INSTALL_PATH] = {0};
     if (0 != hal_get_driver_install_path(driver_install_path, MAX_DRIVER_INSTALL_PATH)) {
@@ -141,7 +141,11 @@ int TopoGetFilePath(unsigned mainboard_id, char* buf_size, size_t buf_len)
         case MAIN_BOARD_ID_SERVER_8PMESH_UBOE:
         case MAIN_BOARD_ID_SERVER_8PMESH_NOSP:
         case MAIN_BOARD_ID_SERVER_8PMESH_NOSP_UBOE:
-            ret = sprintf_s(buf_size, buf_len, "%s/%s", driver_install_path, "driver/topo/950/atlas_850_1.json");
+            if (spod_type == TOPO_TYPE_SERVER_16FM) {
+                ret = sprintf_s(buf_size, buf_len, "%s/%s", driver_install_path, "driver/topo/950/atlas_850_2.json");
+            } else {
+                ret = sprintf_s(buf_size, buf_len, "%s/%s", driver_install_path, "driver/topo/950/atlas_850_1.json");
+            }
             break;
         case MAIN_BOARD_ID_SERVER_UBX:
             ret = sprintf_s(buf_size, buf_len, "%s/%s", driver_install_path, "driver/topo/950/atlas_850_3.json");

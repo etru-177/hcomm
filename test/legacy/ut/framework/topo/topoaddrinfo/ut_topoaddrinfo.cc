@@ -582,7 +582,7 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_server_uboe)
 }
 
 
-TEST_F(TopoAddrInfoTest, ut_rootinfo_for_ubx)
+TEST_F(TopoAddrInfoTest, ut_rootinfo_for_ubx1)
 {
     /*
     打桩UBX机型, 预期正常输出, 输出的0层地址中包含一个mesh组网和一个clos组网
@@ -635,5 +635,117 @@ TEST_F(TopoAddrInfoTest, ut_rootinfo_for_ubx)
     // 校验mesh层net type正确
     EXPECT_TRUE(strstr(buf, "TOPO_FILE_DESC") !=  NULL);
     // 校验clos层net type正确
+    free(buf);
+}
+
+TEST_F(TopoAddrInfoTest, ut_rootinfo_for_ubx2)
+{
+    /*
+    打桩UBX机型, 预期正常输出, 输出的0层地址中包含一个mesh组网和一个clos组网
+     */
+    unsigned int mainboard_id = 0x44;
+    char drv_path[256] = "/usr/local/Ascend2";
+    UEList ueList;
+    memset_s(&ueList, sizeof(UEList), 0x00, sizeof(UEList));
+    hex32_to_bin16("000000000f44020000100000df00a8f8", ueList.ueList[0].eidList[0].eid.raw);
+    hex32_to_bin16("000000000f7f020000100000df00d9f8", ueList.ueList[0].eidList[1].eid.raw);
+    hex32_to_bin16("000000000f47020000100000df00c0f8", ueList.ueList[0].eidList[2].eid.raw);
+    hex32_to_bin16("000000000f46020000100000df00b8f8", ueList.ueList[0].eidList[3].eid.raw);
+    hex32_to_bin16("000000000f45020000100000df00b0f8", ueList.ueList[0].eidList[4].eid.raw);
+    ueList.ueList[0].eidNum = 5;
+
+    hex32_to_bin16("000000000f40030000100000df0088f8", ueList.ueList[1].eidList[0].eid.raw);
+    hex32_to_bin16("000000000f7f030000100000df00d8f8", ueList.ueList[1].eidList[1].eid.raw);
+    hex32_to_bin16("000000000f42030000100000df0098f8", ueList.ueList[1].eidList[2].eid.raw);
+    hex32_to_bin16("000000000f41030000100000df0090f8", ueList.ueList[1].eidList[3].eid.raw);
+    ueList.ueList[1].eidNum = 4;
+    ueList.ueNum = 2;
+
+    struct dcmi_spod_info spinfo;
+    spinfo.sdid = 0x00000000;
+    spinfo.super_pod_size = 128;
+    spinfo.super_pod_id = 1;
+    spinfo.server_index = 1;
+    spinfo.chassis_id = 0x00000000;
+    spinfo.super_pod_type = 4; // UBX的superpod type 为4
+
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
+
+    size_t bufSize = 4096;
+    char* buf = (char*)malloc(bufSize);
+    memset_s(buf, bufSize, 0x00, bufSize);
+    int ret = TopoAddrInfoGet(0, buf, &bufSize);
+    EXPECT_EQ(ret, 0);
+    printf("[%s]\n", buf);
+
+    // 校验mesh部分
+    EXPECT_TRUE(strstr(buf, "000000000f40030000100000df0088f8") !=  NULL);
+    EXPECT_TRUE(strstr(buf, "000000000f42030000100000df0098f8") !=  NULL);
+    EXPECT_TRUE(strstr(buf, "000000000f41030000100000df0090f8") !=  NULL);
+    //  校验CLOS地址
+    EXPECT_TRUE(strstr(buf, "000000000f7f020000100000df00d9f8") !=  NULL);
+
+    // 校验mesh层net type正确
+    EXPECT_TRUE(strstr(buf, "TOPO_FILE_DESC") !=  NULL);
+    // 校验clos层net type正确
+    free(buf);
+}
+
+TEST_F(TopoAddrInfoTest, ut_rootinfo_for_server_uboe_16fm)
+{
+    /*
+    模拟有UBOE机型， 输入有UBOE机型的配置，且已配置UBOE IP地址
+    预期正常输出，带UBOE IP地址
+     */
+    unsigned int mainboard_id = 0x27;
+    char drv_path[256] = "/usr/local/Ascend2";
+    UEList ueList;
+    mock_uelist_for_server_with_uboe(&ueList);
+
+    struct dcmi_spod_info spinfo;
+    spinfo.sdid = 0x00000000;
+    spinfo.super_pod_size = 128;
+    spinfo.super_pod_id = 1;
+    spinfo.server_index = 1;
+    spinfo.chassis_id = 0x00000000;
+    spinfo.super_pod_type = 3;
+
+    MOCKER(hal_get_mainboard_id).stubs().with(mockcpp::any(), outBoundP(&mainboard_id)).will(returnValue(0));
+    MOCKER(hal_get_driver_install_path).stubs().with(outBoundP(drv_path, strlen(drv_path)), mockcpp::any()).will(returnValue(0));
+    MOCKER(HalGetUBEntityList).stubs().with(mockcpp::any(), outBoundP(&ueList)).will(returnValue(0));
+    MOCKER(hal_get_spod_info).stubs().with(mockcpp::any(), outBoundP(&spinfo)).will(returnValue(0));
+
+    size_t bufSize = 4096;
+    char* buf = (char*)malloc(bufSize);
+    memset_s(buf, bufSize, 0x00, bufSize);
+    int ret = TopoAddrInfoGet(0, buf, &bufSize);
+    EXPECT_EQ(ret, 0);
+    printf("[%s]\n", buf);
+
+    //  跨节点MESH
+    EXPECT_TRUE(strstr(buf,"000000000001030000100000df000201") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000008030000100000df000901") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000007030000100000df000801") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000006030000100000df000701") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000005030000100000df000601") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000004030000100000df000501") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000003030000100000df000401") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000002030000100000df000301") !=  NULL);
+
+    //  本节点MESH
+    EXPECT_TRUE(strstr(buf,"000000000041050000100000df001200") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000047050000100000df001800") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000046050000100000df001700") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000045050000100000df001600") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000044050000100000df001500") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000043050000100000df001400") !=  NULL);
+    EXPECT_TRUE(strstr(buf,"000000000042050000100000df001300") !=  NULL);
+
+    // 校验UBOE IP
+    EXPECT_TRUE(strstr(buf, "10.10.20.2") !=  NULL);
+
     free(buf);
 }
