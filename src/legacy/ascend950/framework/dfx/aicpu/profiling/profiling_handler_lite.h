@@ -73,7 +73,7 @@ private:
     bool IsL1fromOffToOn();
 
     
-    void DumpTaskDetails(const MsprofAicpuHcclTaskInfo& taskDetailsInfos, const TaskInfo *taskInfo) const;
+    void DumpTaskDetails(const TaskInfo *taskInfo) const;
     void GetTaskDetailInfos(const TaskInfo *it, MsprofAicpuHcclTaskInfo &taskDetailsInfos) const;
     void FillTaskParamDetails(const TaskInfo *it, MsprofAicpuHcclTaskInfo &taskDetailsInfos) const;
     bool FillBatchReporterData(uint32_t batchId, const MsprofAicpuHcclTaskInfo *taskInfos,

@@ -1763,12 +1763,6 @@ int32_t ProfilingHandler::CommandHandleWrapper(uint32_t rtType, void *data, uint
     return 0;
 }
 
-// 接口预留，暂时不实现
-// 函数入参，因为静态检查先删除注释：kernelType kerType, uint64_t beginTime, uint64_t endTime, bool cachedReq
-void ProfilingHandler::ReportKernel() const
-{
-}
-
 void ProfilingHandler::ReportHostApi(OpType opType, uint64_t beginTime, uint64_t endTime, bool cachedReq, bool isAiCpu)
 {
 }
@@ -1807,10 +1801,6 @@ void ProfilingHandler::GetCcuTaskInfo(const TaskInfo &taskInfo, const CcuProfili
 }
 
 void ProfilingHandler::GetCcuGroupInfo(const TaskInfo &taskInfo, const CcuProfilingInfo &info) const
-{
-}
-
-void ProfilingHandler::DumpCcuGroupInfo(const MsprofCcuGroupInfo &ccuGroupInfo) const
 {
 }
 
@@ -1973,7 +1963,7 @@ void ProfilingHandlerLite::GetTaskDetailInfos(const TaskInfo *it, MsprofAicpuHcc
 }
 
 void ProfilingHandlerLite::DumpTaskDetails(
-    const MsprofAicpuHcclTaskInfo &taskDetailsInfos, const TaskInfo *taskInfo) const
+    const TaskInfo *taskInfo) const
 {
 }
 
@@ -2036,7 +2026,7 @@ HcclResult ProfilingReporter::Init()
     return HCCL_SUCCESS;
 }
 
-void ProfilingReporter::SetCurrDfxOpInfo(std::shared_ptr<DfxOpInfo> dfxOpInfo)
+void ProfilingReporter::SetCurrDfxOpInfo(std::shared_ptr<DfxOpInfo> dfxOpInfo) const
 {
 }
 

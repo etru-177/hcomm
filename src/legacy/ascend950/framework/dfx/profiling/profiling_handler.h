@@ -133,8 +133,6 @@ public:
 
     static int32_t  CommandHandleWrapper(uint32_t rtType, void *data, uint32_t len);
 
-    void ReportKernel() const;
-
     void ReportHostApi(OpType opType, uint64_t beginTime, uint64_t endTime, bool cachedReq, bool isAiCpu); 
 
     void ReportHcclOp(const DfxOpInfo &opInfo, bool cachedReq);
@@ -205,16 +203,13 @@ private:
     void GetCcuGroupInfo(const TaskInfo &taskInfo, const CcuProfilingInfo &info) const;
 
     void DumpHCCLReportData(const TaskInfo &taskInfo, const MsprofAdditionalInfo &reporterData) const;
-    void DumpCcuGroupInfo(const MsprofCcuGroupInfo& ccuGroupInfo) const;
+
     void ReportMc2AdditionInfo(uint64_t timeStamp, const void* data, int len);
     void SetCachedCclTag();
     void InitLog() const;
-    void ReportHcclMC2CommInfoLog(const Stream &kfcStream, const Stream &stream,
-                                   const std::vector<Stream *> &aicpuStreams, const std::string &id,
-                                   RankId myRank, u32 rankSize, RankId rankInParentComm) const;
-    void ReportHcclMC2CommInfoLog(const u32 kfcStreamId, const std::vector<u32> &aicpuStreamsId,
-                                   const std::string &id, RankId myRank, u32 rankSize,
-                                   RankId rankInParentComm) const;
+    void ReportHcclMC2CommInfoLog(const Stream &stream,
+                                   const std::vector<Stream *> &aicpuStreams) const;
+    void ReportHcclMC2CommInfoLog(const std::vector<u32> &aicpuStreamsId, const std::string &id) const;
     void ReportCcuInfoLog(const TaskInfo &taskInfo) const;
     void LogCcuTaskInfo(const CcuProfilingInfo &info, const TaskInfo &taskInfo,
                         uint64_t itemId, uint64_t groupName, u32 rankId, u32 ranksize) const;

@@ -43,7 +43,7 @@ HcclResult ProfilingReporter::Init()
     return HCCL_SUCCESS;
 }
 
-void ProfilingReporter::SetCurrDfxOpInfo(std::shared_ptr<DfxOpInfo> dfxOpInfo)
+void ProfilingReporter::SetCurrDfxOpInfo(std::shared_ptr<DfxOpInfo> dfxOpInfo) const
 {
     HCCL_INFO("[ProfilingReporter][SetCurrDfxOpInfo] L1State[%d] L0State[%d]", profilingHandler_->GetHcclL1State(), profilingHandler_->GetHcclL0State());
     if (profilingHandler_->GetHcclL1State() || profilingHandler_->GetHcclL0State()) {  //这两个值只有profiling使用 如果没开就不进行hash

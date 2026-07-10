@@ -87,10 +87,6 @@ int32_t ProfilingHandler::CommandHandleWrapper(uint32_t rtType, void *data, uint
     return instance_.CommandHandle(rtType, data, len);
 }
 
-void ProfilingHandler::ReportKernel() const
-{
-}
-
 void ProfilingHandler::ReportHostApi(OpType opType, uint64_t beginTime, uint64_t endTime, bool cachedReq, bool isAiCpu)
 {
     uint32_t threadId = SalGetTid();
@@ -779,14 +775,6 @@ void ProfilingHandler::GetCcuGroupInfo(const TaskInfo &taskInfo, const CcuProfil
     ReportAdditionInfo(reporterData);
 }
 
-void ProfilingHandler::DumpCcuGroupInfo(const MsprofCcuGroupInfo &ccuGroupInfo) const
-{
-    if (LIKELY(HcclCheckLogLevel(HCCL_LOG_INFO) == 0)) {
-        return;
-    }
-    // HCCL_INFOs migrated to ReportCcuInfoLog
-}
-
 void ProfilingHandler::GetCcuWaitSignalInfo(const TaskInfo &taskInfo, const CcuProfilingInfo &info) const
 {
     uint64_t timestamp = DlProfFunction::GetInstance().dlMsprofSysCycleTime();
@@ -1276,9 +1264,8 @@ uint64_t ProfilingHandler::GetProfHashId(const char *name, uint32_t len) const
     return DlProfFunction::GetInstance().dlMsprofStr2Id(name, len);
 }
 
-void ProfilingHandler::ReportHcclMC2CommInfoLog(const Stream &kfcStream, const Stream &stream,
-                                             const std::vector<Stream *> &aicpuStreams, const std::string &id,
-                                             RankId myRank, u32 rankSize, RankId rankInParentComm) const
+void ProfilingHandler::ReportHcclMC2CommInfoLog(const Stream &stream,
+                                             const std::vector<Stream *> &aicpuStreams) const
 {
     if (LIKELY(HcclCheckLogLevel(HCCL_LOG_INFO) == 0)) {
         return;
@@ -1298,7 +1285,7 @@ void ProfilingHandler::ReportHcclMC2CommInfo(const Stream &kfcStream, const Stre
                                              const std::vector<Stream *> &aicpuStreams, const std::string &id, 
                                              RankId myRank, u32 rankSize, RankId rankInParentComm)
 {
-    ReportHcclMC2CommInfoLog(kfcStream, stream, aicpuStreams, id, myRank, rankSize, rankInParentComm);
+    ReportHcclMC2CommInfoLog(stream, aicpuStreams);
     ProfilingDeviceCommResInfo hcclMc2Info;
     hcclMc2Info.groupName                    = GetProfHashId(id.c_str(), id.length());
     hcclMc2Info.rankSize                     = rankSize;
@@ -1329,9 +1316,7 @@ void ProfilingHandler::ReportHcclMC2CommInfo(const Stream &kfcStream, const Stre
     }
 }
 
-void ProfilingHandler::ReportHcclMC2CommInfoLog(const u32 kfcStreamId,
-                            const std::vector<u32> &aicpuStreamsId, const std::string &id,
-                            RankId myRank, u32 rankSize, RankId rankInParentComm) const
+void ProfilingHandler::ReportHcclMC2CommInfoLog(const std::vector<u32> &aicpuStreamsId, const std::string &id) const
 {
     if (LIKELY(HcclCheckLogLevel(HCCL_LOG_INFO) == 0)) {
         return;
@@ -1339,7 +1324,7 @@ void ProfilingHandler::ReportHcclMC2CommInfoLog(const u32 kfcStreamId,
     uint64_t groupName = GetProfHashId(id.c_str(), id.length());
     uint32_t reportId = 0;
     for (uint32_t streamIndex = 0; streamIndex < aicpuStreamsId.size(); streamIndex++) {
-        HCCL_INFO("streamIndex:[%u], reportId:[%d], streamId:[%u] id [%s] hcclMC2Info.groupName:[%lu]", streamIndex,
+        HCCL_INFO("streamIndex:[%u], reportId:[%u], streamId:[%u] id [%s] hcclMC2Info.groupName:[%llu]", streamIndex,
             reportId, aicpuStreamsId[streamIndex], id.c_str(), groupName);
         reportId++;
     }
@@ -1349,7 +1334,7 @@ void ProfilingHandler::ReportHcclMC2CommInfo(const u32 kfcStreamId,
                             const std::vector<u32> &aicpuStreamsId, const std::string &id,
                             RankId myRank, u32 rankSize, RankId rankInParentComm)
 {
-    ReportHcclMC2CommInfoLog(kfcStreamId, aicpuStreamsId, id, myRank, rankSize, rankInParentComm);
+    ReportHcclMC2CommInfoLog(aicpuStreamsId, id);
     ProfilingDeviceCommResInfo hcclMc2Info;
     hcclMc2Info.groupName = GetProfHashId(id.c_str(),id.length());
     hcclMc2Info.rankSize = rankSize;

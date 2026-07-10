@@ -145,7 +145,7 @@ void ProfilingHandlerLite::ReportHcclTaskDetailsLog(const std::vector<TaskInfo *
         return;
     }
     for (std::vector<Hccl::TaskInfo *>::size_type i = 0; i < taskInfo.size(); i++) {
-        DumpTaskDetails(MsprofAicpuHcclTaskInfo{}, taskInfo[i]);
+        DumpTaskDetails(taskInfo[i]);
     }
 }
 
@@ -280,7 +280,7 @@ void ProfilingHandlerLite::GetTaskDetailInfos(const TaskInfo *it, MsprofAicpuHcc
     taskDetailsInfos.workFlowMode      = static_cast<uint32_t>(HcclWorkflowMode::HCCL_WORKFLOW_MODE_OP_BASE);
 }
 
-void ProfilingHandlerLite::DumpTaskDetails(const MsprofAicpuHcclTaskInfo &taskDetailsInfos, const TaskInfo *taskInfo) const
+void ProfilingHandlerLite::DumpTaskDetails(const TaskInfo *taskInfo) const
 {
     HCCL_INFO("[ProfilingHandlerLite] DumpTaskDetails %s", taskInfo->Describe().c_str());
 }
