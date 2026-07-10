@@ -40,7 +40,6 @@ int32_t：接口成功返回0，其他失败。
 
 ```c
 // 申请通信线程资源
-CommEngine engine = CommEngine::COMM_ENGINE_CPU_TS; // Atlas A3 训练系列产品/Atlas A3 推理系列产品使用
 CommEngine engine = CommEngine::COMM_ENGINE_AICPU_TS; // Ascend 950PR/Ascend 950DT使用
 uint32_t threadNum = 1;
 uint32_t notifyNumPerThread = 1;
