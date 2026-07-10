@@ -228,9 +228,14 @@ void ProfilingHandler::ReportHcclTaskDetailsBatch(const std::vector<TaskInfo*> &
         HCCL_WARNING("[ProfilingHandler::ReportHcclTaskDetailsBatch] taskInfos is empty!");
         return;
     }
-    CHECK_NULLPTR(taskInfos[0]->dfxOpInfo_, "[ProfilingHandler::ReportHcclTaskDetailsBatch] taskInfo.dfxOpInfo_ is nullptr!");
-    CHECK_NULLPTR(taskInfos[0]->dfxOpInfo_->comm_,
-                      "[ProfilingHandler::ReportHcclTaskDetailsBatch] taskInfo.dfxOpInfo_->comm_ is nullptr!");
+    if (taskInfos[0]->dfxOpInfo_ == nullptr) {
+        HCCL_WARNING("[ProfilingHandler::ReportHcclTaskDetailsBatch] taskInfo.dfxOpInfo_ is nullptr, skip!");
+        return;
+    }
+    if (taskInfos[0]->dfxOpInfo_->comm_ == nullptr) {
+        HCCL_WARNING("[ProfilingHandler::ReportHcclTaskDetailsBatch] taskInfo.dfxOpInfo_->comm_ is nullptr, skip!");
+        return;
+    }
     if (enableHcclL1_ == false && !cachedReq) {
         return;
     }

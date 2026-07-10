@@ -669,3 +669,103 @@ TEST_F(ProfilingHandlerTest, Ut_ReportCcuInfo_When_DfxOpInfoNullptr_Expect_Retur
     TaskInfo taskInfo(0, 0, 0, taskParam, nullptr);
     EXPECT_NO_THROW(handler.ReportCcuInfo(taskInfo));
 }
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetailsBatch_When_TaskInfosEmpty_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    std::vector<TaskInfo*> taskInfos;
+    bool cachedReq = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetailsBatch(taskInfos, cachedReq));
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetailsBatch_When_DfxOpInfoNullptr_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = true;
+    TaskParam taskParam{};
+    auto taskInfo = std::make_unique<TaskInfo>(0, 0, 0, taskParam, nullptr);
+    std::vector<TaskInfo*> taskInfos{taskInfo.get()};
+    bool cachedReq = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetailsBatch(taskInfos, cachedReq));
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetailsBatch_When_CommNullptr_Expect_ReturnNormally)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = true;
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    dfxOpInfo->comm_ = nullptr;
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    TaskParam taskParam{};
+    auto taskInfo = std::make_unique<TaskInfo>(0, 0, 0, taskParam, dfxOpInfo);
+    std::vector<TaskInfo*> taskInfos{taskInfo.get()};
+    bool cachedReq = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetailsBatch(taskInfos, cachedReq));
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetailsBatch_When_L1DisabledAndNotCached_Expect_ReturnEarly)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = false;
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    CommunicatorImpl *comm = new CommunicatorImpl;
+    dfxOpInfo->comm_ = comm;
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    TaskParam taskParam{};
+    auto taskInfo = std::make_unique<TaskInfo>(0, 0, 0, taskParam, dfxOpInfo);
+    std::vector<TaskInfo*> taskInfos{taskInfo.get()};
+    bool cachedReq = false;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetailsBatch(taskInfos, cachedReq));
+    delete comm;
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetailsBatch_When_CachedReq_Expect_CacheTaskInfos)
+{
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = false;
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    CommunicatorImpl *comm = new CommunicatorImpl;
+    dfxOpInfo->comm_ = comm;
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    TaskParam taskParam{};
+    auto taskInfo = std::make_unique<TaskInfo>(0, 0, 0, taskParam, dfxOpInfo);
+    std::vector<TaskInfo*> taskInfos{taskInfo.get()};
+    bool cachedReq = true;
+    size_t beforeSize = handler.cacheTaskInfos_.size();
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetailsBatch(taskInfos, cachedReq));
+    EXPECT_EQ(handler.cacheTaskInfos_.size(), beforeSize + taskInfos.size());
+    delete comm;
+}
+
+TEST_F(ProfilingHandlerTest, Ut_ReportHcclTaskDetailsBatch_When_L1EnabledAndCached_Expect_ReportNormally)
+{
+    MOCKER_CPP(&Hccl::ProfilingHandler::CallAdditionInfo).stubs().will(ignoreReturnValue());
+    ProfilingHandler &handler = Hccl::ProfilingHandler::GetInstance();
+    handler.enableHcclL1_ = true;
+    std::shared_ptr<DfxOpInfo> dfxOpInfo = std::make_shared<DfxOpInfo>();
+    CommunicatorImpl *comm = new CommunicatorImpl;
+    dfxOpInfo->comm_ = comm;
+    CollOperator op;
+    op.opType = OpType::ALLREDUCE;
+    op.staticAddr = false;
+    dfxOpInfo->op_ = op;
+    TaskParam taskParam = {.taskType = TaskParamType::TASK_NOTIFY_RECORD,
+        .beginTime = 0,
+        .endTime = 0,
+        .taskPara = {.Notify = {.notifyID = 123, .value = 456}}};
+    auto taskInfo1 = std::make_unique<TaskInfo>(1, 0, 0, taskParam, dfxOpInfo);
+    auto taskInfo2 = std::make_unique<TaskInfo>(2, 1, 0, taskParam, dfxOpInfo);
+    std::vector<TaskInfo*> taskInfos{taskInfo1.get(), taskInfo2.get()};
+    bool cachedReq = true;
+    EXPECT_NO_THROW(handler.ReportHcclTaskDetailsBatch(taskInfos, cachedReq));
+    delete comm;
+}
