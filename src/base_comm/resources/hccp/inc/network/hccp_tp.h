@@ -24,7 +24,6 @@ extern "C" {
 
 enum TransportModeT {
     CONN_RM = 1, /**< only for UB, Reliable Message */
-    CONN_RC = 2, /**< Reliable Connection */
 };
 
 union GetTpCfgFlag {

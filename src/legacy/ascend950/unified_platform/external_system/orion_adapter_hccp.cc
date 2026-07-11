@@ -1461,7 +1461,7 @@ JfcHandle HrtRaUbCreateJfcUserCtl(RdmaHandle handle, CqCreateInfo& cqInfo)
 }
 
 const std::map<HrtTransportMode, TransportModeT> HRT_TRANSPORT_MODE_MAP
-    = {{HrtTransportMode::RC, TransportModeT::CONN_RC}, {HrtTransportMode::RM, TransportModeT::CONN_RM}};
+    = {{HrtTransportMode::RM, TransportModeT::CONN_RM}};
 
 const std::map<HrtJettyMode, JettyMode> HRT_JETTY_MODE_MAP
     = {{HrtJettyMode::STANDARD, JettyMode::JETTY_MODE_URMA_NORMAL},

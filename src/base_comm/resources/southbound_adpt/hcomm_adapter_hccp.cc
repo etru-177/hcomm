@@ -142,7 +142,7 @@ RequestResult HccpGetAsyncReqResult(RequestHandle &reqHandle)
 }
 
 const std::map<HrtTransportMode, TransportModeT> HRT_TRANSPORT_MODE_MAP
-    = {{HrtTransportMode::RC, TransportModeT::CONN_RC}, {HrtTransportMode::RM, TransportModeT::CONN_RM}};
+    = {{HrtTransportMode::RM, TransportModeT::CONN_RM}};
 const std::map<HrtJettyMode, JettyMode> HRT_JETTY_MODE_MAP
     = {{HrtJettyMode::STANDARD, JettyMode::JETTY_MODE_URMA_NORMAL},
        {HrtJettyMode::HOST_OFFLOAD, JettyMode::JETTY_MODE_USER_CTL_NORMAL},

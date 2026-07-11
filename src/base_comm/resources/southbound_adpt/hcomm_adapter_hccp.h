@@ -65,7 +65,7 @@ using TargetJettyHandle = void *;
 using JfcHandle         = void *;
 using TokenIdHandle     = void *;
 
-MAKE_ENUM(HrtTransportMode, RM, RC);
+MAKE_ENUM(HrtTransportMode, RM);
 // STANDARD: URMA标准CreateJetty
 // HOST_OFFLOAD: HOST侧展开下沉算子，需要指定sqeBbNum
 // HOST_OPBASE: Host展开单算子，需要指定sqeBbNum,
