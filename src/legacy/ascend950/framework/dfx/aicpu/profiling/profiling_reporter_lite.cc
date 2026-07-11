@@ -10,7 +10,7 @@
  #include "profiling_reporter_lite.h"
  
 namespace Hccl {
-constexpr size_t TASK_INFO_BATCH_RESERVE_SIZE = 8192;
+constexpr size_t TASK_INFO_BATCH_RESERVE_SIZE = 128;
 ProfilingReporterLite::ProfilingReporterLite(MirrorTaskManagerLite *mirrorTaskMgrLite,
                                              ProfilingHandlerLite *profilingHandlerLite, [[maybe_unused]] bool isIndop)
     : mirrorTaskMgrLite_(mirrorTaskMgrLite), profilingHandlerLite_(profilingHandlerLite)
