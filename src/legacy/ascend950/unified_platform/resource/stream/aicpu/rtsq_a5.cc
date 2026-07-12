@@ -112,8 +112,14 @@ void RtsqA5::CheckLaunchTaskStatus(const std::chrono::steady_clock::time_point &
             sqFullTimeout_, sqId_, sqHead_, sqTail_, pendingSqeCnt);
     }
 
-    // step2 调用回调检查执行状态：1、如果超时，打印taskException；2、如果通信域不可用，终止launch
     HcclResult checkRet = (checkExecStatusCallback_ != nullptr) ? checkExecStatusCallback_(isTimeout) : HCCL_SUCCESS;
+    // step2 通信域状态为HCCL_COMM_STATUS_SUSPENDING状态，则终止launch不抛异
+    if (UNLIKELY(checkRet == HCCL_E_SUSPENDING)) {
+        pendingSqeCnt = 0;
+        return;
+    }
+
+    // step3 调用回调检查执行状态：1、如果超时，打印taskException；2、如果通信域不可用，终止launch
     if (UNLIKELY(isTimeout || checkRet != HCCL_SUCCESS)) {
         THROW<InternalException>(StringFormat("[%s]stop launch Task, isTimeout[%d], checkRet[%d]",
             __func__, isTimeout, checkRet));

@@ -68,7 +68,8 @@ HcclResult HcclCommTaskExceptionLite::HandleExceptionCqe()
         CollCommAicpu *aicpuComm = commInfo.second->GetCollCommAicpu();
         CHK_PTR_NULL(aicpuComm);
 
-        if (aicpuComm->GetCommmStatus() == HcclCommStatus::HCCL_COMM_STATUS_INVALID) {
+        if ((aicpuComm->GetCommmStatus() == HcclCommStatus::HCCL_COMM_STATUS_INVALID) ||
+            (aicpuComm->GetCommmStatus() == HcclCommStatus::HCCL_COMM_STATUS_SUSPENDING)) {
             continue;
         }
 

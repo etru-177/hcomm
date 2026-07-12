@@ -402,6 +402,9 @@ HcclResult CollCommAicpu::CheckIndOpExecStatus(bool timeout)
         hcomm::HcclCommTaskExceptionLite::GetInstance().PrintCommTaskException(this);
         hcomm::HcclCommTaskExceptionLite::GetInstance().PrintAllCommTaskException();
         return HCCL_E_INTERNAL;
+    } else if (commStatus_ == HCCL_COMM_STATUS_SUSPENDING) {
+        HCCL_WARNING("[%s]comm[%s] commStatus[%d] is suspending", __func__, identifier_.c_str(), commStatus_);
+        return HCCL_E_SUSPENDING;
     } else if (commStatus_ != HCCL_COMM_STATUS_READY) {
         HCCL_ERROR("[%s]comm[%s] commStatus[%d] is not ready, return fail", __func__, identifier_.c_str(), commStatus_);
         return HCCL_E_INTERNAL;
