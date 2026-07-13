@@ -46,7 +46,12 @@ HcclResult HcclCommGetStatus(const char *commId, HcclCommStatus *status)
 ## 调用示例
 
 ```c
-char commName[128] = "hccl_world_group";
+HcclComm comm;
+char commName[128];
 HcclCommStatus commStatus = HCCL_COMM_STATUS_INVALID;
+
+... //创建通信域
+
+HCCLCHECK(HcclGetCommName(comm, commName));
 HCCLCHECK(HcclCommGetStatus(commName, &commStatus));
 ```

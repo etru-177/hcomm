@@ -23,7 +23,7 @@ HcclResult HcclRankGraphGetEndpointDesc(HcclComm comm, uint32_t layer, uint32_t 
 | comm | 输入 | 通信域。<br>HcclComm类型的定义如下：<br>typedef void *HcclComm; |
 | layer | 输入 | 拓扑层级编号。 |
 | topoInstId | 输入 | 拓扑实例ID。 |
-| descNum | 输入/输出 | 要获取的通信设备描述数量。<br>作为输入时，需要等于[HcclRankGraphGetEndpointNum](HcclRankGraphGetEndpointNum.md)接口的输出“num”的值。 |
+| descNum | 输入/输出 | 作为输出时，实际获取的通信设备描述数量。<br>作为输入时，需要等于[HcclRankGraphGetEndpointNum](HcclRankGraphGetEndpointNum.md)接口的输出“num”的值。 |
 | endpointDesc | 输出 | EndPoint描述列表，需要调用方分配内存。<br>EndpointDesc类型的定义请参见[EndpointDesc](../../datatype_definition/EndpointDesc.md)。 |
 
 ## 返回值

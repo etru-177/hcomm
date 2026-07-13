@@ -351,7 +351,7 @@ static HcclResult ImportJetty(const CtxHandle ctxHandle, u8 *key,
         HCCL_ERROR("[%s] failed, ctxHandle[%p] loc tp handle[%llx] "
             "rmt tp handle[%llx] loc tag[%llu] loc psn[%u] rmt psn[%u]"
             "protocol[%s].", __func__, ctxHandle, cfg.tpHandle, cfg.peerTpHandle,
-            cfg.tag, cfg.txPsn, cfg.rxPsn);
+            cfg.tag, cfg.txPsn, cfg.rxPsn, protocol.Describe().c_str());
         return HcclResult::HCCL_E_NETWORK;
     }
 

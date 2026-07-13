@@ -14,6 +14,7 @@
 #include "channel.h"
 #include "./aicpu/aicpu_ts_urma_channel.h"
 #include "comm_engine_utils.h"
+#include "protocol_utils.h"
 
 #include "./aicpu/aicpu_ts_p2p_channel.h"
 #include "./aicpu/aicpu_ts_uboe_channel.h"
@@ -74,8 +75,9 @@ HcclResult Channel::CreateChannel(
                 uniqueChannelPtr.reset(
                     new (std::nothrow) AicpuTsHccsChannel(endpointHandle, channelDesc));
             } else {
-                HCCL_ERROR("[Channel][%s] invalid protocol for engine %s, protocol=%d",
-                    __func__, GetEnumToString(GetCommEngineStatusStrMap(), engine).c_str(), channelDesc.remoteEndpoint.protocol);
+                HCCL_ERROR("[Channel][%s] invalid protocol for engine[%s], protocol[%s]",
+                    __func__, GetEnumToString(GetCommEngineStatusStrMap(), engine).c_str(),
+                    GetEnumToString(GetCommProtocolStrMap(), channelDesc.remoteEndpoint.protocol).c_str());
                 return HCCL_E_NOT_SUPPORT;
             }
             break;
