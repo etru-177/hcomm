@@ -69,8 +69,6 @@ void NsRecoveryHandlerFunc::HandleClean(CommunicatorImplLite *comm)
     HCCL_INFO("[NsRecovery][BackGround] send KfcStatus[CLEAN_DONE]");
 }
 
-constexpr u64 DEVICE_QUERY_TIMEOUT_NSEC = 5000000000U; // 5秒
-
 void NsRecoveryHandlerFunc::StreamClean(CommunicatorImplLite *comm)
 {
     // 查询停流是否完成
@@ -81,7 +79,7 @@ void NsRecoveryHandlerFunc::StreamClean(CommunicatorImplLite *comm)
             "NsRecoveryHandlerFunc::%s call drvGetLocalDevIDByHostDevID failed, devPhyId %u, ret %d", __func__, comm->GetDevPhyId(), ret);
         THROW<DrvApiException>(formatStr);
     }
-    if (DeviceQuery(localDevId, APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH, DEVICE_QUERY_TIMEOUT_NSEC) != HCCL_SUCCESS) {
+    if (DeviceQuery(localDevId, APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH, 0U) != HCCL_SUCCESS) {
         comm->BackGroundSetStatus(KfcStatus::ERROR, KfcErrType::EXEC);
         THROW<InternalException>("[NsRecovery][BackGround] Stream Stop failed");
     }

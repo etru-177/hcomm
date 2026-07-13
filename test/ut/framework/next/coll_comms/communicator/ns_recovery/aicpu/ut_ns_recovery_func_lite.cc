@@ -15,7 +15,48 @@ protected:
     {
         MOCKER(halTsdrvCtl).stubs().with(mockcpp::any()).will(returnValue(rv));
     }
+
+    static drvError_t HalTsdrvCtlStub(uint32_t devId, int cmd, void *param, size_t paramSize, void *out, size_t *outSize)
+    {
+        return HalTsdrvCtlStubImpl(devId, cmd, param, paramSize, out, outSize);
+    }
+
+    static uint32_t stubStatus;
+    static bool stubAckCountMismatch;
+    static uint32_t stubNotReadyRounds;
+    static uint32_t stubCallCount;
+
+    static drvError_t HalTsdrvCtlStubImpl(uint32_t devId, int cmd, void *param, size_t paramSize, void *out, size_t *outSize)
+    {
+        if (stubAckCountMismatch) {
+            *outSize = 0;
+            return DRV_ERROR_NONE;
+        }
+        ts_ctrl_msg_body_t *outMsg = static_cast<ts_ctrl_msg_body_t *>(out);
+        uint32_t curStatus = (stubCallCount < stubNotReadyRounds)
+            ? static_cast<uint32_t>(APP_ABORT_STAUTS::APP_ABORT_INIT)
+            : stubStatus;
+        outMsg->u.query_task_ack_info.status = curStatus;
+        *outSize = sizeof(ts_ctrl_msg_body_t);
+        stubCallCount++;
+        return DRV_ERROR_NONE;
+    }
+
+    void SetUpHalTsdrvCtlStub(uint32_t status, bool ackMismatch = false, uint32_t notReadyRounds = 0)
+    {
+        stubStatus = status;
+        stubAckCountMismatch = ackMismatch;
+        stubNotReadyRounds = notReadyRounds;
+        stubCallCount = 0;
+        MOCKER(halTsdrvCtl).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any(),
+            mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(HalTsdrvCtlStub));
+    }
 };
+
+uint32_t NsRecoveryFuncLiteTest::stubStatus = 0;
+bool NsRecoveryFuncLiteTest::stubAckCountMismatch = false;
+uint32_t NsRecoveryFuncLiteTest::stubNotReadyRounds = 0;
+uint32_t NsRecoveryFuncLiteTest::stubCallCount = 0;
 
 TEST_F(NsRecoveryFuncLiteTest, Ut_DeviceQueryWhenDrvErrorExpectHcclEDrv)
 {
@@ -42,5 +83,32 @@ TEST_F(NsRecoveryFuncLiteTest, Ut_DeviceQueryWhenTimeoutExpectHcclETimeout)
     // 使用step=1，timeout设为1微秒（远小于函数内部每次循环会睡眠的5毫秒），以便快速触发超时分支
     auto ret = NsRecoveryFuncLite::GetInstance().DeviceQuery(0, 1, 1000ULL);
     EXPECT_EQ(ret, HcclResult::HCCL_E_TIMEOUT);
+    GlobalMockObject::verify();
+}
+
+TEST_F(NsRecoveryFuncLiteTest, Ut_DeviceQueryWhenTimeoutZeroAndStatusMeetsExpectSuccess)
+{
+    SetUpHalTsdrvCtlStub(static_cast<uint32_t>(APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH));
+    auto ret = NsRecoveryFuncLite::GetInstance().DeviceQuery(0,
+        static_cast<uint32_t>(APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH), 0U);
+    EXPECT_EQ(ret, HcclResult::HCCL_SUCCESS);
+    GlobalMockObject::verify();
+}
+
+TEST_F(NsRecoveryFuncLiteTest, Ut_DeviceQueryWhenTimeoutZeroPollMultiRoundsThenMeetExpectSuccess)
+{
+    SetUpHalTsdrvCtlStub(static_cast<uint32_t>(APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH), false, 2);
+    auto ret = NsRecoveryFuncLite::GetInstance().DeviceQuery(0,
+        static_cast<uint32_t>(APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH), 0U);
+    EXPECT_EQ(ret, HcclResult::HCCL_SUCCESS);
+    EXPECT_GE(NsRecoveryFuncLiteTest::stubCallCount, 3U);
+    GlobalMockObject::verify();
+}
+
+TEST_F(NsRecoveryFuncLiteTest, Ut_DeviceQueryWhenAckCountMismatchExpectHcclEDrv)
+{
+    SetUpHalTsdrvCtlStub(0, true);
+    auto ret = NsRecoveryFuncLite::GetInstance().DeviceQuery(0, 0, 0);
+    EXPECT_EQ(ret, HcclResult::HCCL_E_DRV);
     GlobalMockObject::verify();
 }

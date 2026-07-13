@@ -79,8 +79,6 @@ void NsRecoveryFuncLite::HandleClean(CollCommAicpu *deviceComm)
     HCCL_INFO("[NsRecovery][BackGround] commId[%s] send KfcStatus[CLEAN_DONE]", deviceComm->GetIdentifier().c_str());
 }
 
-constexpr u64 DEVICE_QUERY_TIMEOUT_NSEC = 5000000000U; // 5秒
-
 void NsRecoveryFuncLite::StreamClean(CollCommAicpu *deviceComm)
 {
     // 查询停流是否完成
@@ -91,7 +89,7 @@ void NsRecoveryFuncLite::StreamClean(CollCommAicpu *deviceComm)
             deviceComm->GetTopoInfo().devicePhyId, ret);
         return;
     }
-    if (DeviceQuery(localDevId, APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH, DEVICE_QUERY_TIMEOUT_NSEC) != HCCL_SUCCESS) {
+    if (DeviceQuery(localDevId, APP_ABORT_STAUTS::APP_ABORT_KILL_FINISH, 0U) != HCCL_SUCCESS) {
         deviceComm->GetNsRecoveryLitePtr()->BackGroundSetStatus(Hccl::KfcStatus::ERROR, Hccl::KfcErrType::EXEC);
         HCCL_ERROR("[NsRecovery][BackGround] Stream Stop failed");
         return;
