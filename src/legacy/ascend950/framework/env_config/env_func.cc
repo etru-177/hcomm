@@ -15,12 +15,11 @@
 #include <cctype> 
 #include <algorithm>
 #include <sstream>
-#include <set>
-#include <unordered_map>
 #include <array>
 
 #include "sal.h"
 #include "string_util.h"
+#include "base_config.h"
 #include "orion_adapter_rts.h"
 #include "adapter_error_manager_pub.h"
 
@@ -875,6 +874,14 @@ void CheckFilePath(const string &filePath)
             StringFormat("env[HCCL_WHITELIST_FILE] is invalid, len is %u, should be (0,4096)", filePath.length()));
     }
 }
+
+void CheckRdmaTimeout(const u32 &timeout)
+{
+    // HCCL_RDMA_TIMEOUT 合法范围为：[0, 31]，超出31按照0进行处理，表示永不超时
+    // 此处为空实现，原因为非法值在 Str2T<u32> 里面已经处理
+    (void)timeout;
+}
+
 /*-------------------------- post process functions -------------------------*/
 void SetRealPath(string &filePath)
 {
@@ -895,6 +902,16 @@ void ProcExecTimeOut(u32 &timeOut)
     s32 intPart = timeOut / HCCL_INTEVAL_EXEC_TIME_OUT_S;
     intPart     = (intPart == 0) ? 1 : intPart;
     timeOut     = intPart * HCCL_INTEVAL_EXEC_TIME_OUT_S;
+}
+
+void ProcRdmaTimeout(u32 &timeout)
+{
+    // HCCL_RDMA_TIMEOUT 合法范围为：[0, 31]，超出31按照0进行处理，表示永不超时
+    if (timeout > EnvRdmaConfig::HCCL_RDMA_TIMEOUT_MAX) {
+        HCCL_WARNING("HCCL_RDMA_TIMEOUT[%u] exceeds max [%u], reset to [%u]", timeout,
+            EnvRdmaConfig::HCCL_RDMA_TIMEOUT_MAX, EnvRdmaConfig::HCCL_RDMA_TIMEOUT_MIN);
+        timeout = EnvRdmaConfig::HCCL_RDMA_TIMEOUT_MIN;
+    }
 }
 
 /*-------------------------- detour type -------------------------*/

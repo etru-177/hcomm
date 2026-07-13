@@ -215,12 +215,16 @@ extern void CheckExecTimeOut(const u32 &timeOut);
 
 extern void CheckFilePath(const string &filePath);
 
+extern void CheckRdmaTimeout(const u32 &timeout);
+
 /*----------------------- env variable post process functions --------------------------
  *   Register your customized post process functions here if necessary.
  *--------------------------------------------------------------------------------------*/
 extern void SetRealPath(string &filePath);
 
 extern void ProcExecTimeOut(u32 &timeOut);
+
+extern void ProcRdmaTimeout(u32 &timeout);
 
 extern void CheckRDMATrafficClass(const u32 &rdmaTrafficClass);
 

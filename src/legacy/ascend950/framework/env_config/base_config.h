@@ -125,7 +125,6 @@ public:
     u32  GetRdmaQueueNum() const;
     u32  GetRdmaMultiQpThreshold() const;
 
-private:
     static constexpr u32 HCCL_RDMA_TC_DEFAULT        = 132; // 默认的traffic class为132(33*4)
     static constexpr u32 HCCL_RDMA_SL_DEFAULT        = 4;   // 默认的server level为4
     static constexpr u32 HCCL_RDMA_TIMEOUT_DEFAULT   = 20;  // 默认的TIMEOUT配置为20(对应时间4.096*2^20us)
@@ -134,8 +133,8 @@ private:
     static constexpr u32 HCCL_RDMA_TC_MAX            = 255; // rdma traffic class最大值为255
     static constexpr u32 HCCL_RDMA_SL_MIN            = 0;   // rdma server level最小值为0
     static constexpr u32 HCCL_RDMA_SL_MAX            = 7;   // rdma server level最大值为7
-    static constexpr u32 HCCL_RDMA_TIMEOUT_MIN       = 5;   // rdma timeout最小值为5
-    static constexpr u32 HCCL_RDMA_TIMEOUT_MAX       = 24;  // rdma timeout最大值为24
+    static constexpr u32 HCCL_RDMA_TIMEOUT_MIN       = 0;   // rdma timeout最小值为0
+    static constexpr u32 HCCL_RDMA_TIMEOUT_MAX       = 31;  // rdma timeout最大值为31
     static constexpr u32 HCCL_RDMA_RETRY_CNT_MIN     = 1;   // rdma Retry Cnt最小值为1
     static constexpr u32 HCCL_RDMA_RETRY_CNT_MAX     = 7;   // rdma Retry Cnt最大值为7
 
@@ -146,12 +145,13 @@ private:
     static constexpr u32 HCCL_UB_TIMEOUT_MIN         = 0;   // UB TIMEOUT最小值为0
     static constexpr u32 HCCL_UB_TIMEOUT_MAX         = 31;  // UB TIMEOUT最大值为31
 
+private:
     CfgField<u32> rdmaTrafficClass{"HCCL_RDMA_TC", u32(HCCL_RDMA_TC_DEFAULT), Str2T<u32>,
                                    CHK_RANGE_CLOSED<u32>(HCCL_RDMA_TC_MIN, HCCL_RDMA_TC_MAX), CheckRDMATrafficClass};
     CfgField<u32> rdmaServerLevel{"HCCL_RDMA_SL", u32(HCCL_RDMA_SL_DEFAULT), Str2T<u32>,
                                   CHK_RANGE_CLOSED<u32>(HCCL_RDMA_SL_MIN, HCCL_RDMA_SL_MAX)};
     CfgField<u32> rdmaTimeOut{"HCCL_RDMA_TIMEOUT", u32(HCCL_RDMA_TIMEOUT_DEFAULT), Str2T<u32>,
-                              CHK_RANGE_CLOSED<u32>(HCCL_RDMA_TIMEOUT_MIN, HCCL_RDMA_TIMEOUT_MAX)};
+                              CheckRdmaTimeout, ProcRdmaTimeout};
     CfgField<u32> rdmaRetryCnt{"HCCL_RDMA_RETRY_CNT", u32(HCCL_RDMA_RETRY_CNT_DEFAULT), Str2T<u32>,
                                CHK_RANGE_CLOSED<u32>(HCCL_RDMA_RETRY_CNT_MIN, HCCL_RDMA_RETRY_CNT_MAX)};
     CfgField<u32> uboeTimeOut{"HCCL_UBOE_TIMEOUT", u32(HCCL_UBOE_TIMEOUT_DEFAULT), Str2T<u32>,

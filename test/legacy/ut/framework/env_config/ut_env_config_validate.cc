@@ -242,18 +242,28 @@ TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_shoudl_fail_when_valu
     EXPECT_THROW(rdmaCfg.rdmaTimeOut.Parse(), InvalidParamsException);
 }
 
-TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_shoudl_fail_when_value_too_small)
+TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_shoudl_fail_when_value_is_negative)
 {
     EnvRdmaConfig rdmaCfg{};
-    MOCKER(SalGetEnv).stubs().will(returnValue(string("4")));
+    MOCKER(SalGetEnv).stubs().will(returnValue(string("-1")));
     EXPECT_THROW(rdmaCfg.rdmaTimeOut.Parse(), InvalidParamsException);
 }
 
-TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_shoudl_fail_when_value_too_big)
+TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_should_success_when_value_25)
 {
     EnvRdmaConfig rdmaCfg{};
     MOCKER(SalGetEnv).stubs().will(returnValue(string("25")));
-    EXPECT_THROW(rdmaCfg.rdmaTimeOut.Parse(), InvalidParamsException);
+    rdmaCfg.rdmaTimeOut.Parse();
+    EXPECT_EQ(rdmaCfg.rdmaTimeOut.Get(), 25);
+}
+
+TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_should_success_when_value_32)
+{
+    // >=31时设置为0，表示永不超时
+    EnvRdmaConfig rdmaCfg{};
+    MOCKER(SalGetEnv).stubs().will(returnValue(string("32")));
+    rdmaCfg.rdmaTimeOut.Parse();
+    EXPECT_EQ(rdmaCfg.rdmaTimeOut.Get(), 0);
 }
 
 TEST_F(EnvConfigValidateTest, test_parse_HCCL_RDMA_TIMEOUT_should_success)

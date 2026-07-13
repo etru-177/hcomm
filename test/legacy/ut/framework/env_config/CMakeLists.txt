@@ -11,5 +11,6 @@ target_sources(hccl_v2_utest
     PUBLIC
     ut_env_config.cc
     ut_env_config_validate.cc
+    ut_rdma_timeout.cc
     env_config_stub.cc
 )
