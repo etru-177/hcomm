@@ -327,3 +327,209 @@ TEST_F(TestChannelProcess, Ut_SaveAivChannels_When_ProtocolUnsupported_Expect_SU
     HcclResult ret = hcomm::ChannelProcess::SaveAivChannels(targetChannels, userChannels, channelDescs, 1);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
+
+// 可配置 GetStatus 返回值的 Fake Channel，用于 ChannelGetStatus 测试
+class FakeStatusChannel : public hcomm::Channel {
+public:
+    explicit FakeStatusChannel(hcomm::ChannelStatus status) : status_(status)
+    {
+    }
+    hcomm::HcommChannelKind GetChannelKind() const override
+    {
+        return hcomm::HcommChannelKind::AICPU_TS_UBOE;
+    }
+    HcclResult Init() override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult GetNotifyNum(uint32_t *notifyNum) const override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos) override
+    {
+        return HCCL_SUCCESS;
+    }
+    hcomm::ChannelStatus GetStatus() override
+    {
+        return status_;
+    }
+    HcclResult Clean() override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult Resume() override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult NotifyRecord(const uint32_t remoteNotifyIdx) override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult NotifyWait(const uint32_t localNotifyIdx, const uint32_t timeout) override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult WriteWithNotify(void *dst, const void *src, const uint64_t len, uint32_t remoteNotifyIdx) override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult Write(void *dst, const void *src, uint64_t len) override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult Read(void *dst, const void *src, uint64_t len) override
+    {
+        return HCCL_SUCCESS;
+    }
+    HcclResult ChannelFence() override
+    {
+        return HCCL_SUCCESS;
+    }
+
+private:
+    hcomm::ChannelStatus status_;
+};
+
+// 将 channel 注册到 g_ChannelMap / g_ChannelD2HMap（deviceId=0，handle 即 channel 指针值）
+static ChannelHandle RegisterFakeChannel(std::shared_ptr<hcomm::Channel> channel)
+{
+    ChannelHandle handle = reinterpret_cast<ChannelHandle>(channel.get());
+    hcomm::ChannelProcess::g_ChannelMap[handle] = std::move(channel);
+    hcomm::DeviceChannelKey key{0, handle};
+    hcomm::ChannelProcess::g_ChannelD2HMap[key] = handle;
+    return handle;
+}
+
+// ChannelGetStatus channelList 空指针测试
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_ChannelListNullptr_Return_HCCL_E_PTR)
+{
+    int32_t statusList[1] = {0};
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(nullptr, 1, statusList);
+    EXPECT_EQ(ret, HCCL_E_PTR);
+}
+
+// ChannelGetStatus statusList 空指针测试
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_StatusListNullptr_Return_HCCL_E_PTR)
+{
+    ChannelHandle channelList[1] = {0};
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 1, nullptr);
+    EXPECT_EQ(ret, HCCL_E_PTR);
+}
+
+// 全部通道 READY 返回 SUCCESS，并回写状态
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_AllReady_Return_SUCCESS)
+{
+    auto channel = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::READY);
+    ChannelHandle handle = RegisterFakeChannel(channel);
+    ChannelHandle channelList[1] = {handle};
+    int32_t statusList[1] = {0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 1, statusList);
+    EXPECT_EQ(ret, HCCL_SUCCESS);
+    EXPECT_EQ(statusList[0], static_cast<int32_t>(hcomm::ChannelStatus::READY));
+}
+
+// 存在 FAILED 通道（全部到终态但非全 READY）返回 HCCL_E_NETWORK
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_HasFailed_Return_HCCL_E_NETWORK)
+{
+    auto channel = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::FAILED);
+    ChannelHandle handle = RegisterFakeChannel(channel);
+    ChannelHandle channelList[1] = {handle};
+    int32_t statusList[1] = {0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 1, statusList);
+    EXPECT_EQ(ret, HCCL_E_NETWORK);
+    EXPECT_EQ(statusList[0], static_cast<int32_t>(hcomm::ChannelStatus::FAILED));
+}
+
+// 存在 SOCKET_TIMEOUT 通道（全部到终态但非全 READY）返回 HCCL_E_NETWORK
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_HasSocketTimeout_Return_HCCL_E_NETWORK)
+{
+    auto channel = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::SOCKET_TIMEOUT);
+    ChannelHandle handle = RegisterFakeChannel(channel);
+    ChannelHandle channelList[1] = {handle};
+    int32_t statusList[1] = {0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 1, statusList);
+    EXPECT_EQ(ret, HCCL_E_NETWORK);
+    EXPECT_EQ(statusList[0], static_cast<int32_t>(hcomm::ChannelStatus::SOCKET_TIMEOUT));
+}
+
+// 存在未到终态通道（INIT）返回 HCCL_E_AGAIN
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_HasNotReady_Return_HCCL_E_AGAIN)
+{
+    auto channel = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::INIT);
+    ChannelHandle handle = RegisterFakeChannel(channel);
+    ChannelHandle channelList[1] = {handle};
+    int32_t statusList[1] = {0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 1, statusList);
+    EXPECT_EQ(ret, HCCL_E_AGAIN);
+}
+
+// READY + FAILED 混合（全部到终态但非全 READY）返回 HCCL_E_NETWORK
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_MixReadyAndFailed_Return_HCCL_E_NETWORK)
+{
+    auto chReady = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::READY);
+    auto chFailed = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::FAILED);
+    ChannelHandle hReady = RegisterFakeChannel(chReady);
+    ChannelHandle hFailed = RegisterFakeChannel(chFailed);
+    ChannelHandle channelList[2] = {hReady, hFailed};
+    int32_t statusList[2] = {0, 0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 2, statusList);
+    EXPECT_EQ(ret, HCCL_E_NETWORK);
+}
+
+// READY + INIT 混合（存在未到终态通道）返回 HCCL_E_AGAIN
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_MixReadyAndInit_Return_HCCL_E_AGAIN)
+{
+    auto chReady = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::READY);
+    auto chInit = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::INIT);
+    ChannelHandle hReady = RegisterFakeChannel(chReady);
+    ChannelHandle hInit = RegisterFakeChannel(chInit);
+    ChannelHandle channelList[2] = {hReady, hInit};
+    int32_t statusList[2] = {0, 0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 2, statusList);
+    EXPECT_EQ(ret, HCCL_E_AGAIN);
+}
+
+// statusList 已预标记 FAILED 的通道被 continue 跳过，不再获取状态，但计入 failCount
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_StatusListPreMarkedFailed_SkipGetStatus)
+{
+    auto chReady = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::READY);
+    auto chFailed = std::make_shared<FakeStatusChannel>(hcomm::ChannelStatus::FAILED);
+    ChannelHandle hReady = RegisterFakeChannel(chReady);
+    ChannelHandle hFailed = RegisterFakeChannel(chFailed);
+    ChannelHandle channelList[2] = {hReady, hFailed};
+    // 第二个通道预标记为 FAILED，触发 continue 分支，不再调用其 GetStatus
+    int32_t statusList[2] = {0, static_cast<int32_t>(hcomm::ChannelStatus::FAILED)};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 2, statusList);
+    // 被跳过的通道计入 failCount，故 readyCount(1)+failCount(1)=2 == listNum，且非全 READY，返回 HCCL_E_NETWORK
+    EXPECT_EQ(ret, HCCL_E_NETWORK);
+    // 被跳过通道的状态保持预标记值不变
+    EXPECT_EQ(statusList[1], static_cast<int32_t>(hcomm::ChannelStatus::FAILED));
+    // 第一个通道状态被刷新为 READY
+    EXPECT_EQ(statusList[0], static_cast<int32_t>(hcomm::ChannelStatus::READY));
+}
+
+// handle 未注册时 WithChannelByHandleLocked 返回 HCCL_E_NOT_FOUND
+TEST_F(TestChannelProcess, Ut_ChannelGetStatus_When_HandleNotFound_Return_HCCL_E_NOT_FOUND)
+{
+    ChannelHandle channelList[1] = {static_cast<ChannelHandle>(0xDEADBEEFULL)};
+    int32_t statusList[1] = {0};
+    MOCKER(hrtGetDevice).stubs().will(returnValue(HCCL_SUCCESS));
+
+    HcclResult ret = hcomm::ChannelProcess::ChannelGetStatus(channelList, 1, statusList);
+    EXPECT_EQ(ret, HCCL_E_NOT_FOUND);
+}

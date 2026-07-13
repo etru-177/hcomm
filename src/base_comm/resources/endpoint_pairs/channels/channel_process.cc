@@ -158,12 +158,14 @@ HcclResult ChannelProcess::ChannelGetStatus(const ChannelHandle *channelList, ui
     CHK_PTR_NULL(statusList);
 
     u32 readyCount = 0;
+    u32 failCount = 0;
 
     for (uint32_t i = 0; i < listNum; ++i) {
         const ChannelHandle inHandle = channelList[i];
         int32_t status = 0;
         // 当前通道状态如果已为FAILED/SOCKET_TIMEOUT，说明前面已经失败过，无需再重新获取状态，继续轮询下一个通道，避免日志刷屏
         if (statusList[i] == ChannelStatus::FAILED || statusList[i] == ChannelStatus::SOCKET_TIMEOUT) {
+            failCount++;
             continue;
         }
         // 单锁：D2H 映射 + 查 map + 锁内调用 GetStatus()
@@ -178,16 +180,22 @@ HcclResult ChannelProcess::ChannelGetStatus(const ChannelHandle *channelList, ui
         // 某一个channel状态为FAILED/SOCKET_TIMEOUT时不直接返回，否则后面的channel无法轮询完，状态无法到达终态；
         if (status == ChannelStatus::FAILED) {
             HCCL_ERROR("[%s] FAILED, channel idx[%u], status[%d]", __func__, i, status);
+            failCount++;
         }
         if (status == ChannelStatus::SOCKET_TIMEOUT) {
             HCCL_ERROR("[%s] TIMEOUT, channel idx[%u], status[%d]", __func__, i, status);
+            failCount++;
         }
 
         readyCount += (status == ChannelStatus::READY) ? 1 : 0;
         statusList[i] = status;
     }
-    if (readyCount != listNum) {
+    if (readyCount + failCount < listNum) {
         return HCCL_E_AGAIN;
+    }
+    if (readyCount != listNum) {
+        HCCL_ERROR("[%s] NETWORK, readyCount[%u], failCount[%u], listNum[%u]", __func__, readyCount, failCount, listNum);
+        return HCCL_E_NETWORK;
     }
     EXCEPTION_HANDLE_END
     return HCCL_SUCCESS;
