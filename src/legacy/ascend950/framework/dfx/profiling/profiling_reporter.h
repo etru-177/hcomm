@@ -42,6 +42,7 @@ private:
     ProfilingHandler*                               profilingHandler_{nullptr};
     s32 deviceLogicId_{0};
     bool initializedFlag_{false};
+    std::vector<TaskInfo*> taskInfoBatch_;
 };
 } // namespace Hccl
  

@@ -13,11 +13,12 @@
 #include "comm_engine_utils.h"
 
 namespace Hccl {
-constexpr size_t TASK_INFO_BATCH_RESERVE_SIZE = 8192;
+constexpr size_t TASK_INFO_BATCH_RESERVE_SIZE = 128;
 std::array<ProfilingReporter::lastPosesMap, MAX_MODULE_DEVICE_NUM> ProfilingReporter::allLastPoses_{};
 ProfilingReporter::ProfilingReporter(MirrorTaskManager *mirrorTaskMgr, ProfilingHandler* profilingHandler) 
     : mirrorTaskMgr_(mirrorTaskMgr), profilingHandler_(profilingHandler)
 {
+    taskInfoBatch_.reserve(TASK_INFO_BATCH_RESERVE_SIZE);
 }
 
 ProfilingReporter::~ProfilingReporter()
@@ -143,8 +144,7 @@ void ProfilingReporter::ReportAllTasks(bool cachedReq)
     std::lock_guard<std::mutex> lock(mirrorTaskMgr_->GetTaskMutex());
     ReportAllTasksLog();
     auto& curLastPoses = allLastPoses_[deviceLogicId_];
-    std::vector<TaskInfo*> taskInfoBatch;
-    taskInfoBatch.reserve(TASK_INFO_BATCH_RESERVE_SIZE);
+    taskInfoBatch_.clear();
     for (auto it = mirrorTaskMgr_->Begin(); it != mirrorTaskMgr_->End(); ++it) {
         u32  streamId     = it->first;
         Queue<std::unique_ptr<TaskInfo>> *currQueue = it->second.queue;
@@ -160,7 +160,7 @@ void ProfilingReporter::ReportAllTasks(bool cachedReq)
             TaskInfo *task = (*currQueue->Begin())->get();
             profilingHandler_->ReportHcclTaskApi(task->taskParam_.taskType, task->taskParam_.beginTime,
                                                  task->taskParam_.endTime, task->isMaster_, cachedReq, true);
-            taskInfoBatch.emplace_back(task);
+            taskInfoBatch_.emplace_back(task);
             curLastPoses[streamId] = currQueue->Begin();
         }
         
@@ -171,12 +171,12 @@ void ProfilingReporter::ReportAllTasks(bool cachedReq)
             TaskInfo *task = (*iter)->get();
             profilingHandler_->ReportHcclTaskApi(task->taskParam_.taskType, task->taskParam_.beginTime,
                                                  task->taskParam_.endTime, task->isMaster_, cachedReq, true);
-            taskInfoBatch.emplace_back(task);
+            taskInfoBatch_.emplace_back(task);
         }
         curLastPoses[streamId] = endPos;
     }
-    if (!taskInfoBatch.empty()) {
-        profilingHandler_->ReportHcclTaskDetailsBatch(taskInfoBatch, cachedReq);
+    if (!taskInfoBatch_.empty()) {
+        profilingHandler_->ReportHcclTaskDetailsBatch(taskInfoBatch_, cachedReq);
     }
 }
 
