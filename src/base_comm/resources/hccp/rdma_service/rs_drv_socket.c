@@ -630,6 +630,7 @@ int RsListenNodeAlloc(struct RsConnCb *connCb, struct RsIpAddrInfo *ipAddr, uint
 
     RS_PTHREAD_MUTEX_LOCK(&connCb->connMutex);
     RsListAddTail(&listenInfo->list, &connCb->listenList);
+    (void)__sync_fetch_and_add(&(listenInfo->counter), 1);
     RS_PTHREAD_MUTEX_ULOCK(&connCb->connMutex);
 
     *node = listenInfo;

@@ -661,6 +661,7 @@ static int RsSocketInitListen(struct SocketListenInfo *conn, uint32_t i, struct 
     if (ret == 0) {
         int counter = __sync_fetch_and_add(&(tmpListenInfo->counter), 1);
         if (counter > 0) {
+            hccp_info("find listen node successful, counter:%d, IP:%s, port:%u", counter, ipInfo.readAddr, serverPort);
             return -EEXIST;
         }
     }
