@@ -1526,7 +1526,7 @@ void CommunicatorImpl::InitPreResource()
 
 void CommunicatorImpl::DeInitPreResource()
 {
-    (void)P2PEnableManager::GetInstance().DisableP2P(enableP2PDevices_);
+    (void)P2PEnableManager::GetInstance().DisableP2P(devLogicId, enableP2PDevices_);
 }
 
 void CommunicatorImpl::InitSocketManager()

@@ -60,7 +60,7 @@ TEST_F(P2PEnableManagerTest, enable_p2p_success_and_disable_p2p_success)
     HcclResult ret = P2PEnableManager::GetInstance().EnableP2P(enableP2PDevices_);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 
-    ret = P2PEnableManager::GetInstance().DisableP2P(enableP2PDevices_);
+    ret = P2PEnableManager::GetInstance().DisableP2P(1U, enableP2PDevices_);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }
 
@@ -70,6 +70,6 @@ TEST_F(P2PEnableManagerTest, disable_p2p_success_when_not_enable)
     for (u32 i = 1; i < 4; i++) {
         enableP2PDevices_.emplace_back(i);
     }
-    HcclResult ret = P2PEnableManager::GetInstance().DisableP2P(enableP2PDevices_);
+    HcclResult ret = P2PEnableManager::GetInstance().DisableP2P(1U, enableP2PDevices_);
     EXPECT_EQ(ret, HCCL_SUCCESS);
 }

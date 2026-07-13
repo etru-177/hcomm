@@ -49,7 +49,7 @@ public:
 
     HcclResult EnableP2P(std::vector<uint32_t> remoteDevices);
     HcclResult WaitP2PEnabled(std::vector<uint32_t> remoteDevices);
-    HcclResult DisableP2P(std::vector<uint32_t> remoteDevices);
+    HcclResult DisableP2P(uint32_t localDeviceLogicID, std::vector<uint32_t> remoteDevices);
 
     ~P2PEnableManager();
 

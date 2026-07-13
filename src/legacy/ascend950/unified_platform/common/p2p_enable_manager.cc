@@ -116,11 +116,9 @@ HcclResult P2PEnableManager::WaitP2PConnected(uint32_t localDeviceLogicID, uint3
     return HCCL_SUCCESS;
 }
 
-HcclResult P2PEnableManager::DisableP2P(std::vector<uint32_t> remoteDevices)
+HcclResult P2PEnableManager::DisableP2P(uint32_t localDeviceLogicID, std::vector<uint32_t> remoteDevices)
 {
     try {
-        auto localDeviceLogicID = HrtGetDevice();
-
         for (auto &remoteDevicePhysicID : remoteDevices) {
             CHK_RET(DisableP2P(localDeviceLogicID, remoteDevicePhysicID));
         }

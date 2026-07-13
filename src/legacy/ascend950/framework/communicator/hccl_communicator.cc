@@ -41,9 +41,9 @@ HcclCommunicator::~HcclCommunicator()
 {
     DECTOR_TRY_CATCH("HcclCommunicator", {
         UnRegistTaskAbortHandler();
+        u32 devLogicId = GetDeviceLogicId();
         pimpl = nullptr;
-        s32 devLogicId = HrtGetDevice();
-        CommManager::GetInstance(devLogicId).DeinitCcuDriver();
+        CommManager::GetInstance(static_cast<s32>(devLogicId)).DeinitCcuDriver();
     });
 }
 
