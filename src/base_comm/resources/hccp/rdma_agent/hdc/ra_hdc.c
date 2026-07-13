@@ -24,6 +24,7 @@
 #include "ra_rdma_lite.h"
 #include "ra_hdc_lite.h"
 #include "ra_rs_err.h"
+#include "ra_rs_comm.h"
 #include "ra_hdc_async.h"
 
 struct HdcInfo gRaHdc[RA_MAX_PHY_ID_NUM] = {0};
@@ -171,6 +172,7 @@ struct OpcodeInterfaceInfo gRaInterfaceInfoList[] = {
     {RA_RS_GET_LITE_CQ_ATTR, 0},
     {RA_RS_QP_CREATE_WITH_CQ_WITH_ATTRS, 0},
     {RA_RS_TYPICAL_CQ_DESTROY, 0},
+    {RA_RS_GET_NET_API_VERSION, 0},
 
     // inner opcode version
     {RA_RS_HDC_SESSION_CLOSE, 0},
@@ -686,6 +688,24 @@ void RaHdcGetAllOpcodeVersion(unsigned int phyId)
     }
 
     return;
+}
+
+bool RaHdcHasCapability(unsigned int phyId, unsigned int capability)
+{
+    unsigned int roceVersion = 0;
+    unsigned int netVersion = 0;
+    bool hasCapability = false;
+
+    // return value is ignored as this function is guaranteed to succeed
+    (void)RaHdcGetInterfaceVersion(phyId, RA_RS_GET_ROCE_API_VERSION, &roceVersion);
+    (void)RaHdcGetInterfaceVersion(phyId, RA_RS_GET_NET_API_VERSION, &netVersion);
+
+    hasCapability = RaRsHasCapability(capability, roceVersion, netVersion);
+    if (!hasCapability) {
+        hccp_run_info("phy_id:%u capability:%u roceVersion:0x%x netVersion:0x%x hasCapability:%d RA_CAP_INVALID:%u",
+            phyId, capability, roceVersion, netVersion, hasCapability, RA_CAP_INVALID);
+    }
+    return hasCapability;
 }
 
 STATIC int RaHdcSendPid(unsigned int phyId, struct ProcessRaSign pRaSign)

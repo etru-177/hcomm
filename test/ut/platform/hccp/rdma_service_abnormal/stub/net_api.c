@@ -45,3 +45,8 @@ unsigned long long net_get_cqe_base_addr(unsigned int die_id)
 {
     return 0;
 }
+
+unsigned int net_get_api_version(void)
+{
+    return 0;
+}

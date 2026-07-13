@@ -225,6 +225,7 @@ int RaHdcGetTlsEnable(unsigned int phyId, bool *tlsEnable);
 int RaHdcDeinit(struct RaInitConfig *cfg);
 int RaHdcGetInterfaceVersion(unsigned int phyId, unsigned int interfaceOpcode, unsigned int *interfaceVersion);
 void RaHdcGetAllOpcodeVersion(unsigned int phyId);
+bool RaHdcHasCapability(unsigned int phyId, unsigned int capability);
 int RaHdcGetCqeErrInfo(unsigned int phyId, struct CqeErrInfo *info);
 int RaHdcProcessMsg(unsigned int opcode, unsigned int phyId, char *data, unsigned int dataSize);
 int RaHdcInitSession(int peerNode, int peerDevid, unsigned int phyId, int hdcType, HDC_SESSION *session);

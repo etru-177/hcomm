@@ -152,3 +152,13 @@ HCCP_ATTRI_VISI_DEF int RaGetSecRandom(struct RaInfo *info, u32 *value)
 
     return ConverReturnCode(OTHERS, ret);
 }
+
+HCCP_ATTRI_VISI_DEF bool RaHasCapability(struct RaInfo *info, unsigned int capability)
+{
+    CHK_PRT_RETURN(info == NULL, hccp_warn("info is NULL"), false);
+    CHK_PRT_RETURN(info->phyId >= RA_MAX_PHY_ID_NUM, hccp_warn("phy_id(%u) must smaller than %u",
+        info->phyId, RA_MAX_PHY_ID_NUM), false);
+    CHK_PRT_RETURN(info->mode != NETWORK_OFFLINE, hccp_warn("mode:%u not support", info->mode), false);
+
+    return RaHdcHasCapability(info->phyId, capability);
+}

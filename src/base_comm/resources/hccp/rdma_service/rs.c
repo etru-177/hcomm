@@ -289,6 +289,7 @@ STATIC int RsInitRscbCfg(struct rs_cb *rscb)
     if (RsIsUdmaSupported() || RsIsRdmaSupported()) {
         ret = RsGetChipProtocol(rscb->chipId, rscb->hccpMode, &rscb->protocol, rscb->logicId);
         CHK_PRT_RETURN(ret != 0, hccp_err("rs_get_chip_protocol failed, ret[%d]", ret), ret);
+        // make sure RsRoceGetApiVersion and RsNetGetApiVersion are valid
         ret = RsCtxApiInit(rscb->hccpMode, rscb->protocol);
         CHK_PRT_RETURN(ret != 0, hccp_err("rs_ctx_api_init failed, ret[%d]", ret), ret);
         ret = RsEschedInit(rscb);

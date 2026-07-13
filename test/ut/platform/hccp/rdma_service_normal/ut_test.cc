@@ -125,7 +125,7 @@ TEST_M(RS, TcRsGetVnicIpInfo);
 TEST_M(RS, TcRsTypicalRegisterMr);
 TEST_M(RS, TcRsTypicalQpModify);
 TEST_M(RS, TcRsRemapMr);
-TEST_M(RS, tc_RsRoceGetApiVersion);
+TEST_M(RS, tc_RsGetApiVersion);
 TEST_M(RS, TcRsGetTlsEnable);
 TEST_M(RS, TcRsGetSecRandom);
 TEST_M(RS, TcRsGetHccnCfg);

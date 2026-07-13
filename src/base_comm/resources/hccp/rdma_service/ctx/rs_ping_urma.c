@@ -19,9 +19,11 @@
 #include "securec.h"
 #include "dl_hal_function.h"
 #include "dl_urma_function.h"
+#include "dl_net_function.h"
 #include "hccp_common.h"
 #include "rs.h"
 #include "ra_rs_err.h"
+#include "ra_rs_comm.h"
 #include "rs_drv_rdma.h"
 #include "rs_inner.h"
 #include "rs_epoll.h"
@@ -297,7 +299,7 @@ STATIC int RsPingCommonInitSegCb(struct rs_cb *rscb, struct RsPingCtxCb *pingCb,
         .bs.token_policy = URMA_TOKEN_PLAIN_TEXT,
         .bs.cacheable = URMA_NON_CACHEABLE,
         .bs.access = URMA_ACCESS_LOCAL_ONLY,
-        .bs.non_pin = 1,
+        .bs.non_pin = (RaRsHasCapability(RA_CAP_DRV_SHAREPOOL_NON_PIN, 0, RsNetGetApiVersion())) ? 1 : 0,
         .bs.token_id_valid = URMA_TOKEN_ID_INVALID,
         .bs.reserved = 0
     };
@@ -329,7 +331,8 @@ STATIC int RsPingCommonInitSegCb(struct rs_cb *rscb, struct RsPingCtxCb *pingCb,
     segCb->segment = RsUrmaRegisterSeg(pingCb->udevCb.urmaCtx, &segCfg);
     if (segCb->segment == NULL) {
         ret = -errno;
-        hccp_err("urma_register_seg failed, ret:%d addr:0x%llx len:0x%llx", ret, segCb->addr, segCb->len);
+        hccp_err("urma_register_seg failed, ret:%d addr:0x%llx len:0x%llx flag:0x%x",
+            ret, segCb->addr, segCb->len, segFlag.value);
         goto segment_reg_fail;
     }
 

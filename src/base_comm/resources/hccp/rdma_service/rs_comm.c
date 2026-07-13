@@ -10,6 +10,7 @@
 
 #include "ra_rs_comm.h"
 #include "dl_ibverbs_function.h"
+#include "dl_net_function.h"
 #include "rs.h"
 
 struct OpcodeInterfaceInfo gInterfaceInfoList[] = {
@@ -128,6 +129,7 @@ struct OpcodeInterfaceInfo gInterfaceInfoList[] = {
     {RA_RS_CTX_GET_AUX_INFO, 1},
     {RA_RS_CTX_GET_CR_ERR_INFO_LIST, 1},
     {RA_RS_CTX_GET_UB_CONTEXT, 1},
+    {RA_RS_GET_NET_API_VERSION, 0},
 
     // inner opcode version
     {RA_RS_HDC_SESSION_CLOSE, 1},
@@ -148,11 +150,15 @@ RS_ATTRI_VISI_DEF int RsGetInterfaceVersion(unsigned int opcode, unsigned int *v
     CHK_PRT_RETURN(version == NULL, hccp_err("rs_get_interface_version failed! version is null"), -EINVAL);
 
     for (i = 0; i < num; i++) {
-        if (opcode == gInterfaceInfoList[i].opcode && opcode != RA_RS_GET_ROCE_API_VERSION) {
+        if (opcode == gInterfaceInfoList[i].opcode &&
+            opcode != RA_RS_GET_ROCE_API_VERSION && opcode != RA_RS_GET_NET_API_VERSION) {
             interfaceVersion = gInterfaceInfoList[i].version;
             break;
         } else if (opcode == RA_RS_GET_ROCE_API_VERSION) {
             interfaceVersion = RsRoceGetApiVersion();
+            break;
+        } else if (opcode == RA_RS_GET_NET_API_VERSION) {
+            interfaceVersion = RsNetGetApiVersion();
             break;
         }
     }

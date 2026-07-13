@@ -157,7 +157,7 @@ void TcSslverify_callback();
 void Tcrs_ssl_verify_cert();
 void TcRsGetVnicIpInfo();
 void TcRsRemapMr();
-void tc_RsRoceGetApiVersion();
+void tc_RsGetApiVersion();
 void TcRsGetTlsEnable();
 void TcRsGetSecRandom();
 void TcRsGetHccnCfg();

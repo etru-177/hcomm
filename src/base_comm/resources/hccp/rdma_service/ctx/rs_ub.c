@@ -1629,7 +1629,7 @@ int RsUbCtxRegJettyDb(struct RsCtxJettyCb *jettyCb, struct udma_u_jetty_info *je
     }
     memAttr.ub.tokenValue = jettyCb->tokenValue;
     ret = RsUbCtxLmemReg(jettyCb->devCb, &memAttr, &memInfo);
-    CHK_PRT_RETURN(ret != 0, hccp_err("rs_ub_ctx_lmem_reg failed, ret=%d", ret), ret);
+    CHK_PRT_RETURN(ret != 0, hccp_err("RsUbCtxLmemReg failed, ret:%d flags:0x%x", ret, memAttr.ub.flags.value), ret);
 
     jettyCb->dbTokenId = memInfo.ub.tokenId;
     jettyCb->dbSegHandle = memInfo.ub.targetSegHandle;

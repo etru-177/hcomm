@@ -138,6 +138,7 @@ enum OpType {
     RA_RS_TYPICAL_CQ_DESTROY = 115,
     RA_RS_QP_DESTROY_WITHOUT_CQ = 116,
     RA_RS_GET_LITE_QP_ATTR = 117,
+    RA_RS_GET_NET_API_VERSION = 118,
     RA_RS_EXTER_OP_MAX_NUM,
 
     // 上面opcode是对部opcode,下面是内部opcode
@@ -392,5 +393,19 @@ static inline void RaRsSetDevInfo(struct RaRsDevInfo *devInfo, unsigned int phyI
     devInfo->devIndex = devIndex;
 }
 
-#endif
+static inline bool RaRsHasCapability(unsigned int capability, unsigned int roceVersion, unsigned int netVersion)
+{
+    static struct {
+        unsigned int capability;
+        unsigned int roceVersion;
+        unsigned int netVersion;
+    } capInfoList[] = {
+        {RA_CAP_DRV_SHAREPOOL_NON_PIN, 0, 1},
+    };
 
+    if (capability >= RA_CAP_INVALID) {
+        return false;
+    }
+    return ((roceVersion >= capInfoList[capability].roceVersion) && (netVersion >= capInfoList[capability].netVersion));
+}
+#endif // RA_RS_COMM_H

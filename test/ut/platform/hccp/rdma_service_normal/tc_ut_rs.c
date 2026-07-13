@@ -27,6 +27,7 @@
 #include "ascend_hal.h"
 #include "dl_hal_function.h"
 #include "dl_ibverbs_function.h"
+#include "dl_net_function.h"
 #include "rs_socket.h"
 #include "rs_tls.h"
 #include "ut_dispatch.h"
@@ -6641,11 +6642,14 @@ void TcRsRemapMr()
     mocker_clean();
 }
 
-void tc_RsRoceGetApiVersion()
+void tc_RsGetApiVersion()
 {
     unsigned int apiVersion = 0;
 
     apiVersion = RsRoceGetApiVersion();
+    EXPECT_INT_EQ(apiVersion, 0);
+
+    apiVersion = RsNetGetApiVersion();
     EXPECT_INT_EQ(apiVersion, 0);
 }
 

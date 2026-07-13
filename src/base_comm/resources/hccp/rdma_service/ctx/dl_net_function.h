@@ -19,6 +19,7 @@ struct RsNetOps {
     int (*rsNetAllocJettyId)(const char *udevName, unsigned int jettyMode, unsigned int *jettyId);
     int (*rsNetFreeJettyId)(const char *udevName, unsigned int jettyMode, unsigned int jettyId);
     unsigned long long (*rsNetGetCqeBaseAddr)(unsigned int dieId);
+    unsigned int (*rsNetGetApiVersion)(void);
 };
 
 int RsNetApiInit(void);
@@ -31,5 +32,6 @@ int RsNetFreeJfcId(const char *udevName, unsigned int jfcMode, unsigned int jfcI
 int RsNetAllocJettyId(const char *udevName, unsigned int jettyMode, unsigned int *jettyId);
 int RsNetFreeJettyId(const char *udevName, unsigned int jettyMode, unsigned int jettyId);
 int RsNetGetCqeBaseAddr(unsigned int dieId, unsigned long long *cqeBaseAddr);
+unsigned int RsNetGetApiVersion(void);
 
 #endif // DL_NET_FUNCTION_H

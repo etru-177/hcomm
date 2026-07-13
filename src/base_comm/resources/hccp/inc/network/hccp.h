@@ -836,6 +836,16 @@ HCCP_ATTRI_VISI_DEF int RaGetInterfaceVersion(unsigned int phyId, unsigned int i
     unsigned int* interfaceVersion);
 
 /**
+ * @ingroup libcommon
+ * @brief check whether the RA instance has the specified capability
+ * @param info [IN] see struct RaInfo
+ * @param capability [IN] Capability flag to check (RA_CAP_xxx).
+ * @retval true  if the capability is supported,
+ *         false otherwise.
+*/
+HCCP_ATTRI_VISI_DEF bool RaHasCapability(struct RaInfo *info, unsigned int capability);
+
+/**
  * @ingroup librdma
  * @brief This function only invoked in asynchronous GDR scenario for more flexible shared memory partition,
  * it will set template depth and obtain max supported qp numbers. The template is a mechanism designed for

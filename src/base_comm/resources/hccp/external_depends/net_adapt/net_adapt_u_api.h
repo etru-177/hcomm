@@ -20,5 +20,6 @@ NETADP_ATTRI_VISI_DEF int net_free_jfc_id(const char *udev_name, unsigned int jf
 NETADP_ATTRI_VISI_DEF int net_alloc_jetty_id(const char *udev_name, unsigned int jetty_mode, unsigned int *jetty_id);
 NETADP_ATTRI_VISI_DEF int net_free_jetty_id(const char *udev_name, unsigned int jetty_mode, unsigned int jetty_id);
 NETADP_ATTRI_VISI_DEF unsigned long long net_get_cqe_base_addr(unsigned int die_id);
+NETADP_ATTRI_VISI_DEF unsigned int net_get_api_version(void);
 
 #endif // NET_ADP_U_API_H

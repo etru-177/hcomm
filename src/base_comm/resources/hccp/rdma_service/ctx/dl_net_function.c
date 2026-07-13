@@ -24,6 +24,7 @@ struct RsNetOps gNetOps = {
     .rsNetAllocJettyId = net_alloc_jetty_id,
     .rsNetFreeJettyId = net_free_jetty_id,
     .rsNetGetCqeBaseAddr = net_get_cqe_base_addr,
+    .rsNetGetApiVersion = net_get_api_version,
 };
 #endif
 
@@ -56,6 +57,8 @@ int RsNetAdaptApiInit(void)
     gNetOps.rsNetGetCqeBaseAddr = (unsigned long long (*)(unsigned int dieId))
         HccpDlsym(gNetApiHandle, "net_get_cqe_base_addr");
     DL_API_RET_IS_NULL_CHECK(gNetOps.rsNetGetCqeBaseAddr, "net_get_cqe_base_addr");
+
+    gNetOps.rsNetGetApiVersion = (unsigned int (*)(void)) HccpDlsym(gNetApiHandle, "net_get_api_version");
 #endif
     return 0;
 }
@@ -183,4 +186,13 @@ int RsNetGetCqeBaseAddr(unsigned int dieId, unsigned long long *cqeBaseAddr)
     CHK_PRT_RETURN(cqeBaseAddr == NULL, hccp_err("cqe_base_addr is null, dieId:%u", dieId), -EINVAL);
     *cqeBaseAddr = gNetOps.rsNetGetCqeBaseAddr(dieId);
     return 0;
+}
+
+unsigned int RsNetGetApiVersion(void)
+{
+    if (gNetApiHandle == NULL || gNetOps.rsNetGetApiVersion == NULL) {
+        return 0;
+    }
+
+    return gNetOps.rsNetGetApiVersion();
 }

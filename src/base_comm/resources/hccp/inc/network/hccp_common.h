@@ -105,6 +105,11 @@ enum NetworkMode {
     NETWORK_ONLINE, /**< online mode */
 };
 
+enum {
+    RA_CAP_DRV_SHAREPOOL_NON_PIN = 0,
+    RA_CAP_INVALID,
+};
+
 /**
  * @ingroup libinit
  * hccp support protocol type
