@@ -104,7 +104,7 @@ protected:
         }
 
         *memHandleNum = static_cast<uint32_t>(activeHandles.size());
-        *memHandles = activeHandles.empty() ? nullptr : reinterpret_cast<void *>(activeHandles.data());
+        *memHandles = activeHandles.empty() ? nullptr : static_cast<void *>(activeHandles.data());
         HCCL_INFO("[%s][GetAllMemHandles] memHandleNum[%u]", logTag, *memHandleNum);
         return HCCL_SUCCESS;
     }
