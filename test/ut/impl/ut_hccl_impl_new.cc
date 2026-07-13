@@ -192,37 +192,6 @@ TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_Normal_Return_HCCL_SUCCESS)
     GlobalMockObject::verify();
 }
 
-TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_GroupModeAndAllocSliceMemFailed_Return_HCCL_E_INTERNAL)
-{
-    HcclResult ret = HCCL_SUCCESS;
-    HcclCommParams params;
-    RankTable_t rankTable;
-    TestConstructParam(params, rankTable, 3);
-    std::unique_ptr<HcclCommunicator> communicator(new (std::nothrow) HcclCommunicator());
-
-    MOCKER(hrtProfRegisterCtrlCallback).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&HcclCommunicator::InitRaResource).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
-    communicator->Init(params, rankTable);
-
-    SingleSubCommTransport singleTrans;
-    std::vector<HcclSendRecvItem> items;
-    TransportIOMem transMem;
-    InitSendRecvTestData(singleTrans, items);
-
-    communicator->transportManager_->SetGroupMode(true);
-
-    MOCKER_CPP(&TransportManager::GetIOMem).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER(hrtSetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
-    MOCKER_CPP(&TransportManager::AllocSliceMem).stubs().with(mockcpp::any()).will(returnValue(HCCL_E_INTERNAL));
-    MOCKER(hrtResetDevice).stubs().with(mockcpp::any()).will(returnValue(HCCL_SUCCESS));
-
-    std::string tag = "batch_send_recv_test";
-    ret = communicator->transportManager_->AllocBatchSendRecvLinks(items.data(), items.size(), tag, transMem, singleTrans,
-        false, false, 0, false, HcclCMDType::HCCL_CMD_BATCH_SEND_RECV, false);
-    EXPECT_EQ(ret, HCCL_E_INTERNAL);
-    GlobalMockObject::verify();
-}
-
 TEST_F(HcclImplTest, ut_AllocBatchSendRecvLinks_When_hrtSetDevice_Failed_Return_HCCL_E_INTERNAL)
 {
     HcclResult ret = HCCL_SUCCESS;

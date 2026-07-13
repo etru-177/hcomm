@@ -13,6 +13,7 @@
 
 #include "coll_comm_executor.h"
 #include "coll_batch_send_recv_executor.h"
+#include <map>
 
 namespace hccl {
 class CollBatchSendRecvGroupExecutor : public CollBatchSendRecvExecutor {
@@ -25,45 +26,68 @@ protected:
     /* *************** 算法编排 *************** */
     u64 CalcSendLoopMaxCount(const u32 unitSize) const;
     u64 CalcRecvLoopMaxCount(const u32 unitSize) const;
-    HcclResult ProcessSendStreamDataSlice(Stream& stream, bool needStreamSync, bool retryEnable,
-        bool isSendStream = false, u32 sendStreamId = 0);
-    HcclResult ProcessRecvStreamDataSlice(Stream& stream, bool needStreamSync, bool retryEnable,
-        bool isRecvStream = false, u32 recvStreamId = 0);
-    HcclResult ProcessDataSliceSmall(OpParam& param);
     HcclResult CalcSendSlices();
     HcclResult CalcRecvSlices();
-    HcclResult CalcSendSlicesSmall();
-    HcclResult CalcRecvSlicesSmall();
-    HcclResult CopyLocalDataForARound(Stream& mainStream);
-    HcclResult OrganizeSendSlices();
-    HcclResult OrganizeRecvSlices();
     HcclResult OrganizeSendItemByStream();
     HcclResult OrganizeRecvItemByStream();
+    HcclResult CalcCommInfo(std::vector<LevelNSubCommTransport>& opTransport) override;
     struct SendRecvSlice {
         u8* addr;
         u64 size;
         u32 remoteRank;
-        SendRecvSlice(u8* addr, u64 size, u32 remoteRank) : addr(addr), size(size), remoteRank(remoteRank) {}
+        bool isRdma; // true=RDMA任务(用CCLOut拆半，无ping-pong)；false=SDMA任务(用CCLIn，ping-pong)
+        SendRecvSlice(u8* addr, u64 size, u32 remoteRank, bool isRdma = false)
+            : addr(addr), size(size), remoteRank(remoteRank), isRdma(isRdma) {}
     };
 
-    std::deque<SendRecvSlice> sendDataSilces_;
-    std::deque<SendRecvSlice> recvDataSilces_;
-    std::vector<std::deque<SendRecvSlice>> sendDataSilcesBySendStream_;
-    std::vector<std::deque<SendRecvSlice>> recvDataSilcesByRecvStream_;
+    // SDMA slice按remoteRank % streamNum分发到各SDMA从流(仅SDMA，ping-pong)。
+    std::vector<std::deque<SendRecvSlice>> sendDataSlicesBySendStream_;
+    std::vector<std::deque<SendRecvSlice>> recvDataSlicesByRecvStream_;
+
+    // RDMA与SDMA分离：SDMA占sendStreamNum_+recvStreamNum_条从流(CCLIn ping-pong)；
+    // RDMA单独占2条从流(1 send + 1 recv)，对端顺序按alltoallv_direct_fullmesh对称场景规则
+    // (send前向递增、recv后向递减，均跳过本pod；对端无任务则跳过)。
+    // RDMA使用CCLOut拆半：A(offset 0)=send scratch(单slot), B(offset rdmaDataBlockSize_)=recv scratch(单slot)。
+    // RDMA不做ping-pong，逐slice处理。
+    static constexpr u32 RDMA_CCLOUT_HALF_NUM = 2; // CCLOut拆成两半：A=send, B=recv
+    static constexpr u32 RDMA_STREAM_NUM = 2;      // RDMA专用从流数：1 send + 1 recv
+
+    // RDMA slice(已按对称场景规则排序)，分别由rdmaSendStreamIdx_/rdmaRecvStreamIdx_对应的从流处理。
+    std::deque<SendRecvSlice> rdmaSendSlices_;
+    std::deque<SendRecvSlice> rdmaRecvSlices_;
 
 private:
-    HcclResult RunLoopBig(OpParam& param);
-    HcclResult RunTasksBig(OpParam& param);
-    HcclResult RunLoopSmall(OpParam& param);
+    HcclResult RunLoop(OpParam& param);
+    HcclResult RunTasks(OpParam& param);
+    HcclResult ProcessPreloadedSendSlice(u32 streamIdx, u32& pendingSendCount, u32& nonEmptySendStream);
+    HcclResult ProcessNewRankSendSlice(u32 streamIdx, u32& pendingSendCount, u32& nonEmptySendStream);
+    HcclResult ProcessRecvSlice(u32 streamIdx, u32& nonEmptyRecvStream);
+    // RDMA专用从流(单send/单recv)上处理一个slice，对端顺序由rdmaSendSlices_/rdmaRecvSlices_保证。
+    HcclResult ProcessRdmaSendSlice();
+    HcclResult ProcessRdmaRecvSlice();
+    HcclResult CalcPodRange();
+    bool IsRemoteRankRdma(u32 remoteRank) const;
+    HcclResult SetNormalModeIfDeviceDirect();
     HcclResult CalcStreamNum(u32& streamNum) override;
-    HcclResult isGroupBigCount(HcclSendRecvItem *sendRecvInfo, u32 itemNum, bool& isBig) const;
-    HcclResult CalcBufferSliceSize();
+    HcclResult CalcPingPongHalfSize();
 
     HcclResult MainPostSubWait(Stream& mainStream);
     HcclResult MainWaitSubPost(Stream& mainStream);
-    HcclResult SubNotifyMain(Stream& stream, u32 streamId) const;
-    HcclResult MainPostSubWaitSmall(Stream& mainStream, Stream& subStream) const;
-    HcclResult MainWaitSubPostSmall(Stream& mainStream, Stream& subStream) const;
+    // 统计各从流(SDMA send/recv + RDMA send/recv)是否有任务并记录到成员变量，
+    // 同时返回SDMA非空流数供RunTasks循环使用。循环中不再更新。
+    HcclResult CalcStreamTaskStatus(u32& nonEmptySendStream, u32& nonEmptyRecvStream);
+
+    // 对称场景规则：send前向递增/recv后向递减遍历，跳过本pod。返回当前候选rank并推进游标。
+    u32 GetNextDstRank(u32& curDstRank);
+    u32 GetPreSrcRank(u32& curSrcRank);
+    // 按对称场景规则对RDMA slice排序：isSend=true用前向(GetNextDstRank)，false用后向(GetPreSrcRank)。
+    // 遍历所有跨pod对端，仅输出存在任务的对端的slice(起点初始化与每次更新均跳过无任务对端)。
+    void OrderRdmaSlices(bool isSend, const std::map<u32, std::deque<SendRecvSlice>>& byRank,
+                         std::deque<SendRecvSlice>& out);
+
+    // RDMA专用从流在slaveStreams中的索引。
+    u32 RdmaSendStreamIdx() const { return sendStreamNum_ + recvStreamNum_; }
+    u32 RdmaRecvStreamIdx() const { return sendStreamNum_ + recvStreamNum_ + 1; }
 
 private:
 
@@ -72,6 +96,22 @@ private:
     u32 sendStreamNum_ = 0;
     u32 recvStreamNum_ = 0;
     u64 bufferSliceSize_ = 0;
+    u64 rdmaDataBlockSize_ = 0; // RDMA单流slot大小 = CCLOut/2(A=send半区, B=recv半区)
+    u32 podStartRank_ = 0; // pod(rank)范围，用于判定isRdma：[podStartRank_, podEndRank_]内为SDMA，跨pod为RDMA
+    u32 podEndRank_ = 0;
+    u32 devNumInlocalPod_ = 0; // 本pod内rank数，用于对称场景规则起点的计算
+    // Ping-pong state
+    std::vector<u32> sendCurPhase_;         // which half has loaded data, ready to Record+Send (0=A, 1=B)
+    std::vector<u64> sendLoadedSize_;       // size of data loaded in current sendCurPhase_ half (0 = nothing)
+    std::vector<u32> sendLoadedRemoteRank_; // remote rank for the data loaded in current sendCurPhase_
+    std::vector<u32> recvCurPhase_;         // which half to read from for recv (0=A, 1=B)
+    std::vector<u32> recvCurRemoteRank_;    // current remote rank being received on this stream
+
+    // 各从流是否有任务(在RunTasks起始时记录，循环中不更新)，用于头尾同步只唤醒有任务的从流。
+    std::vector<bool> sendStreamHasTask_;   // send从流(共sendStreamNum_条)是否有任务
+    std::vector<bool> recvStreamHasTask_;   // recv从流(共recvStreamNum_条)是否有任务
+    bool rdmaSendHasTask_ = false;          // RDMA专用send从流是否有任务
+    bool rdmaRecvHasTask_ = false;          // RDMA专用recv从流是否有任务
 };
 } // namespace hccl
 
