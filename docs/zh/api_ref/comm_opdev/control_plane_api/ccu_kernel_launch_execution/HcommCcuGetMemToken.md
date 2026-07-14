@@ -43,6 +43,7 @@ CcuResult HcommCcuGetMemToken(uint64_t srcVa, uint64_t size, uint64_t *tokenInfo
 | `CCU_SUCCESS` | 操作成功。 |
 | `CCU_E_PTR` | 空指针错误，`tokenInfo`为空指针。 |
 | `CCU_E_PARA` | 参数错误，`srcVa`为0或`size`为0。 |
+| `CCU_E_RUNTIME` | 运行时错误，`srcVa`未分配或者参数`size`大于分配的大小。 |
 | `CCU_E_DRV_*` | 驱动层错误，当前可能返回 4097（`CCU_E_DRV_INIT_FAILED`）或 4098（`CCU_E_DRV_BUSY`）；驱动层错误码段定义于 [`CCU_E_DRV_START`=4096, `CCU_E_DRV_END`=4224]，详见 [CcuResult](../../datatype_definition/CcuResult.md)。 |
 
 ## 约束说明

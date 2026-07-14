@@ -15,6 +15,7 @@ typedef enum {
     CCU_E_NOT_SUPPORT = 5,
     CCU_E_NOT_FOUND = 6,
     CCU_E_UNAVAIL = 7,
+    CCU_E_RUNTIME = 15,
     CCU_E_DRV_START = 4096,
     CCU_E_DRV_INIT_FAILED = 4097,
     CCU_E_DRV_BUSY = 4098,
@@ -34,6 +35,7 @@ typedef enum {
 | `CCU_E_NOT_SUPPORT` | 5 | 不支持的特性。 |
 | `CCU_E_NOT_FOUND` | 6 | 未找到指定资源。 |
 | `CCU_E_UNAVAIL` | 7 | 资源不可用。 |
+| `CCU_E_RUNTIME` | 15 | 运行时错误。 |
 | `CCU_E_DRV_START` | 4096 | 驱动层错误码段起始标记（不作为实际错误码返回）。 |
 | `CCU_E_DRV_INIT_FAILED` | 4097 | 驱动初始化失败。 |
 | `CCU_E_DRV_BUSY` | 4098 | 驱动忙。 |

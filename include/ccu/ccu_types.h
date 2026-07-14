@@ -28,7 +28,7 @@ typedef enum {
     CCU_E_NOT_SUPPORT = 5,         /**< not support feature */
     CCU_E_NOT_FOUND = 6,           /**< not found specific resource */
     CCU_E_UNAVAIL = 7,             /**< resource unavailable */
-
+    CCU_E_RUNTIME = 15,             /**< runtime error */
     CCU_E_DRV_START = 4096,
 
     CCU_E_DRV_INIT_FAILED = 4097,
