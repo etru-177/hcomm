@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <mutex>
 #include "task_abort_handler.h"
+#include "ccu_dev_mgr.h"
 #include "log.h"
 
 namespace Hccl {
@@ -52,7 +53,11 @@ static int32_t TaskAbortPost(const std::vector<HcclCommunicator *> &commVector,
   HcclResult ret = HCCL_SUCCESS;
   bool isUseTimeOut = localtimeout != std::chrono::seconds(0);
   std::chrono::seconds elapsed{};
-  CHK_RET(HcclCcuTaskKillPreProcess(deviceLogicId));
+  if (CcuIsInited(deviceLogicId)) {
+    CHK_RET(HcclCcuTaskKillPreProcess(deviceLogicId));
+  } else {
+    HCCL_INFO("[NsRecovery][Callback] CCU not inited, skip TaskKillPreProcess, deviceLogicId[%d]", deviceLogicId);
+  }
   for (const auto& comm : commVector) {
     if (isUseTimeOut) {
       std::chrono::steady_clock::time_point startTime =
@@ -74,7 +79,11 @@ static int32_t TaskAbortPost(const std::vector<HcclCommunicator *> &commVector,
                   static_cast<int>(TaskAbortResult::TASK_ABORT_TIMEOUT));
     }
   }
-  CHK_RET(HcclCcuTaskKillPostProcess(deviceLogicId));
+  if (CcuIsInited(deviceLogicId)) {
+    CHK_RET(HcclCcuTaskKillPostProcess(deviceLogicId));
+  } else {
+    HCCL_INFO("[NsRecovery][Callback] CCU not inited, skip TaskKillPostProcess, deviceLogicId[%d]", deviceLogicId);
+  }
   return static_cast<int>(TaskAbortResult::TASK_ABORT_SUCCESS);
 }
 

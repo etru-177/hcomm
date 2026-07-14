@@ -122,9 +122,44 @@ TEST_F(HcclTaskAbortHandlerTest, test_task_abort_handle_call_back_stage_post_suc
     HcclTaskAbortHandler::GetInstance().Register(comm);
     void* args = reinterpret_cast<void*>(&HcclTaskAbortHandler::GetInstance().commVector_);
 
-    // 模拟 CCU 相关函数返回成功
+    // 模拟 CCU 已初始化及相关函数返回成功
+    MOCKER(CcuIsInited).stubs().will(returnValue(true));
     MOCKER(CcuSetTaskKill).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(CcuSetTaskKillDone).stubs().will(returnValue(HCCL_SUCCESS));
+
+    // 模拟 Clean 方法返回成功
+    MOCKER_CPP(&CollComm::Clean, HcclResult(CollComm:: *)())
+    .stubs()
+    .with(mockcpp::any())
+    .will(returnValue(HCCL_SUCCESS));
+
+    // 测试带超时的情况
+    auto ret = ProcessTaskAbortHandleCallback(deviceLogicId, stage, timeout, args);
+    EXPECT_EQ(ret, static_cast<int>(TaskAbortResult::TASK_ABORT_SUCCESS));
+
+    // 测试不带超时的情况
+    timeout = 0U;
+    ret = ProcessTaskAbortHandleCallback(deviceLogicId, stage, timeout, args);
+    EXPECT_EQ(ret, static_cast<int>(TaskAbortResult::TASK_ABORT_SUCCESS));
+
+    // 清理
+    HcclTaskAbortHandler::GetInstance().UnRegister(comm);
+}
+
+TEST_F(HcclTaskAbortHandlerTest, test_task_abort_post_skip_taskkill_when_ccu_not_inited)
+{
+    // 构造入参
+    int32_t deviceLogicId = 0;
+    aclrtDeviceTaskAbortStage stage = aclrtDeviceTaskAbortStage::ACL_RT_DEVICE_TASK_ABORT_POST;
+    uint32_t timeout = 30U;
+
+    // 使用 nullptr 作为测试 communicator 的占位符并注册
+    CollComm *comm = nullptr;
+    HcclTaskAbortHandler::GetInstance().Register(comm);
+    void* args = reinterpret_cast<void*>(&HcclTaskAbortHandler::GetInstance().commVector_);
+
+    // 模拟 CCU 未初始化，应跳过 TaskKill
+    MOCKER(CcuIsInited).stubs().will(returnValue(false));
 
     // 模拟 Clean 方法返回成功
     MOCKER_CPP(&CollComm::Clean, HcclResult(CollComm:: *)())
@@ -157,7 +192,8 @@ TEST_F(HcclTaskAbortHandlerTest, test_task_abort_handle_call_back_stage_post_fai
     HcclTaskAbortHandler::GetInstance().Register(comm);
     void* args = reinterpret_cast<void*>(&HcclTaskAbortHandler::GetInstance().commVector_);
 
-    // 模拟 CCU 相关函数返回成功
+    // 模拟 CCU 已初始化及相关函数返回成功
+    MOCKER(CcuIsInited).stubs().will(returnValue(true));
     MOCKER(CcuSetTaskKill).stubs().will(returnValue(HCCL_SUCCESS));
     MOCKER(CcuSetTaskKillDone).stubs().will(returnValue(HCCL_SUCCESS));
 

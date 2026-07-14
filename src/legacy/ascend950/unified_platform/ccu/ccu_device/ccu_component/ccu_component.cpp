@@ -127,10 +127,14 @@ CcuComponent &CcuComponent::GetInstance(const int32_t deviceLogicId)
     return ccuComponent[deviceLogicId];
 }
 
-static void PrintCcuMissionStatus(int32_t devLogicId)
+void CcuComponent::PrintCcuMissionStatus(int32_t devLogicId) const
 {
     uint16_t status = 0;
     for (uint8_t dieId = 0; dieId < MAX_CCU_IODIE_NUM; dieId++) {
+        if (!dieEnableFlags[dieId]) {
+            HCCL_WARNING("[%s]devLogicId[%d], dieId[%u] is not enable, skip." , __func__, devLogicId, dieId);
+            continue;
+        }
         std::string missionStatus;
         for (uint8_t missionId = 0; missionId < CCU_MAX_MISSION_NUM; missionId++) {
             status = Hccl::CcuErrorHandler::GetCcuMissionContext(devLogicId, dieId, missionId).GetStatus();

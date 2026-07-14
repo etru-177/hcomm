@@ -71,6 +71,15 @@ HcclResult CcuGetChannelSpecNum(const int32_t deviceLogicId, const uint8_t dieId
     );
 }
 
+bool CcuIsInited(const int32_t deviceLogicId)
+{
+    HCCL_INFO("[CcuIsInited] Input params: deviceLogicId[%d]", deviceLogicId);
+    CHK_PRT_RET((deviceLogicId < 0 || static_cast<u32>(deviceLogicId) >= MAX_MODULE_DEVICE_NUM),
+        HCCL_ERROR("[CcuIsInited]deviceLogicId[%d] error, MAX_MODULE_DEVICE_NUM[%u]", deviceLogicId, MAX_MODULE_DEVICE_NUM),
+        false);
+    return CcuComponent::GetInstance(deviceLogicId).IsInited();
+}
+
 HcclResult CcuSetTaskKill(const int32_t deviceLogicId)
 {
     HCCL_INFO("[CcuSetTaskKill] Input params: deviceLogicId[%d]", deviceLogicId);

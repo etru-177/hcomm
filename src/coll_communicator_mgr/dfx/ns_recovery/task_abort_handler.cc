@@ -51,7 +51,11 @@ int32_t ProcessTaskAbortPost(const std::vector<CollComm *> &commVector, int32_t 
     HcclResult ret = HCCL_SUCCESS;
     bool isUseTimeOut = localtimeout != std::chrono::seconds(0);
     std::chrono::seconds elapsed{};
-    CHK_RET(hcomm::CcuSetTaskKill(deviceLogicId));
+    if (hcomm::CcuIsInited(deviceLogicId)) {
+        CHK_RET(hcomm::CcuSetTaskKill(deviceLogicId));
+    } else {
+        HCCL_INFO("[NsRecovery][Callback] CCU not inited, skip CcuSetTaskKill, deviceLogicId[%d]", deviceLogicId);
+    }
     for (auto& comm : commVector) {
         if (isUseTimeOut) {
             std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
@@ -70,7 +74,11 @@ int32_t ProcessTaskAbortPost(const std::vector<CollComm *> &commVector, int32_t 
                 static_cast<int>(TaskAbortResult::TASK_ABORT_TIMEOUT));
         }
     }
-    CHK_RET(hcomm::CcuSetTaskKillDone(deviceLogicId));
+    if (hcomm::CcuIsInited(deviceLogicId)) {
+        CHK_RET(hcomm::CcuSetTaskKillDone(deviceLogicId));
+    } else {
+        HCCL_INFO("[NsRecovery][Callback] CCU not inited, skip CcuSetTaskKillDone, deviceLogicId[%d]", deviceLogicId);
+    }
     return static_cast<int>(TaskAbortResult::TASK_ABORT_SUCCESS);
 }
 

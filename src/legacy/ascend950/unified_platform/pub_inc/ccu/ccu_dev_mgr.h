@@ -92,6 +92,15 @@ HcclResult CcuReleaseChannel(const int32_t deviceLogicId, const uint8_t dieId, c
 HcclResult CcuGetChannelSpecNum(const int32_t deviceLogicId, const uint8_t dieId, uint32_t &channelNum);
 
 /**
+ * @brief 查询CCU设备是否已完成初始化
+ *
+ * @param deviceLogicId device逻辑ID
+ * @return bool true表示已初始化，false表示未初始化或入参非法
+ * @note 无
+ */
+bool CcuIsInited(const int32_t deviceLogicId);
+
+/**
  * @brief 触发CCU Task Kill
  *
  * @param deviceLogicId device逻辑ID

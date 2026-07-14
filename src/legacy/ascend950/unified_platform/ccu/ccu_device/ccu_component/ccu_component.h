@@ -67,6 +67,7 @@ public:
     HcclResult CleanTaskKillState() const;
 
     const std::array<bool, MAX_CCU_IODIE_NUM> &GetDieEnableFlags() const;
+    bool IsInited() const { return ifInit; }
 
 private:
     static constexpr uint32_t INVALID_DEV_ID = 0xFFFFFFFF;
@@ -126,6 +127,7 @@ private:
     void DestroyAllJetty();
 
     void SetProcess(CcuOpcodeType opCode) const;
+    void PrintCcuMissionStatus(int32_t devLogicId) const;
 };
 
 }; // namespace Hccl
