@@ -416,7 +416,7 @@ static HcclResult ImportJettyAsync(CtxHandle ctxHandle, const HccpUbJettyImporte
     info->in.ub.expImportCfg = cfg;
 
     if (protocol != TpProtocol::RTP && protocol != TpProtocol::CTP) {
-        HCCL_ERROR("[%s] failed, tp protocol[%s] is not expected, %s.",
+        HCCL_ERROR("[%s] failed, tp protocol[%s] is not expected.",
         __func__, protocol.Describe().c_str());
         return HcclResult::HCCL_E_PARA;
     }
