@@ -110,6 +110,13 @@ static HcclResult stub_GetQpHandleByQpn_success(TypicalQpManager* self, u32 qpn,
     return HCCL_SUCCESS;
 }
 
+/* ===== Stub for TypicalQpManager::GetVerbsQpHandleByQpn ===== */
+static HcclResult stub_GetVerbsQpHandleByQpn_success(TypicalQpManager* self, u32 qpn, QpHandle &qpHandle)
+{
+    qpHandle = reinterpret_cast<QpHandle>(0xBEEF0000 + qpn);
+    return HCCL_SUCCESS;
+}
+
 /* ===== Stub for HrtRaSendWrVerbs ===== */
 static HcclResult stub_HrtRaSendWrVerbs_success(QpHandle handle,
     struct SendWrVerbs *wr, struct SendWrRsp *opRsp)
@@ -405,7 +412,7 @@ TEST_F(InterfaceHcclVerbsTest, CreateQPWithCQWithAttr_ValidateCqFailure)
 TEST_F(InterfaceHcclVerbsTest, ModifyVerbsQPEx_Success)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::ModifyQp).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TypicalQpManager::ModifyVerbsQp).stubs().will(returnValue(HCCL_SUCCESS));
 
     AscendVerbsQPInfo localQP{};
     localQP.qpn = 1;
@@ -478,10 +485,12 @@ TEST_F(InterfaceHcclVerbsTest, ModifyVerbsQPEx_TCNotMultipleOf4)
 TEST_F(InterfaceHcclVerbsTest, ModifyVerbsQPEx_ModifyQpFailure)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::ModifyQp).stubs().will(returnValue(HCCL_E_INTERNAL));
+    MOCKER_CPP(&TypicalQpManager::ModifyVerbsQp).stubs().will(returnValue(HCCL_E_INTERNAL));
 
     AscendVerbsQPInfo localQP{};
+    localQP.qpn = 1;
     AscendVerbsQPInfo remoteQP{};
+    remoteQP.qpn = 2;
     AscendQPQos qos{};
     qos.sl = 4;
     qos.tc = 4;
@@ -497,7 +506,7 @@ TEST_F(InterfaceHcclVerbsTest, ModifyVerbsQP_Success)
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
     MOCKER(GetExternalInputRdmaServerLevel).stubs().will(returnValue(1u));
     MOCKER(GetExternalInputRdmaTrafficClass).stubs().will(returnValue(4u));
-    MOCKER_CPP(&TypicalQpManager::ModifyQp).stubs().will(returnValue(HCCL_SUCCESS));
+    MOCKER_CPP(&TypicalQpManager::ModifyVerbsQp).stubs().will(returnValue(HCCL_SUCCESS));
 
     AscendVerbsQPInfo localQP{};
     localQP.qpn = 1;
@@ -579,7 +588,7 @@ TEST_F(InterfaceHcclVerbsTest, PollAscendCQ_PollFailure)
 TEST_F(InterfaceHcclVerbsTest, PostSend_Success_SingleWR)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
     MOCKER(HrtRaSendWrVerbs).stubs().will(invoke(stub_HrtRaSendWrVerbs_success));
     MOCKER(hrtRDMADBSend).stubs().will(invoke(stub_hrtRDMADBSend_success));
 
@@ -608,7 +617,7 @@ TEST_F(InterfaceHcclVerbsTest, PostSend_Success_SingleWR)
 TEST_F(InterfaceHcclVerbsTest, PostSend_Success_LinkedListWRs)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
     MOCKER(HrtRaSendWrVerbs).stubs().will(invoke(stub_HrtRaSendWrVerbs_success));
     MOCKER(hrtRDMADBSend).stubs().will(invoke(stub_hrtRDMADBSend_success));
 
@@ -671,7 +680,7 @@ TEST_F(InterfaceHcclVerbsTest, PostSend_StreamNull)
 TEST_F(InterfaceHcclVerbsTest, PostSend_NumSgeExceedsMax)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
 
     AscendVerbsQPInfo qpInfo{};
     qpInfo.qpn = 100;
@@ -689,7 +698,7 @@ TEST_F(InterfaceHcclVerbsTest, PostSend_NumSgeExceedsMax)
 TEST_F(InterfaceHcclVerbsTest, PostSend_NullSgList)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
 
     AscendVerbsQPInfo qpInfo{};
     qpInfo.qpn = 100;
@@ -710,7 +719,7 @@ TEST_F(InterfaceHcclVerbsTest, PostSend_NullSgList)
 TEST_F(InterfaceHcclVerbsTest, PostRecv_Success_SingleWR)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
     MOCKER(HrtRaRecvWrVerbs).stubs().will(invoke(stub_HrtRaRecvWrVerbs_success));
 
     AscendVerbsQPInfo qpInfo{};
@@ -737,7 +746,7 @@ TEST_F(InterfaceHcclVerbsTest, PostRecv_Success_SingleWR)
 TEST_F(InterfaceHcclVerbsTest, PostRecv_Success_LinkedListWRs)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
     MOCKER(HrtRaRecvWrVerbs).stubs().will(invoke(stub_HrtRaRecvWrVerbs_success));
 
     AscendVerbsQPInfo qpInfo{};
@@ -799,7 +808,7 @@ TEST_F(InterfaceHcclVerbsTest, PostRecv_StreamNull)
 TEST_F(InterfaceHcclVerbsTest, PostRecv_NumSgeExceedsMax)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
 
     AscendVerbsQPInfo qpInfo{};
     qpInfo.qpn = 100;
@@ -817,7 +826,7 @@ TEST_F(InterfaceHcclVerbsTest, PostRecv_NumSgeExceedsMax)
 TEST_F(InterfaceHcclVerbsTest, PostRecv_NullSgList)
 {
     MOCKER(hrtGetDeviceRefresh).stubs().will(invoke(stub_hrtGetDeviceRefresh_success));
-    MOCKER_CPP(&TypicalQpManager::GetQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetQpHandleByQpn_success));
+    MOCKER_CPP(&TypicalQpManager::GetVerbsQpHandleByQpn).stubs().with(mockcpp::any(), mockcpp::any(), mockcpp::any()).will(invoke(stub_GetVerbsQpHandleByQpn_success));
 
     AscendVerbsQPInfo qpInfo{};
     qpInfo.qpn = 100;

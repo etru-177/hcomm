@@ -28,9 +28,11 @@ public:
     HcclResult GetCqDepth(uint32_t cqn, uint32_t &cqDepth);
     HcclResult GetCqHandle(uint32_t cqn, void*& cqHandle);
     HcclResult ModifyQp(struct TypicalQp& localQpInfo, struct TypicalQp& remoteQpInfo);
+    HcclResult ModifyVerbsQp(struct TypicalQp& localQpInfo, struct TypicalQp& remoteQpInfo);
     HcclResult DestroyQp(struct TypicalQp& qpInfo);
     HcclResult DestroyQpWithoutCQ(struct TypicalQp& qpInfo);
     HcclResult GetQpHandleByQpn(u32 qpn, QpHandle& qpHandle);
+    HcclResult GetVerbsQpHandleByQpn(u32 qpn, QpHandle& qpHandle);
     HcclResult CreateCq(AscendCQInfo& cqInfo);
     HcclResult DestroyCq(uint32_t cqn);
 private:
@@ -47,6 +49,7 @@ private:
     const s32 QP_FLAG_RC = 0;      // flag: 0 = RC, 1= UD，其它预留
     const s32 OPBASE_QP_MODE = 2;  // 单算子模式的QP
     std::map<u32, std::pair<struct TypicalQp, QpHandle>> qpMap_{};
+    std::map<u32, std::pair<struct TypicalQp, QpHandle>> verbsQpMap_{};
     std::mutex qpMutex_;
     std::map<u32, std::pair<AscendCQInfo, void*>> cqMap_{};
     std::mutex cqMutex_;

@@ -23,6 +23,16 @@ TypicalQpManager::TypicalQpManager()
 
 TypicalQpManager::~TypicalQpManager()
 {
+    std::unique_lock<std::mutex> cqLock(cqMutex_);
+    for (auto& item : cqMap_) {
+        if (item.second.second == nullptr) {
+            continue;
+        }
+        DestroyTypicalCq(rdmaHandle_, item.first, item.second.second);
+    }
+    cqMap_.clear();
+    cqLock.unlock();
+
     std::unique_lock<std::mutex> lock(qpMutex_);
     for (auto& item : qpMap_) {
         if (item.second.second == nullptr) {
@@ -31,6 +41,13 @@ TypicalQpManager::~TypicalQpManager()
         HrtRaQpDestroy(item.second.second);
     }
     qpMap_.clear();
+    for (auto& item : verbsQpMap_) {
+        if (item.second.second == nullptr) {
+            continue;
+        }
+        HrtRaQpDestroyWithoutCQ(item.second.second);
+    }
+    verbsQpMap_.clear();
     lock.unlock();
 }
 
@@ -142,7 +159,7 @@ HcclResult TypicalQpManager::CreateQpWithCQ(struct TypicalQp& qpInfo, const QpCo
     ret = CreateQpWithCQConfig(rdmaHandle_, OPBASE_QP_MODE, qpConfig, qpHandle, qpInfo);
     CHK_PRT_RET(ret != HCCL_SUCCESS,
         HCCL_ERROR("[TypicalQpManager][CreateQpWithCQ] Create qp with cq failed."), HCCL_E_INTERNAL);
-    qpMap_.insert(std::make_pair(qpInfo.qpn, std::make_pair(qpInfo, qpHandle)));
+    verbsQpMap_.insert(std::make_pair(qpInfo.qpn, std::make_pair(qpInfo, qpHandle)));
     return HCCL_SUCCESS;
 }
 
@@ -157,6 +174,21 @@ HcclResult TypicalQpManager::ModifyQp(struct TypicalQp& localQpInfo, struct Typi
     std::unique_lock<std::mutex> lock(qpMutex_);
     HcclResult ret = hrtRaTypicalQpModify(qpHandle, &localQpInfo, &remoteQpInfo);
     CHK_PRT_RET(ret != HCCL_SUCCESS, HCCL_ERROR("[TypicalQpManager][ModifyQp] Modify qp failed."), HCCL_E_INTERNAL);
+
+    return HCCL_SUCCESS;
+}
+
+HcclResult TypicalQpManager::ModifyVerbsQp(struct TypicalQp& localQpInfo, struct TypicalQp& remoteQpInfo)
+{
+    CHK_PRT_RET((localQpInfo.qpn == 0 || remoteQpInfo.qpn == 0),
+        HCCL_ERROR("[TypicalQpManager][ModifyVerbsQp] the qpinfo is wrong, qpn is 0."), HCCL_E_PARA);
+    QpHandle qpHandle = nullptr;
+    CHK_RET(GetVerbsQpHandleByQpn(localQpInfo.qpn, qpHandle));
+    CHK_PTR_NULL(qpHandle);
+    CHK_RET(SetQpRdmaRetryCfg(localQpInfo));
+    std::unique_lock<std::mutex> lock(qpMutex_);
+    HcclResult ret = hrtRaTypicalQpModify(qpHandle, &localQpInfo, &remoteQpInfo);
+    CHK_PRT_RET(ret != HCCL_SUCCESS, HCCL_ERROR("[TypicalQpManager][ModifyVerbsQp] Modify qp failed."), HCCL_E_INTERNAL);
 
     return HCCL_SUCCESS;
 }
@@ -180,13 +212,13 @@ HcclResult TypicalQpManager::DestroyQpWithoutCQ(struct TypicalQp& qpInfo)
     CHK_PRT_RET((qpInfo.qpn == 0), HCCL_ERROR("[TypicalQpManager][DestroyQpWithoutCQ] The qpinfo is wrong, qpn is 0."),
         HCCL_E_PARA);
     QpHandle qpHandle;
-    CHK_RET(GetQpHandleByQpn(qpInfo.qpn, qpHandle));
+    CHK_RET(GetVerbsQpHandleByQpn(qpInfo.qpn, qpHandle));
     CHK_PTR_NULL(qpHandle);
     std::unique_lock<std::mutex> lock(qpMutex_);
     HcclResult ret = HrtRaQpDestroyWithoutCQ(qpHandle);
     CHK_PRT_RET(ret != HCCL_SUCCESS,
         HCCL_ERROR("[TypicalQpManager][DestroyQpWithoutCQ] Destroy qp without cq failed."), HCCL_E_INTERNAL);
-    qpMap_.erase(qpInfo.qpn);
+    verbsQpMap_.erase(qpInfo.qpn);
     return HCCL_SUCCESS;
 }
 
@@ -211,6 +243,22 @@ HcclResult TypicalQpManager::GetQpHandleByQpn(u32 qpn, QpHandle& qpHandle)
     qpHandle = it->second.second;
     CHK_PRT_RET((qpHandle == nullptr),
         HCCL_ERROR("[TypicalQpManager][GetQpHandleByQpn] Get Qphandle failed, qphandle is nullptr. qpn is %u", qpn),
+        HCCL_E_NOT_FOUND);
+    return HCCL_SUCCESS;
+}
+
+HcclResult TypicalQpManager::GetVerbsQpHandleByQpn(u32 qpn, QpHandle& qpHandle)
+{
+    HCCL_DEBUG("[TypicalQpManager][GetVerbsQpHandleByQpn] Get qpHandle by qpn[%u]", qpn);
+    CHK_RET(RdmaResourceManager::GetInstance().GetRdmaHandle(rdmaHandle_));
+    CHK_PTR_NULL(rdmaHandle_);
+    std::unique_lock<std::mutex> lock(qpMutex_);
+    auto it = verbsQpMap_.find(qpn);
+    CHK_PRT_RET((it == verbsQpMap_.end()),
+        HCCL_ERROR("[TypicalQpManager][GetVerbsQpHandleByQpn] Qpn is not found"), HCCL_E_NOT_FOUND);
+    qpHandle = it->second.second;
+    CHK_PRT_RET((qpHandle == nullptr),
+        HCCL_ERROR("[TypicalQpManager][GetVerbsQpHandleByQpn] Get Qphandle failed, qphandle is nullptr. qpn is %u", qpn),
         HCCL_E_NOT_FOUND);
     return HCCL_SUCCESS;
 }
