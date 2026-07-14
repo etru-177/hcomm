@@ -22,4 +22,8 @@ extern "C" {
 __attribute__((visibility("default"))) uint32_t RunDpuRpcSrvLaunch(const uint64_t args);
 }
 
+namespace Hccl {
+ 	 constexpr uint8_t  TASK_TERMINATE_RESPONSE = 3;
+}
+
 #endif // DPU_INTERFACE_H

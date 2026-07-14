@@ -2486,8 +2486,17 @@ HcclResult CommunicatorImpl::WaitDpuKernelThreadTerminate()
         return HCCL_E_MEMORY;
     }
     void* hostPtr = connectType_ == HOST_DEVICE_CONNECT_TYPE_UB ? va_ : accessVA_;
-    uint8_t  flag   = DEVICE_SIGNAL_SECOND;
-    errno_t ret = memcpy_s(hostPtr, sizeof(flag), &flag, sizeof(flag));
+    uint8_t flag = 0;
+    errno_t ret = memcpy_s(&flag, sizeof(flag), hostPtr, sizeof(flag));
+    if (ret != EOK) {
+        HCCL_ERROR("Read Terminate TaskRun Signal Fail, return[%d]", ret);
+        return HCCL_E_INTERNAL;
+    }
+    if (flag == DEVICE_SIGNAL_THIRD) {
+        return HCCL_SUCCESS; // dpu线程已退出
+    }
+    flag = DEVICE_SIGNAL_SECOND;
+    ret = memcpy_s(hostPtr, sizeof(flag), &flag, sizeof(flag));
     if (ret != EOK) {
         HCCL_ERROR("Terminate TaskRun Fail, return[%d]", ret);
         return HCCL_E_INTERNAL;

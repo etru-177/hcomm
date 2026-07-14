@@ -62,12 +62,20 @@ __attribute__((visibility("default"))) uint32_t RunDpuRpcSrvLaunch(const uint64_
     }
 
     // 设置到通信域中保存 map<commId, TaskService>
-    HCCL_INFO("[%s] save TaskService", __func__);
     g_taskServiceMap[params->commId][params->deviceId] = std::move(taskService);
-
+    Hccl::TaskService *svcPtr = nullptr;
+    svcPtr = g_taskServiceMap[params->commId][params->deviceId].get();
     // Run
     HCCL_INFO("[%s] start to TaskRun", __func__);
-    g_taskServiceMap.at(params->commId).at(params->deviceId)->TaskRun();
+    HcclResult hcclRet = svcPtr->TaskRun();
+    if (hcclRet != HCCL_SUCCESS) {
+        uint8_t newFlag = TASK_TERMINATE_RESPONSE;
+        errno_t cpyRet = memcpy_s(static_cast<uint8_t *>(params->deviceMem), sizeof(newFlag), &newFlag, sizeof(newFlag));
+        if (cpyRet != EOK) {
+            HCCL_ERROR("set exit flag failed: %d", cpyRet);
+            return HCCL_E_INTERNAL;
+        }
+    }
     return HCCL_SUCCESS;
 }
 }
