@@ -33,6 +33,7 @@
 namespace hcomm {
 
 constexpr TpProtocol LOOP_JETTY_PROTOCOL = TpProtocol::RTP; // 环回使用RTP避免被环境link down阻塞
+constexpr uint8_t CCU_MAX_MISSION_NUM = 16;
 
 static GetTpInfoParam MakeLoopGetTpInfoParam(const CommAddr &commAddr)
 {
@@ -77,6 +78,19 @@ CcuComponent &CcuComponent::GetInstance(const int32_t deviceLogicId)
     return ccuComponent[devLogicId];
 }
 
+static void PrintCcuMissionStatus(int32_t devLogicId)
+{
+    uint16_t status = 0;
+    for (uint8_t dieId = 0; dieId < CCU_MAX_IODIE_NUM; dieId++) {
+        std::string missionStatus;
+        for (uint8_t missionId = 0; missionId < CCU_MAX_MISSION_NUM; missionId++) {
+            status = CcuTaskException::GetCcuMissionContext(devLogicId, dieId, missionId).GetStatus();
+            missionStatus += "missionId[" + std::to_string(missionId) + "]=status[" + std::to_string(status) + "]";
+        }
+        HCCL_RUN_INFO("Init devLogicId[%d], dieId[%d], content[%s]", devLogicId, dieId, missionStatus.c_str());
+    }
+}
+
 HcclResult CcuComponent::Init()
 {
     std::lock_guard<std::mutex> _lock(innerMutex_);
@@ -91,7 +105,12 @@ HcclResult CcuComponent::Init()
     CHK_RET(CreateResourceManagers());
     CHK_RET(CreateLoopChannels());
     CHK_RET(ConfigMsIdToken());
-
+    // 打印最初的mission状态
+    PrintCcuMissionStatus(devLogicId_);
+    CHK_RET(SetTaskKill());
+    CHK_RET(SetTaskKillDone());
+    // 打印taskKill恢复后的mission状态
+    PrintCcuMissionStatus(devLogicId_);
     initFlag_ = true;
     return HcclResult::HCCL_SUCCESS;
 }
@@ -1018,7 +1037,8 @@ HcclResult CcuComponent::CleanTaskKillState() const
 
 HcclResult CcuComponent::SetTaskKill()
 {
-    std::lock_guard<std::mutex> _lock(innerMutex_);// 加锁，确保线程安全
+    std::lock_guard<std::mutex> _lock(taskKillMutex_);// 加锁，确保线程安全
+    
     // 初始化状态下，设置任务kill状态
     if (status == CcuTaskKillStatus::INVALID) {
         status = CcuTaskKillStatus::INIT;
@@ -1035,7 +1055,7 @@ HcclResult CcuComponent::SetTaskKill()
         return HcclResult::HCCL_E_INTERNAL;
     }
 
-    SetProcess(CcuOpcodeType::CCU_U_OP_SET_TASKKILL);
+    CHK_RET(SetProcess(CcuOpcodeType::CCU_U_OP_SET_TASKKILL));
     status = CcuTaskKillStatus::TASK_KILL;
     HCCL_INFO("[CcuComponent][%s] success, state = %u, devLogicId = %d.", __func__, status, devLogicId_);
     return HcclResult::HCCL_SUCCESS;
@@ -1043,7 +1063,7 @@ HcclResult CcuComponent::SetTaskKill()
 
 HcclResult CcuComponent::SetTaskKillDone()
 {
-    std::lock_guard<std::mutex> _lock(innerMutex_);
+    std::lock_guard<std::mutex> _lock(taskKillMutex_);// 加锁，确保线程安全
     if (status == CcuTaskKillStatus::INVALID) {
         HCCL_ERROR("[CcuComponent][%s] failed, cannot be invoked in the current state, "
             "state = %u, devLogicId = %d.", __func__, status, devLogicId_);

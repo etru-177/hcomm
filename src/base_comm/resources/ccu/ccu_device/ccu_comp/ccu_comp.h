@@ -22,6 +22,8 @@
 #include "ccu_dev_mgr_imp.h"
 #include "ccu_res_allocator.h"
 #include "ccu_channel_ctx_mgr.h"
+#include "ccuTaskException.h"
+
 
 // 暂时引入orion仓
 #include "local_ub_rma_buffer.h"
@@ -98,6 +100,7 @@ private:
 
 private:
     std::mutex innerMutex_;
+    std::mutex taskKillMutex_;
     static constexpr uint32_t INVALID_DEV_ID = 0xFFFFFFFF;
     bool initFlag_{false};
     int32_t devLogicId_{static_cast<int32_t>(INVALID_DEV_ID)};

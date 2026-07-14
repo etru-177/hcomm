@@ -22,6 +22,7 @@
 #include "ccu_res_allocator.h"
 #include "ccu_device_manager.h"
 #include "tp_manager.h"
+#include "ccu_error_handler.h"
 
 namespace Hccl {
 
@@ -98,6 +99,7 @@ private:
     enum class CcuTaskKillStatus : uint8_t { INIT = 0, TASK_KILL = 1, KILL_DONE = 2, CLEAN_TIF = 3, INVALID = 4};
     CcuTaskKillStatus status{CcuTaskKillStatus::INVALID};
     std::mutex innerMutex;
+    std::mutex taskKillMutex_;
 
     explicit CcuComponent() = default;
     ~CcuComponent();

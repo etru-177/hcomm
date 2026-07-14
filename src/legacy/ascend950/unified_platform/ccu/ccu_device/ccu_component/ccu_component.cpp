@@ -33,6 +33,7 @@ namespace Hccl {
 namespace {
 constexpr uint32_t kLoopTpAttrSlAvailableBit = 18U;
 constexpr uint32_t kLoopTpAttrBitmapSl = (1U << 10U);
+constexpr uint8_t CCU_MAX_MISSION_NUM = 16;
 
 static uint32_t SlValueAtRankInMask16(uint32_t mask, uint32_t rank)
 {
@@ -126,6 +127,19 @@ CcuComponent &CcuComponent::GetInstance(const int32_t deviceLogicId)
     return ccuComponent[deviceLogicId];
 }
 
+static void PrintCcuMissionStatus(int32_t devLogicId)
+{
+    uint16_t status = 0;
+    for (uint8_t dieId = 0; dieId < MAX_CCU_IODIE_NUM; dieId++) {
+        std::string missionStatus;
+        for (uint8_t missionId = 0; missionId < CCU_MAX_MISSION_NUM; missionId++) {
+            status = Hccl::CcuErrorHandler::GetCcuMissionContext(devLogicId, dieId, missionId).GetStatus();
+            missionStatus += "missionId[" + std::to_string(missionId) + "]=status[" + std::to_string(status) + "] ";
+        }
+        HCCL_RUN_INFO("Init devLogicId[%d], dieId[%d], content[%s]", devLogicId, dieId, missionStatus.c_str());
+    }
+}
+
 void CcuComponent::Init()
 {
     std::lock_guard<std::mutex> _lock(innerMutex);
@@ -143,7 +157,12 @@ void CcuComponent::Init()
     CreateResourceManagers();
     CreateLoopChannels();
     ConfigMsIdToken();
-
+    // 打印最初的mission状态
+    PrintCcuMissionStatus(devLogicId);
+    SetTaskKill();
+    SetTaskKillDone();
+    // 打印taskKill恢复后的mission状态
+    PrintCcuMissionStatus(devLogicId);
     ifInit = true;
 }
 // 资源清理
@@ -984,7 +1003,7 @@ void CcuComponent::SetProcess(CcuOpcodeType opCode) const
 
 HcclResult CcuComponent::SetTaskKill()
 {
-    std::lock_guard<std::mutex> _lock(innerMutex);
+    std::lock_guard<std::mutex> _lock(taskKillMutex_);
 
     if (status == CcuTaskKillStatus::INVALID) {
         status = CcuTaskKillStatus::INIT;
@@ -1009,7 +1028,7 @@ HcclResult CcuComponent::SetTaskKill()
 
 HcclResult CcuComponent::SetTaskKillDone()
 {
-    std::lock_guard<std::mutex> _lock(innerMutex);
+    std::lock_guard<std::mutex> _lock(taskKillMutex_);
 
     if (status == CcuTaskKillStatus::INVALID) {
         HCCL_ERROR("[CcuComponent][%s] failed, cannot be invoked in the current state, "
