@@ -9,6 +9,7 @@
  */
 
 #include "communicator_impl.h"
+#include <memory>
 #include <op_type.h>
 #include <adapter_error_manager_pub.h>
 #include "orion_adapter_tsd.h"
@@ -81,12 +82,6 @@ constexpr uint8_t DEVICE_SIGNAL_SECOND = 2;
 constexpr uint8_t DEVICE_SIGNAL_THIRD = 3;
 constexpr uint32_t TEMP_DEV_TYPE_DPU = 0; // 临时适配，后续rts接口上库之后使用rts的定义
 static std::atomic<u32> g_commNum(0);     // 一个进程内创建的通信域数量
-
-template<typename T1, typename T2> 
-constexpr T1 AlignUp(T1 addr, T2 alignment)
-{
-    return (T1)(((uintptr_t)addr + (uintptr_t)alignment - 1) & ~((uintptr_t)alignment - 1));
-}
 
 // 支持零拷贝算子的白名单
 std::set<OpType> opWhiteSet = {
@@ -3410,9 +3405,13 @@ HcclResult CommunicatorImpl::AllocAndRegKFCWorkSpace(uint64_t size)
         va_ = HrtMalloc(size, ACL_MEM_TYPE_HIGH_BAND_WIDTH);
         ret = HrtHalHostRegister(va_, size, DEV_SVM_MAP_HOST, deviceLogicId, &accessVA_);
     } else if (connectType_ == HOST_DEVICE_CONNECT_TYPE_UB) {
-        originVa_ = malloc(size + ALIGN_4K);
+        originVa_ = malloc(size + ALIGN_4K); // 保证足够的对齐余量（最多偏移 ALIGN_4K-1）
         CHK_PTR_NULL(originVa_);
-        va_ = AlignUp(originVa_, ALIGN_4K);
+        void* ptr = originVa_;
+        std::size_t storeSize = 0; // 不预留对象空间，仅做指针向上对齐
+        std::size_t space = static_cast<std::size_t>(size + ALIGN_4K);
+        // 如果对齐失败，va_为nullptr，在HrtHalHostRegister中校验返回HCCL_E_PTR
+        va_ = std::align(static_cast<std::size_t>(ALIGN_4K), storeSize, ptr, space);
         ret = HrtHalHostRegister(va_, size, HOST_MEM_MAP_DEV_PCIE_TH, deviceLogicId, &accessVA_);
     } else {
         return HCCL_E_NOT_SUPPORT;
