@@ -433,14 +433,11 @@ HcclResult UbMemTransport::StatusMachine()
             case UbStatus::INIT:
                 CHK_RET(HandleInitStatus());
                 break;
-            case UbStatus::SEND_SIZE:
-                CHK_RET(HandleSendSizeStatus());
+            case UbStatus::SEND_DATA:
+                CHK_RET(HandleSendAllStatus());
                 break;
             case UbStatus::RECV_SIZE:
                 CHK_RET(HandleRecvSizeStatus());
-                break;
-            case UbStatus::SEND_DATA:
-                CHK_RET(HandleSendDataStatus());
                 break;
             case UbStatus::RECV_DATA:
                 CHK_RET(HandleRecvDataStatus());
@@ -466,16 +463,16 @@ HcclResult UbMemTransport::StatusMachine()
 
 HcclResult UbMemTransport::HandleInitStatus()
 {
-    ubStatus = UbStatus::SEND_SIZE;
+    ubStatus = isRecvFirst_ ? UbStatus::RECV_SIZE : UbStatus::SEND_DATA;
     baseStatus = TransportStatus::SOCKET_OK;
     return HCCL_SUCCESS;
 }
 
-HcclResult UbMemTransport::HandleSendSizeStatus()
+HcclResult UbMemTransport::HandleSendAllStatus()
 {
     if (IsResReady()) {
-        CHK_RET(SendDataSize());
-        ubStatus = UbStatus::RECV_SIZE;
+        CHK_RET(SendAll());
+        ubStatus = isRecvFirst_ ? UbStatus::PROCESS_DATA : UbStatus::RECV_SIZE;
     }
     return HCCL_SUCCESS;
 }
@@ -483,14 +480,7 @@ HcclResult UbMemTransport::HandleSendSizeStatus()
 HcclResult UbMemTransport::HandleRecvSizeStatus()
 {
     CHK_RET(RecvDataSize());
-    ubStatus = isRecvFirst_ ? UbStatus::RECV_DATA : UbStatus::SEND_DATA;
-    return HCCL_SUCCESS;
-}
-
-HcclResult UbMemTransport::HandleSendDataStatus()
-{
-    CHK_RET(SendExchangeData());
-    ubStatus = isRecvFirst_ ? UbStatus::PROCESS_DATA : UbStatus::RECV_DATA;
+    ubStatus = UbStatus::RECV_DATA;
     return HCCL_SUCCESS;
 }
 
@@ -553,14 +543,14 @@ TransportStatus UbMemTransport::GetStatus()
     return baseStatus;
 }
 
-HcclResult UbMemTransport::SendDataSize()
+HcclResult UbMemTransport::SendAll()
 {
-    notifyNum    = commonLocRes.notifyVec.size(); // 需要交换的notify数量
-    bufferNum    = commonLocRes.bufferVec.size(); // 需要交换的buffer数量
+    notifyNum    = commonLocRes.notifyVec.size();
+    bufferNum    = commonLocRes.bufferVec.size();
     connNum      = commonLocRes.connVec.size();
-    cntNotifyNum = locCntNotifyRes.vec.size(); // 需要交换的cntNotify数量
+    cntNotifyNum = locCntNotifyRes.vec.size();
 
-    cntNotifyDescSize = locCntNotifyRes.desc.size(); // 需要交换的cntNotify数量
+    cntNotifyDescSize = locCntNotifyRes.desc.size();
 
     HCCL_INFO("notifyNum=%u, bufferNum=%u, connNum=%u, cntNotifyNum=%u, cntNotifyDescSize=%u, isHost_[%d]",
               notifyNum, bufferNum, connNum, cntNotifyNum, cntNotifyDescSize, isHost_);
@@ -573,23 +563,23 @@ HcclResult UbMemTransport::SendDataSize()
     CntNotifyDescPack(binaryStream);
     ConnVecPack(binaryStream);
 
-    binaryStream.Dump(sendData);
-    u32 sendSize = sendData.size();
+    sendDataPack_.resize(sizeof(u32));
+    binaryStream.Dump(sendDataPack_);
+    u32 dataSize = sendDataPack_.size() - sizeof(u32);
+    CHK_SAFETY_FUNC_RET(memcpy_s(sendDataPack_.data(), sizeof(u32), &dataSize, sizeof(u32)));
 
-    // 发送数据包尺寸
     bool ret = false;
     if (isHost_) {
-        ret = socket->Send(&sendSize, sizeof(sendSize));
+        ret = socket->Send(sendDataPack_.data(), sendDataPack_.size());
     } else {
-        socket->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+        socket->SendAsync(reinterpret_cast<u8 *>(sendDataPack_.data()), sendDataPack_.size());
         ret = true;
     }
     if (!ret) {
-        HCCL_ERROR("[UbMemTransport::SendDataSize] Send size failed");
+        HCCL_ERROR("[UbMemTransport::SendAll] Send failed");
         return HCCL_E_INTERNAL;
     }
-    HCCL_INFO("[UbMemTransport::%s] Send size[%u] of data success. [%zu] bytes sent.",
-        __func__, sendSize, sizeof(sendSize));
+    HCCL_INFO("[UbMemTransport::%s] Send size[%zu] of data success.", __func__, sendDataPack_.size());
     return HCCL_SUCCESS;
 }
 

@@ -94,7 +94,7 @@ private:
 
     static constexpr u64 NORMAL_NOTIFY_VAL = 1;
 
-    MAKE_ENUM(UbStatus, INIT, SEND_SIZE, RECV_SIZE, SEND_DATA, RECV_DATA, SEND_FIN, RECV_FIN, PROCESS_DATA, SET_READY, READY)
+    MAKE_ENUM(UbStatus, INIT, RECV_SIZE, SEND_DATA, RECV_DATA, SEND_FIN, RECV_FIN, PROCESS_DATA, SET_READY, READY)
     UbStatus ubStatus{UbStatus::INIT};
     bool isRecvFirst_{false};
 
@@ -117,7 +117,7 @@ private:
     std::vector<std::string>     memInfoCopies_;          // 储存 Tag 字符串副本
     std::vector<char*>           memInfoPointers_;        // Tag 缓存
 
-    HcclResult SendDataSize();
+    HcclResult SendAll();
     HcclResult RecvDataSize();
     HcclResult SendExchangeData();
     HcclResult RecvExchangeData();
@@ -157,9 +157,8 @@ private:
     HcclResult RecvDataProcess(bool &needSendFinish);
 
     HcclResult HandleInitStatus();
-    HcclResult HandleSendSizeStatus();
+    HcclResult HandleSendAllStatus();
     HcclResult HandleRecvSizeStatus();
-    HcclResult HandleSendDataStatus();
     HcclResult HandleRecvDataStatus();
     HcclResult HandleProcessDataStatus();
     HcclResult HandleSendFinStatus();
@@ -168,6 +167,7 @@ private:
     vector<char> recvData{};
     vector<char> recvFinishMsg{};
     vector<char> sendData{};
+    vector<char> sendDataPack_{};
     vector<char> sendFinishMsg{};
 
     void SaveDfxTaskInfo(const TaskParam &taskParam);

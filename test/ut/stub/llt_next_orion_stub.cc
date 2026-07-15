@@ -1069,17 +1069,12 @@ HcclResult UbMemTransport::HandleInitStatus()
     return HCCL_SUCCESS;
 }
 
-HcclResult UbMemTransport::HandleSendSizeStatus()
+HcclResult UbMemTransport::HandleSendAllStatus()
 {
     return HCCL_SUCCESS;
 }
 
 HcclResult UbMemTransport::HandleRecvSizeStatus()
-{
-    return HCCL_SUCCESS;
-}
-
-HcclResult UbMemTransport::HandleSendDataStatus()
 {
     return HCCL_SUCCESS;
 }
