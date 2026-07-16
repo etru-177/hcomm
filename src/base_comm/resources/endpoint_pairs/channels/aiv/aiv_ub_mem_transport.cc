@@ -156,7 +156,7 @@ HcclResult AivUbMemTransport::SendDataSize()
     binaryStream.Dump(sendData_);
     u32 sendSize = sendData_.size();
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+    socket_->SendAsync(&sendSize, sizeof(sendSize));
     EXCEPTION_HANDLE_END
     HCCL_INFO("[%s] finished", __func__);
     return HCCL_SUCCESS;
@@ -178,7 +178,7 @@ HcclResult AivUbMemTransport::SendMemInfo()
     HCCL_INFO("[%s] start", __func__);
 
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendData_[0]), sendData_.size());
+    socket_->SendAsync(&sendData_[0], sendData_.size());
     EXCEPTION_HANDLE_END
     HCCL_INFO("[%s] finished", __func__);
     return HCCL_SUCCESS;
@@ -300,7 +300,7 @@ HcclResult AivUbMemTransport::UpdateMemInfo(HcommMemHandle *memHandles, uint32_t
     sendStream.Dump(sendData_);
     u32 sendSize = sendData_.size();
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+    socket_->SendAsync(&sendSize, sizeof(sendSize));
     EXCEPTION_HANDLE_END
     CHK_RET(CheckSocketStatus("SendDataSize"));
     CHK_RET(RecvDataSize());

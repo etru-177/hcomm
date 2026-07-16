@@ -31,7 +31,7 @@ namespace {
 
 static int g_recvCallCount = 0;
 
-static void StubSendAsync(Hccl::Socket *self, const u8 *sendBuf, u32 size)
+static void StubSendAsync(Hccl::Socket *self, const void *sendBuf, u32 size)
 {
     (void)self;
     (void)sendBuf;
@@ -99,7 +99,7 @@ protected:
         MOCKER(&Hccl::EnvSocketConfig::GetLinkTimeOut).stubs().will(returnValue(100));
 
         // Socket async stubs
-        MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const u8 *, u32))
+        MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const void *, u32))
             .stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(StubSendAsync));
 
         g_recvCallCount = 0;

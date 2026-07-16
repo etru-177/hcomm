@@ -128,7 +128,7 @@ void UrmaDirectTransport::SendExchangeData()
     ConnVecPack(binaryStream);
 
     binaryStream.Dump(sendData);
-    socket->SendAsync(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
+    socket->SendAsync(sendData.data(), sendData.size());
     exchangeDataSize = sendData.size();
 
     HCCL_INFO("send data %s, size=%llu", GetLinkDescInfo().c_str(), exchangeDataSize);
@@ -272,7 +272,7 @@ void UrmaDirectTransport::SendFinish()
 {
     HCCL_INFO("start send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
     sendFinishMsg = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
-    socket->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg.data()), FINISH_MSG_SIZE);
+    socket->SendAsync(sendFinishMsg.data(), FINISH_MSG_SIZE);
     HCCL_INFO("end send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
 }
 

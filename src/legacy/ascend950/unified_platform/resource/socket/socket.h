@@ -68,7 +68,7 @@ public:
 
     void ListenAsync();
     void ConnectAsync();
-    void SendAsync(const u8 *sendBuf, u32 size);
+    void SendAsync(const void *sendBuf, u32 size);
     void RecvAsync(u8 *recvBuf, u32 size);
 
     FdHandle GetFdHandle() const // will be used in hccp QP connecting

@@ -289,7 +289,7 @@ void CcuTransport::SendConnAndTransInfo()
     TransResPack(binaryStream);
     CclBufferInfoPack(binaryStream);
     binaryStream.Dump(sendData);
-    socket->SendAsync(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
+    socket->SendAsync(sendData.data(), sendData.size());
     exchangeDataSize = sendData.size();
 }
 
@@ -313,7 +313,7 @@ void CcuTransport::SendTransInfo()
     BinaryStream binaryStream;
     TransResPack(binaryStream);
     binaryStream.Dump(sendTrans);
-    socket->SendAsync(reinterpret_cast<u8 *>(sendTrans.data()), sendTrans.size());
+    socket->SendAsync(sendTrans.data(), sendTrans.size());
     exchangeDataSize = sendTrans.size();
 }
  
@@ -446,7 +446,7 @@ void CcuTransport::CclBufferInfoUnpack(BinaryStream &binaryStream)
 void CcuTransport::SendFinish()
 {
     sendFinishMsg = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
-    socket->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg.data()), FINISH_MSG_SIZE);
+    socket->SendAsync(sendFinishMsg.data(), FINISH_MSG_SIZE);
 }
 
 void CcuTransport::RecvFinish()

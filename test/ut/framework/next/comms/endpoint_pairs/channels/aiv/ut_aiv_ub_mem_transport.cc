@@ -9,7 +9,7 @@
 
 using namespace hcomm;
 
-static void StubSocketSendAsyncNoop(Hccl::Socket *self, const u8 *sendBuf, u32 size)
+static void StubSocketSendAsyncNoop(Hccl::Socket *self, const void *sendBuf, u32 size)
 {
     (void)self;
     (void)sendBuf;
@@ -60,7 +60,7 @@ TEST_F(AivUbMemTransportTest, St_GetStatus_When_SOCKET_OK_Expect_Success)
     aivTransport.aivUbStatus_ = hcomm::AivUbMemTransport::AivUbMemTransportStatus::SOCKET_OK;
 
     MOCKER_CPP(&AivUbMemTransport::RmtBufferUnpackProc).stubs();
-    MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const u8 *, u32))
+    MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const void *, u32))
         .stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(StubSocketSendAsyncNoop));
     MOCKER_CPP(&Hccl::Socket::RecvAsync, void(Hccl::Socket::*)(u8 *, u32))
         .stubs().with(mockcpp::any(), mockcpp::any()).will(invoke(StubSocketRecvAsyncNoop));

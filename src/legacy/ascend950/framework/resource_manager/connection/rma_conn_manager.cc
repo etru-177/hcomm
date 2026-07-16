@@ -413,7 +413,7 @@ void RmaConnManager::Ipv4UnPack(BinaryStream& binaryStream)
 void RmaConnManager::SendExchangeData(Socket *socket, const LinkData &linkData)
 {
     Ipv4Pack();
-    socket->SendAsync(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
+    socket->SendAsync(sendData.data(), sendData.size());
     exchangeDataSize = sendData.size();
  
     HCCL_INFO("send data %s, size=%llu", linkData.Describe().c_str(), exchangeDataSize);

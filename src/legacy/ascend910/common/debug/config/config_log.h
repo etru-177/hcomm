@@ -29,7 +29,7 @@ bool GetDebugConfigInited();
 
 // config要求传入宏名字作为日志打印关键字，不可以传入其他变量或常量
 #define HCCL_CONFIG_INFO(config, format,...) do {                                             \
-    if (UNLIKELY(hccl::GetDebugConfig() & config)) {                        \
+    if (UNLIKELY((hccl::GetDebugConfig() & config) != 0)) {                        \
         const char* configName = #config;                                                     \
         LOG_FUNC((static_cast<u32>(HCCL)) | RUN_LOG_MASK, HCCL_LOG_INFO, "[%s:%d] [%u] [%s]: " format,            \
             __FILE__, __LINE__, syscall(SYS_gettid), configName, ##__VA_ARGS__);              \

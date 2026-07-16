@@ -548,7 +548,7 @@ HcclResult MyRank::BatchCreateChannels(CommEngine engine, const HcclChannelDesc*
         ret = endpointPair->CreateChannel(epHandle, engine, idx, &hcommDescs[i], channelHandles + i);
         if (ret == HCCL_E_TIMEOUT || ret == HCCL_E_INTERNAL) {
             Hccl::TlsStatus tlsStatus = Hccl::TlsStatus::UNKNOWN;
-            CHK_PRT_CONT(GetLocalTlsStatus(tlsStatus),
+            CHK_PRT_CONT(GetLocalTlsStatus(tlsStatus) != HCCL_SUCCESS,
                 HCCL_WARNING("[GetLocalTlsStatus] Can not get TlsStatus"));
         }
         if (ret == HCCL_E_UNAVAIL) {
@@ -632,7 +632,7 @@ HcclResult MyRank::BatchConnectChannels(const HcclChannelDesc* channelDescs, Cha
             RPT_INPUT_ERR(true, "EI0006", std::vector<std::string>({"reason"}), \
                 std::vector<std::string>({GET_SOCKET_TIMEOUT_REASON_CLOSE_DETECT}));
             Hccl::TlsStatus tlsStatus = Hccl::TlsStatus::UNKNOWN;
-            CHK_PRT_CONT(GetLocalTlsStatus(tlsStatus),
+            CHK_PRT_CONT(GetLocalTlsStatus(tlsStatus) != HCCL_SUCCESS,
                 HCCL_WARNING("[GetLocalTlsStatus] Can not get TlsStatus"));
             logger::ChannelLogger::PrintChannelErrorDetails(
                 rankId_, channelNum, channelDescs, channelHandles, statusList, elapsed, tlsStatus);
@@ -652,7 +652,7 @@ HcclResult MyRank::BatchConnectChannels(const HcclChannelDesc* channelDescs, Cha
             HCCL_ERROR("[%s] channel connect failed, channelNum[%u], ret[%d], elapsed[%lld]ms, retryCount[%u]",
                 __func__, channelNum, ret, elapsed, retryCount);
             Hccl::TlsStatus tlsStatus = Hccl::TlsStatus::UNKNOWN;
-            CHK_PRT_CONT(GetLocalTlsStatus(tlsStatus),
+            CHK_PRT_CONT(GetLocalTlsStatus(tlsStatus) != HCCL_SUCCESS,
                 HCCL_WARNING("[GetLocalTlsStatus] Can not get TlsStatus"));
             logger::ChannelLogger::PrintChannelErrorDetails(
                 rankId_, channelNum, channelDescs, channelHandles, statusList, elapsed, tlsStatus);

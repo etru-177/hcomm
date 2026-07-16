@@ -185,7 +185,7 @@ HcclResult Socket::IRecvWithHeart(void *data, u64 size, u64& compSize) const
     return HCCL_SUCCESS;
 }
  
-void Socket::SendAsync(const u8 *sendBuf, u32 size)
+void Socket::SendAsync(const void *sendBuf, u32 size)
 {
     return;
 }

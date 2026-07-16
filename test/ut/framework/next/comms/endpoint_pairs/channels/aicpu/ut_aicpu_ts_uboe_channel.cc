@@ -49,7 +49,7 @@ public:
     FakeSocket(Hccl::SocketStatus status = Hccl::SocketStatus::OK) :
         Hccl::Socket(nullptr, Hccl::IpAddress(), 0, Hccl::IpAddress(), "fake", Hccl::SocketRole::SERVER, Hccl::NicType::DEVICE_NIC_TYPE),
         status_(status) {}
-    void SendAsync(const u8 *sendBuf, u32 size) { sent_.insert(sent_.end(), sendBuf, sendBuf + size); }
+    void SendAsync(const void *sendBuf, u32 size) { auto *p = static_cast<const u8 *>(sendBuf); sent_.insert(sent_.end(), p, p + size); }
     void RecvAsync(u8 *recvBuf, u32 size) {
         // If we previously recorded sent bytes, echo them back to the receiver so
         // higher-level unpacking (EID/Conn/Buffer) sees sensible data instead of all zeros.
@@ -164,12 +164,13 @@ TEST_F(AicpuTsUboeChannelTest, Ut_GetNotifyNum_Returns_Value) {
 
 // Test-local stubs for Socket async APIs. These will be used with MOCKER_CPP to intercept
 // calls to Socket::SendAsync and Socket::RecvAsync inside the state-machine test.
-static void stub_Socket_SendAsync(Hccl::Socket *self, const u8 *sendBuf, u32 size)
+static void stub_Socket_SendAsync(Hccl::Socket *self, const void *sendBuf, u32 size)
 {
     if (!self || !sendBuf || size == 0) return;
     auto *fs = dynamic_cast<FakeSocket *>(self);
     if (fs) {
-        fs->sent_.insert(fs->sent_.end(), sendBuf, sendBuf + size);
+        auto *p = static_cast<const u8 *>(sendBuf);
+        fs->sent_.insert(fs->sent_.end(), p, p + size);
     }
 }
 
@@ -195,7 +196,7 @@ TEST_F(AicpuTsUboeChannelTest, Ut_ProcessUboeState_AllStates_Transitions) {
     EndpointHandle ep = reinterpret_cast<EndpointHandle>(&fe);
     auto fakeSock = new FakeSocket();
 
-    MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const u8 *, u32))
+    MOCKER_CPP(&Hccl::Socket::SendAsync, void(Hccl::Socket::*)(const void *, u32))
         .stubs()
         .with(mockcpp::any(), mockcpp::any())
         .will(invoke(stub_Socket_SendAsync));

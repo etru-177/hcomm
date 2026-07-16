@@ -277,7 +277,7 @@ HcclResult CcuTransport::SendDataSize()
 
     // 发送数据包尺寸
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+    socket_->SendAsync(&sendSize, sizeof(sendSize));
     EXCEPTION_HANDLE_END
     HCCL_INFO("[CcuTransport::%s] Send size[%u] of data success. [%zu] bytes sent.",
         __func__, sendSize, sizeof(sendSize));
@@ -299,7 +299,7 @@ HcclResult CcuTransport::SendConnAndTransInfo()
 {
     // 当前socket失败会抛异常，需要统一整改
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendData_.data()), sendData_.size());
+    socket_->SendAsync(sendData_.data(), sendData_.size());
     EXCEPTION_HANDLE_END
     return HcclResult::HCCL_SUCCESS;
 }
@@ -330,7 +330,7 @@ HcclResult CcuTransport::SendTransInfo()
     TransResPack(binaryStream);
     binaryStream.Dump(sendTrans_);
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendTrans_.data()), sendTrans_.size());
+    socket_->SendAsync(sendTrans_.data(), sendTrans_.size());
     EXCEPTION_HANDLE_END
     exchangeDataSize_ = sendTrans_.size();
     return HcclResult::HCCL_SUCCESS;
@@ -469,7 +469,7 @@ HcclResult CcuTransport::SendFinish()
 {
     sendFinishMsg_ = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg_.data()), FINISH_MSG_SIZE);
+    socket_->SendAsync(sendFinishMsg_.data(), FINISH_MSG_SIZE);
     EXCEPTION_HANDLE_END
     return HcclResult::HCCL_SUCCESS;
 }
@@ -709,7 +709,7 @@ HcclResult CcuTransport::UpdateMemInfo(std::vector<CcuTransport::CclBufferInfo> 
     sendStream.Dump(sendData_);
     u32 sendSize = sendData_.size();
     EXCEPTION_HANDLE_BEGIN
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+    socket_->SendAsync(&sendSize, sizeof(sendSize));
     EXCEPTION_HANDLE_END
     HCCL_INFO("[CcuTransport][UpdateMemInfo] Send size[%u] of data success. [%zu] bytes sent.",
         sendSize, sizeof(sendSize));

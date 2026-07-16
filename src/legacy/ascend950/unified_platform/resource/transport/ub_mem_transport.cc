@@ -572,7 +572,7 @@ HcclResult UbMemTransport::SendAll()
     if (isHost_) {
         ret = socket->Send(sendDataPack_.data(), sendDataPack_.size());
     } else {
-        socket->SendAsync(reinterpret_cast<u8 *>(sendDataPack_.data()), sendDataPack_.size());
+        socket->SendAsync(sendDataPack_.data(), sendDataPack_.size());
         ret = true;
     }
     if (!ret) {
@@ -610,7 +610,7 @@ HcclResult UbMemTransport::SendExchangeData()
     if (isHost_) {
         ret = socket->Send(sendData.data(), sendData.size());
     } else {
-        socket->SendAsync(reinterpret_cast<u8 *>(sendData.data()), sendData.size());
+        socket->SendAsync(sendData.data(), sendData.size());
         ret = true;
     }
     if (!ret) {
@@ -829,7 +829,7 @@ HcclResult UbMemTransport::SendFinish()
     if (isHost_) {
         ret = socket->Send(sendFinishMsg.data(), FINISH_MSG_SIZE);
     } else {
-        socket->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg.data()), FINISH_MSG_SIZE);
+        socket->SendAsync(sendFinishMsg.data(), FINISH_MSG_SIZE);
         ret = true;
     }
     if (!ret) {
@@ -1085,7 +1085,7 @@ HcclResult UbMemTransport::UpdateMemInfo(std::vector<LocalRmaBuffer *> &bufferVe
             BufferVecPack(sendStream, bufferVecTemp);
             sendStream.Dump(sendData);
             u32 sendSize = sendData.size();
-            socket->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+            socket->SendAsync(&sendSize, sizeof(sendSize));
             HCCL_INFO("[UbMemTransport][UpdateMemInfo] Send size[%u] of data success. [%zu] bytes sent.",
                 sendSize, sizeof(sendSize));
             HcclResult result = CheckSocketStatus("SendDataSize");

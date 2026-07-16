@@ -128,7 +128,7 @@ void UbMemoryTransport::SendMemInfo()
 
     std::vector<char> data;
     binaryStream.Dump(data);
-    socket->SendAsync(reinterpret_cast<u8 *>(&data[0]), data.size());
+    socket->SendAsync(&data[0], data.size());
     exchangeDataSize = data.size();
     HCCL_INFO("[%s] finished", __func__);
 }

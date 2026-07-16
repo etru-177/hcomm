@@ -352,7 +352,7 @@ void AicpuTsUboeChannel::SendDataSize()
     u32 sendSize = sendData_.size();
 
     // 发送数据包尺寸
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+    socket_->SendAsync(&sendSize, sizeof(sendSize));
     HCCL_INFO("[AicpuTsUboeChannel::%s] Send size[%u] of data success. [%zu] bytes sent.",
         __func__, sendSize, sizeof(sendSize));
 }
@@ -366,14 +366,14 @@ void AicpuTsUboeChannel::RecvDataSize()
 
 void AicpuTsUboeChannel::SendExchangeData()
 {
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendData_.data()), sendData_.size());
+    socket_->SendAsync(sendData_.data(), sendData_.size());
     HCCL_INFO("[AicpuTsUboeChannel::%s] send data, size=%llu", __func__, sendData_.size());
 }
 
 void AicpuTsUboeChannel::SendEidData()
 {
     EidPack();
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendEidData_.data()), sendEidData_.size());
+    socket_->SendAsync(sendEidData_.data(), sendEidData_.size());
     HCCL_INFO("[AicpuTsUboeChannel::%s] send eid data, size=%llu", __func__, sendEidData_.size());
 }
 
@@ -478,7 +478,7 @@ void AicpuTsUboeChannel::SendFinish()
 {
     HCCL_INFO("start send Finish Msg [%s]", FINISH_MSG);
     sendFinishMsg_ = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg_.data()), FINISH_MSG_SIZE);
+    socket_->SendAsync(sendFinishMsg_.data(), FINISH_MSG_SIZE);
     HCCL_INFO("end send Finish Msg [%s]", FINISH_MSG);
 }
 
@@ -595,7 +595,7 @@ HcclResult AicpuTsUboeChannel::UpdateMemInfo(HcommMemHandle *memHandles, uint32_
     sendStream.Dump(localSendData);
 
     u32 sendSize = localSendData.size();
-    socket_->SendAsync(reinterpret_cast<u8 *>(&sendSize), sizeof(sendSize));
+    socket_->SendAsync(&sendSize, sizeof(sendSize));
     HCCL_INFO("[AicpuTsUboeChannel][%s] Send size[%u] of data.", __func__, sendSize);
     CHK_RET(CheckSocketStatus("SendDataSize"));
 
@@ -604,7 +604,7 @@ HcclResult AicpuTsUboeChannel::UpdateMemInfo(HcommMemHandle *memHandles, uint32_
     CHK_RET(CheckSocketStatus("RecvDataSize"));
     HCCL_INFO("[AicpuTsUboeChannel][%s] Recv size[%u] of data.", __func__, recvSize);
 
-    socket_->SendAsync(reinterpret_cast<u8 *>(localSendData.data()), localSendData.size());
+    socket_->SendAsync(localSendData.data(), localSendData.size());
     HCCL_INFO("[AicpuTsUboeChannel][%s] Send data, size[%zu].", __func__, localSendData.size());
     CHK_RET(CheckSocketStatus("SendExchangeData"));
 

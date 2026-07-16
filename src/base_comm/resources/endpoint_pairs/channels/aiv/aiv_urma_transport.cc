@@ -309,7 +309,7 @@ void AivUrmaTransport::SendExchangeData()
     ConnVecPack(binaryStream);
 
     binaryStream.Dump(sendData_);
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendData_.data()), sendData_.size());
+    socket_->SendAsync(sendData_.data(), sendData_.size());
     exchangeDataSize_ = sendData_.size();
 
     HCCL_INFO("send data %s, size=%llu", GetLinkDescInfo().c_str(), exchangeDataSize_);
@@ -431,7 +431,7 @@ void AivUrmaTransport::SendFinish()
 {
     HCCL_INFO("start send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
     sendFinishMsg_ = std::vector<char>(FINISH_MSG, FINISH_MSG + FINISH_MSG_SIZE);
-    socket_->SendAsync(reinterpret_cast<u8 *>(sendFinishMsg_.data()), FINISH_MSG_SIZE);
+    socket_->SendAsync(sendFinishMsg_.data(), FINISH_MSG_SIZE);
     HCCL_INFO("end send Finish Msg %s [%s]", GetLinkDescInfo().c_str(), FINISH_MSG);
 }
 

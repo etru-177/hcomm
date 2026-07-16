@@ -436,7 +436,7 @@ void Socket::ConnectAsync()
     socketStatus = SocketStatus::CONNECT_STARTING;
 }
 
-void Socket::SendAsync(const u8 *sendBuf, u32 size)
+void Socket::SendAsync(const void *sendBuf, u32 size)
 {
     if (!sendBuf) {
         THROW<SocketException>(StringFormat("[Socket][%s] failed to send, "
@@ -463,9 +463,8 @@ void Socket::SendAsync(const u8 *sendBuf, u32 size)
     sendSize = 0;
     totalSendSize = 0;
     sendLeftSize = size;
-    sendDataBuff = static_cast<void *>(const_cast<u8 *>(sendBuf));
 
-    reqHandle = HrtRaSocketSendAsync(fdHandle, sendDataBuff, sendLeftSize, sendSize);
+    reqHandle = HrtRaSocketSendAsync(fdHandle, sendBuf, sendLeftSize, sendSize);
     HCCL_INFO("[Socket][%s] reqHandle[%llu] start to send size[%u], [%s].",
         __func__, reqHandle, sendLeftSize, this->Describe().c_str());
     
