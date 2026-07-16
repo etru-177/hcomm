@@ -35,8 +35,10 @@ using BaseCollOperator = struct BaseCollOperatorDef {
     u32      root{0};
     u32      numBlocksLimit{0};
     RankId   sendRecvRemoteRank{0};
-    u64 newInputMem{0};
-    u64 newOutputMem{0};
+    u64 inputAddr{0};
+    u64 inputSize{0};
+    u64 outputAddr{0};
+    u64 outputSize{0};
     std::shared_ptr<Buffer> inputMem{nullptr};
     std::shared_ptr<Buffer> outputMem{nullptr};
     std::shared_ptr<Buffer> scratchMem{nullptr};

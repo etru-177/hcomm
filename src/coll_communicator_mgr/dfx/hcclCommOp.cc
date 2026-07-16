@@ -23,8 +23,10 @@ std::shared_ptr<Hccl::DfxOpInfo> ConvertToDfxOpInfo(const HcclDfxOpInfo& dfxOpIn
     dfxOpInfoOnce->op_.dataCount = dfxOpInfo.dataCount;
     dfxOpInfoOnce->op_.root = dfxOpInfo.root;
 
-    dfxOpInfoOnce->op_.newInputMem =  dfxOpInfo.inputMemAddr;
-    dfxOpInfoOnce->op_.newOutputMem = dfxOpInfo.outputMemAddr;
+    dfxOpInfoOnce->op_.inputAddr = dfxOpInfo.inputMemAddr;
+    dfxOpInfoOnce->op_.inputSize = dfxOpInfo.inputMemSize;
+    dfxOpInfoOnce->op_.outputAddr = dfxOpInfo.outputMemAddr;
+    dfxOpInfoOnce->op_.outputSize = dfxOpInfo.outputMemSize;
 
     dfxOpInfoOnce->algTag_ = dfxOpInfo.algTag;
     dfxOpInfoOnce->beginTime_ = dfxOpInfo.beginTime;

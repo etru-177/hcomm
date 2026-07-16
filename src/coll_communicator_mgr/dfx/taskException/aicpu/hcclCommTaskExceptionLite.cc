@@ -301,8 +301,8 @@ HcclResult HcclCommTaskExceptionLite::GenerateErrorMessageReport(CollCommAicpu *
     errMsgInfo.opType = taskInfo.dfxOpInfo_->op_.opType;
     errMsgInfo.count = taskInfo.dfxOpInfo_->op_.dataCount;
     errMsgInfo.dataType = taskInfo.dfxOpInfo_->op_.dataType;
-    errMsgInfo.srcAddr = taskInfo.dfxOpInfo_->op_.newInputMem;
-    errMsgInfo.dstAddr = taskInfo.dfxOpInfo_->op_.newOutputMem;
+    errMsgInfo.srcAddr = taskInfo.dfxOpInfo_->op_.inputAddr;
+    errMsgInfo.dstAddr = taskInfo.dfxOpInfo_->op_.outputAddr;
     errMsgInfo.taskType = taskInfo.taskParam_.taskType;
 
     errMsgInfo.rtCqErrorType = exceptionInfo.errorType;

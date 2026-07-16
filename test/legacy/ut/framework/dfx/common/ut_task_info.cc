@@ -149,9 +149,7 @@ TEST_F(TaskInfoTest, test_get_base_info)
     taskInfo.streamId_ = 1;
     taskInfo.taskId_ = 7;
     taskInfo.taskParam_.taskType = TaskParamType::TASK_SDMA;
-    taskInfo.dfxOpInfo_->tag_ = "tag_name";
-    taskInfo.dfxOpInfo_->algType_ = AlgType{AlgType::MESH}.Describe();
-    EXPECT_EQ(taskInfo.GetBaseInfo(), "streamID(sqId):[1], taskID(sqeId):[7], taskType:[TaskParamType::TASK_SDMA], tag:[tag_name], algType:[AlgType::MESH]");
+    EXPECT_EQ(taskInfo.GetBaseInfo(), "streamID(sqId):[1], taskID(sqeId):[7], taskType:[TaskParamType::TASK_SDMA]");
 
     taskInfo.dfxOpInfo_ = shared_ptr<DfxOpInfo>(nullptr);
     EXPECT_EQ(taskInfo.GetBaseInfo(), "");
@@ -223,10 +221,12 @@ TEST_F(TaskInfoTest, test_GetIndopDataInfo)
     taskInfo.dfxOpInfo_->opIndex_ = 1;
     taskInfo.dfxOpInfo_->algTag_ = "allreduce_test";
     taskInfo.dfxOpInfo_->op_.dataCount = 1024;
-    taskInfo.dfxOpInfo_->op_.reduceOp = ReduceOp::SUM;
-    taskInfo.dfxOpInfo_->op_.dataType = DataType::INT32;
-    taskInfo.dfxOpInfo_->op_.inputMem = std::make_shared<Hccl::Buffer>(0x1, 11);
-    taskInfo.dfxOpInfo_->op_.outputMem = std::make_shared<Hccl::Buffer>(0x2, 22);
+    taskInfo.dfxOpInfo_->op_.oldReduceOp = static_cast<u32>(ReduceOp::SUM);
+    taskInfo.dfxOpInfo_->op_.oldDataType = static_cast<u32>(DataType::INT32);
+    taskInfo.dfxOpInfo_->op_.inputAddr = 0x1;
+    taskInfo.dfxOpInfo_->op_.inputSize = 11;
+    taskInfo.dfxOpInfo_->op_.outputAddr = 0x2;
+    taskInfo.dfxOpInfo_->op_.outputSize = 22;
     EXPECT_EQ(taskInfo.GetIndopDataInfo(), "opIndex[1], algTag[allreduce_test], count[1024], reduceType[ReduceOp::SUM], dataType[DataType::INT32], "\
         "input: ptr[0x1] size[11], output: ptr[0x2] size[22]");
 

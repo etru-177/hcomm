@@ -14,6 +14,7 @@
 #include "string_util.h"
 #include "const_val.h"
 #include "reduce_op.h"
+#include "data_type.h"
 
 namespace Hccl {
 using namespace std;
@@ -46,12 +47,10 @@ string TaskInfo::GetBaseInfo() const
             "streamId(sqId)[%u], taskId(sqeId)[%u].", __func__, streamId_, taskId_);
         return "";
     }
-    return StringFormat("streamID(sqId):[%u], taskID(sqeId):[%u], taskType:[%s], tag:[%s], algType:[%s]",
+    return StringFormat("streamID(sqId):[%u], taskID(sqeId):[%u], taskType:[%s]",
         this->streamId_,
         this->taskId_,
-        this->taskParam_.taskType.Describe().c_str(),
-        this->dfxOpInfo_->tag_.c_str(),
-        this->GetAlgTypeName().c_str());
+        this->taskParam_.taskType.Describe().c_str());
 }
 
 string TaskInfo::GetParaInfo() const
@@ -231,17 +230,30 @@ string TaskInfo::GetIndopDataInfo() const
     }
 
     const auto &opInfo = this->dfxOpInfo_;
+
+    ReduceOp reduceOp = opInfo->op_.reduceOp;
+    auto reduceOpIt = REDUCE_OP_MAP.find(static_cast<HcclReduceOp>(opInfo->op_.oldReduceOp));
+    if (reduceOpIt != REDUCE_OP_MAP.end()) {
+        reduceOp = reduceOpIt->second;
+    }
+
+    DataType dataType = opInfo->op_.dataType;
+    auto datatypeIt = DATA_TYPE_MAP.find(static_cast<HcclDataType>(opInfo->op_.oldDataType));
+    if (datatypeIt != DATA_TYPE_MAP.end()) {
+        dataType = datatypeIt->second;
+    }
+
     return Hccl::StringFormat("opIndex[%u], algTag[%s], count[%llu], reduceType[%s], dataType[%s], "\
         "input: ptr[0x%llx] size[%llu], output: ptr[0x%llx] size[%llu]",
         opInfo->opIndex_,
         opInfo->algTag_.c_str(),
         opInfo->op_.dataCount,
-        opInfo->op_.reduceOp.Describe().c_str(),
-        opInfo->op_.dataType.Describe().c_str(),
-        opInfo->op_.inputMem == nullptr ? 0 : static_cast<u64>(opInfo->op_.inputMem->GetAddr()),
-        opInfo->op_.inputMem == nullptr ? 0 : opInfo->op_.inputMem->GetSize(),
-        opInfo->op_.outputMem == nullptr ? 0 : static_cast<u64>(opInfo->op_.outputMem->GetAddr()),
-        opInfo->op_.outputMem == nullptr ? 0 : opInfo->op_.outputMem->GetSize());
+        reduceOp.Describe().c_str(),
+        dataType.Describe().c_str(),
+        opInfo->op_.inputAddr,
+        opInfo->op_.inputSize,
+        opInfo->op_.outputAddr,
+        opInfo->op_.outputSize);
 }
 
 string TaskInfo::GetParaAiv() const

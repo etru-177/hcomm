@@ -85,6 +85,7 @@ private:
     std::string GetRemoteRankInfo(bool needConcise = false) const;
     std::string GetTaskConciseName() const;
     std::string GetNotifyInfo() const;
+    std::string GetReduceOp() const;
 };
 
 } // namespace Hccl
