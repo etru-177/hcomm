@@ -24,6 +24,7 @@
 - [HcclChannelDesc](HcclChannelDesc.md)  
 - [HcommEndpointFeatureType](HcommEndpointFeatureType.md)  
 - [HcommReduceOp](HcommReduceOp.md)
+- [HcommSocketRole](HcommSocketRole.md)
 - [HcommDataType](HcommDataType.md)
 - [HcommTransferType](HcommTransferType.md)
 - [HcommBatchTransferDesc](HcommBatchTransferDesc.md)
