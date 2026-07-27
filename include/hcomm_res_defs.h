@@ -222,6 +222,29 @@ typedef struct {
     uint64_t size;    ///< 内存区域字节数
 } CommMem;
 
+/* Minimal one-sided RM descriptor produced by a public-liburma host pool. */
+typedef struct {
+    uint32_t magic;
+    uint32_t version;
+    uint8_t eid[COMM_ADDR_EID_LEN];
+    uint32_t uasid;
+    uint32_t jettyId;
+    uint32_t transportMode;
+    uint32_t tokenValue;
+    uint64_t gva;
+    uint64_t bytes;
+    uint32_t segmentBytes;
+    uint8_t segment[64];
+} HcommRawUbPeerDesc;
+
+typedef void *HcommRawUbPeerHandle;
+
+typedef struct {
+    uint64_t remoteJettyVa;
+    uint64_t remoteSegmentVa;
+    CommMem remoteMem;
+} HcommRawUbPeerInfo;
+
 /**
  * @brief 套接字角色
  */

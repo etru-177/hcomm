@@ -31,6 +31,12 @@ extern HcommResult HcommMemImport(EndpointHandle endpointHandle, const void *mem
 
 extern HcommResult HcommMemUnimport(EndpointHandle endpointHandle, const void *memDesc, uint32_t descLen);
 
+/* Import a liburma pool peer without creating a Host-Hcomm RaSocket channel. */
+extern HcommResult HcommRawUbPeerImport(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
+    HcommRawUbPeerHandle *peerHandle, HcommRawUbPeerInfo *peerInfo);
+
+extern HcommResult HcommRawUbPeerDestroy(HcommRawUbPeerHandle peerHandle);
+
 extern HcommResult HcommChannelCreate(EndpointHandle endpointHandle, CommEngine engine, HcommChannelDesc *channelDescs,
     uint32_t channelNum, ChannelHandle *channels);
 

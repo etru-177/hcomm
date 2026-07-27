@@ -1579,11 +1579,6 @@ static HrtRaUbJettyImportedOutParam ImportJetty(RdmaHandle handle, u8 *key, u32 
     CHECK_NULLPTR(handle, "[ImportJetty] handle is nullptr!");
     CHECK_NULLPTR(key, "[ImportJetty] key is nullptr!");
     HCCL_INFO("[ImportJetty] Input params: handle=%p, key=%d, keyLen=%u, mode=%d", handle, *key, keyLen, mode);
-    if (mode == JettyImportMode::JETTY_IMPORT_MODE_NORMAL) {
-        MACRO_THROW(NotSupportException, StringFormat("[%s] currently not support JETTY_IMPORT_MODE_NORMAL.",
-            __func__));
-    }
-
     struct QpImportInfoT info {};
 
     int res = memcpy_s(info.in.key.value, sizeof(info.in.key.value), key, keyLen);
@@ -1602,12 +1597,14 @@ static HrtRaUbJettyImportedOutParam ImportJetty(RdmaHandle handle, u8 *key, u32 
 
     info.in.ub.expImportCfg = cfg;
 
-    if (protocol != TpProtocol::TP && protocol != TpProtocol::CTP && protocol != TpProtocol::UBOE) {
-        MACRO_THROW(NetworkApiException, StringFormat("[%s] failed, tp protocol[%s] is not expected.",
-            __func__, protocol.Describe().c_str()));
+    if (mode == JettyImportMode::JETTY_IMPORT_MODE_EXP) {
+        if (protocol != TpProtocol::TP && protocol != TpProtocol::CTP && protocol != TpProtocol::UBOE) {
+            MACRO_THROW(NetworkApiException, StringFormat("[%s] failed, tp protocol[%s] is not expected.",
+                __func__, protocol.Describe().c_str()));
+        }
+        // tpType: 0->RTP, 1->CTP
+        info.in.ub.tpType = protocol == TpProtocol::TP ? 0 : 1;
     }
-    // tpType: 0->RTP, 1->CTP
-    info.in.ub.tpType = protocol == TpProtocol::TP ? 0 : 1;
 
     void *remQpHandle = nullptr;
     s32   ret         = RaCtxQpImport(handle, &info, &remQpHandle);
@@ -2295,11 +2292,6 @@ static RequestHandle ImportJettyAsync(RdmaHandle rdmaHandle, const HrtRaUbJettyI
 {
     CHECK_NULLPTR(rdmaHandle, "[ImportJettyAsync] rdmaHandle is nullptr!");
     HCCL_INFO("[ImportJettyAsync] Input params: rdmaHandle=%p, remQpHandle=%p", rdmaHandle, remQpHandle);
-    if (mode == JettyImportMode::JETTY_IMPORT_MODE_NORMAL) {
-        MACRO_THROW(NotSupportException, StringFormat("[%s] currently not support JETTY_IMPORT_MODE_NORMAL.",
-            __func__));
-    }
-
     out.resize(sizeof(QpImportInfoT));
     struct QpImportInfoT *info = reinterpret_cast<QpImportInfoT *>(out.data());
 
@@ -2319,12 +2311,14 @@ static RequestHandle ImportJettyAsync(RdmaHandle rdmaHandle, const HrtRaUbJettyI
 
     info->in.ub.expImportCfg = cfg;
 
-    if (protocol != TpProtocol::TP && protocol != TpProtocol::CTP && protocol != TpProtocol::UBOE) {
-        MACRO_THROW(NetworkApiException, StringFormat("[%s] failed, tp protocol[%s] is not expected, %s.",
-        __func__, protocol.Describe().c_str()));
+    if (mode == JettyImportMode::JETTY_IMPORT_MODE_EXP) {
+        if (protocol != TpProtocol::TP && protocol != TpProtocol::CTP && protocol != TpProtocol::UBOE) {
+            MACRO_THROW(NetworkApiException, StringFormat("[%s] failed, tp protocol[%s] is not expected, %s.",
+                __func__, protocol.Describe().c_str()));
+        }
+        // tpType: 0->RTP, 1->CTP
+        info->in.ub.tpType = protocol == TpProtocol::TP ? 0 : 1;
     }
-    // tpType: 0->RTP, 1->CTP
-    info->in.ub.tpType = protocol == TpProtocol::TP ? 0 : 1;
 
     void *raReqHandle = nullptr;
     ret = RaCtxQpImportAsync(rdmaHandle, info, &remQpHandle, &raReqHandle);

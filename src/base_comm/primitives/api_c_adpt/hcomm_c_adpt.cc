@@ -43,6 +43,7 @@
 #include "launch_device.h"
 #include "endpoint_monitor.h"
 #include "adapter_rts_common.h"
+#include "orion_adapter_hccp.h"
 
 
 namespace hcomm {
@@ -53,6 +54,24 @@ static std::mutex g_BinHandleMtx;
 
 using namespace hcomm;
 static HcommEndpointMap g_EndpointMap;
+
+namespace {
+struct RawUbPeer {
+    Hccl::RdmaHandle rdmaHandle{nullptr};
+    Hccl::TargetJettyHandle remoteJetty{0};
+    Hccl::RemMemHandle remoteMem{0};
+};
+
+// Matches RsJettyKeyInfo in HCCP: urma_jetty_id_t is
+// [eid:16][uasid:u32][id:u32], followed by urma_transport_mode_t.
+struct RawUbJettyKey {
+    uint8_t eid[COMM_ADDR_EID_LEN];
+    uint32_t uasid;
+    uint32_t id;
+    uint32_t transportMode;
+};
+static_assert(sizeof(RawUbJettyKey) == 28, "HCCP raw jetty key ABI changed");
+}
 
 namespace {
 HcclResult RefreshCurrentDeviceContext()
@@ -467,6 +486,58 @@ HcommResult HcommMemUnimport(EndpointHandle endpointHandle, const void *memDesc,
         __func__, endpointHandle), HCCL_E_NOT_FOUND);
     CHK_RET(RefreshEndpointContext(endpoint->GetEndpointDesc()));
     CHK_RET(endpoint->MemoryUnimport(memDesc, descLen));
+    return HCCL_SUCCESS;
+}
+
+HcommResult HcommRawUbPeerImport(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
+    HcommRawUbPeerHandle *peerHandle, HcommRawUbPeerInfo *peerInfo)
+{
+    CHK_PTR_NULL(desc);
+    CHK_PTR_NULL(peerHandle);
+    CHK_PTR_NULL(peerInfo);
+    (void)HcommResMgrInit();
+
+    auto endpoint = g_EndpointMap.GetEndpoint(endpointHandle);
+    CHK_PRT_RET(endpoint == nullptr, HCCL_ERROR("[%s] endpoint not found", __func__), HCCL_E_NOT_FOUND);
+    CHK_RET(RefreshEndpointContext(endpoint->GetEndpointDesc()));
+    CHK_PRT_RET(desc->segmentBytes > sizeof(desc->segment),
+        HCCL_ERROR("[%s] segmentBytes[%u] is invalid", __func__, desc->segmentBytes), HCCL_E_PARA);
+
+    auto peer = std::make_unique<RawUbPeer>();
+    peer->rdmaHandle = static_cast<Hccl::RdmaHandle>(endpoint->GetRdmaHandle());
+
+    // HCCP consumes this key as RsJettyKeyInfo.  The host publishes only
+    // public liburma fields, never Hcomm's private QpImportInfoT.
+    RawUbJettyKey jettyKey{};
+    (void)memcpy_s(jettyKey.eid, sizeof(jettyKey.eid), desc->eid, sizeof(desc->eid));
+    jettyKey.uasid = desc->uasid;
+    jettyKey.id = desc->jettyId;
+    jettyKey.transportMode = desc->transportMode;
+
+    const auto importedJetty = Hccl::RaUbImportJetty(peer->rdmaHandle,
+        reinterpret_cast<uint8_t *>(&jettyKey), sizeof(jettyKey), desc->tokenValue);
+    peer->remoteJetty = importedJetty.handle;
+
+    const auto importedMem = Hccl::HrtRaUbRemoteMemImport(peer->rdmaHandle,
+        const_cast<uint8_t *>(desc->segment), desc->segmentBytes, desc->tokenValue);
+    peer->remoteMem = importedMem.handle;
+
+    peerInfo->remoteJettyVa = importedJetty.targetJettyVa;
+    peerInfo->remoteSegmentVa = importedMem.targetSegVa;
+    peerInfo->remoteMem.type = COMM_MEM_TYPE_HOST;
+    peerInfo->remoteMem.addr = reinterpret_cast<void *>(static_cast<uintptr_t>(desc->gva));
+    peerInfo->remoteMem.size = desc->bytes;
+    *peerHandle = peer.release();
+    return HCCL_SUCCESS;
+}
+
+HcommResult HcommRawUbPeerDestroy(HcommRawUbPeerHandle peerHandle)
+{
+    CHK_PTR_NULL(peerHandle);
+    auto *peer = static_cast<RawUbPeer *>(peerHandle);
+    Hccl::HrtRaUbRemoteMemUnimport(peer->rdmaHandle, peer->remoteMem);
+    Hccl::HrtRaUbUnimportJetty(peer->rdmaHandle, peer->remoteJetty);
+    delete peer;
     return HCCL_SUCCESS;
 }
 
