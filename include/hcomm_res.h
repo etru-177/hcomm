@@ -37,6 +37,10 @@ extern HcommResult HcommRawUbPeerImport(EndpointHandle endpointHandle, const Hco
 
 extern HcommResult HcommRawUbPeerDestroy(HcommRawUbPeerHandle peerHandle);
 
+/* Creates an AICPU channel from a raw liburma peer descriptor. */
+extern HcommResult HcommRawUbChannelCreate(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
+    ChannelHandle *channel);
+
 extern HcommResult HcommChannelCreate(EndpointHandle endpointHandle, CommEngine engine, HcommChannelDesc *channelDescs,
     uint32_t channelNum, ChannelHandle *channels);
 

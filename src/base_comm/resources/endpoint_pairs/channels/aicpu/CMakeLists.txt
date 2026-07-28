@@ -10,6 +10,7 @@
 
 set(src_list
     aicpu_ts_urma_channel.cc
+    aicpu_raw_ub_channel.cc
     aicpu_ts_p2p_channel.cc
     aicpu_ts_uboe_channel.cc
     aicpu_ts_roce_channel.cc

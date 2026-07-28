@@ -234,6 +234,7 @@ typedef struct {
     uint64_t gva;
     uint64_t bytes;
     uint32_t segmentBytes;
+    uint32_t tokenId;
     uint8_t segment[64];
 } HcommRawUbPeerDesc;
 

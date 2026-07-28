@@ -40,6 +40,8 @@ public:
     ~ChannelProcess() = default;
     static HcclResult CreateChannelsLoop(EndpointHandle endpointHandle, CommEngine engine,
         HcommChannelDesc *channelDescs, uint32_t channelNum, ChannelHandle *outHandles);
+    static HcclResult CreateRawUbChannel(EndpointHandle endpointHandle, const HcommRawUbPeerDesc &desc,
+        ChannelHandle *outHandle);
     static HcclResult ChannelUpdateMemInfo(HcommMemHandle *memHandles, uint32_t memHandleNum, ChannelHandle channelHandle);
     static HcclResult ConnectChannels(ChannelHandle* targetChannels, uint32_t channelNum, CommEngine engine);
     static HcclResult SaveChannels(ChannelHandle* targetChannels, ChannelHandle* userChannels, 

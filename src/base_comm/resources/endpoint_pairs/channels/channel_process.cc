@@ -16,6 +16,7 @@
 #include "channel_param.h"
 #include "channel.h"
 #include "aicpu_ts_urma_channel.h"
+#include "aicpu_raw_ub_channel.h"
 #include "aicpu_ts_uboe_channel.h"
 #include "aicpu_ts_roce_channel_v2.h"
 #include "launch_aicpu.h"
@@ -110,6 +111,24 @@ HcclResult ChannelProcess::CreateChannelsLoop(EndpointHandle endpointHandle, Com
             g_ChannelD2HMap.emplace(key, handle);
         }
     }
+    return HCCL_SUCCESS;
+}
+
+HcclResult ChannelProcess::CreateRawUbChannel(EndpointHandle endpointHandle, const HcommRawUbPeerDesc &desc,
+    ChannelHandle *outHandle)
+{
+    CHK_PTR_NULL(outHandle);
+    int32_t deviceId = 0;
+    CHK_RET(hrtGetDevice(&deviceId));
+    auto channel = std::make_shared<AicpuRawUbChannel>(endpointHandle, desc);
+    CHK_RET_UNAVAIL(channel->Init());
+    const ChannelHandle handle = reinterpret_cast<ChannelHandle>(channel.get());
+    {
+        std::lock_guard<std::mutex> lock(g_ChannelMapMtx);
+        g_ChannelMap.emplace(handle, channel);
+        g_ChannelD2HMap.emplace(DeviceChannelKey{deviceId, handle}, handle);
+    }
+    *outHandle = handle;
     return HCCL_SUCCESS;
 }
 
@@ -378,7 +397,12 @@ HcclResult ChannelProcess::LaunchChannelKernelCommon(ChannelHandle *channelHandl
     std::vector<u32> channelSizeVec{};
     uint32_t totalListNum = 0;
     for (uint32_t index = 0; index < listNum; index++) {
-        if (hcommDesc[index].remoteEndpoint.protocol == CommProtocol::COMM_PROTOCOL_PCIE) {
+        auto *channel = reinterpret_cast<Channel *>(hostChannelHandles[index]);
+        CHK_PTR_NULL(channel);
+        if (channel->GetChannelKind() == HcommChannelKind::AICPU_RAW_UB) {
+            auto *rawChannel = reinterpret_cast<AicpuRawUbChannel *>(channel);
+            CHK_PRT(rawChannel->H2DResPack(hostPackBuffers[index]));
+        } else if (hcommDesc[index].remoteEndpoint.protocol == CommProtocol::COMM_PROTOCOL_PCIE) {
             auto aicpuTsP2pChannel = reinterpret_cast<AicpuTsP2pChannel *>(hostChannelHandles[index]);
             CHK_PRT(aicpuTsP2pChannel->H2DResPack(hostPackBuffers[index]));
         } else if (hcommDesc[index].remoteEndpoint.protocol == CommProtocol::COMM_PROTOCOL_UBOE) {
@@ -571,6 +595,7 @@ HcclResult ChannelProcess::LaunchChannelKernel(ChannelHandle *channelHandles,
     auto *ch = reinterpret_cast<Channel *>(hostChannelHandles[0]);
     CHK_PTR_NULL(ch);
     if (ch->GetChannelKind() == HcommChannelKind::AICPU_TS_URMA
+        || ch->GetChannelKind() == HcommChannelKind::AICPU_RAW_UB
         || ch->GetChannelKind() == HcommChannelKind::AICPU_TS_UBOE) {
         return ChannelKernelLaunchForBase(channelHandles, hostChannelHandles, hcommDesc, listNum, binHandle);
     }

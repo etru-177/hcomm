@@ -541,6 +541,24 @@ HcommResult HcommRawUbPeerDestroy(HcommRawUbPeerHandle peerHandle)
     return HCCL_SUCCESS;
 }
 
+HcommResult HcommRawUbChannelCreate(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
+    ChannelHandle *channel)
+{
+    CHK_PTR_NULL(desc);
+    CHK_PTR_NULL(channel);
+    (void)HcommResMgrInit();
+    auto endpoint = g_EndpointMap.GetEndpoint(endpointHandle);
+    CHK_PRT_RET(endpoint == nullptr, HCCL_ERROR("[%s] endpoint not found", __func__), HCCL_E_NOT_FOUND);
+    CHK_RET(RefreshEndpointContext(endpoint->GetEndpointDesc()));
+    CHK_RET(ChannelProcess::CreateRawUbChannel(endpointHandle, *desc, channel));
+    CHK_RET(ChannelProcess::ConnectChannels(channel, 1, COMM_ENGINE_AICPU));
+    CHK_RET(EnsureKernelBinLoaded(COMM_ENGINE_AICPU));
+    ChannelHandle hostChannel = *channel;
+    HcommChannelDesc unused{};
+    CHK_RET(ChannelProcess::SaveChannels(&hostChannel, channel, &unused, 1, COMM_ENGINE_AICPU, g_BinHandle));
+    return HCCL_SUCCESS;
+}
+
 /* 暂未实现 */
 HcommResult HcommMemGrant(EndpointHandle endpointHandle, const HcommMemGrantInfo *remoteGrantInfo)
 {

@@ -163,6 +163,29 @@ void DevUbConnection::Connect()
     GetStatus();
 }
 
+bool DevUbConnection::ConnectRaw(const u8 *remoteKey, u32 remoteKeySize, u32 remoteToken)
+{
+    rawPeerMode_ = true;
+    if (ubConnStatus == UbConnStatus::INIT) {
+        // AICPU consumes the SQ/DB addresses, hence DEV_USED is required.
+        CreateJetty(true);
+        ubConnStatus = UbConnStatus::JETTY_CREATING;
+        return false;
+    }
+    if (ubConnStatus == UbConnStatus::JETTY_CREATING) {
+        if (!CheckRequestResult()) {
+            return false;
+        }
+        SetJettyInfo();
+        const auto imported = RaUbImportJetty(rdmaHandle, const_cast<u8 *>(remoteKey), remoteKeySize, remoteToken);
+        remoteJettyHandle = imported.handle;
+        tpn = imported.tpn;
+        status = RmaConnStatus::READY;
+        ubConnStatus = UbConnStatus::READY;
+    }
+    return ubConnStatus == UbConnStatus::READY;
+}
+
 inline uint32_t GetRandomNum()
 {
     uint32_t randNum = std::rand();
@@ -527,7 +550,9 @@ void DevUbConnection::ReleaseResource()
         remoteJettyHandle = 0;
     }
 
-    ReleaseTp();
+    if (!rawPeerMode_) {
+        ReleaseTp();
+    }
 
     if (jettyHandle != 0) {
         HrtRaUbDestroyJetty(jettyHandle);
