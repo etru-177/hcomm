@@ -30,14 +30,14 @@ HcclResult LaunchContext::HandleEagerMode()
         if (it != launchModeMap_.end()) {
             std::vector<ThreadHandle> threadVec(it->second.begin(), it->second.end());
             CHK_RET(CommTaskLaunch(threadVec.data(), threadVec.size()));
-            HCCL_INFO("[%s]success, launchTag[%s], size[%u]", __func__, launchTag_.c_str(), threadVec.size());
+            HCCL_DEBUG("[%s]success, launchTag[%s], size[%u]", __func__, launchTag_.c_str(), threadVec.size());
         }
     }
 
     // 不带launchTag部分
     if (!threadVec_.empty()) {
         CHK_RET(CommTaskLaunch(threadVec_.data(), threadVec_.size()));
-        HCCL_INFO("[%s]success, size[%u]", __func__, threadVec_.size());
+        HCCL_DEBUG("[%s]success, size[%u]", __func__, threadVec_.size());
     }
     return HCCL_SUCCESS;
 }
@@ -66,13 +66,13 @@ HcclResult LaunchContext::HandleClear()
     if (!launchModeMap_.empty()) {
         launchModeMap_.erase(launchTag_);
     }
-    HCCL_INFO("[%s] begin clear, launchTag[%s], launchMode[%d].",
+    HCCL_DEBUG("[%s] begin clear, launchTag[%s], launchMode[%d].",
         __func__, launchTag_.c_str(), static_cast<int32_t>(mode_));
 
     DevType devType = DevType::DEV_TYPE_COUNT;
     hrtGetDeviceType(devType);
     if (devType == DevType::DEV_TYPE_950) {
-        HCCL_INFO("[%s] Running on A5, HcclTaskClear skipped.", __func__);
+        HCCL_DEBUG("[%s] Running on A5, HcclTaskClear skipped.", __func__);
         return HCCL_SUCCESS;
     }
     return HcclTaskClear(launchTag_);
@@ -142,7 +142,7 @@ HcclResult LaunchContext::SetLaunchMode(const char* launchTag, HcommLaunchMode m
     // 统一处理 launchTag
     bool defaultTag = (launchTag == nullptr);
     launchTag_ = defaultTag ? "" : std::string(launchTag);
-    HCCL_INFO("[%s] SetLaunchMode begin, launchTag[%s], launchMode[%d].",
+    HCCL_DEBUG("[%s] SetLaunchMode begin, launchTag[%s], launchMode[%d].",
         __func__, launchTag_.c_str(), static_cast<int32_t>(mode));
 
 #ifndef CCL_KERNEL_AICPU
@@ -153,10 +153,10 @@ HcclResult LaunchContext::SetLaunchMode(const char* launchTag, HcommLaunchMode m
 #ifndef CCL_KERNEL_AICPU
             hrtGetDeviceType(devType);
             if (devType == DevType::DEV_TYPE_950) {
-                HCCL_INFO("[%s] Running on A5, CommTaskPrepare skipped.", __func__);
+                HCCL_DEBUG("[%s] Running on A5, CommTaskPrepare skipped.", __func__);
                 return HCCL_SUCCESS;
             }
-            HCCL_INFO("[%s]host mode, need CommTaskPrepare", __func__);
+            HCCL_DEBUG("[%s]host mode, need CommTaskPrepare", __func__);
             if (!defaultTag) {
                 // 仅非缺省 tag 需要准备任务缓存
                 return CommTaskPrepare(const_cast<char*>(launchTag_.c_str()), launchTag_.length());
@@ -176,4 +176,3 @@ HcclResult LaunchContext::SetLaunchMode(const char* launchTag, HcommLaunchMode m
             return HCCL_SUCCESS;
     }
 }
-

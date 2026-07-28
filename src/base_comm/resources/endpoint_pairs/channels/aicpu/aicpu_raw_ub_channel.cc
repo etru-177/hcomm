@@ -88,7 +88,7 @@ HcclResult AicpuRawUbChannel::Init()
     const auto remoteWireEid = remoteAddr_.GetEid();
     const auto localSqeEid = localAddr_.GetReverseEid();
     const auto remoteSqeEid = remoteAddr_.GetReverseEid();
-    HCCL_INFO("[AicpuRawUbChannel] EID order localWire[%s] localSqe[%s] "
+    HCCL_DEBUG("[AicpuRawUbChannel] EID order localWire[%s] localSqe[%s] "
         "remoteWire[%s] remoteSqe[%s].",
         Hccl::Bytes2hex(localWireEid.raw, sizeof(localWireEid.raw)).c_str(),
         Hccl::Bytes2hex(localSqeEid.raw, sizeof(localSqeEid.raw)).c_str(),
@@ -108,10 +108,6 @@ ChannelStatus AicpuRawUbChannel::GetStatus()
     key.id = peer_.jettyId;
     key.transportMode = peer_.transportMode;
     const bool ready = connection_->ConnectRaw(reinterpret_cast<const u8 *>(&key), sizeof(key), peer_.tokenValue);
-    HCCL_INFO("[AicpuRawUbChannel] peer jettyId[%u] uasid[%u] transport[%u] token[0x%x] "
-        "rawTokenId[%u] hcommTokenId[%u] gva[0x%llx] bytes[%llu] segmentBytes[%u] ready[%d].",
-        peer_.jettyId, peer_.uasid, peer_.transportMode, peer_.tokenValue, peer_.tokenId,
-        peer_.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT, peer_.gva, peer_.bytes, peer_.segmentBytes, ready);
     if (ready) {
         if (remoteMemHandle_ == 0) {
             const auto imported = Hccl::HrtRaUbRemoteMemImport(
@@ -119,12 +115,10 @@ ChannelStatus AicpuRawUbChannel::GetStatus()
                 peer_.segment, peer_.segmentBytes, peer_.tokenValue);
             remoteMemHandle_ = imported.handle;
             remoteSegmentVa_ = imported.targetSegVa;
-            HCCL_INFO("[AicpuRawUbChannel] remote segment imported. handle[0x%llx] targetSegVa[0x%llx] "
-                "rawTokenId[%u] hcommTokenId[%u] tokenValue[0x%x].",
-                remoteMemHandle_, remoteSegmentVa_, peer_.tokenId,
-                peer_.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT, peer_.tokenValue);
+            HCCL_INFO("[AicpuRawUbChannel] ready. peerJetty[%u] connection[%s] "
+                "remoteMemHandle[0x%llx] targetSegVa[0x%llx].",
+                peer_.jettyId, connection_->Describe().c_str(), remoteMemHandle_, remoteSegmentVa_);
         }
-        HCCL_INFO("[AicpuRawUbChannel] local AICPU connection[%s].", connection_->Describe().c_str());
     }
     return ready ? ChannelStatus::READY : ChannelStatus::INIT;
 }
@@ -139,7 +133,7 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
     const LocalBuffers localBuffers = PackLocalBuffers(endpointHandle_);
     std::vector<char> remoteBuffer = PackRemoteBuffer(peer_);
     std::vector<char> connectionId = connection_->GetUniqueId();
-    HCCL_INFO("[AicpuRawUbChannel] H2D localBuffers[%u] peerJetty[%u] rawTokenId[%u] hcommTokenId[%u] "
+    HCCL_DEBUG("[AicpuRawUbChannel] H2D localBuffers[%u] peerJetty[%u] rawTokenId[%u] hcommTokenId[%u] "
         "tokenValue[0x%x] remoteSegmentVa[0x%llx] localConnection[%s].",
         localBuffers.count, peer_.jettyId, peer_.tokenId,
         peer_.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT, peer_.tokenValue, remoteSegmentVa_,

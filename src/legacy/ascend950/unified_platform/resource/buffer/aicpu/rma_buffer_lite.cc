@@ -13,18 +13,18 @@
 namespace Hccl {
 RmaBufferLite::RmaBufferLite(u64 addr, u64 size) : type_(RmaType::IPC), addr_(addr), size_(size)
 {
-    HCCL_INFO("RmaBufferLite::RmaBufferLite:%s", Describe().c_str());
+    HCCL_DEBUG("RmaBufferLite::RmaBufferLite:%s", Describe().c_str());
 }
 
 RmaBufferLite::RmaBufferLite(u64 addr, u64 size, u32 lkey) : type_(RmaType::RDMA), addr_(addr), size_(size), lkey_(lkey)
 {
-    HCCL_INFO("RmaBufferLite::RmaBufferLite:%s", Describe().c_str());
+    HCCL_DEBUG("RmaBufferLite::RmaBufferLite:%s", Describe().c_str());
 }
 
 RmaBufferLite::RmaBufferLite(u64 addr, u64 size, u32 tokenId, u32 tokenValue)
     : type_(RmaType::UB), addr_(addr), size_(size), tokenId_(tokenId), tokenValue_(tokenValue)
 {
-    HCCL_INFO("RmaBufferLite::RmaBufferLite:%s", Describe().c_str());
+    HCCL_DEBUG("RmaBufferLite::RmaBufferLite:%s", Describe().c_str());
 }
 
 RmaBufSliceLite RmaBufferLite::GetRmaBufSliceLite(u64 offset, u32 sliceSize) const

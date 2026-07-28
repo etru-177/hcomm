@@ -276,11 +276,11 @@ HcclResult CommTaskLaunch(ThreadHandle *threads, uint32_t threadNum) // host fft
     CHK_PTR_NULL(threadPtr);
 
     if (threadPtr->IsDeviceA5()) {
-        HCCL_INFO("[%s] Running on A5.", __func__);
+        HCCL_DEBUG("[%s] Running on A5.", __func__);
         for (uint32_t i = 0; i < threadNum; i++) {
             Thread *threadPtrLoop = reinterpret_cast<Thread *>(threads[i]);
             CHK_PTR_NULL(threadPtrLoop);
-            HCCL_INFO("[%s] Launching task in thread[0x%llx].", __func__, threads[i]);
+            HCCL_DEBUG("[%s] Launching task in thread[0x%llx].", __func__, threads[i]);
             EXCEPTION_CATCH(threadPtrLoop->LaunchTask(), return HCCL_E_INTERNAL);
         }
         return HCCL_SUCCESS;
@@ -743,7 +743,7 @@ int32_t HcommReadReduceOnThread(ThreadHandle thread, ChannelHandle channel, void
 int32_t HcommBatchTransferOnThread(ThreadHandle thread, ChannelHandle channel,
     const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
 {
-    HCCL_INFO("[%s] START. thread[0x%llx], channel[0x%llx], transferDescNum[%u].",
+    HCCL_DEBUG("[%s] START. thread[0x%llx], channel[0x%llx], transferDescNum[%u].",
         __func__, thread, channel, transferDescNum);
 
     CHK_PTR_NULL(transferDescs);
@@ -773,7 +773,7 @@ int32_t HcommBatchTransferOnThread(ThreadHandle thread, ChannelHandle channel,
     CHK_PRT_RET(ret != HCCL_SUCCESS,
         HCCL_ERROR("[%s] BatchTransferAsync failed.", __func__), ret);
 
-    HCCL_INFO("[%s] SUCCESS. transferDescNum[%u].", __func__, transferDescNum);
+    HCCL_DEBUG("[%s] SUCCESS. transferDescNum[%u].", __func__, transferDescNum);
     return ret;
 }
 

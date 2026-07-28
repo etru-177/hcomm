@@ -201,7 +201,7 @@ bool DevUbConnection::ConnectRaw(const u8 *remoteKey, u32 remoteKeySize, u32 rem
         if (tpn == 0) {
             HCCL_WARNING("[DevUbConnection::%s] raw EXP import returned tpn[0].", __func__);
         }
-        HCCL_INFO("[DevUbConnection::%s] raw peer EXP imported. localJettyId[%u] remoteJettyHandle[0x%llx] "
+        HCCL_DEBUG("[DevUbConnection::%s] raw peer EXP imported. localJettyId[%u] remoteJettyHandle[0x%llx] "
             "targetJettyVa[0x%llx] tpn[%u] localEid[%s] remoteEid[%s] tokenValue[0x%x].",
             __func__, jettyId, remoteJettyHandle, imported.targetJettyVa, tpn,
             locEid.Describe().c_str(), rmtEid.Describe().c_str(), remoteToken);
@@ -522,7 +522,7 @@ bool DevUbConnection::GetTpInfo()
     auto &tpManager = TpManager::GetInstance(devLogicId);
     tpManager.Init();
     const u32 devicePhyId = HrtGetDevicePhyIdByIndex(devLogicId);
-    HCCL_INFO("[DevUbConnection][%s] deviceLogicId[%d], devicePhyId[%u], locAddr[%s], rmtAddr[%s].",
+    HCCL_DEBUG("[DevUbConnection][%s] deviceLogicId[%d], devicePhyId[%u], locAddr[%s], rmtAddr[%s].",
         __func__, devLogicId, devicePhyId, locAddr.Describe().c_str(), rmtAddr.Describe().c_str());
     auto ret = tpManager.GetTpInfo(p, tpInfo);
 

@@ -70,7 +70,7 @@ void RtsqA5::MakeSureAvailableSpace()
 #endif
     const std::chrono::seconds printInterval(PRINT_INTERVAL); // 打印间隔30s
     auto                       lastPrintTime = std::chrono::steady_clock::now() - printInterval;
-    HCCL_INFO("[%s]sqId:%u, sqFullTimeout_: %u s, sqHead:%u, sqTail:%u, pendingSqeCnt:%u",
+    HCCL_DEBUG("[%s]sqId:%u, sqFullTimeout_: %u s, sqHead:%u, sqTail:%u, pendingSqeCnt:%u",
         __func__, sqId_, sqFullTimeout_, sqHead_, sqTail_, pendingSqeCnt);
 
     while (availableSpace <= pendingSqeCnt) {
@@ -132,14 +132,14 @@ void RtsqA5::CopyLocBufToSq()
     if (sqTail_ >= sqHead_) {
         u32 depthLeft = sqDepth_ - sqTail_;
         if (pendingSqeCnt <= depthLeft) { // 没有回绕
-            HCCL_INFO("RtsqA5::%s copy sqe from sqe buffer, sqId_: %u, streamId_: %u, cur head: %u, cur tail: %u, size: %u, depth remain: %u", 
+            HCCL_DEBUG("RtsqA5::%s copy sqe from sqe buffer, sqId_: %u, streamId_: %u, cur head: %u, cur tail: %u, size: %u, depth remain: %u",
                 __func__, sqId_, streamId_, sqHead_, sqTail_, pendingSqeCnt, depthLeft);
             int ret = memcpy_sp(sqCurrAddr, pendingSqeCnt * AC_SQE_SIZE, locBuf, pendingSqeCnt * RTSQ_SQE_SIZE);
             if (UNLIKELY(ret != 0)) {
                 THROW<InternalException>(StringFormat("RtsqA5::%s sqe memcpy_sp failed, ret = %d", __func__, ret));
             }
         } else {
-            HCCL_INFO("RtsqA5::%s copy sqe twice, sqId_: %u, streamId_: %u, cur head: %u, cur tail: %u, cnt: %u, depth remain: %u", 
+            HCCL_DEBUG("RtsqA5::%s copy sqe twice, sqId_: %u, streamId_: %u, cur head: %u, cur tail: %u, cnt: %u, depth remain: %u",
                 __func__, sqId_, streamId_, sqHead_, sqTail_, pendingSqeCnt, depthLeft);
             // 先拷贝rtsq里剩余空间大小
             int ret = memcpy_sp(sqCurrAddr, depthLeft * AC_SQE_SIZE, locBuf, depthLeft * RTSQ_SQE_SIZE);
@@ -156,7 +156,7 @@ void RtsqA5::CopyLocBufToSq()
             }
         }
     } else {
-        HCCL_INFO("RtsqA5::%s copy sqe from sqe buffer, tail < head, sqId_: %u, streamId_: %u, cur head: %u, cur tail: %u, size: %u", 
+        HCCL_DEBUG("RtsqA5::%s copy sqe from sqe buffer, tail < head, sqId_: %u, streamId_: %u, cur head: %u, cur tail: %u, size: %u",
                 __func__, sqId_, streamId_, sqHead_, sqTail_, pendingSqeCnt);
         int ret = memcpy_sp(sqCurrAddr, pendingSqeCnt * AC_SQE_SIZE, locBuf, pendingSqeCnt * RTSQ_SQE_SIZE);
         if (UNLIKELY(ret != 0)) {
@@ -168,10 +168,10 @@ void RtsqA5::CopyLocBufToSq()
 // 向芯片RTSQ VA中写入 SQE，并触发芯片执行
 void RtsqA5::LaunchTask()
 {
-    HCCL_INFO("RtsqA5::%s: START, pendingSqeCnt[%u]", __func__, pendingSqeCnt);
+    HCCL_DEBUG("RtsqA5::%s: START, pendingSqeCnt[%u]", __func__, pendingSqeCnt);
 
     if (pendingSqeCnt == 0) { // 没有SQE ，直接返回
-        HCCL_INFO("RtsqA5::%s: pendingSqeCnt is %u, return", __func__, pendingSqeCnt);
+        HCCL_DEBUG("RtsqA5::%s: pendingSqeCnt is %u, return", __func__, pendingSqeCnt);
         return;
     }
     // 确保 rtsq 有足够空间放pending SQE
@@ -189,7 +189,7 @@ void RtsqA5::LaunchTask()
     sqTail_ = newTail;
 
     // 清空本地的locBuffer和sqeCnt数目
-    HCCL_INFO("RtsqA5::%s: END, pendingSqeCnt[%u], sqHead_[%u] sqTail_[%u]", __func__, pendingSqeCnt, sqHead_, sqTail_);
+    HCCL_DEBUG("RtsqA5::%s: END, pendingSqeCnt[%u], sqHead_[%u] sqTail_[%u]", __func__, pendingSqeCnt, sqHead_, sqTail_);
     pendingSqeCnt = 0;
     (void)memset_s(locBuf, RTSQ_SQE_SIZE * PER_LAUNCH_SQE_CNT, 0, RTSQ_SQE_SIZE * PER_LAUNCH_SQE_CNT); // locBuffer清零
 }
@@ -214,7 +214,7 @@ void RtsqA5::TryLaunchTask()
 
     pendingSqeCnt = 0;
     (void)memset_s(locBuf, RTSQ_SQE_SIZE * PER_LAUNCH_SQE_CNT, 0, RTSQ_SQE_SIZE * PER_LAUNCH_SQE_CNT);
-    HCCL_INFO("RtsqA5::%s: END, pendingSqeCnt[%u], sqHead_[%u] sqTail_[%u]", __func__, pendingSqeCnt, sqHead_, sqTail_);
+    HCCL_DEBUG("RtsqA5::%s: END, pendingSqeCnt[%u], sqHead_[%u] sqTail_[%u]", __func__, pendingSqeCnt, sqHead_, sqTail_);
 }
 
 u8 *RtsqA5::GetCurrSqeBuffer()
@@ -367,7 +367,7 @@ void RtsqA5::UbDbSend(const UbJettyLiteId &jettyLiteId, u16 piValue)
 {
     // piValue需要使用u16数据类型，保证自然增长，用于判断是否翻转
     BuildA5SqeUbDbSend(streamId_, taskId_, jettyLiteId, piValue, GetCurrSqeBuffer());
-    HCCL_INFO("RtsqA5::UbDbSend: piValue(UbPi):%u, SqTail(Rtsq Pi):%u", piValue, sqTail_);
+    HCCL_DEBUG("RtsqA5::UbDbSend: piValue(UbPi):%u, SqTail(Rtsq Pi):%u", piValue, sqTail_);
     RefreshInfo();
 }
 

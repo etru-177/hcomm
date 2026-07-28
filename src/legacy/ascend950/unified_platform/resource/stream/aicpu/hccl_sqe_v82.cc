@@ -40,7 +40,7 @@ void HcclUBDmaDBSqe::Config(u16 streamId, u16 taskId, u16 jettyid, u8 funcId, u1
     sqe->funcId1 = funcId;
     sqe->piValue1 = piValue;
     sqe->dieId1 = dieId;
-    HCCL_INFO("[SQE]HcclUBDmaDBSqe streamId=%u, taskId=%u, jettyid=%u, funcId=%u, dieId=%u, piValue=%u\n",
+    HCCL_DEBUG("[SQE]HcclUBDmaDBSqe streamId=%u, taskId=%u, jettyid=%u, funcId=%u, dieId=%u, piValue=%u\n",
                streamId, taskId, jettyid, funcId, dieId, piValue);
 }
 
