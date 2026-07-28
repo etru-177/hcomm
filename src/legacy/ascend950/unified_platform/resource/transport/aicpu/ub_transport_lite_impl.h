@@ -73,7 +73,8 @@ public:
                         const std::vector<TransferOp> &transferOp, const StreamLite &stream) override;
     // 子类独有方法，支持所有操作类型，用于aicpu场景批量下发任务
     void BatchTransferAll(const std::vector<RmaBufferLite> &loc, const std::vector<Buffer> &rmt,
-                        const std::vector<TransferOp> &transferOp, const std::vector<uint32_t> &notifyIdxs, const StreamLite &stream);
+                        const std::vector<TransferOp> &transferOp, const std::vector<uint32_t> &notifyIdxs,
+                        const StreamLite &stream, bool enableCqe);
 
     HcclResult BuildLocRmaBufferLite(const uintptr_t addr, const size_t size, RmaBufferLite &rmaBufferLite) override;
     HcclResult Fence();
@@ -83,7 +84,7 @@ public:
     void SetTaskExceptionEnable(bool flag) { taskExceptionEnable_ = flag; }
 
     HcclResult ExecuteBatchTransfer(StreamLite *streamLitePtr, const HcommBatchTransferDesc *transferDescs,
-                        uint32_t transferDescNum);
+                        uint32_t transferDescNum, bool enableCqe = true);
 private:
     u32 notifyNum{0};
     u32 bufferNum{0};

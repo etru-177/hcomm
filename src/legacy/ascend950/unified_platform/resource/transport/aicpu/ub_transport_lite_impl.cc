@@ -787,7 +787,7 @@ static HcclResult ParseData(const HcommBatchTransferDesc &transferDesc, void* &r
 }
 constexpr uint32_t       NOTIFYIDX_INVALID_VALUE  = 0xFFFFFFFF; // NOTIFY idex非法值
 HcclResult UbTransportLiteImpl::ExecuteBatchTransfer(StreamLite *streamLitePtr,
-    const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
+    const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum, bool enableCqe)
 {
     std::vector<Hccl::RmaBufferLite> locSlices;
     std::vector<Hccl::Buffer> rmtSlices;
@@ -836,12 +836,14 @@ HcclResult UbTransportLiteImpl::ExecuteBatchTransfer(StreamLite *streamLitePtr,
         HCCL_DEBUG("[%s] Prepared transfer op for index %u. rmt[%p], loc[%p], len[0x%llx], tfType[%u], dataType[%d], reduceOp[%d].",
             __func__, i, rmt, loc, len, tfType, dataType, reduceOp);
     }
-    EXCEPTION_CATCH(BatchTransferAll(locSlices, rmtSlices, transferOps, notifyIdxs, *streamLitePtr), return HCCL_E_INTERNAL);
+    EXCEPTION_CATCH(BatchTransferAll(locSlices, rmtSlices, transferOps, notifyIdxs, *streamLitePtr, enableCqe),
+        return HCCL_E_INTERNAL);
     return HCCL_SUCCESS;
 }
 
 void UbTransportLiteImpl::BatchTransferAll(const std::vector<RmaBufferLite> &loc, const std::vector<Buffer> &rmt,
-    const std::vector<BaseTransportLiteImpl::TransferOp> &transferOp, const std::vector<uint32_t> &notifyIdxs, const StreamLite &stream)
+    const std::vector<BaseTransportLiteImpl::TransferOp> &transferOp, const std::vector<uint32_t> &notifyIdxs,
+    const StreamLite &stream, bool enableCqe)
 {
     if (UNLIKELY(loc.empty())) {
         return;
@@ -852,7 +854,7 @@ void UbTransportLiteImpl::BatchTransferAll(const std::vector<RmaBufferLite> &loc
     SetFenceConfig(cfg);
     u32 insNum = loc.size();
     for (u32 i = 0; i < insNum; i++) {
-        cfg.cqeEn     = (i == insNum - 1) ? true : false; // 返回最后一个sqe的cqe
+        cfg.cqeEn     = enableCqe && (i == insNum - 1); // 可选返回最后一个sqe的cqe
         cfg.placeOdr  = (i == insNum - 1) ? UB_STRONG_ORDER : UB_RELAX_ORDER; // 最后一个要求保序
         cfg.compOrder = (i == insNum - 1) ? UB_COMPLETION : UB_NO_COMPLETION;
 
