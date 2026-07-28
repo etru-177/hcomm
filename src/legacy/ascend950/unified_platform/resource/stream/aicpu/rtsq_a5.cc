@@ -367,9 +367,7 @@ void RtsqA5::UbDbSend(const UbJettyLiteId &jettyLiteId, u16 piValue)
 {
     // piValue需要使用u16数据类型，保证自然增长，用于判断是否翻转
     BuildA5SqeUbDbSend(streamId_, taskId_, jettyLiteId, piValue, GetCurrSqeBuffer());
-    HCCL_INFO("RtsqA5::UbDbSend: localJettyId[%u] funcId[%u] dieId[%u] "
-        "piValue(UbPi)[%u] SqTail(Rtsq Pi)[%u]",
-        jettyLiteId.GetJettyId(), jettyLiteId.GetFuncId(), jettyLiteId.GetDieId(), piValue, sqTail_);
+    HCCL_INFO("RtsqA5::UbDbSend: piValue(UbPi):%u, SqTail(Rtsq Pi):%u", piValue, sqTail_);
     RefreshInfo();
 }
 
