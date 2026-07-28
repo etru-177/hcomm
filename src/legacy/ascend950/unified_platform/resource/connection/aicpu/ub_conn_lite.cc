@@ -8,6 +8,8 @@
  * See LICENSE in the root of the software repository for the full text of the License.
  */
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include "ub_conn_lite.h"
 #include "log.h"
 #include "exception_util.h"
@@ -31,6 +33,25 @@ constexpr u32 WRITE_WITH_NOTIFY_OPCODE   = 0x5;
 constexpr u32 ADDR_BIT_LOW               = 0xffffffff;
 constexpr u32 UB_DMA_MAX_READ_WEITE_SIZE = 256 * 1024 * 1024; // Byte, UB协议一次传输的最大size
 
+inline void CleanInvalidateDeviceRange(const void *addr, size_t len)
+{
+#if defined(__aarch64__)
+    if (addr == nullptr || len == 0) {
+        return;
+    }
+    constexpr uintptr_t cacheLineSize = 64U;
+    const auto begin = reinterpret_cast<uintptr_t>(addr) & ~(cacheLineSize - 1U);
+    const auto end = (reinterpret_cast<uintptr_t>(addr) + len + cacheLineSize - 1U) & ~(cacheLineSize - 1U);
+    for (uintptr_t line = begin; line < end; line += cacheLineSize) {
+        asm volatile("dc civac, %0" : : "r"(line) : "memory");
+    }
+    asm volatile("dsb sy" : : : "memory");
+#else
+    (void)addr;
+    (void)len;
+#endif
+}
+
 static std::map<DataType, u32> g_ubmaDataTypeMap
     = {{DataType::INT8, 0x0},   {DataType::INT16, 0x1},   {DataType::INT32, 0x2}, {DataType::UINT8, 0x3},
        {DataType::UINT16, 0x4}, {DataType::UINT32, 0x5},  {DataType::FP16, 0x6},  {DataType::FP32, 0x7},
@@ -43,7 +64,7 @@ void UbConnLite::FillCommSqe(UdmaSqeCommon *sqe, const RmtRmaBufSliceLite &rmt, 
 {
     u32 cqeEn = cfg.cqeEn ? cqeEnable : 0; // BatchTransfer输入cfg.cqeEn=false时，不使能cqe
     sqe->cqe       = cqeEn;
-    sqe->owner     = (pi == (sqDepth_ - 1)) ? 1 : 0;
+    sqe->owner     = (sqDepth_ == 0U || ((static_cast<u32>(pi) / sqDepth_) % 2U) == 0U) ? 1U : 0U;
     sqe->opcode    = opCode;
     sqe->tpn       = tpn_;
     sqe->placeOdr  = cfg.placeOdr; // 保序要求，0->不保序  待验证
@@ -67,10 +88,13 @@ void UbConnLite::FillCommSqe(UdmaSqeCommon *sqe, const RmtRmaBufSliceLite &rmt, 
     sqe->rmtTokenValue = rmt.GetTokenValue();
     sqe->rmtAddrLow    = rmt.GetAddr() & ADDR_BIT_LOW;
     sqe->rmtAddrHigh   = rmt.GetAddr() >> ADDR_BIT_OFFSET;
-    HCCL_INFO("UbConnLite FillCommSqe UdmaSqeCommon sqe->cqe = %u, sqe->owner = %u sqe->opcode = %u, "
-              "sqe->tpn = %u, sqe->rmtObjId = %u, sqe->rmtAddrLow = %u, sqe->rmtAddrHigh = %u, sqe->placeOdr = %u, "
-              "sqe->compOrder = %u, sqe->fence = %u", sqe->cqe, sqe->owner, sqe->opcode, sqe->tpn, sqe->rmtObjId,
-              sqe->rmtAddrLow, sqe->rmtAddrHigh, sqe->placeOdr, sqe->compOrder, sqe->fence);
+    HCCL_INFO("UbConnLite FillCommSqe cqe[%u] owner[%u] opcode[%u] tpn[%u] rmtJettyType[%u] "
+              "rmtObjId[%u] tokenEn[%u] rmtTokenValue[0x%x] rmtAddr[0x%llx] rmtEid[%s] "
+              "placeOdr[%u] compOrder[%u] fence[%u]",
+              sqe->cqe, sqe->owner, sqe->opcode, sqe->tpn, sqe->rmtJettyType, sqe->rmtObjId,
+              sqe->tokenEn, sqe->rmtTokenValue, rmt.GetAddr(),
+              Bytes2hex(reinterpret_cast<const u8 *>(sqe->rmtEid), RMT_EID_BYTE_SIZE).c_str(),
+              sqe->placeOdr, sqe->compOrder, sqe->fence);
 }
 
 void UbConnLite::FillCommSqeReduceInfo(UdmaSqeCommon &sqeComm, ReduceOp reduceOp, DataType dataType, u32 udfType) const
@@ -222,6 +246,7 @@ void UbConnLite::ProcessOneWqe(UdmaSqeWrite *sqe, UdmaSqOpcode opCode, const Str
         if (UNLIKELY(ret != 0)) {
             THROW<InternalException>(StringFormat("[UbConnLite::%s] memcpy_sp failed, ret = %d", __func__, ret));
         }
+        CleanInvalidateDeviceRange(va, SQE_SIZE_64);
     }
 
     HCCL_INFO("[UbConnLite::%s] end, pi[%u], ci[%u]", __func__, pi, ci);
@@ -258,10 +283,13 @@ void UbConnLite::ProcessOneWqeWithNotify(const RmaBufSliceLite &loc, const RmtRm
         // 带notify的wqe是96字节, 需要占用两个wqebb, 实际占用128字节
         if (sqOffset == sqDepth_ - 1) {
             MemorySetAndCopy(va, SQE_SIZE_64, sqe);
+            CleanInvalidateDeviceRange(va, SQE_SIZE_64);
             va  = reinterpret_cast<u8 *>(sqVa_);
             MemorySetAndCopy(va, SQE_SIZE_64, reinterpret_cast<u8 *>(sqe) + SQE_SIZE_64);
+            CleanInvalidateDeviceRange(va, SQE_SIZE_64);
         } else {
             MemorySetAndCopy(va, SQE_SIZE_128, sqe);
+            CleanInvalidateDeviceRange(va, SQE_SIZE_128);
         }
     }
 
@@ -371,9 +399,8 @@ void UbConnLite::FillLocalSgeSqe(UdmaNormalSge *sqe, const RmaBufSliceLite &loc)
     sqe->tokenId      = loc.GetTokenId();
     sqe->dataAddrLow  = loc.GetAddr() & ADDR_BIT_LOW;
     sqe->dataAddrHigh = loc.GetAddr() >> ADDR_BIT_OFFSET;
-    HCCL_INFO("UbConnLite FillLocalSgeSqe sqe->length = %u, sqe->dataAddrLow = %u "
-              "sqe->dataAddrHigh = %u",
-              sqe->length, sqe->dataAddrLow, sqe->dataAddrHigh);
+    HCCL_INFO("UbConnLite FillLocalSgeSqe length[%u] tokenId[%u] addr[0x%llx]",
+              sqe->length, sqe->tokenId, loc.GetAddr());
 }
 
 void UbConnLite::WriteReduce(DataType dataType, ReduceOp reduceOp, const RmaBufSliceLite &loc,
@@ -505,6 +532,7 @@ void UbConnLite::FillBatchOneWqe(const RmaBufSliceLite &loc, const RmtRmaBufSlic
             HCCL_ERROR("UbConnLite::BatchWrite FillCommSqe memcpy failed, ret=%d", ret);
             THROW<InternalException>(StringFormat("UbConnLite::BatchWrite memcpy_sp failed, ret = %d", ret));
         }
+        CleanInvalidateDeviceRange(va, SQE_SIZE_64);
     }
     HCCL_INFO("UbConnLite BatchWrite cp data to va end va(%p)", va);
 }
@@ -643,7 +671,8 @@ UbConnLiteParam::UbConnLiteParam(std::vector<char> &uniqueId)
         HCCL_INFO("%s", Describe().c_str());
         lastPrintTime = now;
     }
-    HCCL_INFO("[UbConnLiteParam::%s] locEid[%s], rmtEid[%s]", __func__, locEid.Describe().c_str(), rmtEid.Describe().c_str());
+    HCCL_INFO("[UbConnLiteParam::%s] localJettyId[%u] tpn[%u] locEid[%s] rmtEid[%s]",
+              __func__, jettyId, tpn, locEid.Describe().c_str(), rmtEid.Describe().c_str());
 }
 
 } // namespace Hccl

@@ -30,6 +30,8 @@ private:
     std::unique_ptr<Hccl::DevUbTpConnection> connection_;
     Hccl::IpAddress localAddr_{};
     Hccl::IpAddress remoteAddr_{};
+    Hccl::RemMemHandle remoteMemHandle_{0};
+    uint64_t remoteSegmentVa_{0};
 };
 
 } // namespace hcomm

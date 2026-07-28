@@ -8,6 +8,7 @@
 #include "local_ub_rma_buffer.h"
 #include "mem_transport_common.h"
 #include "orion_adpt_utils.h"
+#include "orion_adapter_hccp.h"
 
 namespace hcomm {
 namespace {
@@ -20,8 +21,11 @@ struct RawUbJettyKey {
 
 std::vector<char> PackRemoteBuffer(const HcommRawUbPeerDesc &peer)
 {
+    // Public liburma exports the raw 28-bit token_id. Hcomm's AICPU SQE ABI
+    // consumes the 20-bit segment object id, matching RaUbAllocTokenIdHandle.
+    const u32 tokenId = peer.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT;
     Hccl::BinaryStream stream;
-    stream << peer.gva << peer.bytes << peer.tokenId << peer.tokenValue << UINT32_MAX;
+    stream << peer.gva << peer.bytes << tokenId << peer.tokenValue << UINT32_MAX;
     std::vector<char> out;
     stream.Dump(out);
     return out;
@@ -80,9 +84,21 @@ ChannelStatus AicpuRawUbChannel::GetStatus()
     key.transportMode = peer_.transportMode;
     const bool ready = connection_->ConnectRaw(reinterpret_cast<const u8 *>(&key), sizeof(key), peer_.tokenValue);
     HCCL_INFO("[AicpuRawUbChannel] peer jettyId[%u] uasid[%u] transport[%u] token[0x%x] "
-        "gva[0x%llx] bytes[%llu] ready[%d].",
-        peer_.jettyId, peer_.uasid, peer_.transportMode, peer_.tokenValue, peer_.gva, peer_.bytes, ready);
+        "rawTokenId[%u] hcommTokenId[%u] gva[0x%llx] bytes[%llu] segmentBytes[%u] ready[%d].",
+        peer_.jettyId, peer_.uasid, peer_.transportMode, peer_.tokenValue, peer_.tokenId,
+        peer_.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT, peer_.gva, peer_.bytes, peer_.segmentBytes, ready);
     if (ready) {
+        if (remoteMemHandle_ == 0) {
+            const auto imported = Hccl::HrtRaUbRemoteMemImport(
+                reinterpret_cast<Endpoint *>(endpointHandle_)->GetRdmaHandle(),
+                peer_.segment, peer_.segmentBytes, peer_.tokenValue);
+            remoteMemHandle_ = imported.handle;
+            remoteSegmentVa_ = imported.targetSegVa;
+            HCCL_INFO("[AicpuRawUbChannel] remote segment imported. handle[0x%llx] targetSegVa[0x%llx] "
+                "rawTokenId[%u] hcommTokenId[%u] tokenValue[0x%x].",
+                remoteMemHandle_, remoteSegmentVa_, peer_.tokenId,
+                peer_.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT, peer_.tokenValue);
+        }
         HCCL_INFO("[AicpuRawUbChannel] local AICPU connection[%s].", connection_->Describe().c_str());
     }
     return ready ? ChannelStatus::READY : ChannelStatus::INIT;
@@ -98,8 +114,11 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
     const LocalBuffers localBuffers = PackLocalBuffers(endpointHandle_);
     std::vector<char> remoteBuffer = PackRemoteBuffer(peer_);
     std::vector<char> connectionId = connection_->GetUniqueId();
-    HCCL_INFO("[AicpuRawUbChannel] H2D localBuffers[%u] peerJetty[%u] localConnection[%s].",
-        localBuffers.count, peer_.jettyId, connection_->Describe().c_str());
+    HCCL_INFO("[AicpuRawUbChannel] H2D localBuffers[%u] peerJetty[%u] rawTokenId[%u] hcommTokenId[%u] "
+        "tokenValue[0x%x] remoteSegmentVa[0x%llx] localConnection[%s].",
+        localBuffers.count, peer_.jettyId, peer_.tokenId,
+        peer_.tokenId >> Hccl::URMA_TOKEN_ID_RIGHT_SHIFT, peer_.tokenValue, remoteSegmentVa_,
+        connection_->Describe().c_str());
     stream << type << zero << localBuffers.count << one << one;
     stream << empty << empty << localBuffers.data << remoteBuffer << connectionId;
     std::vector<char> uniqueId;
@@ -122,7 +141,16 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
 HcclResult AicpuRawUbChannel::GetNotifyNum(uint32_t *notifyNum) const { *notifyNum = 0; return HCCL_SUCCESS; }
 HcclResult AicpuRawUbChannel::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 { *memNum = 0; *remoteMem = nullptr; *memInfos = nullptr; return HCCL_SUCCESS; }
-HcclResult AicpuRawUbChannel::Clean() { return HCCL_SUCCESS; }
+HcclResult AicpuRawUbChannel::Clean()
+{
+    if (remoteMemHandle_ != 0) {
+        auto *endpoint = reinterpret_cast<Endpoint *>(endpointHandle_);
+        Hccl::HrtRaUbRemoteMemUnimport(endpoint->GetRdmaHandle(), remoteMemHandle_);
+        remoteMemHandle_ = 0;
+        remoteSegmentVa_ = 0;
+    }
+    return HCCL_SUCCESS;
+}
 HcclResult AicpuRawUbChannel::Resume() { return HCCL_SUCCESS; }
 HcclResult AicpuRawUbChannel::NotifyRecord(uint32_t) { return HCCL_E_NOT_SUPPORT; }
 HcclResult AicpuRawUbChannel::NotifyWait(uint32_t, uint32_t) { return HCCL_E_NOT_SUPPORT; }

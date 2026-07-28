@@ -180,6 +180,10 @@ bool DevUbConnection::ConnectRaw(const u8 *remoteKey, u32 remoteKeySize, u32 rem
         const auto imported = RaUbImportJetty(rdmaHandle, const_cast<u8 *>(remoteKey), remoteKeySize, remoteToken);
         remoteJettyHandle = imported.handle;
         tpn = imported.tpn;
+        HCCL_INFO("[DevUbConnection::%s] raw peer imported. localJettyId[%u] remoteJettyHandle[0x%llx] "
+            "targetJettyVa[0x%llx] tpn[%u] localEid[%s] remoteEid[%s] tokenValue[0x%x].",
+            __func__, jettyId, remoteJettyHandle, imported.targetJettyVa, tpn,
+            locEid.Describe().c_str(), rmtEid.Describe().c_str(), remoteToken);
         status = RmaConnStatus::READY;
         ubConnStatus = UbConnStatus::READY;
     }

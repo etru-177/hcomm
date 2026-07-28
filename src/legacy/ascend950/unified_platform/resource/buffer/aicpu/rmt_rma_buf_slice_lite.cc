@@ -19,8 +19,9 @@ RmtRmaBufSliceLite::RmtRmaBufSliceLite(u64 addr, u64 size, u32 rkey, u32 tokenId
 
 std::string RmtRmaBufSliceLite::Describe() const
 {
-    return StringFormat("RmtRmaBufSliceLite[addr=0x%llx, size=0x%llx, rkey=%u, notifyId=%u]", addr_, size_,
-                        rkey_, notifyId_);
+    return StringFormat("RmtRmaBufSliceLite[addr=0x%llx, size=0x%llx, rkey=%u, tokenId=%u, "
+                        "tokenValue=0x%x, notifyId=%u]",
+                        addr_, size_, rkey_, tokenId_, tokenValue_, notifyId_);
 }
 
 } // namespace Hccl
