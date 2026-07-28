@@ -740,12 +740,11 @@ int32_t HcommReadReduceOnThread(ThreadHandle thread, ChannelHandle channel, void
     return HCCL_SUCCESS;
 }
 
-namespace {
-int32_t HcommBatchTransferOnThreadImpl(ThreadHandle thread, ChannelHandle channel,
-    const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum, bool enableCqe)
+int32_t HcommBatchTransferOnThread(ThreadHandle thread, ChannelHandle channel,
+    const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
 {
-    HCCL_INFO("[%s] START. thread[0x%llx], channel[0x%llx], transferDescNum[%u], enableCqe[%d].",
-        __func__, thread, channel, transferDescNum, enableCqe);
+    HCCL_INFO("[%s] START. thread[0x%llx], channel[0x%llx], transferDescNum[%u].",
+        __func__, thread, channel, transferDescNum);
 
     CHK_PTR_NULL(transferDescs);
     CHK_PRT_RET(transferDescNum == 0,
@@ -760,7 +759,7 @@ int32_t HcommBatchTransferOnThreadImpl(ThreadHandle thread, ChannelHandle channe
         CHK_PTR_NULL(ubTransportLitePtr);
         auto *const streamLitePtr = static_cast<Hccl::StreamLite *>(threadPtr->GetStreamLitePtr());
         CHK_PTR_NULL(streamLitePtr);
-        ret = ubTransportLitePtr->ExecuteBatchTransfer(streamLitePtr, transferDescs, transferDescNum, enableCqe);
+        ret = ubTransportLitePtr->ExecuteBatchTransfer(streamLitePtr, transferDescs, transferDescNum);
     } else {
         Stream *stream = GetStream(thread);
         CHK_PTR_NULL(stream);
@@ -776,19 +775,6 @@ int32_t HcommBatchTransferOnThreadImpl(ThreadHandle thread, ChannelHandle channe
 
     HCCL_INFO("[%s] SUCCESS. transferDescNum[%u].", __func__, transferDescNum);
     return ret;
-}
-} // namespace
-
-int32_t HcommBatchTransferOnThread(ThreadHandle thread, ChannelHandle channel,
-    const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
-{
-    return HcommBatchTransferOnThreadImpl(thread, channel, transferDescs, transferDescNum, true);
-}
-
-extern "C" int32_t HcommBatchTransferNoCqeOnThread(ThreadHandle thread, ChannelHandle channel,
-    const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
-{
-    return HcommBatchTransferOnThreadImpl(thread, channel, transferDescs, transferDescNum, false);
 }
 
 int32_t HcommWriteNbiOnThread(ThreadHandle thread, ChannelHandle channel, void *dst, const void *src, uint64_t len)
