@@ -64,7 +64,9 @@ void UbConnLite::FillCommSqe(UdmaSqeCommon *sqe, const RmtRmaBufSliceLite &rmt, 
 {
     u32 cqeEn = cfg.cqeEn ? cqeEnable : 0; // BatchTransfer输入cfg.cqeEn=false时，不使能cqe
     sqe->cqe       = cqeEn;
-    sqe->owner     = (sqDepth_ == 0U || ((static_cast<u32>(pi) / sqDepth_) % 2U) == 0U) ? 1U : 0U;
+    // STARS_POLL jetty queues use Hcomm's original owner convention.  The
+    // initial-owner=1 phase rule is specific to the staged USER_CTL Send path.
+    sqe->owner     = (pi == (sqDepth_ - 1)) ? 1 : 0;
     sqe->opcode    = opCode;
     sqe->tpn       = tpn_;
     sqe->placeOdr  = cfg.placeOdr; // 保序要求，0->不保序  待验证
