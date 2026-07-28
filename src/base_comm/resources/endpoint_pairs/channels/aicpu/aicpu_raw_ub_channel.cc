@@ -71,8 +71,15 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
     std::vector<char> uniqueId;
     stream.Dump(uniqueId);
 
+    // AicpuChannelProcess first extracts a vector<char> transport unique id
+    // from the STREAM module, matching AicpuTsUboeChannel::H2DResPack.
+    Hccl::BinaryStream moduleStream;
+    moduleStream << uniqueId;
+    std::vector<char> moduleData;
+    moduleStream.Dump(moduleData);
+
     std::vector<Hccl::ModuleData> modules(Hccl::AicpuResMgrType::__COUNT__);
-    modules[Hccl::AicpuResMgrType::STREAM].data = uniqueId;
+    modules[Hccl::AicpuResMgrType::STREAM].data = moduleData;
     Hccl::AicpuResPackageHelper helper;
     buffer = helper.GetPackedData(modules);
     return HCCL_SUCCESS;
