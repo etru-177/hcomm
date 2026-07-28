@@ -1,5 +1,7 @@
 #include "aicpu_raw_ub_channel.h"
 
+#include <cstddef>
+
 #include "aicpu_res_package_helper.h"
 #include "binary_stream.h"
 #include "endpoint.h"
@@ -13,12 +15,23 @@
 
 namespace hcomm {
 namespace {
+#pragma pack(push, 8)
+union RawUbEid {
+    uint8_t raw[COMM_ADDR_EID_LEN];
+    uint64_t align8[2];
+};
+
 struct RawUbJettyKey {
-    uint8_t eid[COMM_ADDR_EID_LEN];
+    RawUbEid eid;
     uint32_t uasid;
     uint32_t id;
     uint32_t transportMode;
 };
+#pragma pack(pop)
+
+static_assert(sizeof(RawUbEid) == 16U, "raw URMA EID must be 16 bytes");
+static_assert(sizeof(RawUbJettyKey) == 32U, "raw URMA Jetty key must match RsJettyKeyInfo");
+static_assert(offsetof(RawUbJettyKey, transportMode) == 24U, "raw URMA transport mode offset mismatch");
 
 std::vector<char> PackRemoteBuffer(const HcommRawUbPeerDesc &peer)
 {
@@ -82,7 +95,7 @@ HcclResult AicpuRawUbChannel::Init()
         Hccl::Bytes2hex(remoteWireEid.raw, sizeof(remoteWireEid.raw)).c_str(),
         Hccl::Bytes2hex(remoteSqeEid.raw, sizeof(remoteSqeEid.raw)).c_str());
 
-    connection_ = std::make_unique<Hccl::DevUbTpConnection>(endpoint->GetRdmaHandle(), localAddr_, remoteAddr_,
+    connection_ = std::make_unique<Hccl::DevUbCtpConnection>(endpoint->GetRdmaHandle(), localAddr_, remoteAddr_,
         Hccl::OpMode::OPBASE, true, Hccl::HrtUbJfcMode::STARS_POLL);
     return HCCL_SUCCESS;
 }
@@ -90,7 +103,7 @@ HcclResult AicpuRawUbChannel::Init()
 ChannelStatus AicpuRawUbChannel::GetStatus()
 {
     RawUbJettyKey key{};
-    (void)memcpy_s(key.eid, sizeof(key.eid), peer_.eid, sizeof(peer_.eid));
+    (void)memcpy_s(key.eid.raw, sizeof(key.eid.raw), peer_.eid, sizeof(peer_.eid));
     key.uasid = peer_.uasid;
     key.id = peer_.jettyId;
     key.transportMode = peer_.transportMode;

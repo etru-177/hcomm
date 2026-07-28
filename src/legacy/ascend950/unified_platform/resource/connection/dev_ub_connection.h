@@ -31,8 +31,8 @@ public:
                     const IpAddress &locIpv4Addr = IpAddress(), const IpAddress &rmtIpv4Addr = IpAddress(),
                     u8 qos = static_cast<u8>(UB_QOS_DEFAULT));
     void          Connect() override;
-    // Raw liburma peers use normal RM jetty import and have no Hcomm TP
-    // handle/PSN exchange.  The caller polls until this returns true.
+    // Raw liburma peers use CTP-aware EXP import. The caller polls until the
+    // local TP lookup, Jetty creation, and peer import have completed.
     bool          ConnectRaw(const u8 *remoteKey, u32 remoteKeySize, u32 remoteTokenValue);
     RmaConnStatus GetStatus() override;
     bool          Suspend() override;
@@ -119,8 +119,6 @@ private:
     u8           qos_{static_cast<u8>(UB_QOS_DEFAULT)}; // 业务 QoS，GetTpInfo / ReleaseTpInfo 缓存键
 
     bool         devUsed_{false};
-    bool         rawPeerMode_{false};
-
     int32_t   devLogicId{0};
     u32       dieId{0};
     u32       funcId{0};

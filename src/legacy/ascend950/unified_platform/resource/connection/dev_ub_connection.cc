@@ -165,8 +165,25 @@ void DevUbConnection::Connect()
 
 bool DevUbConnection::ConnectRaw(const u8 *remoteKey, u32 remoteKeySize, u32 remoteToken)
 {
-    rawPeerMode_ = true;
-    if (ubConnStatus == UbConnStatus::INIT) {
+    if (ubConnStatus == UbConnStatus::INIT || ubConnStatus == UbConnStatus::TP_INFO_GETTING) {
+        if (!GetTpInfo()) {
+            ubConnStatus = UbConnStatus::TP_INFO_GETTING;
+            return false;
+        }
+        if (tpInfo.tpHandle == 0) {
+            HCCL_ERROR("[DevUbConnection::%s] raw EXP GetTpInfo returned an invalid zero tpHandle.", __func__);
+            ThrowAbnormalStatus(std::string(__func__));
+        }
+        jettyImportCfg.localTpHandle = tpInfo.tpHandle;
+        jettyImportCfg.remoteTpHandle = 0;
+        jettyImportCfg.localTag = 0;
+        jettyImportCfg.remotePsn = 0;
+        jettyImportCfg.protocol = tpProtocol;
+        HCCL_INFO("[DevUbConnection::%s] raw EXP TP ready. protocol[%s] localTpHandle[0x%llx] "
+            "peerTpHandle[0x%llx] tag[0x%llx] txPsn[%u] rxPsn[%u].",
+            __func__, tpProtocol.Describe().c_str(), jettyImportCfg.localTpHandle,
+            jettyImportCfg.remoteTpHandle, jettyImportCfg.localTag,
+            jettyImportCfg.localPsn, jettyImportCfg.remotePsn);
         // AICPU consumes the SQ/DB addresses, hence DEV_USED is required.
         CreateJetty(true);
         ubConnStatus = UbConnStatus::JETTY_CREATING;
@@ -177,10 +194,14 @@ bool DevUbConnection::ConnectRaw(const u8 *remoteKey, u32 remoteKeySize, u32 rem
             return false;
         }
         SetJettyInfo();
-        const auto imported = RaUbImportJetty(rdmaHandle, const_cast<u8 *>(remoteKey), remoteKeySize, remoteToken);
+        const auto imported = RaUbTpImportJetty(
+            rdmaHandle, const_cast<u8 *>(remoteKey), remoteKeySize, remoteToken, jettyImportCfg);
         remoteJettyHandle = imported.handle;
         tpn = imported.tpn;
-        HCCL_INFO("[DevUbConnection::%s] raw peer imported. localJettyId[%u] remoteJettyHandle[0x%llx] "
+        if (tpn == 0) {
+            HCCL_WARNING("[DevUbConnection::%s] raw EXP import returned tpn[0].", __func__);
+        }
+        HCCL_INFO("[DevUbConnection::%s] raw peer EXP imported. localJettyId[%u] remoteJettyHandle[0x%llx] "
             "targetJettyVa[0x%llx] tpn[%u] localEid[%s] remoteEid[%s] tokenValue[0x%x].",
             __func__, jettyId, remoteJettyHandle, imported.targetJettyVa, tpn,
             locEid.Describe().c_str(), rmtEid.Describe().c_str(), remoteToken);
@@ -554,8 +575,9 @@ void DevUbConnection::ReleaseResource()
         remoteJettyHandle = 0;
     }
 
-    if (!rawPeerMode_) {
+    if (tpInfo.tpHandle != 0) {
         ReleaseTp();
+        tpInfo.tpHandle = 0;
     }
 
     if (jettyHandle != 0) {

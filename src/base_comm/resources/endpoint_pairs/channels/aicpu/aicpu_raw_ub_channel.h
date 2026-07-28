@@ -27,7 +27,7 @@ public:
 private:
     EndpointHandle endpointHandle_;
     HcommRawUbPeerDesc peer_{};
-    std::unique_ptr<Hccl::DevUbTpConnection> connection_;
+    std::unique_ptr<Hccl::DevUbCtpConnection> connection_;
     Hccl::IpAddress localAddr_{};
     Hccl::IpAddress remoteAddr_{};
     Hccl::RemMemHandle remoteMemHandle_{0};
