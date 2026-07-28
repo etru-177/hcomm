@@ -515,7 +515,16 @@ bool DevUbConnection::GetTpInfo()
     p.locIpv4Addr = locIpv4Addr;
     p.rmtIpv4Addr = rmtIpv4Addr;
 
-    auto ret = TpManager::GetInstance(devLogicId).GetTpInfo(p, tpInfo);
+    // Raw UB channels bypass PrepareUbConnBuildContext(), which normally
+    // initializes the logic-device keyed TpManager before the first lookup.
+    // Without this, TpManager keeps its default devPhyId (0) even when the
+    // endpoint context was created for another physical device.
+    auto &tpManager = TpManager::GetInstance(devLogicId);
+    tpManager.Init();
+    const u32 devicePhyId = HrtGetDevicePhyIdByIndex(devLogicId);
+    HCCL_INFO("[DevUbConnection][%s] deviceLogicId[%d], devicePhyId[%u], locAddr[%s], rmtAddr[%s].",
+        __func__, devLogicId, devicePhyId, locAddr.Describe().c_str(), rmtAddr.Describe().c_str());
+    auto ret = tpManager.GetTpInfo(p, tpInfo);
 
     switch (ret) {
         case HcclResult::HCCL_SUCCESS:
