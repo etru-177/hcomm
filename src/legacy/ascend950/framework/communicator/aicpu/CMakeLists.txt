@@ -41,4 +41,9 @@ if(TARGET ccl_kernel)
         hccl_mc2_ex.cc
         aicpu_utils.cc
     )
+    # The vLLM-owned scatter-copy kernel is optionally compiled into the same
+    # device library as Hcomm's AICPU primitives.
+    if(DEFINED KVCACHE_SCATTER_COPY_HCOMM_SOURCE)
+        target_sources(ccl_kernel PRIVATE ${KVCACHE_SCATTER_COPY_HCOMM_SOURCE})
+    endif()
 endif()
