@@ -78,8 +78,14 @@ ChannelStatus AicpuRawUbChannel::GetStatus()
     key.uasid = peer_.uasid;
     key.id = peer_.jettyId;
     key.transportMode = peer_.transportMode;
-    return connection_->ConnectRaw(reinterpret_cast<const u8 *>(&key), sizeof(key), peer_.tokenValue)
-        ? ChannelStatus::READY : ChannelStatus::INIT;
+    const bool ready = connection_->ConnectRaw(reinterpret_cast<const u8 *>(&key), sizeof(key), peer_.tokenValue);
+    HCCL_INFO("[AicpuRawUbChannel] peer jettyId[%u] uasid[%u] transport[%u] token[0x%x] "
+        "gva[0x%llx] bytes[%llu] ready[%d].",
+        peer_.jettyId, peer_.uasid, peer_.transportMode, peer_.tokenValue, peer_.gva, peer_.bytes, ready);
+    if (ready) {
+        HCCL_INFO("[AicpuRawUbChannel] local AICPU connection[%s].", connection_->Describe().c_str());
+    }
+    return ready ? ChannelStatus::READY : ChannelStatus::INIT;
 }
 
 HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
@@ -92,6 +98,8 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
     const LocalBuffers localBuffers = PackLocalBuffers(endpointHandle_);
     std::vector<char> remoteBuffer = PackRemoteBuffer(peer_);
     std::vector<char> connectionId = connection_->GetUniqueId();
+    HCCL_INFO("[AicpuRawUbChannel] H2D localBuffers[%u] peerJetty[%u] localConnection[%s].",
+        localBuffers.count, peer_.jettyId, connection_->Describe().c_str());
     stream << type << zero << localBuffers.count << one << one;
     stream << empty << empty << localBuffers.data << remoteBuffer << connectionId;
     std::vector<char> uniqueId;
