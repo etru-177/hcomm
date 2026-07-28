@@ -210,6 +210,9 @@ add_custom_command(
                          ${CMAKE_CURRENT_BINARY_DIR}/ccl_kernel.json
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     COMMENT "Generating ccl_kernel.json"
+    DEPENDS
+        ${CMAKE_CURRENT_LIST_DIR}/device/framework/ccl_kernel.ini
+        ${HCOMM_DIR}/cmake/scripts/parser_ini.py
  	VERBATIM
 )
 add_custom_target(ccl_kernel_json ALL
