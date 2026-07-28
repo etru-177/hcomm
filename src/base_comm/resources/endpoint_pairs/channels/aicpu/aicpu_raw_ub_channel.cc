@@ -4,6 +4,7 @@
 #include "binary_stream.h"
 #include "endpoint.h"
 #include "exception_handler.h"
+#include "mem_transport_common.h"
 #include "orion_adpt_utils.h"
 
 namespace hcomm {
