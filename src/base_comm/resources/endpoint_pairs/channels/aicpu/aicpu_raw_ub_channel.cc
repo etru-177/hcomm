@@ -9,6 +9,7 @@
 #include "mem_transport_common.h"
 #include "orion_adpt_utils.h"
 #include "orion_adapter_hccp.h"
+#include "string_util.h"
 
 namespace hcomm {
 namespace {
@@ -69,6 +70,17 @@ HcclResult AicpuRawUbChannel::Init()
     remote.type = COMM_ADDR_TYPE_EID;
     CHK_SAFETY_FUNC_RET(memcpy_s(remote.eid, sizeof(remote.eid), peer_.eid, sizeof(peer_.eid)));
     CHK_RET(CommAddrToIpAddress(remote, remoteAddr_));
+
+    const auto localWireEid = localAddr_.GetEid();
+    const auto remoteWireEid = remoteAddr_.GetEid();
+    const auto localSqeEid = localAddr_.GetReverseEid();
+    const auto remoteSqeEid = remoteAddr_.GetReverseEid();
+    HCCL_INFO("[AicpuRawUbChannel] EID order localWire[%s] localSqe[%s] "
+        "remoteWire[%s] remoteSqe[%s].",
+        Hccl::Bytes2hex(localWireEid.raw, sizeof(localWireEid.raw)).c_str(),
+        Hccl::Bytes2hex(localSqeEid.raw, sizeof(localSqeEid.raw)).c_str(),
+        Hccl::Bytes2hex(remoteWireEid.raw, sizeof(remoteWireEid.raw)).c_str(),
+        Hccl::Bytes2hex(remoteSqeEid.raw, sizeof(remoteSqeEid.raw)).c_str());
 
     connection_ = std::make_unique<Hccl::DevUbTpConnection>(endpoint->GetRdmaHandle(), localAddr_, remoteAddr_,
         Hccl::OpMode::OPBASE, true, Hccl::HrtUbJfcMode::STARS_POLL);
