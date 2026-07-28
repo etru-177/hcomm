@@ -4,6 +4,8 @@
 #include "binary_stream.h"
 #include "endpoint.h"
 #include "exception_handler.h"
+#include "hcomm_c_adpt.h"
+#include "local_ub_rma_buffer.h"
 #include "mem_transport_common.h"
 #include "orion_adpt_utils.h"
 
@@ -23,6 +25,29 @@ std::vector<char> PackRemoteBuffer(const HcommRawUbPeerDesc &peer)
     std::vector<char> out;
     stream.Dump(out);
     return out;
+}
+
+struct LocalBuffers {
+    uint32_t count = 0;
+    std::vector<char> data;
+};
+
+LocalBuffers PackLocalBuffers(EndpointHandle endpoint)
+{
+    std::shared_ptr<Hccl::LocalUbRmaBuffer>* handles = nullptr;
+    uint32_t count = 0;
+    (void)HcommMemGetAllMemHandles(endpoint, reinterpret_cast<void**>(&handles), &count);
+
+    Hccl::BinaryStream stream;
+    for (uint32_t index = 0; index < count; ++index) {
+        const auto& buffer = handles[index];
+        stream << static_cast<uint64_t>(buffer->GetAddr()) << static_cast<uint64_t>(buffer->GetSize())
+               << buffer->GetTokenId() << buffer->GetTokenValue();
+    }
+    LocalBuffers result;
+    result.count = count;
+    stream.Dump(result.data);
+    return result;
 }
 } // namespace
 
@@ -64,10 +89,11 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
     const u32 zero = 0;
     const u32 one = 1;
     std::vector<char> empty;
+    const LocalBuffers localBuffers = PackLocalBuffers(endpointHandle_);
     std::vector<char> remoteBuffer = PackRemoteBuffer(peer_);
     std::vector<char> connectionId = connection_->GetUniqueId();
-    stream << type << zero << zero << one << one;
-    stream << empty << empty << empty << remoteBuffer << connectionId;
+    stream << type << zero << localBuffers.count << one << one;
+    stream << empty << empty << localBuffers.data << remoteBuffer << connectionId;
     std::vector<char> uniqueId;
     stream.Dump(uniqueId);
 
