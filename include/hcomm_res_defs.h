@@ -238,6 +238,15 @@ typedef struct {
     uint8_t segment[64];
 } HcommRawUbPeerDesc;
 
+/* Public liburma segment exported from a raw-UB local HBM registration. */
+typedef struct {
+    uint64_t gva;
+    uint64_t bytes;
+    uint32_t tokenValue;
+    uint32_t segmentBytes;
+    uint8_t segment[64];
+} HcommRawUbLocalMemDesc;
+
 typedef void *HcommRawUbPeerHandle;
 
 typedef struct {

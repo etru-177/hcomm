@@ -49,8 +49,9 @@ public:
     u32 GetTokenId() const;
     u32 GetTokenValue() const;
     TokenIdHandle GetTokenIdHandle() const;
-    std::pair<uintptr_t, u64> GetBufferInfo() {return make_pair(buf->GetAddr(), buf->GetSize());}
+    std::pair<uintptr_t, u64> GetBufferInfo() const {return make_pair(buf->GetAddr(), buf->GetSize());}
     u64 GetTargetSeg() const {return reqReg.targetSegVa;}
+    const HrtRaUbLocalMemRegOutParam &GetRawMemReg() const { return reqReg; }
 
     void *GetMemRegOutParam()
     {

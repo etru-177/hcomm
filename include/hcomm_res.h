@@ -37,6 +37,9 @@ extern HcommResult HcommRawUbPeerImport(EndpointHandle endpointHandle, const Hco
 
 extern HcommResult HcommRawUbPeerDestroy(HcommRawUbPeerHandle peerHandle);
 
+/* Exports the public urma_seg_t blob for a HcommMemReg HBM buffer. */
+extern HcommResult HcommRawUbLocalMemExport(HcommMemHandle memHandle, HcommRawUbLocalMemDesc *desc);
+
 /* Creates an AICPU channel from a raw liburma peer descriptor. */
 extern HcommResult HcommRawUbChannelCreate(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
     ChannelHandle *channel);
