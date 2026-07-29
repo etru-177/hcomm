@@ -40,6 +40,7 @@
 #include "exception_handler.h"
 #include "param_check_pub.h"
 #include "channel_process.h"
+#include "aicpu_raw_ub_channel.h"
 #include "launch_device.h"
 #include "endpoint_monitor.h"
 #include "adapter_rts_common.h"
