@@ -40,6 +40,9 @@ extern HcommResult HcommRawUbPeerDestroy(HcommRawUbPeerHandle peerHandle);
 /* Exports the public urma_seg_t blob for a HcommMemReg HBM buffer. */
 extern HcommResult HcommRawUbLocalMemExport(HcommMemHandle memHandle, HcommRawUbLocalMemDesc *desc);
 
+/* Exports the local Jetty created for a raw-UB AICPU channel. */
+extern HcommResult HcommRawUbLocalPeerExport(ChannelHandle channel, HcommRawUbLocalPeerDesc *desc);
+
 /* Creates an AICPU channel from a raw liburma peer descriptor. */
 extern HcommResult HcommRawUbChannelCreate(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
     ChannelHandle *channel);

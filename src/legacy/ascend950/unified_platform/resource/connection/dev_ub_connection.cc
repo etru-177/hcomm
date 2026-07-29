@@ -91,6 +91,21 @@ DevUbUboeConnection::DevUbUboeConnection(const RdmaHandle rdmaHandle, const IpAd
     jettyTimeOut = 16; // UBoE场景的默认TA配置为16
 }
 
+const u8 *DevUbConnection::GetLocalQpKey() const
+{
+    return localQpKey;
+}
+
+u32 DevUbConnection::GetLocalQpKeySize() const
+{
+    return keySize;
+}
+
+u32 DevUbConnection::GetLocalTokenValue() const
+{
+    return tokenValue;
+}
+
 std::vector<char> DevUbConnection::GetUniqueId() const
 {
     BinaryStream binaryStream;

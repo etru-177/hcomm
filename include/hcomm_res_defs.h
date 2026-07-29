@@ -247,6 +247,19 @@ typedef struct {
     uint8_t segment[64];
 } HcommRawUbLocalMemDesc;
 
+/* Local raw-UB Jetty identity exported for a public-liburma reverse path. */
+typedef struct {
+    uint32_t magic;
+    uint32_t version;
+    uint8_t eid[COMM_ADDR_EID_LEN];
+    uint32_t uasid;
+    uint32_t jettyId;
+    uint32_t transportMode;
+    uint32_t tokenValue;
+    uint32_t keyBytes;
+    uint8_t key[64];
+} HcommRawUbLocalPeerDesc;
+
 typedef void *HcommRawUbPeerHandle;
 
 typedef struct {

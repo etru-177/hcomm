@@ -91,6 +91,9 @@ public:
     u32          GetPiVal() const;
     u32          GetCiVal() const;
     u32          GetSqDepth() const;
+    const u8     *GetLocalQpKey() const;
+    u32           GetLocalQpKeySize() const;
+    u32           GetLocalTokenValue() const;
 
 protected:
     TpProtocol     tpProtocol{TpProtocol::INVALID};

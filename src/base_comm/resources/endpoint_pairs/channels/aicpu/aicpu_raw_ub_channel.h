@@ -23,6 +23,7 @@ public:
     HcclResult Write(void *, const void *, uint64_t) override;
     HcclResult Read(void *, const void *, uint64_t) override;
     HcclResult ChannelFence() override;
+    HcclResult ExportLocalPeer(HcommRawUbLocalPeerDesc &desc) const;
 
 private:
     EndpointHandle endpointHandle_;

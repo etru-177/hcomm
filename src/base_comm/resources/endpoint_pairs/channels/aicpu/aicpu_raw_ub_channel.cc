@@ -160,6 +160,36 @@ HcclResult AicpuRawUbChannel::H2DResPack(std::vector<char> &buffer)
 HcclResult AicpuRawUbChannel::GetNotifyNum(uint32_t *notifyNum) const { *notifyNum = 0; return HCCL_SUCCESS; }
 HcclResult AicpuRawUbChannel::GetRemoteMems(uint32_t *memNum, CommMem **remoteMem, char ***memInfos)
 { *memNum = 0; *remoteMem = nullptr; *memInfos = nullptr; return HCCL_SUCCESS; }
+HcclResult AicpuRawUbChannel::ExportLocalPeer(HcommRawUbLocalPeerDesc &desc) const
+{
+    constexpr uint32_t kLocalPeerMagic = 0x55424c31; // "UBL1"
+    constexpr uint32_t kLocalPeerVersion = 1;
+    constexpr uint32_t kJettyIdBytes = 24;
+    constexpr uint32_t kTransportModeOffset = 24;
+    constexpr uint32_t kTransportModeBytes = 4;
+    CHK_PTR_NULL(connection_.get());
+    const uint32_t keyBytes = connection_->GetLocalQpKeySize();
+    CHK_PRT_RET(keyBytes < kJettyIdBytes || keyBytes > sizeof(desc.key),
+        HCCL_ERROR("[%s] local Jetty key size[%u] is invalid", __func__, keyBytes), HCCL_E_PARA);
+
+    desc = {};
+    desc.magic = kLocalPeerMagic;
+    desc.version = kLocalPeerVersion;
+    desc.tokenValue = connection_->GetLocalTokenValue();
+    desc.keyBytes = keyBytes;
+    CHK_SAFETY_FUNC_RET(memcpy_s(desc.key, sizeof(desc.key), connection_->GetLocalQpKey(), keyBytes));
+    const auto wireEid = localAddr_.GetEid();
+    CHK_SAFETY_FUNC_RET(memcpy_s(desc.eid, sizeof(desc.eid), wireEid.raw, sizeof(wireEid.raw)));
+    CHK_SAFETY_FUNC_RET(memcpy_s(&desc.uasid, sizeof(desc.uasid), desc.key + sizeof(desc.eid),
+        sizeof(desc.uasid)));
+    CHK_SAFETY_FUNC_RET(memcpy_s(&desc.jettyId, sizeof(desc.jettyId),
+        desc.key + sizeof(desc.eid) + sizeof(desc.uasid), sizeof(desc.jettyId)));
+    if (keyBytes >= kTransportModeOffset + kTransportModeBytes) {
+        CHK_SAFETY_FUNC_RET(memcpy_s(&desc.transportMode, sizeof(desc.transportMode),
+            desc.key + kTransportModeOffset, kTransportModeBytes));
+    }
+    return HCCL_SUCCESS;
+}
 HcclResult AicpuRawUbChannel::Clean()
 {
     if (remoteMemHandle_ != 0) {

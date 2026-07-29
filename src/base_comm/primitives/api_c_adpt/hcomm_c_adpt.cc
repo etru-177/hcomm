@@ -559,6 +559,18 @@ HcommResult HcommRawUbLocalMemExport(HcommMemHandle memHandle, HcommRawUbLocalMe
     return HCCL_SUCCESS;
 }
 
+HcommResult HcommRawUbLocalPeerExport(ChannelHandle channel, HcommRawUbLocalPeerDesc *desc)
+{
+    CHK_PTR_NULL(desc);
+    void *rawChannel = nullptr;
+    CHK_RET(ChannelProcess::ChannelGet(channel, &rawChannel));
+    CHK_PTR_NULL(rawChannel);
+    auto *base = static_cast<hcomm::Channel *>(rawChannel);
+    CHK_PRT_RET(base->GetChannelKind() != hcomm::HcommChannelKind::AICPU_RAW_UB,
+        HCCL_ERROR("[%s] channel[0x%llx] is not a raw-UB AICPU channel", __func__, channel), HCCL_E_PARA);
+    return static_cast<hcomm::AicpuRawUbChannel *>(base)->ExportLocalPeer(*desc);
+}
+
 HcommResult HcommRawUbChannelCreate(EndpointHandle endpointHandle, const HcommRawUbPeerDesc *desc,
     ChannelHandle *channel)
 {
