@@ -46,6 +46,7 @@
 #include "adapter_rts_common.h"
 #include "orion_adapter_hccp.h"
 #include "local_ub_rma_buffer.h"
+#include "urma_types.h"
 
 
 namespace hcomm {
@@ -551,8 +552,13 @@ HcommResult HcommRawUbLocalMemExport(HcommMemHandle memHandle, HcommRawUbLocalMe
     const auto &registration = buffer->GetRawMemReg();
     CHK_PRT_RET(registration.keySize > sizeof(desc->segment),
         HCCL_ERROR("[%s] public UB segment is too large: %u", __func__, registration.keySize), HCCL_E_PARA);
+    CHK_PRT_RET(registration.keySize < sizeof(urma_seg_t),
+        HCCL_ERROR("[%s] public UB segment is too small: %u", __func__, registration.keySize), HCCL_E_PARA);
+    urma_seg_t segment{};
+    CHK_PRT_RET(memcpy_s(&segment, sizeof(segment), registration.key, sizeof(segment)) != EOK,
+        HCCL_ERROR("[%s] failed to decode public UB segment", __func__), HCCL_E_MEMORY);
     const auto info = buffer->GetBufferInfo();
-    desc->gva = registration.targetSegVa;
+    desc->gva = segment.ubva.va;
     desc->bytes = info.second;
     desc->tokenValue = buffer->GetTokenValue();
     desc->segmentBytes = registration.keySize;
