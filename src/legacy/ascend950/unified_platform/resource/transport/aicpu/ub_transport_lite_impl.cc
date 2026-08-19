@@ -786,6 +786,7 @@ constexpr uint32_t       NOTIFYIDX_INVALID_VALUE  = 0xFFFFFFFF; // NOTIFY idex�
 HcclResult UbTransportLiteImpl::ExecuteBatchTransfer(StreamLite *streamLitePtr,
     const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
 {
+    const u64 executeStartNs = GetCurAicpuTimestamp();
     std::vector<Hccl::RmaBufferLite> locSlices;
     std::vector<Hccl::Buffer> rmtSlices;
     std::vector<Hccl::BaseTransportLiteImpl::TransferOp> transferOps;
@@ -833,7 +834,13 @@ HcclResult UbTransportLiteImpl::ExecuteBatchTransfer(StreamLite *streamLitePtr,
         HCCL_DEBUG("[%s] Prepared transfer op for index %u. rmt[%p], loc[%p], len[0x%llx], tfType[%u], dataType[%d], reduceOp[%d].",
             __func__, i, rmt, loc, len, tfType, dataType, reduceOp);
     }
+    const u64 prepareEndNs = GetCurAicpuTimestamp();
     EXCEPTION_CATCH(BatchTransferAll(locSlices, rmtSlices, transferOps, notifyIdxs, *streamLitePtr), return HCCL_E_INTERNAL);
+    const u64 executeEndNs = GetCurAicpuTimestamp();
+    // Temporary diagnostic. Keep one aggregate log outside the descriptor loop to limit measurement disturbance.
+    HCCL_ERROR("[TEMP_TIMING][%s] descNum[%u] prepareNs[%llu] batchTransferAllNs[%llu] totalNs[%llu].",
+        __func__, transferDescNum, prepareEndNs - executeStartNs, executeEndNs - prepareEndNs,
+        executeEndNs - executeStartNs);
     return HCCL_SUCCESS;
 }
 
@@ -843,11 +850,13 @@ void UbTransportLiteImpl::BatchTransferAll(const std::vector<RmaBufferLite> &loc
     if (UNLIKELY(loc.empty())) {
         return;
     }
+    const u64 batchStartNs = GetCurAicpuTimestamp();
     auto taskId = stream.GetRtsq()->GetTaskId();
     u64  notifyData = 1;          // 普通notify，固定1，用于writeWithNotify与writeReduceWithNotify
     SqeConfigLite cfg;
     SetFenceConfig(cfg);
     u32 insNum = loc.size();
+    const u64 wqeBuildStartNs = GetCurAicpuTimestamp();
     for (u32 i = 0; i < insNum; i++) {
         cfg.cqeEn     = (i == insNum - 1) ? true : false; // 返回最后一个sqe的cqe
         cfg.placeOdr  = (i == insNum - 1) ? UB_STRONG_ORDER : UB_RELAX_ORDER; // 最后一个要求保序
@@ -883,9 +892,20 @@ void UbTransportLiteImpl::BatchTransferAll(const std::vector<RmaBufferLite> &loc
             }
         }
     }
+    const u64 wqeBuildEndNs = GetCurAicpuTimestamp();
+    const u64 launchTaskStartNs = GetCurAicpuTimestamp();
     BuildUbDbSendTask(stream, connVec[0]->GetUbJettyLiteId(), connOut.pi); // 约束使用一批wqe的个数不会导致反压
+    const u64 launchTaskEndNs = GetCurAicpuTimestamp();
 
+    const u64 profilingStartNs = GetCurAicpuTimestamp();
     ExecProfilingAll(loc, rmt, transferOp, stream, taskId, notifyIdxs);
+    const u64 batchEndNs = GetCurAicpuTimestamp();
+    const u64 wqeBuildNs = wqeBuildEndNs - wqeBuildStartNs;
+    const u64 launchTaskNs = launchTaskEndNs - launchTaskStartNs;
+    const u64 profilingNs = batchEndNs - profilingStartNs;
+    // Temporary diagnostic. Keep one aggregate log outside the WQE loop to limit measurement disturbance.
+    HCCL_ERROR("[TEMP_TIMING][%s] insNum[%u] wqeBuildNs[%llu] launchTaskNs[%llu] profilingNs[%llu] totalNs[%llu].",
+        __func__, insNum, wqeBuildNs, launchTaskNs, profilingNs, batchEndNs - batchStartNs);
 }
 
 void UbTransportLiteImpl::WriteWithNotify(const RmaBufferLite &loc, const Buffer &rmt, const WithNotifyIn &withNotify,
