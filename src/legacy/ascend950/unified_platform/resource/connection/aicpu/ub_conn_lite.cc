@@ -558,17 +558,18 @@ void UbConnLite::BatchProcessOneSlice(const RmaBufSliceLite &loc, const RmtRmaBu
             isLastWqe = true;
         }
 
-        RmaBufSliceLite    locTmp(loc.GetAddr() + offset, UB_DMA_MAX_READ_WEITE_SIZE, loc.GetLkey(), loc.GetTokenId());
-        RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, UB_DMA_MAX_READ_WEITE_SIZE, rmt.GetRkey(), rmt.GetTokenId(),
+        RmaBufSliceLite    locTmp(loc.GetAddr() + offset, maxSliceSize, loc.GetLkey(), loc.GetTokenId());
+        RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, maxSliceSize, rmt.GetRkey(), rmt.GetTokenId(),
                                   rmt.GetTokenValue(), UINT32_MAX);
 
         FillBatchOneWqe(locTmp, rmtTmp, isLastWqe, sqeTemplate, stream);
 
-        offset += UB_DMA_MAX_READ_WEITE_SIZE;
+        offset += maxSliceSize;
     }
 
-    if (remainingSize > 0 && isLastSlice) {
-        isLastWqe = true;
+    if (remainingSize > 0) {
+        // 每个descriptor的余数都必须生成WQE，仅整个批次的最后一个descriptor设置tail保序。
+        isLastWqe = isLastSlice;
         RmaBufSliceLite    locTmp(loc.GetAddr() + offset, remainingSize, loc.GetLkey(), loc.GetTokenId());
         RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, remainingSize, rmt.GetRkey(), rmt.GetTokenId(),
                                   rmt.GetTokenValue(), UINT32_MAX);
