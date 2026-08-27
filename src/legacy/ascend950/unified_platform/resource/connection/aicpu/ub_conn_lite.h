@@ -101,8 +101,6 @@ public:
     void BatchOneSidedWrite(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,
                             const SqeConfigLite &cfg, const StreamLite &stream, ConnLiteOperationOut &out) override;
 private:
-    static constexpr u32 BATCH_READ_WQE_COPY_CHUNK = 32;
-
     u16  pi{0};
     u16  ci{0};
     u32  piDetourCount{0};
@@ -111,12 +109,6 @@ private:
     u32  maxWriteSize{0};
     void BuildBatchWqe(UdmaSqeWrite &sqe, const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt,
                        bool isLastWqe, const UdmaSqeWrite &sqeTemplate, u32 sqOffset) const;
-    void CopyBatchWqes(const UdmaSqeWrite *sqes, u32 wqeCount, u32 sqOffset) const;
-    u32 BuildAndCopySmallReadWqes(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,
-                                  u64 &descriptorIndex, u64 lastNonEmptyIndex,
-                                  const UdmaSqeWrite &sqeTemplate);
-    u64 ValidateAndCountBatchWqes(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,
-                                  u32 maxSliceSize) const;
     void ProcessSlices(const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt, u32 maxSliceSize,
         std::function<void(const RmaBufSliceLite &, const RmtRmaBufSliceLite &, SlicePosition)> processOneSlice,
         DataType dataType = DataType::INVALID) const;

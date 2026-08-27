@@ -482,7 +482,7 @@ void UbConnLite::CustomizeSqeByOneSidedComm(UdmaSqeCommon *sqe, bool isLastWqe) 
        1’b0 :no order，表示当前报文和前面报文没有completion序要求，报文对应的CQE可以乱序上报。
        1’b1 :表示当前报文和前面报文有completion序要求，报文对应的CQE需要保序上报
     */
-    sqe->compOrder = isLastWqe ? 1 : 0;
+    sqe->compOrder = 1;
 
     /* 表示是否使能fence保序。为1时表示使能，为0时表示不使能。对于send/write/atomic SQE
        当fence为1时需要等待前面所有read和Atomic完成才开始执行，即等待前面发出的read或Atomic接收到所有response
@@ -514,73 +514,38 @@ void UbConnLite::BuildBatchWqe(UdmaSqeWrite &sqe, const RmaBufSliceLite &loc, co
     CustomizeSqeByOneSidedComm(&(sqe.comm), isLastWqe);
 }
 
-void UbConnLite::CopyBatchWqes(const UdmaSqeWrite *sqes, u32 wqeCount, u32 sqOffset) const
-{
-    if (dwqeCacheLocked_ || wqeCount == 0U) {
-        return;
-    }
-
-    const u32 copySize = wqeCount * SQE_SIZE_64;
-    u8 *va = reinterpret_cast<u8 *>(sqVa_ + sqOffset * SQE_SIZE_64);
-    const s32 ret = memcpy_sp(va, copySize, sqes, copySize);
-    if (UNLIKELY(ret != 0)) {
-        HCCL_ERROR("[%s] memcpy_sp failed, pi[%u] slot[%u] depth[%u] wqeCount[%u] copySize[%u] ret[%d]", __func__,
-                   pi, sqOffset, sqDepth_, wqeCount, copySize, ret);
-        THROW<InternalException>(StringFormat("[%s] memcpy_sp failed, ret = %d", __func__, ret));
-    }
-}
-
 void UbConnLite::FillBatchOneWqe(const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt, bool isLastWqe,
                                  const UdmaSqeWrite &sqeTemplate, const StreamLite &stream)
 {
     (void)stream;
     const u32 sqOffset = pi % sqDepth_;
+
     UdmaSqeWrite sqe{};
     BuildBatchWqe(sqe, loc, rmt, isLastWqe, sqeTemplate, sqOffset);
-    CopyBatchWqes(&sqe, 1U, sqOffset);
+
+    // SQ映射区保持原有的单个64B WQE写入语义，不引入跨WQE批量写行为。
+    u8 *va = reinterpret_cast<u8 *>(sqVa_ + sqOffset * SQE_SIZE_64);
+    if (!dwqeCacheLocked_) {
+        const s32 ret = memcpy_sp(va, SQE_SIZE_64, &sqe, sizeof(UdmaSqeWrite));
+        if (UNLIKELY(ret != 0)) {
+            HCCL_ERROR("[%s] memcpy_sp failed, pi[%u] slot[%u] depth[%u] ret[%d]", __func__, pi, sqOffset, sqDepth_,
+                       ret);
+            THROW<InternalException>(StringFormat("[%s] memcpy_sp failed, ret = %d", __func__, ret));
+        }
+    }
 
     if (sqOffset + 1U == sqDepth_) {
         ++piDetourCount;
     }
-    // PI仅在WQE写入成功后推进，失败时不会暴露部分更新的doorbell值。
+    // PI会写入doorbell，必须按u16自然递增；仅访问SQ内存时才按队列深度取模。
     ++pi;
-}
-
-u32 UbConnLite::BuildAndCopySmallReadWqes(const vector<RmaBufSliceLite> &loc,
-                                          const vector<RmtRmaBufSliceLite> &rmt, u64 &descriptorIndex,
-                                          u64 lastNonEmptyIndex, const UdmaSqeWrite &sqeTemplate)
-{
-    const u32 sqOffset = pi % sqDepth_;
-    const u32 sqRemaining = sqDepth_ - sqOffset;
-    const u32 capacity = sqRemaining < BATCH_READ_WQE_COPY_CHUNK ? sqRemaining : BATCH_READ_WQE_COPY_CHUNK;
-    // SQ的PI是单生产者状态，不并发修改；先在栈上构造连续WQE，再一次安全拷贝到SQ。
-    UdmaSqeWrite sqes[BATCH_READ_WQE_COPY_CHUNK]{};
-    u32 wqeCount = 0;
-    while (descriptorIndex < loc.size() && wqeCount < capacity) {
-        if (loc[descriptorIndex].GetSize() == 0U) {
-            ++descriptorIndex;
-            continue;
-        }
-        if (loc[descriptorIndex].GetSize() > maxReadSize) {
-            break;
-        }
-        BuildBatchWqe(sqes[wqeCount], loc[descriptorIndex], rmt[descriptorIndex],
-                      descriptorIndex == lastNonEmptyIndex, sqeTemplate, sqOffset + wqeCount);
-        ++wqeCount;
-        ++descriptorIndex;
-    }
-    CopyBatchWqes(sqes, wqeCount, sqOffset);
-    if (wqeCount != 0U && sqOffset + wqeCount == sqDepth_) {
-        ++piDetourCount;
-    }
-    pi = static_cast<u16>(pi + wqeCount);
-    return wqeCount;
 }
 
 void UbConnLite::BatchProcessOneSlice(const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt, u32 maxSliceSize,
                                       bool isLastSlice, const UdmaSqeWrite &sqeTemplate, const StreamLite &stream)
 {
     u64 dataSize = loc.GetSize();
+    bool isLastWqe;
     u64  offset = 0;
 
     // 使用整数除法和取余运算优化循环
@@ -588,57 +553,33 @@ void UbConnLite::BatchProcessOneSlice(const RmaBufSliceLite &loc, const RmtRmaBu
     u64 remainingSize = dataSize % maxSliceSize;
 
     for (u64 i = 0; i < numIterations; ++i) {
-        const bool isLastWqe = remainingSize == 0 && i == numIterations - 1 && isLastSlice;
+        isLastWqe = false;
+        if ((remainingSize == 0) && (i == numIterations - 1) && isLastSlice) {
+            isLastWqe = true;
+        }
 
-        // 使用设备上报的单WQE上限切片，不能写死协议理论最大值。
-        RmaBufSliceLite    locTmp(loc.GetAddr() + offset, maxSliceSize, loc.GetLkey(), loc.GetTokenId());
-        RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, maxSliceSize, rmt.GetRkey(), rmt.GetTokenId(),
+        RmaBufSliceLite    locTmp(loc.GetAddr() + offset, UB_DMA_MAX_READ_WEITE_SIZE, loc.GetLkey(), loc.GetTokenId());
+        RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, UB_DMA_MAX_READ_WEITE_SIZE, rmt.GetRkey(), rmt.GetTokenId(),
                                   rmt.GetTokenValue(), UINT32_MAX);
 
         FillBatchOneWqe(locTmp, rmtTmp, isLastWqe, sqeTemplate, stream);
 
-        offset += maxSliceSize;
+        offset += UB_DMA_MAX_READ_WEITE_SIZE;
     }
 
-    if (remainingSize > 0) {
+    if (remainingSize > 0 && isLastSlice) {
+        isLastWqe = true;
         RmaBufSliceLite    locTmp(loc.GetAddr() + offset, remainingSize, loc.GetLkey(), loc.GetTokenId());
         RmtRmaBufSliceLite rmtTmp(rmt.GetAddr() + offset, remainingSize, rmt.GetRkey(), rmt.GetTokenId(),
                                   rmt.GetTokenValue(), UINT32_MAX);
-        FillBatchOneWqe(locTmp, rmtTmp, isLastSlice, sqeTemplate, stream);
+        FillBatchOneWqe(locTmp, rmtTmp, isLastWqe, sqeTemplate, stream);
     }
-}
-
-u64 UbConnLite::ValidateAndCountBatchWqes(const vector<RmaBufSliceLite> &loc,
-                                          const vector<RmtRmaBufSliceLite> &rmt, u32 maxSliceSize) const
-{
-    if (UNLIKELY(loc.size() != rmt.size() || maxSliceSize == 0U)) {
-        HCCL_ERROR("[%s] invalid batch slices, loc[%zu] rmt[%zu] maxSlice[%u]", __func__, loc.size(), rmt.size(),
-                   maxSliceSize);
-        THROW<InvalidParamsException>(StringFormat("UbConnLite invalid batch slices, loc[%zu] rmt[%zu] maxSlice[%u]",
-                                                    loc.size(), rmt.size(), maxSliceSize));
-    }
-    u64 wqeNum = loc.size();
-    for (const auto &slice : loc) {
-        const u64 size = slice.GetSize();
-        if (size == 0U) {
-            --wqeNum;
-        } else if (size > maxSliceSize) {
-            wqeNum += (size - 1U) / maxSliceSize;
-        }
-    }
-    if (UNLIKELY(wqeNum > sqDepth_)) {
-        HCCL_ERROR("[%s] batch WQE number[%llu] exceeds SQ depth[%u]", __func__, wqeNum, sqDepth_);
-        THROW<InvalidParamsException>(
-            StringFormat("UbConnLite batch WQE number[%llu] exceeds SQ depth[%u]", wqeNum, sqDepth_));
-    }
-    return wqeNum;
 }
 
 void UbConnLite::BatchCommDataProcess(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,
                                       const SqeConfigLite &cfg, u32 maxSliceSize, u32 opCode, const StreamLite &stream)
 {
-    const u64 wqeNum = ValidateAndCountBatchWqes(loc, rmt, maxSliceSize);
-    if (wqeNum == 0U) {
+    if (loc.empty()) {
         return;
     }
 
@@ -646,65 +587,18 @@ void UbConnLite::BatchCommDataProcess(const vector<RmaBufSliceLite> &loc, const 
     sqeTemplate.comm.inlineEn = 0;
     FillCommSqe(&(sqeTemplate.comm), rmt.front(), cfg, opCode);
 
-    u64 lastNonEmptyIndex = loc.size() - 1U;
-    while (loc[lastNonEmptyIndex].GetSize() == 0U) {
-        --lastNonEmptyIndex;
-    }
-
     const u64 siliceSize = loc.size();
     // 按照UDMA能力切分数据, 组装wqe
     for (u64 i = 0; i < siliceSize; i++) {
-        if (loc[i].GetSize() == 0U) {
-            continue;
-        }
-        BatchProcessOneSlice(loc[i], rmt[i], maxSliceSize, i == lastNonEmptyIndex, sqeTemplate, stream);
+        BatchProcessOneSlice(loc[i], rmt[i], maxSliceSize, i == siliceSize - 1, sqeTemplate, stream);
     }
 }
 
 void UbConnLite::BatchOneSidedRead(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,
                                    const SqeConfigLite &cfg, const StreamLite &stream, ConnLiteOperationOut &out)
 {
-    const u16 startPi = pi;
-    const u32 startPiDetourCount = piDetourCount;
-    try {
-        const u64 wqeNum = ValidateAndCountBatchWqes(loc, rmt, maxReadSize);
-        if (wqeNum == 0U) {
-            out.pi = pi;
-            return;
-        }
-
-        UdmaSqeWrite sqeTemplate{};
-        sqeTemplate.comm.inlineEn = 0;
-        FillCommSqe(&(sqeTemplate.comm), rmt.front(), cfg, UdmaSqOpcode::UDMA_OPC_READ);
-        u64 lastNonEmptyIndex = loc.size() - 1U;
-        while (loc[lastNonEmptyIndex].GetSize() == 0U) {
-            --lastNonEmptyIndex;
-        }
-        u64 descriptorIndex = 0;
-        while (descriptorIndex < loc.size()) {
-            const u32 copiedWqeCount =
-                BuildAndCopySmallReadWqes(loc, rmt, descriptorIndex, lastNonEmptyIndex, sqeTemplate);
-            if (copiedWqeCount != 0U) {
-                continue;
-            }
-            if (descriptorIndex == loc.size()) {
-                break;
-            }
-            // 连续小包已批量写入，这里只处理需要切片的大包。
-            const bool isLastSlice = descriptorIndex == lastNonEmptyIndex;
-            BatchProcessOneSlice(loc[descriptorIndex], rmt[descriptorIndex], maxReadSize, isLastSlice, sqeTemplate,
-                                 stream);
-            ++descriptorIndex;
-        }
-        out.pi = pi;
-    } catch (...) {
-        HCCL_ERROR("[%s] failed, sliceNum[%zu] startPi[%u] currentPi[%u] sqDepth[%u]", __func__, loc.size(), startPi,
-                   pi, sqDepth_);
-        pi = startPi;
-        piDetourCount = startPiDetourCount;
-        out.pi = startPi;
-        throw;
-    }
+    BatchCommDataProcess(loc, rmt, cfg, maxReadSize, UdmaSqOpcode::UDMA_OPC_READ, stream);
+    out.pi = pi;
 }
 
 void UbConnLite::BatchOneSidedWrite(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,

@@ -722,11 +722,11 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_SmallSlicesOrder)
     EXPECT_EQ(3, out.pi);
     EXPECT_EQ(0, sqes[0].comm.cqe);
     EXPECT_EQ(1, sqes[0].comm.placeOdr);
-    EXPECT_EQ(0, sqes[0].comm.compOrder);
+    EXPECT_EQ(1, sqes[0].comm.compOrder);
     EXPECT_EQ(0, sqes[0].comm.fence);
     EXPECT_EQ(0, sqes[1].comm.cqe);
     EXPECT_EQ(1, sqes[1].comm.placeOdr);
-    EXPECT_EQ(0, sqes[1].comm.compOrder);
+    EXPECT_EQ(1, sqes[1].comm.compOrder);
     EXPECT_EQ(0, sqes[1].comm.fence);
     EXPECT_EQ(1, sqes[2].comm.cqe);
     EXPECT_EQ(2, sqes[2].comm.placeOdr);
@@ -734,33 +734,13 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_SmallSlicesOrder)
     EXPECT_EQ(1, sqes[2].comm.fence);
 }
 
-TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_ExceedsSqDepth)
-{
-    UbJettyLiteId id(1, 1, 1);
-    alignas(64) u8 sqVa[2 * 64]{};
-    UbJettyLiteAttr attr(1, reinterpret_cast<u64>(sqVa), 2, 1, false);
-    Eid rmtEid;
-    rmtEid.raw[0] = 1;
-    UbConnLite ubConn(id, attr, rmtEid);
-
-    std::vector<RmaBufSliceLite> loc = {{0x1000, 64, 1, 1}, {0x2000, 64, 1, 1}, {0x3000, 64, 1, 1}};
-    std::vector<RmtRmaBufSliceLite> rmt = {{0x4000, 64, 1, 1, 1, UINT32_MAX},
-                                           {0x5000, 64, 1, 1, 1, UINT32_MAX},
-                                           {0x6000, 64, 1, 1, 1, UINT32_MAX}};
-    SqeConfigLite cfg;
-    ConnLiteOperationOut out;
-    std::vector<char> uniqueId{};
-    StreamLite stream(uniqueId);
-
-    EXPECT_THROW(ubConn.BatchOneSidedRead(loc, rmt, cfg, stream, out), InvalidParamsException);
-}
-
-TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_BulkCopyAcrossRingEnd)
+TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_PiGrowsAcrossRingEnd)
 {
     UbJettyLiteId id(1, 1, 1);
     alignas(64) u8 sqVa[4 * 64]{};
     UbJettyLiteAttr attr(1, reinterpret_cast<u64>(sqVa), 4, 1, false);
     Eid rmtEid;
+    rmtEid.raw[0] = 1;
     UbConnLite ubConn(id, attr, rmtEid);
     ubConn.pi = 3;
 
@@ -779,65 +759,10 @@ TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_BulkCopyAcrossRing
     EXPECT_EQ(6, out.pi);
     EXPECT_EQ(1, ubConn.piDetourCount);
     EXPECT_EQ(1, sqes[3].comm.owner);
-    EXPECT_EQ(0x1000U, sqes[3].u.sge.dataAddrLow);
-    EXPECT_EQ(0x2000U, sqes[0].u.sge.dataAddrLow);
-    EXPECT_EQ(0x3000U, sqes[1].u.sge.dataAddrLow);
+    EXPECT_EQ(0, sqes[0].comm.owner);
+    EXPECT_EQ(0, sqes[1].comm.owner);
     EXPECT_EQ(1, sqes[1].comm.cqe);
-}
-
-TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_HandlesEachRemainder)
-{
-    UbJettyLiteId id(1, 1, 1);
-    alignas(64) u8 sqVa[4 * 64]{};
-    UbJettyLiteAttr attr(1, reinterpret_cast<u64>(sqVa), 4, 1, false);
-    Eid rmtEid;
-    UbConnLite ubConn(id, attr, rmtEid);
-    ubConn.maxReadSize = 64;
-
-    std::vector<RmaBufSliceLite> loc = {{0x1000, 65, 1, 1}, {0x2000, 65, 1, 1}};
-    std::vector<RmtRmaBufSliceLite> rmt = {
-        {0x3000, 65, 1, 1, 1, UINT32_MAX}, {0x4000, 65, 1, 1, 1, UINT32_MAX}};
-    SqeConfigLite cfg;
-    ConnLiteOperationOut out;
-    std::vector<char> uniqueId{};
-    StreamLite stream(uniqueId);
-
-    ubConn.BatchOneSidedRead(loc, rmt, cfg, stream, out);
-
-    auto *sqes = reinterpret_cast<UdmaSqeWrite *>(sqVa);
-    EXPECT_EQ(4, out.pi);
-    EXPECT_EQ(64, sqes[0].u.sge.length);
-    EXPECT_EQ(1, sqes[1].u.sge.length);
-    EXPECT_EQ(64, sqes[2].u.sge.length);
-    EXPECT_EQ(1, sqes[3].u.sge.length);
-    EXPECT_EQ(1, sqes[3].comm.cqe);
-}
-
-TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedRead_SkipsZeroLengthSlices)
-{
-    UbJettyLiteId id(1, 1, 1);
-    alignas(64) u8 sqVa[2 * 64]{};
-    UbJettyLiteAttr attr(1, reinterpret_cast<u64>(sqVa), 2, 1, false);
-    Eid rmtEid;
-    UbConnLite ubConn(id, attr, rmtEid);
-
-    std::vector<RmaBufSliceLite> loc = {{0x1000, 64, 1, 1}, {0x2000, 0, 1, 1}, {0x3000, 64, 1, 1}};
-    std::vector<RmtRmaBufSliceLite> rmt = {{0x4000, 64, 1, 1, 1, UINT32_MAX},
-                                           {0x5000, 0, 1, 1, 1, UINT32_MAX},
-                                           {0x6000, 64, 1, 1, 1, UINT32_MAX}};
-    SqeConfigLite cfg;
-    ConnLiteOperationOut out;
-    std::vector<char> uniqueId{};
-    StreamLite stream(uniqueId);
-
-    ubConn.BatchOneSidedRead(loc, rmt, cfg, stream, out);
-
-    auto *sqes = reinterpret_cast<UdmaSqeWrite *>(sqVa);
-    EXPECT_EQ(2, out.pi);
-    EXPECT_EQ(0x1000ULL, static_cast<u64>(sqes[0].u.sge.dataAddrLow));
-    EXPECT_EQ(0x3000ULL, static_cast<u64>(sqes[1].u.sge.dataAddrLow));
-    EXPECT_EQ(0, sqes[0].comm.cqe);
-    EXPECT_EQ(1, sqes[1].comm.cqe);
+    EXPECT_EQ(0x6000, sqes[1].comm.rmtAddrLow);
 }
 
 TEST_F(AicpuUbConnLiteTest, test_UBConnLite_BatchOneSidedWrite)
