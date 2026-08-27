@@ -9,8 +9,12 @@
  */
 #include <chrono>
 #ifdef CCL_KERNEL_AICPU
-#include <atomic>
+#include <condition_variable>
+#include <functional>
+#include <mutex>
+#include <sched.h>
 #include <thread>
+#include <utility>
 #endif
 #include "ub_conn_lite.h"
 #include "log.h"
@@ -42,12 +46,135 @@ constexpr u32 PARALLEL_WQE_THREAD_NUM     = 2;
 
 static_assert(sizeof(UdmaSqeWrite) == SQE_SIZE_64, "UB READ WQE must occupy one 64-byte SQ slot");
 
+#ifdef CCL_KERNEL_AICPU
+namespace {
+class BatchWqeWorker {
+public:
+    static BatchWqeWorker &GetInstance()
+    {
+        static BatchWqeWorker instance;
+        return instance;
+    }
+
+    bool TrySubmit(std::function<void()> task)
+    {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            if (!available_ || stopping_ || busy_) {
+                return false;
+            }
+            task_ = std::move(task);
+            busy_ = true;
+            taskReady_ = true;
+            taskDone_ = false;
+        }
+        taskCv_.notify_one();
+        return true;
+    }
+
+    void Wait()
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        doneCv_.wait(lock, [this]() { return taskDone_; });
+        busy_ = false;
+    }
+
+private:
+    BatchWqeWorker()
+    {
+        cpu_set_t allowedCpus;
+        CPU_ZERO(&allowedCpus);
+        if (sched_getaffinity(0, sizeof(allowedCpus), &allowedCpus) == 0) {
+            u32 allowedCpuNum = 0;
+            for (int cpu = 0; cpu < CPU_SETSIZE; ++cpu) {
+                allowedCpuNum += CPU_ISSET(cpu, &allowedCpus) ? 1U : 0U;
+            }
+            HCCL_INFO("[%s] persistent WQE worker allowedCpuNum[%u]", __func__, allowedCpuNum);
+            if (allowedCpuNum <= 1U) {
+                HCCL_WARNING("[%s] no independent CPU for persistent WQE worker, use serial WQE build", __func__);
+                return;
+            }
+        }
+
+        try {
+            worker_ = std::thread(&BatchWqeWorker::Run, this);
+            available_ = true;
+        } catch (...) {
+            HCCL_WARNING("[%s] create persistent WQE worker failed, use serial WQE build", __func__);
+        }
+    }
+
+    ~BatchWqeWorker()
+    {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            stopping_ = true;
+        }
+        taskCv_.notify_one();
+        if (worker_.joinable()) {
+            worker_.join();
+        }
+    }
+
+    BatchWqeWorker(const BatchWqeWorker &) = delete;
+    BatchWqeWorker &operator=(const BatchWqeWorker &) = delete;
+
+    void Run()
+    {
+        while (true) {
+            std::function<void()> task;
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                taskCv_.wait(lock, [this]() { return stopping_ || taskReady_; });
+                if (stopping_ && !taskReady_) {
+                    return;
+                }
+                task = std::move(task_);
+                taskReady_ = false;
+            }
+
+            try {
+                task();
+            } catch (...) {
+                HCCL_ERROR("[%s] persistent WQE worker task failed", __func__);
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                taskDone_ = true;
+            }
+            doneCv_.notify_one();
+        }
+    }
+
+    std::mutex mutex_;
+    std::condition_variable taskCv_;
+    std::condition_variable doneCv_;
+    std::thread worker_;
+    std::function<void()> task_;
+    bool available_{false};
+    bool stopping_{false};
+    bool busy_{false};
+    bool taskReady_{false};
+    bool taskDone_{true};
+};
+} // namespace
+#endif
+
 static std::map<DataType, u32> g_ubmaDataTypeMap
     = {{DataType::INT8, 0x0},   {DataType::INT16, 0x1},   {DataType::INT32, 0x2}, {DataType::UINT8, 0x3},
        {DataType::UINT16, 0x4}, {DataType::UINT32, 0x5},  {DataType::FP16, 0x6},  {DataType::FP32, 0x7},
        {DataType::BFP16, 0x8},  {DataType::BF16_SAT, 0x9}};
 
 static std::map<ReduceOp, u32> g_ubmaDataOpMap = {{ReduceOp::SUM, 0xA}, {ReduceOp::MAX, 0x8}, {ReduceOp::MIN, 0x9}};
+
+#ifdef CCL_KERNEL_AICPU
+void UbConnLite::InitBatchWqeWorker()
+{
+    // 在AICPU进程初始化阶段提前创建worker，避免每个Batch READ都付出线程创建和回收开销。
+    (void)BatchWqeWorker::GetInstance();
+}
+#endif
 
 void UbConnLite::FillCommSqe(UdmaSqeCommon *sqe, const RmtRmaBufSliceLite &rmt, const SqeConfigLite &cfg, u32 opCode,
                              SlicePosition slicePos)
@@ -603,19 +730,21 @@ bool UbConnLite::BuildBatchWqeParallel(const vector<RmaBufSliceLite> &loc,
         }
     };
 
-    std::thread worker;
+    auto &worker = BatchWqeWorker::GetInstance();
+    bool submitted = false;
     try {
-        worker = std::thread(buildRange, 0, splitIndex, 0);
+        submitted = worker.TrySubmit([&buildRange, splitIndex]() { buildRange(0, splitIndex, 0); });
     } catch (...) {
-        static std::atomic<bool> hasWarned{false};
-        if (!hasWarned.exchange(true)) {
-            HCCL_WARNING("[%s] create worker failed, fallback to serial WQE build", __func__);
-        }
+        // 任务对象构造失败时尚未写SQ，可安全回退串行路径。
+        return false;
+    }
+    if (!submitted) {
         return false;
     }
 
     buildRange(splitIndex, wqeNum, 1);
-    worker.join();
+    // doorbell只能在worker完成后生成，因此此处仍需同步等待，但不再重复创建线程。
+    worker.Wait();
 
     if (UNLIKELY(buildFailed[0] || buildFailed[1])) {
         THROW<InternalException>(StringFormat("[%s] build WQE in worker failed", __func__));

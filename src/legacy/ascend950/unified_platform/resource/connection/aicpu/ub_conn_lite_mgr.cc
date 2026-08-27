@@ -13,6 +13,9 @@ namespace Hccl {
 
 UbConnLiteMgr::UbConnLiteMgr()
 {
+#ifdef CCL_KERNEL_AICPU
+    UbConnLite::InitBatchWqeWorker();
+#endif
 }
 
 UbConnLiteMgr::~UbConnLiteMgr()

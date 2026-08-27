@@ -56,6 +56,10 @@ public:
 
     std::string Describe() final;
 
+#ifdef CCL_KERNEL_AICPU
+    static void InitBatchWqeWorker();
+#endif
+
     void FillCommSqe(UdmaSqeCommon *sqe, const RmtRmaBufSliceLite &rmt, const SqeConfigLite &cfg, u32 opCode,
                      SlicePosition slicePos = SlicePosition::ONLY);
 
