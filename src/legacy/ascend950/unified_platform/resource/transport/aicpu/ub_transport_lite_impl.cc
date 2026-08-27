@@ -783,9 +783,140 @@ static HcclResult ParseData(const HcommBatchTransferDesc &transferDesc, void* &r
     return HCCL_SUCCESS;
 }
 constexpr uint32_t       NOTIFYIDX_INVALID_VALUE  = 0xFFFFFFFF; // NOTIFY idex非法值
+
+static bool IsPureReadBatch(const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
+{
+    for (uint32_t i = 0; i < transferDescNum; ++i) {
+        if (transferDescs[i].transType != HCOMM_TRANSFER_TYPE_READ) {
+            return false;
+        }
+    }
+    return transferDescNum != 0;
+}
+
+bool UbTransportLiteImpl::FindLocReadSlice(u64 addr, u64 size, RmaBufSliceLite &slice) const
+{
+    if (locBufferMap.empty()) {
+        return false;
+    }
+    auto it = locBufferMap.upper_bound(addr);
+    while (it != locBufferMap.begin()) {
+        --it;
+        const LocUbBufLite &buffer = it->second;
+        if (Buffer(buffer.addr, buffer.size).Contains(addr, size)) {
+            slice = RmaBufSliceLite(addr, size, 0, buffer.tokenId);
+            return true;
+        }
+    }
+
+    // 保持BuildLocRmaBufferLite的兼容行为：未命中时沿用首个本地注册内存的token。
+    const LocUbBufLite &buffer = locBufferMap.begin()->second;
+    HCCL_WARNING("[%s] addr[0x%llx], size[0x%llx] is outside local registrations, use first token", __func__, addr,
+                 size);
+    slice = RmaBufSliceLite(addr, size, 0, buffer.tokenId);
+    return true;
+}
+
+bool UbTransportLiteImpl::FindRmtReadSlice(u64 addr, u64 size, RmtRmaBufSliceLite &slice) const
+{
+    auto it = rmtBufferMap.upper_bound(addr);
+    if (it == rmtBufferMap.begin()) {
+        return false;
+    }
+    --it;
+    const RmtUbBufLite &buffer = it->second;
+    if (addr < buffer.addr || size > buffer.size) {
+        return false;
+    }
+    const u64 offset = addr - buffer.addr;
+    if (offset > buffer.size - size) {
+        return false;
+    }
+    slice = RmtRmaBufSliceLite(addr, size, 0, buffer.tokenId, buffer.tokenValue, UINT32_MAX);
+    return true;
+}
+
+HcclResult UbTransportLiteImpl::PrepareBatchRead(const HcommBatchTransferDesc *transferDescs,
+                                                 uint32_t transferDescNum,
+                                                 std::vector<RmaBufSliceLite> &locSlices,
+                                                 std::vector<RmtRmaBufSliceLite> &rmtSlices, u64 &totalBytes)
+{
+    locSlices.reserve(transferDescNum);
+    rmtSlices.reserve(transferDescNum);
+    totalBytes = 0;
+    for (uint32_t i = 0; i < transferDescNum; ++i) {
+        const auto &read = transferDescs[i].transferInfo.read;
+        if (read.dst == nullptr || read.src == nullptr) {
+            HCCL_ERROR("[%s] invalid READ descriptor index[%u], remote[%p], local[%p], len[0x%llx]", __func__, i,
+                       read.src, read.dst, read.len);
+            return HCCL_E_PTR;
+        }
+        RmaBufSliceLite locSlice(0, 0, 0, 0);
+        RmtRmaBufSliceLite rmtSlice(0, 0, 0, 0, 0, UINT32_MAX);
+        if (!FindLocReadSlice(reinterpret_cast<u64>(read.dst), read.len, locSlice) ||
+            !FindRmtReadSlice(reinterpret_cast<u64>(read.src), read.len, rmtSlice)) {
+            HCCL_ERROR("[%s] READ registration lookup failed, index[%u], remote[%p], local[%p], len[0x%llx]",
+                       __func__, i, read.src, read.dst, read.len);
+            return HCCL_E_INTERNAL;
+        }
+        if (read.len > UINT64_MAX - totalBytes) {
+            HCCL_ERROR("[%s] READ byte count overflow, index[%u], len[0x%llx]", __func__, i, read.len);
+            return HCCL_E_PARA;
+        }
+        locSlices.push_back(locSlice);
+        rmtSlices.push_back(rmtSlice);
+        totalBytes += read.len;
+    }
+    return HCCL_SUCCESS;
+}
+
+HcclResult UbTransportLiteImpl::ExecuteBatchRead(StreamLite *streamLitePtr,
+                                                 const HcommBatchTransferDesc *transferDescs,
+                                                 uint32_t transferDescNum)
+{
+    const u64 batchStartNs = GetCurAicpuTimestamp();
+    std::vector<RmaBufSliceLite> locSlices;
+    std::vector<RmtRmaBufSliceLite> rmtSlices;
+    u64 totalBytes = 0;
+    HcclResult ret = HCCL_SUCCESS;
+    EXCEPTION_CATCH(ret = PrepareBatchRead(transferDescs, transferDescNum, locSlices, rmtSlices, totalBytes),
+                    return HCCL_E_INTERNAL);
+    CHK_PRT_RET(ret != HCCL_SUCCESS, HCCL_ERROR("[%s] failed to prepare pure READ batch, ret[%d]", __func__, ret), ret);
+    const u64 prepareEndNs = GetCurAicpuTimestamp();
+
+    SqeConfigLite cfg;
+    SetFenceConfig(cfg);
+    const u32 taskId = streamLitePtr->GetRtsq()->GetTaskId();
+    const u64 wqeBuildStartNs = GetCurAicpuTimestamp();
+    EXCEPTION_CATCH(connVec[0]->BatchOneSidedRead(locSlices, rmtSlices, cfg, *streamLitePtr, connOut),
+                    return HCCL_E_INTERNAL);
+    const u64 wqeBuildEndNs = GetCurAicpuTimestamp();
+    EXCEPTION_CATCH(BuildUbDbSendTask(*streamLitePtr, connVec[0]->GetUbJettyLiteId(), connOut.pi),
+                    return HCCL_E_INTERNAL);
+    const u64 buildDbTaskEndNs = GetCurAicpuTimestamp();
+
+    if (IsReportTask()) {
+        EXCEPTION_CATCH(ProfilingProcess(reinterpret_cast<void *>(locSlices.back().GetAddr()),
+                            reinterpret_cast<void *>(rmtSlices.back().GetAddr()), totalBytes, *streamLitePtr,
+                            DmaOp::HCCL_DMA_READ, taskId),
+                        return HCCL_E_INTERNAL);
+    }
+    const u64 batchEndNs = GetCurAicpuTimestamp();
+    // 保留批次级定位日志，避免在descriptor/WQE循环内打印导致性能测量失真。
+    HCCL_ERROR("[TEMP_TIMING][%s] descNum[%u] totalBytes[%llu] prepareNs[%llu] wqeBuildNs[%llu] "
+               "buildDbTaskNs[%llu] profilingNs[%llu] totalNs[%llu]",
+               __func__, transferDescNum, totalBytes, prepareEndNs - batchStartNs, wqeBuildEndNs - wqeBuildStartNs,
+               buildDbTaskEndNs - wqeBuildEndNs, batchEndNs - buildDbTaskEndNs, batchEndNs - batchStartNs);
+    return HCCL_SUCCESS;
+}
+
 HcclResult UbTransportLiteImpl::ExecuteBatchTransfer(StreamLite *streamLitePtr,
     const HcommBatchTransferDesc *transferDescs, uint32_t transferDescNum)
 {
+    if (IsPureReadBatch(transferDescs, transferDescNum)) {
+        return ExecuteBatchRead(streamLitePtr, transferDescs, transferDescNum);
+    }
+
     const u64 executeStartNs = GetCurAicpuTimestamp();
     std::vector<Hccl::RmaBufferLite> locSlices;
     std::vector<Hccl::Buffer> rmtSlices;
