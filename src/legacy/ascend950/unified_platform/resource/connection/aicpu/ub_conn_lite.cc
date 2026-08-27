@@ -9,6 +9,7 @@
  */
 #include <chrono>
 #ifdef CCL_KERNEL_AICPU
+#include <array>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -40,35 +41,48 @@ constexpr u32 UB_DMA_MAX_READ_WEITE_SIZE = 256 * 1024 * 1024; // Byte, UB协议�
 constexpr u32 UB_RELAX_ORDER             = 0x1; // Relax Order表示当前SQE与后续Strong Order SQE有保序要求
 constexpr u32 UB_STRONG_ORDER            = 0x2; // Strong Order表示当前SQE有保序要求，该SQE不能超越前面的Relax Order SQE
 #ifdef CCL_KERNEL_AICPU
-constexpr u64 PARALLEL_WQE_MIN_NUM        = 256; // 小批次创建线程的开销高于并发收益
-constexpr u32 PARALLEL_WQE_THREAD_NUM     = 2;
+constexpr u64 PARALLEL_WQE_MIN_NUM        = 256; // 小批次唤醒多worker的开销高于并发收益
+constexpr u32 PARALLEL_WQE_THREAD_NUM     = 8; // 7个持久worker与当前AICPU主线程共8路并发
+constexpr u32 PERSISTENT_WQE_WORKER_NUM   = PARALLEL_WQE_THREAD_NUM - 1U;
 #endif
 
 static_assert(sizeof(UdmaSqeWrite) == SQE_SIZE_64, "UB READ WQE must occupy one 64-byte SQ slot");
 
 #ifdef CCL_KERNEL_AICPU
 namespace {
-class BatchWqeWorker {
+class BatchWqeWorkerPool {
 public:
-    static BatchWqeWorker &GetInstance()
+    using Tasks = std::array<std::function<void()>, PERSISTENT_WQE_WORKER_NUM>;
+
+    static BatchWqeWorkerPool &GetInstance()
     {
-        static BatchWqeWorker instance;
+        static BatchWqeWorkerPool instance;
         return instance;
     }
 
-    bool TrySubmit(std::function<void()> task)
+    u32 GetWorkerNum() const
+    {
+        return workerNum_;
+    }
+
+    bool TrySubmit(Tasks &tasks, u32 taskNum)
     {
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            if (!available_ || stopping_ || busy_) {
+            if (workerNum_ == 0U || taskNum == 0U || taskNum > workerNum_ || stopping_ || busy_) {
                 return false;
             }
-            task_ = std::move(task);
+            for (u32 i = 0; i < taskNum; ++i) {
+                tasks_[i] = std::move(tasks[i]);
+            }
             busy_ = true;
-            taskReady_ = true;
+            pendingTaskNum_ = taskNum;
             taskDone_ = false;
+            for (u32 i = 0; i < taskNum; ++i) {
+                taskReady_[i] = true;
+            }
         }
-        taskCv_.notify_one();
+        taskCv_.notify_all();
         return true;
     }
 
@@ -80,57 +94,65 @@ public:
     }
 
 private:
-    BatchWqeWorker()
+    BatchWqeWorkerPool()
     {
+        u32 allowedCpuNum = PARALLEL_WQE_THREAD_NUM;
         cpu_set_t allowedCpus;
         CPU_ZERO(&allowedCpus);
         if (sched_getaffinity(0, sizeof(allowedCpus), &allowedCpus) == 0) {
-            u32 allowedCpuNum = 0;
+            allowedCpuNum = 0;
             for (int cpu = 0; cpu < CPU_SETSIZE; ++cpu) {
                 allowedCpuNum += CPU_ISSET(cpu, &allowedCpus) ? 1U : 0U;
             }
-            HCCL_INFO("[%s] persistent WQE worker allowedCpuNum[%u]", __func__, allowedCpuNum);
-            if (allowedCpuNum <= 1U) {
-                HCCL_WARNING("[%s] no independent CPU for persistent WQE worker, use serial WQE build", __func__);
-                return;
+        }
+        // ERROR级别只打印一次，便于不开启全量HCOMM日志时确认AICPU实际可用CPU数。
+        HCCL_ERROR("[%s] persistent WQE worker allowedCpuNum[%u]", __func__, allowedCpuNum);
+
+        u32 targetWorkerNum = allowedCpuNum > 1U ? allowedCpuNum - 1U : 0U;
+        if (targetWorkerNum > PERSISTENT_WQE_WORKER_NUM) {
+            targetWorkerNum = PERSISTENT_WQE_WORKER_NUM;
+        }
+        for (u32 i = 0; i < targetWorkerNum; ++i) {
+            try {
+                workers_[i] = std::thread(&BatchWqeWorkerPool::Run, this, i);
+                ++workerNum_;
+            } catch (...) {
+                HCCL_WARNING("[%s] create persistent WQE worker[%u] failed", __func__, i);
+                break;
             }
         }
-
-        try {
-            worker_ = std::thread(&BatchWqeWorker::Run, this);
-            available_ = true;
-        } catch (...) {
-            HCCL_WARNING("[%s] create persistent WQE worker failed, use serial WQE build", __func__);
-        }
+        HCCL_ERROR("[%s] persistent WQE workerNum[%u], totalParallelism[%u]", __func__, workerNum_, workerNum_ + 1U);
     }
 
-    ~BatchWqeWorker()
+    ~BatchWqeWorkerPool()
     {
         {
             std::lock_guard<std::mutex> lock(mutex_);
             stopping_ = true;
         }
-        taskCv_.notify_one();
-        if (worker_.joinable()) {
-            worker_.join();
+        taskCv_.notify_all();
+        for (u32 i = 0; i < workerNum_; ++i) {
+            if (workers_[i].joinable()) {
+                workers_[i].join();
+            }
         }
     }
 
-    BatchWqeWorker(const BatchWqeWorker &) = delete;
-    BatchWqeWorker &operator=(const BatchWqeWorker &) = delete;
+    BatchWqeWorkerPool(const BatchWqeWorkerPool &) = delete;
+    BatchWqeWorkerPool &operator=(const BatchWqeWorkerPool &) = delete;
 
-    void Run()
+    void Run(u32 workerIndex)
     {
         while (true) {
             std::function<void()> task;
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                taskCv_.wait(lock, [this]() { return stopping_ || taskReady_; });
-                if (stopping_ && !taskReady_) {
+                taskCv_.wait(lock, [this, workerIndex]() { return stopping_ || taskReady_[workerIndex]; });
+                if (stopping_ && !taskReady_[workerIndex]) {
                     return;
                 }
-                task = std::move(task_);
-                taskReady_ = false;
+                task = std::move(tasks_[workerIndex]);
+                taskReady_[workerIndex] = false;
             }
 
             try {
@@ -139,23 +161,30 @@ private:
                 HCCL_ERROR("[%s] persistent WQE worker task failed", __func__);
             }
 
+            bool notifyDone = false;
             {
                 std::lock_guard<std::mutex> lock(mutex_);
-                taskDone_ = true;
+                if (--pendingTaskNum_ == 0U) {
+                    taskDone_ = true;
+                    notifyDone = true;
+                }
             }
-            doneCv_.notify_one();
+            if (notifyDone) {
+                doneCv_.notify_one();
+            }
         }
     }
 
     std::mutex mutex_;
     std::condition_variable taskCv_;
     std::condition_variable doneCv_;
-    std::thread worker_;
-    std::function<void()> task_;
-    bool available_{false};
+    std::array<std::thread, PERSISTENT_WQE_WORKER_NUM> workers_;
+    Tasks tasks_;
+    std::array<bool, PERSISTENT_WQE_WORKER_NUM> taskReady_{};
+    u32 workerNum_{0};
+    u32 pendingTaskNum_{0};
     bool stopping_{false};
     bool busy_{false};
-    bool taskReady_{false};
     bool taskDone_{true};
 };
 } // namespace
@@ -172,7 +201,7 @@ static std::map<ReduceOp, u32> g_ubmaDataOpMap = {{ReduceOp::SUM, 0xA}, {ReduceO
 void UbConnLite::InitBatchWqeWorker()
 {
     // 在AICPU进程初始化阶段提前创建worker，避免每个Batch READ都付出线程创建和回收开销。
-    (void)BatchWqeWorker::GetInstance();
+    (void)BatchWqeWorkerPool::GetInstance();
 }
 #endif
 
@@ -699,11 +728,10 @@ bool UbConnLite::BuildBatchWqeParallel(const vector<RmaBufSliceLite> &loc,
                                        const UdmaSqeWrite &sqeTemplate)
 {
     const u64 wqeNum = loc.size();
-    const u64 splitIndex = wqeNum / PARALLEL_WQE_THREAD_NUM;
     const u16 startPi = pi;
-    s32 copyRet[PARALLEL_WQE_THREAD_NUM] = {0, 0};
-    bool buildFailed[PARALLEL_WQE_THREAD_NUM] = {false, false};
-    u32 detourCount[PARALLEL_WQE_THREAD_NUM] = {0, 0};
+    std::array<s32, PARALLEL_WQE_THREAD_NUM> copyRet{};
+    std::array<bool, PARALLEL_WQE_THREAD_NUM> buildFailed{};
+    std::array<u32, PARALLEL_WQE_THREAD_NUM> detourCount{};
 
     auto buildRange = [&](u64 begin, u64 end, u32 workerIndex) {
         try {
@@ -730,10 +758,23 @@ bool UbConnLite::BuildBatchWqeParallel(const vector<RmaBufSliceLite> &loc,
         }
     };
 
-    auto &worker = BatchWqeWorker::GetInstance();
+    auto &workerPool = BatchWqeWorkerPool::GetInstance();
+    const u32 workerNum = workerPool.GetWorkerNum();
+    if (workerNum == 0U) {
+        return false;
+    }
+    const u32 totalParallelism = workerNum + 1U;
+    BatchWqeWorkerPool::Tasks tasks{};
     bool submitted = false;
     try {
-        submitted = worker.TrySubmit([&buildRange, splitIndex]() { buildRange(0, splitIndex, 0); });
+        for (u32 workerIndex = 0; workerIndex < workerNum; ++workerIndex) {
+            const u64 begin = wqeNum * workerIndex / totalParallelism;
+            const u64 end = wqeNum * (workerIndex + 1U) / totalParallelism;
+            tasks[workerIndex] = [&buildRange, begin, end, workerIndex]() {
+                buildRange(begin, end, workerIndex);
+            };
+        }
+        submitted = workerPool.TrySubmit(tasks, workerNum);
     } catch (...) {
         // 任务对象构造失败时尚未写SQ，可安全回退串行路径。
         return false;
@@ -742,20 +783,26 @@ bool UbConnLite::BuildBatchWqeParallel(const vector<RmaBufSliceLite> &loc,
         return false;
     }
 
-    buildRange(splitIndex, wqeNum, 1);
+    const u64 mainBegin = wqeNum * workerNum / totalParallelism;
+    buildRange(mainBegin, wqeNum, workerNum);
     // doorbell只能在worker完成后生成，因此此处仍需同步等待，但不再重复创建线程。
-    worker.Wait();
+    workerPool.Wait();
 
-    if (UNLIKELY(buildFailed[0] || buildFailed[1])) {
-        THROW<InternalException>(StringFormat("[%s] build WQE in worker failed", __func__));
-    }
-    if (UNLIKELY(copyRet[0] != 0 || copyRet[1] != 0)) {
-        const s32 ret = copyRet[0] != 0 ? copyRet[0] : copyRet[1];
-        THROW<InternalException>(StringFormat("[%s] memcpy_sp failed, ret = %d", __func__, ret));
+    u32 totalDetourCount = 0;
+    for (u32 workerIndex = 0; workerIndex < totalParallelism; ++workerIndex) {
+        if (UNLIKELY(buildFailed[workerIndex])) {
+            THROW<InternalException>(StringFormat("[%s] build WQE in worker[%u] failed", __func__, workerIndex));
+        }
+        if (UNLIKELY(copyRet[workerIndex] != 0)) {
+            THROW<InternalException>(
+                StringFormat("[%s] worker[%u] memcpy_sp failed, ret = %d", __func__, workerIndex,
+                             copyRet[workerIndex]));
+        }
+        totalDetourCount += detourCount[workerIndex];
     }
 
     // 所有SQ slot完成后才发布新PI，确保随后生成的doorbell不会看到半成品WQE。
-    piDetourCount += detourCount[0] + detourCount[1];
+    piDetourCount += totalDetourCount;
     pi = static_cast<u16>(startPi + wqeNum);
     return true;
 }
