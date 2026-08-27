@@ -496,9 +496,10 @@ void UbConnLite::CustomizeSqeByOneSidedComm(UdmaSqeCommon *sqe, bool isLastWqe) 
 }
 
 void UbConnLite::BuildBatchWqe(UdmaSqeWrite &sqe, const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt,
-                               bool isLastWqe, u32 sqOffset) const
+                               bool isLastWqe, const UdmaSqeWrite &sqeTemplate, u32 sqOffset) const
 {
-    // 同一批次复用连接、EID和opcode等公共字段，这里只更新地址、token和本地SGE。
+    // 同一批次复用连接、EID和opcode等公共字段，循环内只更新地址、token和本地SGE。
+    sqe = sqeTemplate;
     sqe.comm.owner = (sqOffset == sqDepth_ - 1U) ? 1 : 0;
     sqe.comm.rmtObjId = rmt.GetTokenId();
     sqe.comm.rmtTokenValue = rmt.GetTokenValue();
@@ -519,9 +520,8 @@ void UbConnLite::FillBatchOneWqe(const RmaBufSliceLite &loc, const RmtRmaBufSlic
     (void)stream;
     const u32 sqOffset = pi % sqDepth_;
 
-    // 直接从完整模板初始化，避免先清零64B再被模板覆盖。
-    UdmaSqeWrite sqe = sqeTemplate;
-    BuildBatchWqe(sqe, loc, rmt, isLastWqe, sqOffset);
+    UdmaSqeWrite sqe{};
+    BuildBatchWqe(sqe, loc, rmt, isLastWqe, sqeTemplate, sqOffset);
 
     // SQ映射区保持原有的单个64B WQE写入语义，不引入跨WQE批量写行为。
     u8 *va = reinterpret_cast<u8 *>(sqVa_ + sqOffset * SQE_SIZE_64);
@@ -598,29 +598,7 @@ void UbConnLite::BatchCommDataProcess(const vector<RmaBufSliceLite> &loc, const 
 void UbConnLite::BatchOneSidedRead(const vector<RmaBufSliceLite> &loc, const vector<RmtRmaBufSliceLite> &rmt,
                                    const SqeConfigLite &cfg, const StreamLite &stream, ConnLiteOperationOut &out)
 {
-    if (loc.empty()) {
-        out.pi = pi;
-        return;
-    }
-
-    UdmaSqeWrite sqeTemplate{};
-    sqeTemplate.comm.inlineEn = 0;
-    FillCommSqe(&(sqeTemplate.comm), rmt.front(), cfg, UdmaSqOpcode::UDMA_OPC_READ);
-
-    const u64 sliceNum = loc.size();
-    for (u64 i = 0; i < sliceNum; ++i) {
-        const u64 size = loc[i].GetSize();
-        if (size == 0U) {
-            continue;
-        }
-        const bool isLastSlice = i == sliceNum - 1U;
-        if (LIKELY(size <= maxReadSize)) {
-            // 离散小包直接构造WQE，避免逐descriptor进入通用切片函数执行除法、取余和临时对象构造。
-            FillBatchOneWqe(loc[i], rmt[i], isLastSlice, sqeTemplate, stream);
-        } else {
-            BatchProcessOneSlice(loc[i], rmt[i], maxReadSize, isLastSlice, sqeTemplate, stream);
-        }
-    }
+    BatchCommDataProcess(loc, rmt, cfg, maxReadSize, UdmaSqOpcode::UDMA_OPC_READ, stream);
     out.pi = pi;
 }
 

@@ -108,7 +108,7 @@ private:
     u32  maxReadSize{0};
     u32  maxWriteSize{0};
     void BuildBatchWqe(UdmaSqeWrite &sqe, const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt,
-                       bool isLastWqe, u32 sqOffset) const;
+                       bool isLastWqe, const UdmaSqeWrite &sqeTemplate, u32 sqOffset) const;
     void ProcessSlices(const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt, u32 maxSliceSize,
         std::function<void(const RmaBufSliceLite &, const RmtRmaBufSliceLite &, SlicePosition)> processOneSlice,
         DataType dataType = DataType::INVALID) const;
