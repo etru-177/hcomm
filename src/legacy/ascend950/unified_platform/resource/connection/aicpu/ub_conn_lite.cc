@@ -554,7 +554,7 @@ u32 UbConnLite::BuildAndCopySmallReadWqes(const vector<RmaBufSliceLite> &loc,
     const u32 sqRemaining = sqDepth_ - sqOffset;
     const u32 capacity = sqRemaining < BATCH_READ_WQE_COPY_CHUNK ? sqRemaining : BATCH_READ_WQE_COPY_CHUNK;
     // SQ的PI是单生产者状态，不并发修改；先在栈上构造连续WQE，再一次安全拷贝到SQ。
-    UdmaSqeWrite sqes[BATCH_READ_WQE_COPY_CHUNK];
+    UdmaSqeWrite sqes[BATCH_READ_WQE_COPY_CHUNK]{};
     u32 wqeCount = 0;
     while (descriptorIndex < loc.size() && wqeCount < capacity) {
         if (loc[descriptorIndex].GetSize() == 0U) {
