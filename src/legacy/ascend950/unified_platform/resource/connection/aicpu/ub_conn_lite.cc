@@ -8,6 +8,10 @@
  * See LICENSE in the root of the software repository for the full text of the License.
  */
 #include <chrono>
+#ifdef CCL_KERNEL_AICPU
+#include <atomic>
+#include <thread>
+#endif
 #include "ub_conn_lite.h"
 #include "log.h"
 #include "exception_util.h"
@@ -31,6 +35,10 @@ constexpr u32 ADDR_BIT_LOW               = 0xffffffff;
 constexpr u32 UB_DMA_MAX_READ_WEITE_SIZE = 256 * 1024 * 1024; // Byte, UB协议一次传输的最大size
 constexpr u32 UB_RELAX_ORDER             = 0x1; // Relax Order表示当前SQE与后续Strong Order SQE有保序要求
 constexpr u32 UB_STRONG_ORDER            = 0x2; // Strong Order表示当前SQE有保序要求，该SQE不能超越前面的Relax Order SQE
+#ifdef CCL_KERNEL_AICPU
+constexpr u64 PARALLEL_WQE_MIN_NUM        = 256; // 小批次创建线程的开销高于并发收益
+constexpr u32 PARALLEL_WQE_THREAD_NUM     = 2;
+#endif
 
 static_assert(sizeof(UdmaSqeWrite) == SQE_SIZE_64, "UB READ WQE must occupy one 64-byte SQ slot");
 
@@ -541,6 +549,89 @@ void UbConnLite::FillBatchOneWqe(const RmaBufSliceLite &loc, const RmtRmaBufSlic
     ++pi;
 }
 
+#ifdef CCL_KERNEL_AICPU
+bool UbConnLite::CanBuildBatchWqeParallel(const vector<RmaBufSliceLite> &loc,
+                                          const vector<RmtRmaBufSliceLite> &rmt, u32 maxSliceSize) const
+{
+    if (loc.size() < PARALLEL_WQE_MIN_NUM || loc.size() != rmt.size() || loc.size() > sqDepth_ ||
+        dwqeCacheLocked_) {
+        return false;
+    }
+
+    // 并发路径要求一个descriptor恰好生成一个WQE；需切片的大包仍使用原串行路径。
+    for (u64 i = 0; i < loc.size(); ++i) {
+        if (loc[i].GetSize() == 0 || loc[i].GetSize() > maxSliceSize) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool UbConnLite::BuildBatchWqeParallel(const vector<RmaBufSliceLite> &loc,
+                                       const vector<RmtRmaBufSliceLite> &rmt,
+                                       const UdmaSqeWrite &sqeTemplate)
+{
+    const u64 wqeNum = loc.size();
+    const u64 splitIndex = wqeNum / PARALLEL_WQE_THREAD_NUM;
+    const u16 startPi = pi;
+    s32 copyRet[PARALLEL_WQE_THREAD_NUM] = {0, 0};
+    bool buildFailed[PARALLEL_WQE_THREAD_NUM] = {false, false};
+    u32 detourCount[PARALLEL_WQE_THREAD_NUM] = {0, 0};
+
+    auto buildRange = [&](u64 begin, u64 end, u32 workerIndex) {
+        try {
+            for (u64 i = begin; i < end; ++i) {
+                // 主线程预留整段PI，worker只按固定索引写互不重叠的SQ slot，不修改共享PI。
+                const u16 wqePi = static_cast<u16>(startPi + i);
+                const u32 sqOffset = wqePi % sqDepth_;
+                UdmaSqeWrite sqe{};
+                BuildBatchWqe(sqe, loc[i], rmt[i], i + 1 == wqeNum, sqeTemplate, sqOffset);
+
+                u8 *va = reinterpret_cast<u8 *>(sqVa_ + sqOffset * SQE_SIZE_64);
+                const s32 ret = memcpy_sp(va, SQE_SIZE_64, &sqe, sizeof(UdmaSqeWrite));
+                if (UNLIKELY(ret != 0)) {
+                    copyRet[workerIndex] = ret;
+                    return;
+                }
+                if (sqOffset + 1U == sqDepth_) {
+                    ++detourCount[workerIndex];
+                }
+            }
+        } catch (...) {
+            // 子线程内的异常不能跨线程传播，待join后由主线程统一报错。
+            buildFailed[workerIndex] = true;
+        }
+    };
+
+    std::thread worker;
+    try {
+        worker = std::thread(buildRange, 0, splitIndex, 0);
+    } catch (...) {
+        static std::atomic<bool> hasWarned{false};
+        if (!hasWarned.exchange(true)) {
+            HCCL_WARNING("[%s] create worker failed, fallback to serial WQE build", __func__);
+        }
+        return false;
+    }
+
+    buildRange(splitIndex, wqeNum, 1);
+    worker.join();
+
+    if (UNLIKELY(buildFailed[0] || buildFailed[1])) {
+        THROW<InternalException>(StringFormat("[%s] build WQE in worker failed", __func__));
+    }
+    if (UNLIKELY(copyRet[0] != 0 || copyRet[1] != 0)) {
+        const s32 ret = copyRet[0] != 0 ? copyRet[0] : copyRet[1];
+        THROW<InternalException>(StringFormat("[%s] memcpy_sp failed, ret = %d", __func__, ret));
+    }
+
+    // 所有SQ slot完成后才发布新PI，确保随后生成的doorbell不会看到半成品WQE。
+    piDetourCount += detourCount[0] + detourCount[1];
+    pi = static_cast<u16>(startPi + wqeNum);
+    return true;
+}
+#endif
+
 void UbConnLite::BatchProcessOneSlice(const RmaBufSliceLite &loc, const RmtRmaBufSliceLite &rmt, u32 maxSliceSize,
                                       bool isLastSlice, const UdmaSqeWrite &sqeTemplate, const StreamLite &stream)
 {
@@ -589,6 +680,12 @@ void UbConnLite::BatchCommDataProcess(const vector<RmaBufSliceLite> &loc, const 
     FillCommSqe(&(sqeTemplate.comm), rmt.front(), cfg, opCode);
 
     const u64 siliceSize = loc.size();
+#ifdef CCL_KERNEL_AICPU
+    if (opCode == UdmaSqOpcode::UDMA_OPC_READ && CanBuildBatchWqeParallel(loc, rmt, maxSliceSize) &&
+        BuildBatchWqeParallel(loc, rmt, sqeTemplate)) {
+        return;
+    }
+#endif
     // 按照UDMA能力切分数据, 组装wqe
     for (u64 i = 0; i < siliceSize; i++) {
         BatchProcessOneSlice(loc[i], rmt[i], maxSliceSize, i == siliceSize - 1, sqeTemplate, stream);
