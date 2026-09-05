@@ -344,6 +344,8 @@ HcommResult CreatePluginEndpoint(const EndpointDesc *endpoint, EndpointHandle *e
         return HCCL_E_MEMORY;
     }
     *endpointHandle = MAKE_PLUGIN_EP_HANDLE(ctx);
+    HCCL_RUN_INFO("[NicPlugin] HOST endpoint created by plugin[%s], protocol[%d], handle[%p].",
+        entry->info->name == nullptr ? "unknown" : entry->info->name, endpoint->protocol, *endpointHandle);
     return HCCL_SUCCESS;
 }
 
@@ -379,6 +381,9 @@ HcommResult CreatePluginChannel(EndpointHandle endpointHandle, const HcommChanne
         return HCCL_E_MEMORY;
     }
     *channelHandle = MAKE_PLUGIN_CH_HANDLE(ctx);
+    HCCL_RUN_INFO("[NicPlugin] channel created by plugin[%s], handle[0x%llx].",
+        endpointCtx->entry->info->name == nullptr ? "unknown" : endpointCtx->entry->info->name,
+        static_cast<unsigned long long>(*channelHandle));
     return HCCL_SUCCESS;
 }
 
