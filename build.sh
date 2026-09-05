@@ -501,7 +501,21 @@ CUSTOM_OPTION="${CUSTOM_OPTION} -DENABLE_SIGN=${ENABLE_SIGN}"
 CUSTOM_OPTION="${CUSTOM_OPTION} -DVERSION_INFO=${VERSION_INFO}"
 CUSTOM_OPTION="${CUSTOM_OPTION} -DPRODUCT=ascend"
 
-# Optional CMake definitions for local device-kernel extensions.
+# Optional vLLM-owned scatter-copy kernel. An explicit source path wins;
+# otherwise discover a sibling or nested checkout automatically.
+if [ -z "${KVCACHE_SCATTER_COPY_HCOMM_SOURCE:-}" ]; then
+    for candidate in \
+        "${CURRENT_DIR}/../vLLM-ascend-DSA-remote-offload-ops/hcomm_kernel/kvcache_scatter_copy_hcomm.cpp" \
+        "${CURRENT_DIR}/vLLM-ascend-DSA-remote-offload-ops/hcomm_kernel/kvcache_scatter_copy_hcomm.cpp"; do
+        if [ -f "${candidate}" ]; then
+            KVCACHE_SCATTER_COPY_HCOMM_SOURCE="$(readlink -f "${candidate}")"
+            break
+        fi
+    done
+fi
+if [ -n "${KVCACHE_SCATTER_COPY_HCOMM_SOURCE:-}" ]; then
+    CUSTOM_OPTION="${CUSTOM_OPTION} -DKVCACHE_SCATTER_COPY_HCOMM_SOURCE=${KVCACHE_SCATTER_COPY_HCOMM_SOURCE}"
+fi
 CUSTOM_OPTION="${CUSTOM_OPTION} ${HCOMM_EXTRA_CMAKE_ARGS:-}"
 set_env
 
