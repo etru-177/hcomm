@@ -56,6 +56,7 @@ void LoadAllNicPlugins();
 const NicPluginEntry *FindHostNicPlugin(CommProtocol protocol);
 bool ValidatePluginInfo(const char *soPath, const HcommNicPluginInfo *info,
     HcommNicPluginCreateEndpointFunc createEndpoint, HcommNicPluginCreateChannelFunc createChannel);
+bool ParseNicPluginForceLoad(const char *value, bool &forceLoad);
 
 HcommResult CreatePluginEndpoint(const EndpointDesc *endpoint, EndpointHandle *endpointHandle);
 HcommResult DestroyPluginEndpoint(EndpointHandle endpointHandle);

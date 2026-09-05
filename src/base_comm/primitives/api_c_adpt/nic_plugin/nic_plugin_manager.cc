@@ -31,6 +31,7 @@ namespace hcomm {
 namespace {
 constexpr const char *HCOMM_NIC_PLUGIN_DIR = "hcomm_plugin";
 constexpr const char *HCOMM_NIC_PLUGIN_SO_ENV = "HCOMM_NIC_PLUGIN_SO";
+constexpr const char *HCOMM_NIC_PLUGIN_FORCE_LOAD_ENV = "HCOMM_NIC_PLUGIN_FORCE_LOAD";
 
 std::once_flag &LoadOnce()
 {
@@ -208,10 +209,20 @@ void LoadPluginsOnce()
 {
     uint32_t deviceCount = 0;
     const aclError ret = aclrtGetDeviceCount(&deviceCount);
-    if (ret == ACL_SUCCESS && deviceCount != 0) {
+    const char *forceLoadValue = getenv(HCOMM_NIC_PLUGIN_FORCE_LOAD_ENV);
+    bool forceLoad = false;
+    if (!ParseNicPluginForceLoad(forceLoadValue, forceLoad)) {
+        HCCL_RUN_WARNING("[NicPlugin] invalid %s value[%s], expected 0 or 1; force loading is disabled.",
+            HCOMM_NIC_PLUGIN_FORCE_LOAD_ENV, forceLoadValue);
+    }
+    if (ret == ACL_SUCCESS && deviceCount != 0 && !forceLoad) {
         HCCL_RUN_INFO("[NicPlugin] plugin loading skipped, aclrtGetDeviceCount ret[%d], count[%u].",
             ret, deviceCount);
         return;
+    }
+    if (ret == ACL_SUCCESS && deviceCount != 0) {
+        HCCL_RUN_WARNING("[NicPlugin] force loading plugins with visible devices, count[%u]; "
+            "only HOST endpoints can use plugin implementations.", deviceCount);
     }
 
     const char *ascendHomePath = getenv("ASCEND_HOME_PATH");
@@ -247,6 +258,19 @@ HcommResult InitPluginCtxOrDestroy(PluginOps *ops, void *pluginCtx)
     return ret;
 }
 } // namespace
+
+bool ParseNicPluginForceLoad(const char *value, bool &forceLoad)
+{
+    forceLoad = false;
+    if (value == nullptr || value[0] == '\0' || strcmp(value, "0") == 0) {
+        return true;
+    }
+    if (strcmp(value, "1") == 0) {
+        forceLoad = true;
+        return true;
+    }
+    return false;
+}
 
 bool ValidatePluginInfo(const char *soPath, const HcommNicPluginInfo *info,
     HcommNicPluginCreateEndpointFunc createEndpoint, HcommNicPluginCreateChannelFunc createChannel)

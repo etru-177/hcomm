@@ -95,6 +95,9 @@ export HCOMM_NIC_PLUGIN_SO=/path/to/libhcomm_cpu_roce_plugin.so:/path/to/libhcom
 - 插件仅对 `EndpointDesc.loc.locType == ENDPOINT_LOC_TYPE_HOST` 的 endpoint 生效。
 - 当前示例插件面向通用服务器 host-only 场景。
 - 当前加载器在检测到 runtime device 数量非 0 时会跳过插件加载。
+- 可见 NPU 的 Host 进程如需验证插件，可设置 `HCOMM_NIC_PLUGIN_FORCE_LOAD=1` 覆盖上述跳过行为。默认值为
+  `0`；仅接受 `0` 或 `1`，非法值按未开启处理。该开关不会让 DEVICE endpoint 使用插件，插件分发仍只对
+  `EndpointDesc.loc.locType == ENDPOINT_LOC_TYPE_HOST` 生效。请勿在不了解进程内 endpoint 类型的生产业务中开启。
 - 多个插件注册同一协议时，后加载的插件会覆盖先加载插件。
 - 插件 ABI 需要匹配 `HcommNicPluginInfo`、`HcommNicEndpointOps`、`HcommNicChannelOps` 中定义的magic word、version和size。
 

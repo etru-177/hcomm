@@ -30,6 +30,19 @@
 using namespace hcomm;
 
 namespace {
+TEST(HcommNicPluginManagerTest, ParseForceLoadAcceptsOnlyZeroAndOne)
+{
+    bool forceLoad = true;
+    EXPECT_TRUE(ParseNicPluginForceLoad(nullptr, forceLoad));
+    EXPECT_FALSE(forceLoad);
+    EXPECT_TRUE(ParseNicPluginForceLoad("0", forceLoad));
+    EXPECT_FALSE(forceLoad);
+    EXPECT_TRUE(ParseNicPluginForceLoad("1", forceLoad));
+    EXPECT_TRUE(forceLoad);
+    EXPECT_FALSE(ParseNicPluginForceLoad("true", forceLoad));
+    EXPECT_FALSE(forceLoad);
+}
+
 struct FakePluginChannelState {
     uint32_t getStatusCalls = 0;
 };

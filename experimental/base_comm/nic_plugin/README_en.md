@@ -95,6 +95,10 @@ Business code does not need to call plugin interfaces directly. When HCOMM creat
 - The plugin only applies to endpoints where `EndpointDesc.loc.locType == ENDPOINT_LOC_TYPE_HOST`.
 - The current example plugins target general server host-only scenarios.
 - The current loader skips plugin loading when it detects that the number of runtime devices is non-zero.
+- A Host process with visible NPUs can set `HCOMM_NIC_PLUGIN_FORCE_LOAD=1` to validate a plugin. The default is `0`;
+  only `0` and `1` are accepted, and invalid values leave force loading disabled. This override does not make DEVICE
+  endpoints use plugins: dispatch remains limited to `EndpointDesc.loc.locType == ENDPOINT_LOC_TYPE_HOST`. Do not
+  enable it in production processes unless all endpoint roles are understood.
 - When multiple plugins register the same protocol, the later-loaded plugin overrides the earlier one.
 - The plugin ABI must match the magic word, version, and size defined in `HcommNicPluginInfo`, `HcommNicEndpointOps`, and `HcommNicChannelOps`.
 
